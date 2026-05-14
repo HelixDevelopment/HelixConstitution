@@ -207,6 +207,28 @@ script present, sync wrapper invokes it, HTML+PDF exports present).
 Paired mutation strips Status column from Fixed_Summary header →
 gate FAILs. Classification: universal (per §11.4.17).
 
+### Operator-blocked status + self-resolution exhaustion (§11.4.21, User mandate 2026-05-14)
+
+`Operator-blocked` is the §11.4.15 Status closed-set's 7th value
+alongside `{Queued | In progress | Ready for testing | In testing |
+Reopened | Fixed (→ Fixed.md)}`. **Last-resort classification** —
+agent MUST first exhaust applicable self-resolution paths:
+(a) CLI / ADB / SSH / API access already available, (b) subagent
+delegation per §11.4.20, (c) existing repo tooling, (d) captured
+fallback (synthetic event / asset substitution / §11.4.3 SKIP),
+(e) external research per §11.4.8. Every `Operator-blocked` item
+MUST carry `**Operator-Block-Details:**` within 8 non-blank lines
+of its heading stating WHAT (action) / WHY (each exhausted
+alternative) / UNBLOCK CONDITION (observable signal) / WHO (contact
+or doc pointer). `Issues_Summary.md` lists it as a sortable Status
+value. Items re-evaluated every Nth tag cycle (≥3rd recommended).
+Fake `Operator-blocked` without exhaustion audit = §11.4 covenant
+violation at planning layer (PASS-bluff equivalent). Gates
+`CM-ITEM-OPERATOR-BLOCKED-DETAILS` + `CM-OPERATOR-BLOCKED-SELF-
+RESOLUTION-AUDIT` (every NEW Operator-blocked commit carries an
+"Attempted: a — ...; b — ...; c — ..." trail). Classification:
+universal (per §11.4.17). No escape hatch.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

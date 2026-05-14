@@ -319,6 +319,33 @@ present. Paired mutation strips Status column from Fixed_Summary
 table header → gate FAILs. Classification: universal (per §11.4.17).
 No escape hatch.
 
+### §11.4.21 — Operator-blocked status + self-resolution exhaustion (User mandate, 2026-05-14)
+
+`Operator-blocked` is the §11.4.15 Status closed-set's 7th value:
+`{Queued | In progress | Ready for testing | In testing | Reopened |
+Operator-blocked | Fixed (→ Fixed.md)}`. It is a **last-resort
+classification**, earned only after the agent documents exhaustion
+of every applicable self-resolution path: (a) CLI / ADB / SSH / API
+access already available, (b) subagent delegation per §11.4.20,
+(c) existing repo tooling (scripts / helpers / libraries),
+(d) captured fallback (synthetic event, asset substitution, mock,
+§11.4.3 topology SKIP), (e) external research per §11.4.8.
+Every `Operator-blocked` item MUST carry an
+`**Operator-Block-Details:**` line within 8 non-blank lines of its
+heading stating: **WHAT** (concrete action), **WHY** (each
+exhausted alternative enumerated), **UNBLOCK CONDITION**
+(observable signal), **WHO** (handle / contact / doc pointer).
+`Issues_Summary.md` lists `Operator-blocked` as a sortable Status
+value. Items MUST be re-evaluated every Nth tag cycle (project-
+defined, recommended ≥3rd cycle) — operator dependencies change.
+Fake `Operator-blocked` (no exhaustion audit) is a §11.4 covenant
+violation at the planning layer, severity-equivalent to a PASS-bluff.
+Gates: `CM-ITEM-OPERATOR-BLOCKED-DETAILS` (every Operator-blocked
+heading has the details line), `CM-OPERATOR-BLOCKED-SELF-RESOLUTION-
+AUDIT` (NEW Operator-blocked commits contain "Attempted: a — ...;
+b — ...; c — ..." trail). Classification: universal (per §11.4.17).
+No escape hatch.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
