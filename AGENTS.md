@@ -229,6 +229,25 @@ RESOLUTION-AUDIT` (every NEW Operator-blocked commit carries an
 "Attempted: a — ...; b — ...; c — ..." trail). Classification:
 universal (per §11.4.17). No escape hatch.
 
+### Document-sync commit discipline (§11.4.22, User mandate 2026-05-14)
+
+Every project tracking work items through an Issues / Fixed lifecycle
+MUST provide a **lightweight commit path** distinct from the full-repo
+commit wrapper. Stages, commits, pushes ONLY the status-tracking doc
+set: Issues + Issues_Summary + Fixed + Fixed_Summary + CONTINUATION +
+their HTML + PDF exports + auto-generated audit artifact. Wrapper
+MUST: (a) auto-invoke the project's export-regeneration pipeline
+first so Markdown + HTML + PDF stay in sync; (b) stage ONLY the
+explicit doc-set list — NEVER `git add -A`; (c) use a separate flock
+disjoint from the full-tree wrapper; (d) push to every parent-repo
+remote; (e) exit `3` on nothing-to-commit (informational). MUST be
+invocable standalone OR via a delegation flag on the full-tree
+wrapper (e.g. `commit_all.sh --docs-only`). Inherits §9 preflight.
+Gate `CM-COMMIT-DOCS-EXISTS` + paired mutation. Composes with
+§11.4.12 / §11.4.15 / §11.4.18 / §12.10. Classification: universal
+(per §11.4.17). No escape hatch — doc-status drift is a §11.4
+PASS-bluff at the documentation layer.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

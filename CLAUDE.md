@@ -346,6 +346,32 @@ AUDIT` (NEW Operator-blocked commits contain "Attempted: a — ...;
 b — ...; c — ..." trail). Classification: universal (per §11.4.17).
 No escape hatch.
 
+### §11.4.22 — Document-sync commit discipline (User mandate, 2026-05-14)
+
+Every project tracking work items through an Issues / Fixed lifecycle
+MUST provide a **lightweight commit path** distinct from the full-repo
+commit wrapper. The lightweight path stages, commits, and pushes ONLY
+the status-tracking doc set — Issues + Issues_Summary + Fixed +
+Fixed_Summary + CONTINUATION + their HTML + PDF exports + any
+auto-generated audit artifact — so doc-status never drifts behind
+working-tree reality when the full-repo wrapper is unavailable
+(in-flight rebase, large submodule churn, partial network). The
+wrapper MUST: (a) auto-invoke the project's export-regeneration
+pipeline first so Markdown + HTML + PDF stay in sync; (b) stage ONLY
+the explicit doc-set list — NEVER `git add -A`; (c) use a separate
+flock disjoint from the full-tree wrapper's lock; (d) push to every
+parent-repo remote; (e) exit `3` on nothing-to-commit (informational,
+not error). The wrapper MUST be invocable standalone OR as a
+delegation flag on the full-tree wrapper (e.g. `commit_all.sh
+--docs-only`) so operators have a single mental model. Inherits the
+project's §9 preflight discipline (refuses to run mid-meta-test).
+Gate `CM-COMMIT-DOCS-EXISTS` verifies wrapper + guide + flag +
+doc-set enumeration. Paired mutation strips the doc-set array → gate
+FAILs. Classification: universal (per §11.4.17). Composes with
+§11.4.12 (export-sync), §11.4.15 (status tracking), §11.4.18 (script
+documentation), §12.10 (CONTINUATION maintenance). No escape hatch —
+doc-status drift is a §11.4 PASS-bluff at the documentation layer.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
