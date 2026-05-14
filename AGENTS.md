@@ -248,6 +248,26 @@ Gate `CM-COMMIT-DOCS-EXISTS` + paired mutation. Composes with
 (per §11.4.17). No escape hatch — doc-status drift is a §11.4
 PASS-bluff at the documentation layer.
 
+### Build-resource stats tracking (§11.4.24, User mandate 2026-05-14)
+
+Every project under this Constitution with a build exceeding 1 minute
+wall-clock MUST run a host-side resource sampler for every build —
+samples /proc/meminfo + /proc/loadavg + /proc/stat + /proc/diskstats
+at a fixed interval (recommended 5 s); writes TSV. On stop, computes
+**min / max / mean / p95** per metric; appends one TSV row per build
+to a registry; regenerates a Markdown report (Stats.md) whose top
+surfaces **ever-values** (min / max / mean across all tracked builds)
+and whose body lists per-build entries most-recent-first with SUCCESS /
+FAIL / UNKNOWN + reason. Stats.md exported to Stats.html + Stats.pdf
+through the project's normal export pipeline per §11.4.12. Triple
+committed via the §11.4.22 lightweight doc-sync wrapper. Sampler MUST
+stay under 50 MB RSS / 5% CPU. Stop hook called from both success AND
+failure paths of the build wrapper. Gate `CM-BUILD-RESOURCE-STATS-TRACKER`
++ paired mutation. Classification: mixed (per §11.4.17). Composes with
+§11.4.12 / §11.4.18 / §11.4.22 / §12.6 / §12.7 / §12.9. No escape hatch —
+build-resource debugging without time-series data is the bluff this
+anchor forbids.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

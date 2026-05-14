@@ -372,6 +372,30 @@ FAILs. Classification: universal (per §11.4.17). Composes with
 documentation), §12.10 (CONTINUATION maintenance). No escape hatch —
 doc-status drift is a §11.4 PASS-bluff at the documentation layer.
 
+### §11.4.24 — Build-resource stats tracking mandate (User mandate, 2026-05-14)
+
+Every project under this Constitution with a build exceeding 1 minute
+wall-clock MUST run a host-side resource sampler for every build that
+captures memory used, CPU%, load average, disk read/write at a fixed
+interval (recommended 5 s) and computes per-metric **min / max / mean
+/ p95** at stop. Per-build summaries appended to a TSV registry; the
+registry is the single source of truth — the human-readable Markdown
+report (and its HTML + PDF exports per §11.4.12) is derived. Top of
+the report MUST surface **ever-values** (min / max / mean across all
+tracked builds). Per-build entries sorted most-recent-first; each row
+carries SUCCESS / FAIL / UNKNOWN + reason for FAIL. Sampler MUST itself
+stay under 50 MB RSS and 5% CPU (Heisenberg-class observer constraint).
+Stop hook MUST be called from both success AND failure paths of the
+build wrapper. The Stats.{md,html,pdf} triple is committed via the
+project's §11.4.22 lightweight doc-sync wrapper. Gate
+`CM-BUILD-RESOURCE-STATS-TRACKER` + paired mutation hiding the monitor
+aside → gate FAILs. Classification: mixed (per §11.4.17) — the discipline
+universal, the implementation paths project-specific. Composes with
+§11.4.12 / §11.4.18 / §11.4.22 / §12.6 / §12.7 / §12.9 (the host-safety
+forensic anchors are the empirical motivation for this telemetry). No
+escape hatch — build-resource debugging without time-series data is the
+bluff this anchor forbids.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
