@@ -186,6 +186,27 @@ be updated in the SAME commit. **No documentation ever out of sync
 with its codebase.** Gate `CM-SCRIPT-DOCS-SYNC` enforces. Paired
 mutation strips the invariant.
 
+### Fixed-document column-alignment (§11.4.19, User mandate 2026-05-14)
+
+The closed-archive tracker (`Fixed.md`) MUST mirror the open-work
+tracker (`Issues.md` + `Issues_Summary.md`) along the same lifecycle
+axes — at minimum **Status** and **Type**. Concretely: (1) every
+`### ` / `#### ` heading in `Fixed.md` carries `**Status:**` (from
+closed-set `{Fixed (→ Fixed.md) | Fixed — pending device verification
+| Fixed — RECLASSIFIED}`) and `**Type:**` (`{Bug | Feature | Task}`)
+within 8 non-blank lines of the heading; (2) `Fixed_Summary.md`
+companion exists with column structure `# | Level | Status | Type |
+One-line description` matching `Issues_Summary.md` exactly;
+(3) all three formats (`.md`, `.html`, `.pdf`) for BOTH Fixed and
+Fixed_Summary stay in sync via the same single-shot wrapper that
+handles Issues + Issues_Summary; (4) closure is atomic — resolved
+items migrate from Issues.md to Fixed.md in the same commit.
+Pre-build gate `CM-FIXED-COLUMN-ALIGNMENT` (5+ invariants:
+file-exists, header-has-Status+Type, mtime ≥ Fixed.md, generator
+script present, sync wrapper invokes it, HTML+PDF exports present).
+Paired mutation strips Status column from Fixed_Summary header →
+gate FAILs. Classification: universal (per §11.4.17).
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**
