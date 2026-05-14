@@ -813,6 +813,78 @@ last N commits for rule additions and asserts each one carries a
 classification statement. Paired mutation strips the classification
 literal and asserts the gate FAILs.
 
+### §11.4.20 — Subagent-driven-by-default mandate (User mandate, 2026-05-14)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-14):**
+
+> "Make sure we ALWAYS WORK EVERYTHING subagents-driven if it is
+> possible or applicable!"
+
+When operating in a multi-agent runtime (Claude Code with subagents,
+Cursor with task-runners, Aider with sub-sessions, or any CLI tool
+that supports delegated execution), the primary agent MUST default
+to subagent delegation for any task that satisfies AT LEAST ONE of:
+
+1. **Multi-step scope** — three or more discrete editing / file-creation
+   / verification phases. Hand-off boundaries are where stalls happen;
+   pre-planned subagent decomposition avoids them.
+2. **Parallelisable work** — two or more independent tasks with no
+   shared mutable state. Parallel subagents finish wall-clock-faster
+   than sequential foreground work AND insulate the primary agent's
+   context window from the volume of file reads.
+3. **Long-running diagnostic loops** — repeated probe / re-test cycles,
+   build-flash-cycle loops, soak tests. Subagents survive context
+   compression boundaries that would otherwise truncate progress.
+4. **Domain-specific or specialised workflows** — code review,
+   security audit, infrastructure change review, performance triage,
+   documentation propagation across N files. Specialised subagents
+   (`code-reviewer`, `iac-reviewer`, `general-purpose`) bring
+   pre-curated tool sets and disciplines the primary agent would
+   re-derive from scratch.
+
+The primary agent SHOULD only do foreground work when AT LEAST ONE of:
+
+- The task is a single edit or single file read with no follow-up.
+- The task requires conversational clarification with the operator
+  mid-execution (subagents cannot ask the operator questions).
+- The task is gating critical state (a commit, a push, a tag
+  cascade) that must be sequenced before the next operator action.
+- The task is so quick (under ~30 seconds of execution) that
+  subagent spin-up overhead exceeds the work itself.
+
+**Anti-stall discipline.** Subagents have watchdog timeouts in most
+runtimes (Claude Code: ~600 s of no-progress). When delegating, the
+parent agent MUST: (a) scope tightly (no "complete everything"
+prompts — break into 4-6 tightly-scoped tasks); (b) require
+**checkpoint commits** after each major task so partial progress is
+preserved even on stall; (c) explicitly prohibit destructive
+operations the subagent might attempt to "be helpful" (`git reset
+--hard`, `git push --force`, `--no-verify`); (d) provide explicit
+discipline pointers (§11.4.6 no-guessing, §11.4.10 credentials,
+§11.4.17 classification).
+
+**Anti-bluff applied.** A subagent that returns "completed" without
+captured evidence in commits / outputs / artifacts is a §11.4
+PASS-bluff at the multi-agent layer. The parent agent MUST verify
+subagent claims against repo state (`git log`, `git status`,
+post-completion gate runs) before treating the work as landed.
+
+**Coordination.** When parallel subagents touch overlapping files,
+the parent agent MUST partition the work so subagents work on
+**non-overlapping files**. The parent's `commit_all.sh --auto-cascade`
+naturally bundles both subagents' dirty files into atomic commits
+via `git add -A` — exploit this for "forward-reference + provider"
+patterns where one subagent creates files another subagent references.
+
+**No escape hatch.** Operating exclusively in the foreground when
+subagent delegation is feasible burns operator wall-clock time, risks
+context-window overflow on large tasks, and forfeits the parallelism
+that multi-agent runtimes were designed to provide. Pre-build gate
+`CM-SUBAGENT-DELEGATION-AUDIT` (when implemented per consuming
+project) scans recent session transcripts for multi-step foreground
+work that should have been delegated; paired mutation enforces the
+gate is not a bluff.
+
 ### §11.4.18 — Script documentation mandate (User mandate, 2026-05-14)
 
 **Forensic anchor — direct user mandate (verbatim, 2026-05-14):**
@@ -873,6 +945,109 @@ This mandate composes with §11.4.11 (file-layout discipline — docs
 live under `docs/`, scripts live under `scripts/`) and §11.4.12
 (auto-generated docs sync — the on-disk Markdown + its rendered
 HTML/PDF must all stay synchronised).
+
+### §11.4.19 — Fixed-document column-alignment mandate (User mandate, 2026-05-14)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-14):**
+
+> "Make sure that Fixed document (all 3 file formats) is consistent
+> and has the same structure and columns as Issues and Issues_Summary
+> documents! This has to be added as detail to Constitution, CLAUDE.MD
+> and AGENTS.MD (constitution Submodule where these information shall
+> exist)."
+
+Every project that maintains an Issues / open-work tracker AND a
+Fixed / closed-archive tracker MUST keep the two structurally
+aligned along the same lifecycle axes — at minimum **Status** and
+**Type** — so an operator reading either gets a consistent view
+across the entire lifecycle (open → in progress → ready for testing
+→ in testing → reopened → fixed).
+
+Specifically:
+
+1. **Per-entry annotation.** Every heading in the Fixed archive
+   document MUST carry, within 8 non-blank lines of the heading,
+   a `**Status:**` line and a `**Type:**` line — exactly as
+   §11.4.15 + §11.4.16 require for the Issues tracker. For Fixed
+   entries the Status value is drawn from the **closure-set**:
+   - `Fixed (→ Fixed.md)` — fully verified on device with captured
+     evidence per §11.4.5.
+   - `Fixed — pending device verification` — source-side fix
+     landed, regression-protection gate wired, awaiting the next
+     firmware build + flash + cycle for captured evidence.
+   - `Fixed — RECLASSIFIED` — item was reclassified during
+     investigation (test-side defect, environment-only, etc.).
+
+   Type values follow §11.4.16: `Bug` | `Feature` | `Task`. Default
+   on missing-annotation: `Task`.
+
+2. **Auto-generated companion summary.** A `Fixed_Summary.md` MUST
+   exist alongside `Fixed.md`, regenerated by an automation script
+   (e.g. `generate_fixed_summary.sh`), and MUST mirror the column
+   structure of `Issues_Summary.md` exactly:
+
+   `| # | Level | Status | Type | One-line description |`
+
+   The `Level` (severity) column uses the **original severity** the
+   item had when it was open — so an operator can correlate a
+   closed item with its original priority bucket. The same
+   deterministic classification rules apply (REAL PRODUCT DEFECT /
+   PARTIAL-or-WORKSTREAM-or-DEEP-DIVE / everything-else mapping to
+   C / M / L).
+
+3. **Three-format sync.** All three file types (`.md`, `.html`,
+   `.pdf`) for BOTH the Fixed archive AND the Fixed_Summary MUST
+   stay in sync at all times — same `.html` + `.pdf` export pipeline
+   that §11.4.12 requires for Issues + Issues_Summary. The
+   single-shot sync wrapper (e.g. `sync_issues_docs.sh`) MUST
+   invoke the Fixed_Summary generator AND export all five doc
+   variants (Issues, Issues_Summary, Fixed, Fixed_Summary,
+   CONTINUATION) in one operation so they all carry the same mtime.
+
+4. **Cross-lifecycle consistency.** A status line in Issues.md that
+   reads `Fixed (→ Fixed.md)` is a **migration marker**, not a
+   self-describing closure: when an Issues.md entry resolves, it
+   MUST be moved to Fixed.md in the same commit, then disappear
+   from Issues_Summary (because Issues_Summary only enumerates OPEN
+   items) and appear in Fixed_Summary (because Fixed_Summary
+   enumerates CLOSED items). Per §11.4.4 fix-closure protocol +
+   §11.4.5 captured-evidence requirement, the migrated entry in
+   Fixed.md MUST carry: closure cycle, closure commit SHA, captured
+   evidence pointer, regression-protection gate name + paired
+   mutation reference.
+
+**Pre-build gate `CM-FIXED-COLUMN-ALIGNMENT`** (5+ invariants):
+   - `docs/Fixed_Summary.md` exists.
+   - `docs/Fixed_Summary.md` table header line contains both
+     `Status` and `Type` columns (column-alignment with Issues_Summary).
+   - `mtime(Fixed_Summary.md) >= mtime(Fixed.md)` (regenerated after
+     Fixed.md edits).
+   - Generator script exists (`generate_fixed_summary.sh` or
+     equivalent integrated branch in `generate_issues_summary.sh`).
+   - Sync wrapper invokes the Fixed_Summary generator (grep for
+     the script name in `sync_issues_docs.sh` or equivalent).
+   - HTML + PDF exports for both Fixed and Fixed_Summary exist
+     (`docs/Fixed.html`, `docs/Fixed.pdf`, `docs/Fixed_Summary.html`,
+     `docs/Fixed_Summary.pdf`).
+
+**Paired mutation**: strip the Status column from
+`Fixed_Summary.md` table header (or rename the generator) → gate
+FAILs. Enforced by `meta_test_false_positive_proof.sh`.
+
+**Propagation.** This anchor is a §11.4.17-classified **universal**
+rule — it composes naturally with §11.4.12 (auto-generated docs
+sync), §11.4.15 (Status tracking), §11.4.16 (Type tracking) and is
+mandatory across every consuming project's CLAUDE.md / AGENTS.md.
+The propagation gate `CM-COVENANT-114-19-PROPAGATION` (when
+implemented per consuming project) enforces the anchor's presence
+in every covenant file.
+
+**No escape hatch.** A Fixed archive that lacks Status/Type columns
+or whose Summary companion drifts out of sync is the exact
+"different lifecycles report different facts" hazard §11.4 forbids
+— an operator reading Issues_Summary can no longer answer "where is
+item X now?" by cross-referencing Fixed_Summary because the schemas
+diverge. Non-compliance is a release blocker regardless of context.
 
 ---
 

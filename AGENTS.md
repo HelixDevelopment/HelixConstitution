@@ -155,6 +155,23 @@ rationale. When uncertain, default to project-specific. Gate
 `CM-UNIVERSAL-VS-PROJECT-CLASSIFICATION` audits new rule commits.
 Paired mutation enforces the gate is not a bluff.
 
+### Subagent-driven-by-default (§11.4.20, User mandate 2026-05-14)
+
+When the runtime supports subagent delegation (Agent tool / task
+runner / sub-session), the primary agent MUST default to subagent
+delegation for multi-step scope (≥3 phases), parallelisable
+independent subtasks, long-running diagnostic loops, OR specialised
+domain workflows. Foreground-only is reserved for single-file edits,
+mid-execution operator clarification, critical-state sequencing
+(commits / pushes / tags), or tasks under ~30s. Discipline: tight
+scope (4-6 tasks), checkpoint commits per task, anti-stall protection
+in prompts, anti-bluff verification of subagent claims via repo
+state. Parallel subagents MUST partition non-overlapping files;
+parent `commit_all.sh --auto-cascade` bundles via `git add -A`.
+Gate `CM-SUBAGENT-DELEGATION-AUDIT` (per consuming project) flags
+foreground multi-step work as a violation. Paired mutation enforces
+the gate is not a bluff.
+
 ### Script documentation mandate (§11.4.18, User mandate 2026-05-14)
 
 Every Bash / shell / POSIX-sh script under `scripts/` / `bin/` /

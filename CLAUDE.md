@@ -254,6 +254,25 @@ is expensive). Pre-build gate `CM-UNIVERSAL-VS-PROJECT-CLASSIFICATION`
 audits new rule commits for the classification statement; paired
 mutation strips it and asserts gate FAILs.
 
+### §11.4.20 — Subagent-driven-by-default mandate (User mandate, 2026-05-14)
+
+When the runtime supports subagent delegation (Claude Code Agent
+tool, Cursor task-runners, Aider sub-sessions, etc.), the primary
+agent MUST default to subagent delegation for any task that has
+multi-step scope (≥3 phases), parallelisable independent subtasks,
+long-running diagnostic loops, OR specialised domain workflows
+(code review, security audit, doc propagation). Foreground-only is
+reserved for single-file edits, mid-execution operator clarification,
+critical-state sequencing (commits / pushes / tags), or tasks so
+quick that subagent overhead exceeds the work. Sub-discipline:
+**tight scope** (4-6 tasks, not "do everything"), **checkpoint
+commits** after each major task, **anti-stall protection** explicit
+in prompts, **anti-bluff verification** of subagent claims via repo
+state. Parallel subagents MUST partition non-overlapping files;
+`commit_all.sh --auto-cascade` bundles both via `git add -A`. Gate
+`CM-SUBAGENT-DELEGATION-AUDIT` (when implemented in consuming
+project) flags foreground multi-step work as a §11.4.20 violation.
+
 ### §11.4.18 — Script documentation mandate (User mandate, 2026-05-14)
 
 Every Bash / shell / POSIX-sh script anywhere in a project
@@ -273,6 +292,32 @@ companion `docs/scripts/<name>.md` exists, AND verifies doc was
 modified in the same commit (or doc-mtime ≥ script-mtime as a
 softer floor). Paired mutation strips the doc-sync invariant
 and asserts gate FAILs.
+
+### §11.4.19 — Fixed-document column-alignment mandate (User mandate, 2026-05-14)
+
+Every project that maintains an open-work tracker AND a closed-archive
+tracker MUST keep the two structurally aligned along the same lifecycle
+axes (Status + Type). For the Fixed archive that means: (1) every
+`### ` / `#### ` heading in `Fixed.md` (or equivalent) carries a
+`**Status:**` line and a `**Type:**` line within 8 non-blank lines of
+its heading; (2) a `Fixed_Summary.md` companion exists with the same
+column structure as `Issues_Summary.md` (`# | Level | Status | Type |
+One-line description`); (3) all three file formats (`.md` + `.html` +
+`.pdf`) for BOTH `Fixed.md` and `Fixed_Summary.md` stay in sync via
+the same single-shot wrapper that handles Issues + Issues_Summary;
+(4) closure migration is atomic — when an Issues entry resolves it
+moves to Fixed.md in the same commit, disappears from Issues_Summary
+(open-only), and appears in Fixed_Summary (closed-only). Status
+values for closed items are drawn from `{Fixed (→ Fixed.md) | Fixed —
+pending device verification | Fixed — RECLASSIFIED}`. Type values
+follow §11.4.16: `{Bug | Feature | Task}`. Pre-build gate
+`CM-FIXED-COLUMN-ALIGNMENT` (5+ invariants) — Fixed_Summary.md
+exists, table header carries Status+Type columns, mtime
+(Fixed_Summary ≥ Fixed), generator script present, sync wrapper
+invokes it, HTML+PDF exports for both Fixed and Fixed_Summary
+present. Paired mutation strips Status column from Fixed_Summary
+table header → gate FAILs. Classification: universal (per §11.4.17).
+No escape hatch.
 
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
