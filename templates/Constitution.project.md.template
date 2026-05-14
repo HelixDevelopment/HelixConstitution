@@ -1,0 +1,49 @@
+# <PROJECT NAME> Constitution
+
+This constitution **extends** the Helix Universal Constitution at
+`constitution/Constitution.md`. All clauses there apply unless
+explicitly overridden below.
+
+## Project Articles
+
+### §101. <project-specific invariant>
+
+<text>
+
+### §102. <project-specific invariant>
+
+<text>
+
+---
+
+## Overrides of Universal Constitution
+
+(rare — every override MUST be justified explicitly here)
+
+### Override §X.Y — <reason>
+
+<the override>
+
+---
+
+## Owned-submodule set
+
+(per Universal §4 — list the submodules this project owns and tags)
+
+```
+<path/to/submodule-1>
+<path/to/submodule-2>
+```
+
+Third-party submodules excluded.
+
+---
+
+## Project-specific remotes
+
+| Repo | Remotes |
+|---|---|
+| Main | <list> |
+| <submodule-1> | <list> |
+
+---

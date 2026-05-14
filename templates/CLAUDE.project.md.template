@@ -1,0 +1,55 @@
+# <PROJECT NAME> — CLAUDE.md
+
+## INHERITED FROM constitution/CLAUDE.md
+
+All rules in `constitution/CLAUDE.md` and the
+`constitution/Constitution.md` it references apply unconditionally to
+this project. Project-specific rules below extend them — they do NOT
+weaken or override any universal clause.
+
+When this file disagrees with the constitution submodule, the
+constitution wins.
+
+@constitution/CLAUDE.md
+
+---
+
+## Project overview
+
+<one-paragraph project description>
+
+## Project-specific MANDATORY constraints
+
+### Build / packaging
+
+<project-specific build commands, image-packaging rules, image format>
+
+### Test / verification
+
+<project-specific test scripts, gates, suites>
+
+### Deployment / flash / publish
+
+<project-specific deployment / flash / release scripts>
+
+### Project-specific Applied Fixes Reference
+
+| # | Fix | Key files |
+|---|---|---|
+| 1 | <…> | <…> |
+
+### Project-specific architecture notes
+
+<critical project architecture / hardware quirks / vendor caveats>
+
+---
+
+## Project overrides of universal rules
+
+(rare — every override MUST be justified explicitly here)
+
+### Override §X.Y — <reason>
+
+<the override>
+
+---

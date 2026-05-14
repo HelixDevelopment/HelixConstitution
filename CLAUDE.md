@@ -1,0 +1,344 @@
+# Helix Constitution — Universal CLAUDE.md
+
+> This is the **base CLAUDE.md** imported by every project that includes
+> the Helix Constitution submodule. Project-level `CLAUDE.md` may
+> extend or tighten any rule by adding an explicit
+> `Override: <section>` block — but MUST NOT weaken them.
+>
+> Last revision: 2026-05-14
+
+## How inheritance works
+
+A consuming project's root `CLAUDE.md` MUST start with a clearly-marked
+inheritance pointer:
+
+```markdown
+## INHERITED FROM constitution/CLAUDE.md
+
+All rules in `constitution/CLAUDE.md` (and the `constitution/Constitution.md`
+it references) apply unconditionally. The project-specific rules below
+extend them.
+```
+
+Claude Code supports the `@path/to/file` import syntax natively, so a
+consuming project can also write `@constitution/CLAUDE.md` at the top
+of its own CLAUDE.md and Claude Code will resolve it recursively. For
+agents that do not support `@imports`, the pointer-block pattern above
+ensures the inheritance is at least readable.
+
+## MANDATORY DEVELOPMENT PRINCIPLES
+
+**NO BLUFF. Every change ships with positive-evidence validation on
+the real target environment. A test that passes without exercising
+the user-visible behaviour is a critical defect.**
+
+(Constitution §7.1 + §11.4 — these references point to
+`constitution/Constitution.md`.)
+
+**CRITICAL: All code changes MUST follow these principles WITHOUT
+EXCEPTION:**
+
+1. **Solutions MUST NOT be error-prone.** Every fix must be robust,
+   not introduce new failure modes. If a fix solves problem A but
+   creates problem B, it is NOT acceptable. Test the fix against
+   ALL existing functionality before committing.
+2. **No blocking operations inside synchronized / shared-lock
+   regions.** Long computations, network calls, or sleeps inside
+   `synchronized` / `Lock`-held regions cause deadlocks or timeouts
+   in other threads.
+3. **Always consider concurrent callers.** Any method called from
+   multiple threads must be safe for rapid consecutive calls.
+4. **Test the fix, not just the symptom.** Verify the fix works AND
+   doesn't break anything else.
+5. **Anti-bluff is mandatory** (Constitution §7.1) — every runtime
+   test MUST source the project anti-bluff helper, call at least
+   one explicit user-visible action before any PASS, capture state
+   delta, and assert positive evidence.
+6. **Real captured evidence for audio/video** (Constitution §7.1 +
+   §11.4.5) — features producing audio output validated via
+   captured audio; features producing video output validated via
+   captured frames + OCR or pixel-diff.
+
+## MANDATORY ANTI-BLUFF COVENANT — END-USER QUALITY GUARANTEE
+
+**Forensic anchor — verbatim user mandate (2026-04-28):**
+
+> "We had been in position that all tests do execute with success and all Challenges as well, but in reality the most of the features does not work and can't be used! This MUST NOT be the case and execution of tests and Challenges MUST guarantee the quality, the completion and full usability by end users of the product!"
+
+This is the historical origin of the project's anti-bluff covenant.
+Every test, every Challenge, every gate, every mutation pair exists
+to make the failure mode (PASS on broken-for-end-user feature)
+mechanically impossible.
+
+**Operative rule:** the bar for shipping is **not** "tests pass"
+but **"users can use the feature."** Every PASS MUST carry
+positive evidence captured during execution that the feature works
+for the end user. Metadata-only PASS, configuration-only PASS,
+"absence-of-error" PASS, and grep-based PASS without runtime
+evidence are all critical defects regardless of how green the
+summary line looks.
+
+Tests AND Challenges (HelixQA, integration suites, smoke tests,
+acceptance suites) are bound equally — a Challenge that scores
+PASS on a non-functional feature is the same class of defect as a
+unit test that does.
+
+**Canonical authority:** `constitution/Constitution.md` §11.4 and
+its sub-sections §11.4.1 through §11.4.15.
+
+Non-compliance is a release blocker regardless of context.
+
+### §11.4.1 — FAIL-bluffs are equally forbidden
+
+A test that crashes for a script-internal reason (undefined variable
+under `set -u`, regex error, malformed assertion, missing argument)
+and produces a FAIL exit code is just as misleading as a PASS-bluff.
+Both let real defects ship undetected. Every test MUST fail ONLY for
+genuine product defects — script-bug failures must be fixed at the
+source layer (helper library, shared lib, test source), not patched
+in individual call sites.
+
+### §11.4.2 — Recorded-evidence requirement
+
+A test that emits PASS without captured visual or audio evidence of
+the user-visible feature actually working on the screen the user
+would see is a §11.4 PASS-bluff. Every PASS for a user-visible
+feature MUST be cross-checked against captured recording + action
+timeline.
+
+### §11.4.3 — Per-environment-topology test dispatch
+
+Tests that depend on environment topology MUST detect topology at
+test entry and dispatch the topology-appropriate variant.
+SKIP-with-reason is the correct fallback when the required topology
+is absent; PASS-by-default is forbidden.
+
+### §11.4.4 — Test-interrupt-on-discovery + retest-from-clean-baseline
+
+The moment any defect is re-discovered, re-produced, or newly
+identified during a test cycle, the cycle MUST stop. Then: systematic
+debugging → fix at root cause → four-layer test coverage (pre-build /
+post-build / runtime / meta-test paired mutation) → full rebuild →
+re-deploy on every target → full retest from beginning.
+
+### §11.4.5 — Captured-evidence quality analysis
+
+Audio: presence (RMS amplitude), channel count, sample rate + bit
+depth, glitch census, coexistence-artifact census. Video: presence
+(non-zero frame count), routing target, frame health (drops /
+jitter / freeze), obstruction census (OCR for hostile overlays),
+resolution + codec. Every check is required for every PASS.
+
+### §11.4.6 — No-guessing mandate
+
+**Forensic anchor — verbatim user mandate (2026-05-08):**
+
+> "'LIKELY' is guessing, we MUST NOT have guessing, since it can be
+> or may not be! No bluffing and uncertainity is allowed at any cost!
+> We MUST always know exactly precisly what is happening exactly, in
+> any context, under any conditions, everywhere!"
+
+Forbidden vocabulary in tests / gates / status reports / closure
+narratives / commit messages when describing causes:
+`likely`, `probably`, `maybe`, `might`, `possibly`, `presumably`,
+`seems`, `appears to`, `guess`, `seemingly`, `apparently`,
+`perhaps`, `supposedly`, `conjectured`, and synonyms.
+
+Either prove the cause with captured forensic evidence and state it
+as fact, OR explicitly mark `UNCONFIRMED:` / `UNKNOWN:` /
+`PENDING_FORENSICS:` with a tracked-task ID for follow-up.
+
+### §11.4.7 — Demotion-evidence rule
+
+Demotion from a FAIL classification to a lower-severity
+classification requires positive evidence captured under the SAME
+CONDITIONS (same target, same build, same cycle position, same load
+profile) that originally exposed the defect. "I cannot reproduce in
+isolation" is a hypothesis, not a finding.
+
+### §11.4.8 — Deep-web-research-before-implementation
+
+Before designing a non-trivial fix, perform deep web research:
+official docs, vendor technical guides, open-source codebases,
+coding tutorials, issue trackers. Every non-trivial fix's commit
+message (or accompanying entry) MUST cite at least one external
+source OR the literal "NO external solution found — original work".
+
+### §11.4.9 — Batch-source-fixes-before-rebuild
+
+All source-side fixes that DO NOT require runtime validation to
+design MUST be landed BEFORE the next artifact rebuild. The
+anti-pattern of "fix A → rebuild → flash → cycle → fix B → rebuild
+→ ..." serializes operator time onto rebuild latency.
+
+### §11.4.10 — Credentials-handling mandate
+
+**Forensic anchor — verbatim user mandate (2026-05-12):**
+
+> "Credentials or any secret and sensitive data MUST NOT leak!"
+
+Credentials MUST NEVER be tracked in git. `.env` / `.env.*` / `*.env`
+patterns + `scripts/testing/secrets/*` (with `.example` + README.md
+exception) git-ignored project-wide. Test scripts MUST NEVER print
+or log credentials. Per-service file separation limits blast radius.
+`chmod 600` on credential files, `chmod 700` on parent directory.
+Rotation on suspected leak.
+
+### §11.4.11 — File-layout discipline
+
+Project files organised by purpose, not historical accident. Source
+under canonical project roots. Tests under canonical test
+directories. Logs and forensic artifacts under operator-controlled
+directories — never scattered at repo root, never tracked unless
+they are reference assets.
+
+### §11.4.12 — Auto-generated docs sync
+
+Every auto-generated document MUST be regenerated in the same
+commit as any edit to its source. All output formats (.md + .html +
+.pdf) MUST stay in sync at all times.
+
+### §11.4.13 — Out-of-band sink-side captured-evidence
+
+Whenever a downstream consumer (HDMI sink, cloud monitor, downstream
+service) provides a network-accessible introspection API that
+reports what was actually received, the test suite MUST consume that
+report as captured-evidence. The on-source-side view alone is
+insufficient.
+
+### §11.4.14 — Test playback cleanup
+
+Every test MUST leave the target in a quiescent state. Cleanup
+mandatory on every exit path (`trap '<cleanup>' EXIT`). The
+orchestrator MUST run a post-test sanity check and FAIL the
+just-completed test if it left orphan state.
+
+### §11.4.15 — Item-status tracking
+
+Every active item in the project Issues file carries a
+`**Status:**` line within five lines of its heading. Six-state
+vocabulary: `Queued`, `In progress`, `Ready for testing`,
+`In testing`, `Reopened`, `Fixed (→ Fixed.md)`. Status updated as
+the item progresses. All three Issues / Issues_Summary / Fixed
+file types kept in sync (Markdown + HTML + PDF).
+
+## MANDATORY HOST-SESSION SAFETY (Constitution §12)
+
+Every script, test, helper, and AI agent MUST respect host-session
+safety. Non-compliance is a release blocker.
+
+### Forbidden — directly OR indirectly
+
+1. Suspending the host (`systemctl suspend`, etc.).
+2. Hibernating / hybrid-sleeping the host.
+3. Logging out the user (`loginctl terminate-session`,
+   `pkill -u <user>`, anything targeting `user@<uid>.service`).
+4. Unbounded-memory operations inside `user@<uid>.service` cgroup —
+   any command expected to exceed ~4 GiB RSS MUST be wrapped in a
+   bounded execution scope.
+5. Programmatic rfkill toggles, lid-switch handlers, power-button
+   handlers — these cascade into idle-actions.
+6. Disabling session managers "to make things faster".
+
+### Required safeguards for heavy scripts
+
+1. Source the project's host-safety helper library.
+2. Call its pre-flight check and abort if it fails.
+3. Wrap any subprocess expected to exceed ~4 GiB RSS in a bounded
+   execution scope.
+4. Cap parallelism to fit available RAM.
+
+### §12.6 Memory-Budget Ceiling — 60% MAXIMUM
+
+**Forensic anchor — verbatim user mandate:**
+
+> "First make sure that whatever we do through our procedures
+> related to this project MUST NOT use more than 60% of total system
+> memory! All processes MUST be able to function normally!"
+
+Project procedures MUST NOT use more than **60%** of total system
+RAM. The remaining 40% is reserved for the operator's other
+workloads. No escape hatch — bypassing this is the bluff §11.4
+forbids.
+
+### §12.10 Continuation document maintenance
+
+`docs/CONTINUATION.md` MUST exist at the project root and reflect
+the live state of the work. Every non-trivial state change updates
+it in the same commit. Any agent must be able to resume work
+exactly where the previous session left off by reading this single
+file.
+
+## MANDATORY ABSOLUTE DATA SAFETY — ZERO RISK (Constitution §9)
+
+Every destructive repository operation (history rewrite, force-push,
+branch deletion, bulk file removal, submodule de-init, object
+pruning) MUST follow the full §9 safety protocol WITHOUT EXCEPTION:
+
+1. **Backup first, always** — hardlinked mirror of `.git` to a
+   sibling backup directory (`cp -al .git <backup>/repo.git.mirror`)
+   is near-instant and uses zero additional disk.
+2. **Record metadata** — refs, tags, submodule pointers, HEAD
+   commit, HEAD tree hash, tree content sha256.
+3. **Define expected post-op state**.
+4. **Run the destructive operation** — never with `--no-verify`,
+   never with `--force` that bypasses hooks, never auto-force on
+   failure.
+5. **Post-op gate** — HEAD tree identical, all tags preserved, all
+   submodule pointers intact, per-entry archive integrity 100%,
+   pre-build gates green. If any check fails → restore immediately.
+6. **Force-push authorization** — force-push is NEVER automatic.
+   Each force-push event requires explicit human authorization AND
+   requires the post-op gate to have passed.
+7. **Audit trail** — every history rewrite gets a `docs/changelogs/`
+   "Force-push audit" section.
+
+Hardlinked backup is so cheap (zero disk, <2 s) that there is NEVER
+an excuse to skip it.
+
+## MANDATORY COMMIT & PUSH CONSTRAINTS
+
+1. **Use the project's official commit wrapper** for the main repo
+   (e.g. `scripts/commit_all.sh`).
+2. **NEVER use `git add`, `git commit`, or `git push` directly** on
+   the main repo unless the project Constitution explicitly carves
+   out a use case.
+3. **Multi-upstream push is the norm** — every commit pushed to ALL
+   configured upstream remotes. The constitution submodule ships an
+   `install_upstreams.sh` (and an `Upstreams/` directory) that
+   configures all remotes locally.
+4. **NEVER skip hooks** (`--no-verify`, `--no-gpg-sign`) unless the
+   user explicitly authorizes it for the session.
+
+## MANDATORY TESTING CONSTRAINTS
+
+Tests MUST be run at every stage WITHOUT EXCEPTION:
+
+1. **Pre-build / pre-merge verification** — BEFORE every build.
+2. **Post-build / packaging verification** — AFTER every build.
+3. **Post-deploy verification** — AFTER every deploy / flash.
+
+NEVER skip tests. NEVER mark a test as "broken — disable for now"
+without fixing the underlying issue. NEVER ship a release with
+unresolved WARNs.
+
+## Code conventions
+
+Universal conventions applicable to most projects:
+
+- Use the project's preferred language for new code. Don't mix
+  languages in one module without explicit Constitution permission.
+- Static analyzers / linters / type-checkers MUST run clean (zero
+  warnings) before commit.
+- Style is set by the project's formatter; do not hand-edit style
+  in PRs.
+- Public APIs are documented at the source.
+
+## When in doubt
+
+- Read `constitution/Constitution.md` for the canonical text.
+- Cross-reference the project's CLAUDE.md / AGENTS.md for project-
+  specific extensions.
+- If still unclear, ask the operator. Do NOT guess. Do NOT bluff.
+
+---

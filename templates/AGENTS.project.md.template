@@ -1,0 +1,40 @@
+# <PROJECT NAME> — AGENTS.md
+
+> Base agent rules live at `constitution/AGENTS.md` and the
+> `constitution/Constitution.md` it references. **READ THOSE FIRST.**
+> This file extends them with project-specific rules; it never
+> weakens them.
+
+## Critical base rules restated (for agents that don't follow @imports)
+
+- **No bluffing.** Every PASS carries positive evidence. Constitution §11.4.
+- **Mutation-paired gates.** Every new gate has a paired mutation
+  proving it catches regressions. Constitution §1.1.
+- **No guessing language.** `likely`, `probably`, `maybe`, `seems`,
+  `appears` etc. are forbidden when reporting causes. Constitution §11.4.6.
+- **Credentials never tracked.** `.env` patterns git-ignored;
+  runtime-load only; per-service file separation. Constitution §11.4.10.
+- **Use the project's commit wrapper.** No direct `git add` /
+  `git commit` / `git push` on main repo.
+- **Never force-push.** Force-push requires explicit per-session
+  authorization AND a green §9.1.5 post-op gate.
+- **Hardlinked backup before any destructive op.** Constitution §9.
+- **CONTINUATION.md kept in sync** in every non-trivial commit. Constitution §12.10.
+- **60% RAM cap.** Heavy work wrapped in bounded execution scope.
+  Constitution §12.6.
+
+## Project-specific agent rules
+
+### Allowed CLI tools
+
+<project-specific allowed CLI tools / SDKs>
+
+### Forbidden in this project
+
+<project-specific forbidden patterns>
+
+### Project-specific workflow
+
+<deploy / test / release workflow specific to this project>
+
+---
