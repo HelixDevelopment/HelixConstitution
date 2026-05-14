@@ -84,7 +84,7 @@ PASS on a non-functional feature is the same class of defect as a
 unit test that does.
 
 **Canonical authority:** `constitution/Constitution.md` §11.4 and
-its sub-sections §11.4.1 through §11.4.15.
+its sub-sections §11.4.1 through §11.4.16.
 
 Non-compliance is a release blocker regardless of context.
 
@@ -221,6 +221,58 @@ vocabulary: `Queued`, `In progress`, `Ready for testing`,
 `In testing`, `Reopened`, `Fixed (→ Fixed.md)`. Status updated as
 the item progresses. All three Issues / Issues_Summary / Fixed
 file types kept in sync (Markdown + HTML + PDF).
+
+### §11.4.16 — Item-type tracking
+
+Every active item in the project Issues file carries a `**Type:**`
+line within eight non-blank lines of its heading. Three-value
+CLOSED vocabulary: `Bug` (product defect / regression / user-visible
+broken behaviour), `Feature` (new capability not previously offered
+to end users), `Task` (internal workstream — refactor, doc, infra,
+gate, audit; the lowest-stakes default when ambiguous). The
+Issues_Summary file carries the Type column for every active item.
+All three Issues / Issues_Summary / Fixed file types kept in sync
+(Markdown + HTML + PDF). Pre-build gates `CM-ITEM-TYPE-TRACKING` +
+`CM-COVENANT-114-16-PROPAGATION` enforce the mandate.
+
+### §11.4.17 — Universal-vs-project classification of new rules (User mandate, 2026-05-14)
+
+Before adding ANY new rule, mandatory constraint, covenant clause,
+gate, or "MUST"-bearing statement to a project's Constitution /
+CLAUDE.md / AGENTS.md (or to a submodule's equivalents), the author
+MUST classify it as **universal** (reusable across any project →
+goes into this constitution submodule) or **project-specific**
+(references particular hardware / vendor / package / region →
+stays in the project / submodule layer). The commit message MUST
+carry a `Classification:` line stating the choice + one-sentence
+rationale. Universal rules that leak project-specific assumptions
+(hardware part numbers, vendor names, geographic regions, internal
+asset names) MUST be genericised first or downgraded to
+project-specific. When uncertain, default to project-specific (the
+narrower scope — lifting to universal later is cheap; the reverse
+is expensive). Pre-build gate `CM-UNIVERSAL-VS-PROJECT-CLASSIFICATION`
+audits new rule commits for the classification statement; paired
+mutation strips it and asserts gate FAILs.
+
+### §11.4.18 — Script documentation mandate (User mandate, 2026-05-14)
+
+Every Bash / shell / POSIX-sh script anywhere in a project
+(`scripts/`, `bin/`, `tests/`, library directories, deployment
+hooks, CI helpers — depth-N recursive) MUST carry: (1) an
+in-source documentation block (Purpose / Usage / Inputs / Outputs
+/ Side-effects / Dependencies / Cross-references) at the top of
+the file; (2) an external user guide under
+`docs/scripts/<script-name>.md` covering Overview / Prerequisites
+/ Usage examples / Edge cases / Internal behaviour / Related
+scripts / Last verified date. When a script is modified, BOTH
+the in-source block AND the external user guide MUST be updated
+in the SAME commit. **No documentation ever can be out of sync
+with its codebase.** Pre-build gate `CM-SCRIPT-DOCS-SYNC` walks
+every `*.sh` / `*.bash` under script directories, verifies a
+companion `docs/scripts/<name>.md` exists, AND verifies doc was
+modified in the same commit (or doc-mtime ≥ script-mtime as a
+softer floor). Paired mutation strips the doc-sync invariant
+and asserts gate FAILs.
 
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 

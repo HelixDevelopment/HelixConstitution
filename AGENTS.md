@@ -130,6 +130,45 @@ Forbidden vocabulary when reporting causes:
 `seems`, `appears to`, `guess`, `seemingly`, `apparently`,
 `perhaps`, `supposedly`, `conjectured`, and synonyms.
 
+### Item-type tracking (§11.4.16)
+
+Every active item in the project Issues file MUST carry a
+`**Type:**` line within eight non-blank lines of its heading.
+Three-value CLOSED vocabulary: `Bug` (product defect / regression /
+user-visible broken behaviour), `Feature` (new capability not
+previously offered to end users), `Task` (internal workstream —
+refactor, doc, infra, gate, audit; the lowest-stakes default when
+ambiguous). The Issues_Summary file carries the Type column for
+every active item. All three Issues / Issues_Summary / Fixed file
+types kept in sync (Markdown + HTML + PDF). Pre-build gates
+`CM-ITEM-TYPE-TRACKING` + `CM-COVENANT-114-16-PROPAGATION` enforce
+the mandate. No escape hatch.
+
+### Universal-vs-project classification (§11.4.17, User mandate 2026-05-14)
+
+Before adding ANY new rule / mandatory constraint / covenant clause
+/ gate / "MUST"-bearing statement, classify it: **universal** (any
+project → constitution submodule) or **project-specific** (specific
+hardware / vendor / package / region → project / submodule layer).
+Commit message MUST carry `Classification:` line + one-sentence
+rationale. When uncertain, default to project-specific. Gate
+`CM-UNIVERSAL-VS-PROJECT-CLASSIFICATION` audits new rule commits.
+Paired mutation enforces the gate is not a bluff.
+
+### Script documentation mandate (§11.4.18, User mandate 2026-05-14)
+
+Every Bash / shell / POSIX-sh script under `scripts/` / `bin/` /
+`tests/` / library dirs / CI hooks (depth-N recursive) MUST carry
+(1) an in-source documentation block at the top (Purpose / Usage /
+Inputs / Outputs / Side-effects / Dependencies / Cross-references)
+AND (2) an external user guide under `docs/scripts/<script-name>.md`
+(Overview / Prerequisites / Usage examples / Edge cases / Internal
+behaviour / Related scripts / Last verified date). When a script is
+modified, BOTH the in-source block AND the external user guide MUST
+be updated in the SAME commit. **No documentation ever out of sync
+with its codebase.** Gate `CM-SCRIPT-DOCS-SYNC` enforces. Paired
+mutation strips the invariant.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

@@ -731,6 +731,149 @@ the same commit.
 All three Issues / Issues_Summary / Fixed file types MUST be in
 sync at all times (Markdown + HTML + PDF).
 
+### §11.4.16 — Item-type tracking mandate
+
+Every active item tracked in the project's Issues file MUST carry a
+`**Type:**` line within eight non-blank lines of its heading (the
+same window the §11.4.15 Status audit uses). The type value is
+drawn from a CLOSED set of three values:
+
+| Type | Meaning |
+|---|---|
+| `Bug` | Product defect / regression / user-visible broken behaviour. The product worked before (or was expected to) and now does NOT for the end user. |
+| `Feature` | New capability not previously offered to end users — a new integration, new output, new probe, new bank, new architectural surface. |
+| `Task` | Internal workstream — not user-visible. Refactor, infrastructure, documentation, audit, covenant clause, gate, mutation, propagation enforcement, host-session-safety hardening. The largest class by count; the lowest-stakes default when the classification is ambiguous. |
+
+The vocabulary is CLOSED — only `Bug`, `Feature`, `Task`. Any other
+value is a violation. When ambiguous, fall back to `Task`.
+
+Type tells the operator WHAT KIND of work an item is — distinct from
+severity (HOW URGENT) and status (WHERE IN LIFECYCLE). The three axes
+together drive ownership routing, testing strategy, release-note
+framing, and changelog classification.
+
+The Issues_Summary file MUST carry the Type column for every active
+item. All three file types (Markdown + HTML + PDF) MUST stay in sync
+under the same `CM-DOCS-EXPORT-SYNC` discipline as §11.4.12 + §11.4.15.
+
+Pre-build gates `CM-ITEM-TYPE-TRACKING` (scans Issues file for
+`**Type:**` presence within the audit window) and
+`CM-COVENANT-114-16-PROPAGATION` (anchor presence in every project
+CLAUDE.md / AGENTS.md) enforce the mandate. Paired mutations in the
+project's meta-test prove neither gate is a bluff gate.
+
+No escape hatch — items that genuinely don't fit MUST be re-classified
+as `INFORMATIONAL` and excluded from the active-item set rather than
+carry a fabricated Type.
+
+### §11.4.17 — Universal-vs-project classification of new rules (User mandate, 2026-05-14)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-14):**
+
+> "Adding any new rules or mandatory constraints or anything relevant
+> which should be added into Constitution, CLAUDE.MD, AGENTS.MD and
+> relevant files MUST BE determined as reusable / universal VS project
+> specific. If it is universal and reusable it MUST BE added into our
+> root / main constitution Submodule, otherwise into our project level
+> Constitution, AGENTS.MD and CLAUDE.MD (or Submodule if it is
+> Submodule related)."
+
+Before any new rule, mandatory constraint, covenant clause, gate
+declaration, or "MUST"-bearing statement is added to a project's
+Constitution / CLAUDE.md / AGENTS.md or to a child submodule's
+equivalents, the author MUST first classify it along this axis:
+
+| Classification | Definition | Destination |
+|---|---|---|
+| **Universal** (reusable) | The rule applies to ANY project — independent of language, framework, target platform, or domain. Examples: anti-bluff covenant, no-guessing mandate, credentials-handling, host-session safety, item-status tracking, multi-upstream push, file-layout discipline, deep-web-research-before-implementation. | This constitution submodule's `Constitution.md` + `CLAUDE.md` + `AGENTS.md`. Propagates to every consuming project via inheritance. |
+| **Project-specific** | The rule references a specific hardware target, vendor, model, SoC, vendor-fork, project-internal package name, deployment topology, or company-internal asset. Examples (illustrative — these are intentionally NOT in this universal file): the SoC's specific power-management quirks; a particular Android/iOS/Linux SDK behaviour; a specific app or service bundled with the project. | The project's own `Constitution.md` / `CLAUDE.md` / `AGENTS.md` (top-level), OR the affected submodule's equivalents (when the rule scopes to that submodule). |
+
+A rule that mentions hardware part numbers, vendor names, specific
+package identifiers, geographic regions, or company-internal asset
+names is **project-specific by definition** — it cannot be lifted
+into the universal layer without genericising those references first.
+A universal rule MAY reference patterns (e.g., "USB-HID multitouch
+panels") but MUST NOT name specific vendors.
+
+**Anti-bluff:** the universal-vs-project classification is itself an
+auditable artefact. Every new rule's commit message MUST include a
+one-line classification statement (e.g.,
+`Classification: universal — applies to any project tracking items
+through an Issues/Fixed lifecycle`). A commit that adds a rule without
+classification justification is a §11.4.17 violation.
+
+Authors who are uncertain SHOULD default to project-specific
+(narrower scope). Lifting a project-specific rule to universal later
+is cheap (one merge); generalising a universal rule that turned out
+to leak project-specific assumptions is expensive (every consumer
+must update).
+
+Pre-build gate `CM-UNIVERSAL-VS-PROJECT-CLASSIFICATION` audits the
+last N commits for rule additions and asserts each one carries a
+classification statement. Paired mutation strips the classification
+literal and asserts the gate FAILs.
+
+### §11.4.18 — Script documentation mandate (User mandate, 2026-05-14)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-14):**
+
+> "Make sure that every single script inside the scripts dir (in all
+> subdirs in depth) is fully documented and covered with full user
+> manuals and user guides! ... Whenever is some bash script modified
+> we MUST document it fully and create for it complete user guide(s)
+> and manual(s) - if already exists make sure all of it is in sync
+> and fully updated! No documentation ever can be out of sync with
+> its codebase!"
+
+Every Bash / shell / POSIX-sh script ANYWHERE in a project (anywhere
+under `scripts/`, `bin/`, `tests/`, library directories, `Upstreams/`,
+deployment hooks, CI helpers, etc. — depth-N recursive) MUST carry:
+
+1. **In-source documentation block** at the top of the file:
+   - Purpose: one-sentence description of what the script does.
+   - Usage: complete invocation syntax with all flags, env vars,
+     positional arguments, examples.
+   - Inputs: env vars, files read, command-line args, stdin.
+   - Outputs: files written, stdout/stderr behaviour, exit codes.
+   - Side-effects: anything that changes system state outside the
+     script's own scratch directory.
+   - Dependencies: required commands (and how to install them) +
+     required system state (e.g., "must be run as root", "must run
+     from project root").
+   - Cross-references: companion guides under `docs/`.
+
+2. **External user guide** under `docs/scripts/<script-name>.md`
+   (Markdown). Required sections:
+   - **Overview** — what the script does in plain English.
+   - **Prerequisites** — environment + dependencies.
+   - **Usage examples** — copy-paste recipes for the common cases.
+   - **Edge cases** — unusual invocations, error conditions, how to
+     diagnose them.
+   - **Internal behaviour** — for advanced users / future maintainers:
+     what the script does step-by-step.
+   - **Related scripts** — companion scripts and how they compose.
+   - **Last verified version / date** — when the doc was last
+     reconciled against the script source.
+
+Whenever the script source is modified, the in-source documentation
+block AND the external user guide MUST be updated in the SAME
+commit. A commit that touches a script but leaves its documentation
+unchanged (or worse, lets it drift) is a §11.4.18 violation.
+
+Pre-build gate `CM-SCRIPT-DOCS-SYNC` walks every `*.sh` and `*.bash`
+under `scripts/` (or equivalent script directories), verifies a
+companion `docs/scripts/<name>.md` exists, AND verifies the doc was
+modified in the same commit as the script (by SHA cross-reference,
+or by mtime ≥ script mtime as a softer floor). Paired mutation
+strips the doc-sync invariant and asserts the gate FAILs.
+
+**No documentation ever can be out of sync with its codebase.**
+
+This mandate composes with §11.4.11 (file-layout discipline — docs
+live under `docs/`, scripts live under `scripts/`) and §11.4.12
+(auto-generated docs sync — the on-disk Markdown + its rendered
+HTML/PDF must all stay synchronised).
+
 ---
 
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN
