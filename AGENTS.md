@@ -580,6 +580,38 @@ per §11.4.35" line in the message. Pre-build gate
 `CM-CANONICAL-ROOT-CLARITY`. Composes with §11.4.17. Classification:
 universal (per §11.4.17). No escape hatch.
 
+### Mandatory install_upstreams on clone/add (§11.4.36, User mandate 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Every Submodule or Git repository we add or clone MUST BE
+> upstreams installed using Upstreamable utility which MUST BE
+> available through exported paths of the host system (in .bashrc
+> or .zhrc) using install_upstreams command executed from the root
+> of the cloned (added) repository - only if in it is Upstreams or
+> upstreams directory present with bash script files (recipes) for
+> all repository's upstreams!"
+
+Every clone / add of a Git repository under any consuming project
+MUST be followed by `install_upstreams` invocation from the
+repository's root IF its tree contains `upstreams/` (or legacy
+`Upstreams/` per §11.4.29 transition) populated with `*.sh` recipe
+files. The utility (installed on operator's `PATH` via `.bashrc`/
+`.zshrc`, implementation lives in this constitution submodule)
+reads recipe files + configures every declared upstream as a named
+git remote + fans out `origin` push URLs.
+
+Skipping the invocation when `upstreams/` is present silently
+breaks §2.1 (multi-upstream push is the norm). Gate
+`CM-INSTALL-UPSTREAMS-ON-CLONE` + paired mutation. Automation:
+`incorporate-submodule` (§11.4.31) auto-invokes; manual invocation
+also supported. Pre-commit check: `git remote -v | grep -c push`
+reports expected upstream count.
+
+Classification: universal (§11.4.17). Composes with §2, §2.1, §3,
+§9.2, §11.4.17, §11.4.20, §11.4.28, §11.4.29, §11.4.30, §11.4.31.
+See Constitution §11.4.36 for the full mandate.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

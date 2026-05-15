@@ -918,6 +918,48 @@ defines the file-layer split that §11.4.17 classifies INTO). Reading
 order: this anchor first, then §11.4.17. Classification: universal
 (per §11.4.17). No escape hatch.
 
+### §11.4.36 — Mandatory install_upstreams on clone/add Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Every Submodule or Git repository we add or clone MUST BE
+> upstreams installed using Upstreamable utility which MUST BE
+> available through exported paths of the host system (in .bashrc
+> or .zhrc) using install_upstreams command executed from the root
+> of the cloned (added) repository - only if in it is Upstreams or
+> upstreams directory present with bash script files (recipes) for
+> all repository's upstreams!"
+
+Every clone / add of a Git repository under any consuming project
+MUST be followed by `install_upstreams` invocation from that
+repository's root IF its tree contains an `upstreams/` directory
+(or legacy `Upstreams/` per §11.4.29 transition) populated with
+`*.sh` recipe files declaring upstream Git SSH URLs.
+
+`install_upstreams` is a host-system utility on operator's `PATH`
+(exported via `.bashrc`/`.zshrc`), implemented in this constitution
+submodule (`install_upstreams.sh`). The utility reads recipe files,
+configures every declared upstream as a named git remote, and fans
+out `origin` push URLs across all declared upstreams.
+
+Skipping the invocation when `upstreams/` IS present silently
+breaks §2.1 (Multi-upstream push is the norm) — the next push
+lands on only one upstream. Gate `CM-INSTALL-UPSTREAMS-ON-CLONE`
++ paired mutation (§1.1).
+
+Automation: `incorporate-submodule` (§11.4.31) and
+`scripts/init-submodules.sh` patterns auto-invoke
+`install_upstreams` when applicable. Operator-explicit manual
+invocation remains supported.
+
+Pre-commit attention: before the first commit in the newly-cloned
+working tree, verify `git remote -v | grep -c push` reports the
+expected upstream count.
+
+Classification: universal (§11.4.17). Composes with §2, §2.1, §3,
+§9.2, §11.4.17, §11.4.20, §11.4.28, §11.4.29, §11.4.30, §11.4.31.
+See Constitution §11.4.36 for the full mandate.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
