@@ -488,6 +488,66 @@ blocker for every consuming project, severity-equivalent to a
 force-push without §9.2 authorization. See Constitution §11.4.26
 for the full mandate (operational scope, cross-cutting reach).
 
+### §11.4.29 — Lowercase-Snake_Case-Naming Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "naming convention for Submodules and directories (applied deep
+> into hierarchy recursively) - all directories and Submodules MSUT
+> HAVE lowercase names with space separator between the words of
+> '_' character (snake-case)! All existing Submodules and
+> directories which are not following this rule MUST BE renamed!
+> ... NOTE: Rules lowercase / snake-case do apply to all project
+> files as well and references to it and from them!"
+
+Every directory, submodule, and file MUST use lowercase
+snake_case names (ASCII letters / digits / underscores, words
+separated by `_`). Existing non-compliant names MUST be renamed
+as part of the migration window opened by this clause. Every
+reference (configs, docs, links, source-code imports, governance
+files) MUST be updated atomically with the rename — reference
+drift after a rename is a §11.4.29 violation of equal severity
+to the rename itself.
+
+**Exceptions (common-sense, must-not-break-technology).** Language-
+mandated case (Java/Kotlin package paths, Android resource
+directories, Apple framework dirs, C#/Swift project layouts) is
+preserved inside the language-root. Submodule root directory
+follows our convention; language-specific subtree follows its own.
+Vendor/upstream third-party submodules keep their upstream names.
+Build artefacts (`node_modules/`, `__pycache__/`, `.git/`,
+`target/`, `build/`, `bin/`) keep tool-mandated names. "Does
+renaming break the technology?" trumps the rule.
+
+**`Upstreams/` → `upstreams/` transition.** Constitution
+submodule's `install_upstreams.sh` (exported via `.bashrc`/
+`.zshrc`) MUST support BOTH `Upstreams/` and `upstreams/`
+directory layouts during migration. Lowercase wins when both
+present. Uppercase fallback retires only by deliberate amendment.
+
+**Project-Toolkit Upstreamable synchronisation.** Upstreamable /
+Project-Toolkit machinery MUST be fetched+pulled before any
+rename batch + MUST itself comply with this rule. Lacking BOTH-
+directory support is a release blocker.
+
+**Test coverage of renames.** Each rename batch ships with:
+(i) regression test verifying every reference now resolves;
+(ii) full CONST-050(B) test-type matrix run on the post-rename
+tree; (iii) anti-bluff wire-evidence captured. All three or it's
+a §11.4.29 violation.
+
+**Phased execution.** Comprehensive brainstorming → phase-divided
+plan → fine-grained tasks/subtasks → every change covered by
+every applicable test type. Phases run in parallel with mainstream
+work (§11.4.20 subagent delegation).
+
+Classification: universal (§11.4.17). No escape hatch beyond the
+common-sense exceptions enumerated. Severity-equivalent to §11.4
+PASS-bluff at the reference-integrity layer. Composes with §1,
+§1.1, §11.4.12, §11.4.17, §11.4.18, §11.4.20, §11.4.25, §11.4.26,
+§11.4.27, §11.4.28, CONST-047. See Constitution §11.4.29 for the
+full mandate.
+
 ### §11.4.28 — Submodules-As-Equal-Codebase + Decoupling + Dependency-Layout Mandate (User mandate, 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**

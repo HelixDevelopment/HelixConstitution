@@ -326,6 +326,49 @@ to force-push without §9.2 authorization. No escape hatch. See
 Constitution §11.4.26 for the full pipeline (operational scope,
 cross-cutting reach).
 
+### Lowercase-snake_case-naming (§11.4.29, User mandate 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "naming convention for Submodules and directories (applied deep
+> into hierarchy recursively) - all directories and Submodules MSUT
+> HAVE lowercase names with space separator between the words of
+> '_' character (snake-case)! All existing Submodules and
+> directories which are not following this rule MUST BE renamed!
+> ... NOTE: Rules lowercase / snake-case do apply to all project
+> files as well and references to it and from them!"
+
+Every directory / submodule / file MUST use lowercase snake_case.
+Non-compliant names MUST be renamed; every reference (configs,
+docs, source imports, governance files) updated atomically
+(reference drift = §11.4.29 violation of equal severity).
+Exceptions (common-sense, technology-preserving): language-
+mandated case for Java/Kotlin/Android/Apple/C#/Swift inside the
+language root; vendor third-party submodules; build artefacts.
+
+`Upstreams/` → `upstreams/` transition: constitution submodule's
+`install_upstreams.sh` MUST support BOTH directory names during
+migration; lowercase wins when both present.
+
+Project-Toolkit Upstreamable machinery fetched+pulled before any
+rename batch + itself complies. Lacking BOTH-dir support is a
+release blocker.
+
+Test coverage of renames: regression test for reference
+resolution + full CONST-050(B) test-type matrix + anti-bluff
+wire-evidence.
+
+Phased execution: brainstorming → phase plan → fine-grained
+tasks/subtasks → every change covered. §11.4.20 subagent
+delegation for cross-cutting rename sweeps.
+
+Classification: universal (§11.4.17). No escape hatch beyond
+common-sense exceptions. Severity-equivalent to §11.4 PASS-bluff
+at the reference-integrity layer. Composes with §1, §11.4.12,
+§11.4.17, §11.4.18, §11.4.20, §11.4.25, §11.4.26, §11.4.27,
+§11.4.28, CONST-047. See Constitution §11.4.29 for the full
+mandate.
+
 ### Submodules-as-equal-codebase + decoupling + dependency-layout (§11.4.28, User mandate 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**
