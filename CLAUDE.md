@@ -488,6 +488,73 @@ blocker for every consuming project, severity-equivalent to a
 force-push without §9.2 authorization. See Constitution §11.4.26
 for the full mandate (operational scope, cross-cutting reach).
 
+### §11.4.28 — Submodules-As-Equal-Codebase + Decoupling + Dependency-Layout Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "All existing Submodules in the project that we are controlling and
+> belong to some our organizations (vasic-digital, HelixDevelopment,
+> red-elf, ATMOSphere1234321, Bear-Suite, BoatOS123456, Helix-Flow,
+> Helix-Track, Server-Factory — we can ALWAYS check dynamically using
+> GitHub and GitLab CLIs) are equal parts of the project's codebase!
+> We MUST work on that code as much as we do with main project's
+> codebase! All on equal basis! Equally important! ... We MUST NEVER
+> modify Submodules to bring into them any project specific context
+> since they all MUST BE ALWAYS fully decoupled, project not-aware,
+> fully reusable and modular (by any other project(s)), completely
+> testable! All Submodule dependencies that are used by Submodule MUST
+> BE acessed from the root of the project! We MUST NOT have nested
+> Submodule dependencies but accessing each from proper location from
+> the root of the project — directly from project's root project_name/
+> submodule_name or some more proper structure project_name/submodules/
+> submodule_name!"
+
+Three cooperating invariants:
+
+**(A) Equal-codebase.** Every owned-by-us submodule (orgs:
+`vasic-digital`, `HelixDevelopment`, `red-elf`, `ATMOSphere1234321`,
+`Bear-Suite`, `BoatOS123456`, `Helix-Flow`, `Helix-Track`,
+`Server-Factory` — dynamically discoverable via `gh` / `glab` CLIs)
+is an **equal part** of the consuming project's codebase. Same
+engineering attention as main: analysis, extension, test creation,
+gap-filling, bug-fix, documentation (user manuals, guides, diagrams,
+SQL, websites, all materials). A round that improves main while
+leaving an owned-submodule deficiency unaddressed is a §11.4.28
+violation, severity-equivalent to a §11.4 PASS-bluff at the
+project-scope layer. Coverage ledgers (§11.4.25) list every owned
+submodule as in-scope.
+
+**(B) Decoupling / reusability.** Owned submodules MUST stay
+fully decoupled, project-not-aware, reusable, modular, completely
+testable. NEVER inject project-specific context (hardcoded paths,
+hostnames, asset names) INTO a submodule. When a submodule needs
+parent-project info, use configuration injection (env var, config
+file, constructor parameter) — never a hardcoded reach.
+
+**(C) Dependency-layout.** Every dependency consumed by an owned
+submodule MUST be accessible from the parent project's root at:
+
+```
+<project_root>/<submodule_name>/
+<project_root>/submodules/<submodule_name>/
+```
+
+**Nested own-org submodule chains are FORBIDDEN.** A submodule MUST
+NOT have its own `.gitmodules` entries pulling in further owned-
+by-us repos. Add the dependency at the parent's root path; the
+submodule reaches it via documented import / SDK / runtime
+resolver. Third-party submodules exempt.
+
+Gates: `CM-OWNED-SUBMODULE-EQUAL-ENGINEERING` (release-gate sweep
+audits parity), `CM-OWNED-SUBMODULE-DECOUPLING` (pre-commit greps
+for parent-project context inside the submodule diff),
+`CM-OWNED-SUBMODULE-LAYOUT` (pre-merge verifies canonical
+location + no nested own-org submodules + dependency lookup
+from root). Paired mutations (§1.1) for all three. Classification:
+universal (§11.4.17). No escape hatch. Composes with §1, §3,
+§11.4.17, §11.4.20, §11.4.25, §11.4.26, §11.4.27, CONST-047.
+See Constitution §11.4.28 for the full mandate.
+
 ### §11.4.27 — No-Fakes-Beyond-Unit-Tests + 100%-Test-Type-Coverage Mandate (User mandate, 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**

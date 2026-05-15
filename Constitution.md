@@ -1675,6 +1675,164 @@ severity to a force-push without §9.2 authorization.
 
 ---
 
+### §11.4.28 — Submodules-As-Equal-Codebase + Decoupling + Dependency-Layout Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "All existing Submodules in the project that we are controlling and
+> belong to some our organizations (vasic-digital, HelixDevelopment,
+> red-elf, ATMOSphere1234321, Bear-Suite, BoatOS123456, Helix-Flow,
+> Helix-Track, Server-Factory — we can ALWAYS check dynamically using
+> GitHub and GitLab CLIs) are equal parts of the project's codebase!
+> We MUST work on that code as much as we do with main project's
+> codebase! All on equal basis! Equally important! We MUST take it
+> into the account, analyze it, extend it, create missing tests, do
+> full testing of it, fill the gaps (if any), fix any issues that we
+> discover or they pop-up, write and extend the documentation, user
+> guides, manulas, diagrams, graphs, SQL definitions, Website(s) and
+> all other relevant materials! We MUST NEVER modify Submodules to
+> bring into them any project specific context since they all MUST
+> BE ALWAYS fully decoupled, project not-aware, fully reusable and
+> modular (by any other project(s)), completely testable! All
+> Submodule dependencies that are used by Submodule MUST BE acessed
+> from the root of the project! We MUST NOT have nested Submodule
+> dependencies but accessing each from proper location from the root
+> of the project — directly from project's root project_name/
+> submodule_name or some more proper structure project_name/
+> submodules/submodule_name! This MUST BE heavily enforced and
+> respected so no chaos and mess is created with various dependencies
+> we may have!"
+
+**Operative rule.** Three cooperating invariants govern every
+consuming project's relationship with its owned-by-us submodules
+(those whose upstream `origin` lives under one of the operator-
+listed orgs — `vasic-digital`, `HelixDevelopment`, `red-elf`,
+`ATMOSphere1234321`, `Bear-Suite`, `BoatOS123456`, `Helix-Flow`,
+`Helix-Track`, `Server-Factory` — or any additional org the
+operator subsequently authorises, the canonical list discoverable
+at any time via `gh org list` / `glab` / the orgs' public APIs):
+
+**(A) Equal-codebase invariant.** Every owned-by-us submodule is
+an **equal part** of the consuming project's codebase. The
+consuming project's engineering practice — analysis, extension,
+test creation, gap-filling, bug-fix, documentation (user manual,
+guides, diagrams, graphs, SQL definitions, website pages, any
+other authoring surface) — applies to each owned submodule on
+equal basis. A round of work that improves only the main project
+while leaving an owned-submodule deficiency unaddressed is a
+§11.4.28 violation, severity-equivalent to a §11.4 PASS-bluff at
+the project-scope layer. Coverage ledgers (§11.4.25) MUST list
+every owned submodule as an in-scope target. CONST-047 (recursive
+cascade) governs the propagation of governance changes; §11.4.28
+is the engineering-content counterpart that mandates the same
+attention to non-governance content.
+
+**(B) Decoupling / reusability invariant.** Owned submodules MUST
+remain **fully decoupled** from any specific consuming project.
+No project-specific context, hardcoded paths, hostnames, asset
+names, naming schemes, or runtime assumptions may be introduced
+into an owned submodule's source tree. Every owned submodule
+MUST be:
+
+- **Project-not-aware** — its code, tests, and docs make no
+  reference to which parent project consumes it.
+- **Fully reusable** — any future Helix-family or third-party
+  project must be able to consume the submodule unmodified.
+- **Modular** — its public surface is the only documented
+  integration contract; internal layout may evolve without
+  breaking consumers.
+- **Completely testable** — every public surface has standalone
+  tests (per the §11.4.27 100%-test-type matrix) that pass when
+  the submodule is checked out as a standalone repo, without
+  any parent-project rigging.
+
+A commit that adds `project_name/...` strings, hostnames belonging
+to a specific deployment, or other parent-project context to a
+submodule's source tree is a §11.4.28 violation. The honest path
+when a submodule needs information from the parent project is
+configuration injection (env var, config file, constructor
+parameter) — never a hardcoded reach into the parent's tree.
+
+**(C) Dependency-layout invariant.** Every dependency that an
+owned submodule itself consumes MUST be accessible **from the
+root of the parent project** at one of two canonical paths:
+
+```
+<project_root>/<submodule_name>/          # flat layout
+<project_root>/submodules/<submodule_name>/   # grouped layout
+```
+
+**Nested-submodule chains are FORBIDDEN.** A submodule MUST NOT
+have its own `.gitmodules` entries that pull in further owned-
+by-us repos (transitive own-org submodule recursion). Every
+dependency required by submodule X MUST be added to the parent
+project at the canonical path above; X reaches it via documented
+import / SDK path / runtime resolver — never via its own nested
+submodule pointer.
+
+Rationale: nested own-org submodule chains cause version-drift
+chaos (two consumers of `LLMsVerifier` end up at different SHAs
+because each parent picked a different transitive path). The
+flat / grouped layout makes the consuming project's submodule
+graph a tree-of-depth-1, which any developer can audit at a
+glance via `git submodule status` from the project root.
+
+Third-party submodules (not under our orgs) are exempt — they
+MAY appear at any depth as the upstream's structure dictates.
+The invariant applies only to our owned set.
+
+**Audit + enforcement.**
+
+- Gate `CM-OWNED-SUBMODULE-EQUAL-ENGINEERING` (project-side):
+  every release-gate sweep verifies each owned submodule has
+  current test runs, coverage entries (§11.4.25), and
+  documentation freshness on par with the main project. Stale
+  submodules surface as §11.4.28 violations (Status:
+  Operator-blocked or In progress per §11.4.21 — never
+  "ignored").
+- Gate `CM-OWNED-SUBMODULE-DECOUPLING` (submodule-side): every
+  owned submodule's pre-commit hook (or equivalent) greps the
+  staged diff for parent-project names / hostnames / asset
+  names. Hits abort the commit until refactored to
+  configuration injection.
+- Gate `CM-OWNED-SUBMODULE-LAYOUT` (project-side): the parent
+  project's pre-merge sweep verifies (i) every owned submodule
+  sits at `<root>/<name>/` or `<root>/submodules/<name>/`,
+  (ii) no owned submodule contains a nested `.gitmodules` entry
+  whose upstream is in our org list, and (iii) every dependency
+  declared by an owned submodule has a corresponding
+  parent-project submodule entry at the canonical path.
+- Paired mutations (§1.1) for all three gates: plant the
+  forbidden pattern → gate FAILs; restore → gate PASSes.
+
+**Workflow integration.** Honoring §11.4.28 in practice:
+
+- Engineering rounds plan in submodule-aware tranches: "improve
+  feature X in main; in same round, audit + improve the X-
+  related surface in submodule Y; cascade governance per
+  CONST-047 as usual".
+- The §11.4.25 coverage ledger row format is extended with a
+  `submodule` column so coverage rolls up across the whole
+  owned set.
+- Cross-submodule refactors that touch shared types or
+  interfaces ship as a single change-window: parent + every
+  affected owned submodule advanced in lockstep (§3 submodule-
+  first-commit discipline + §2.1 multi-upstream push).
+
+**Classification:** universal (per §11.4.17). No escape hatch.
+Composes with: §1 (four-layer test floor reaches submodules too),
+§1.1 (false-positive immunity), §3 (submodule changes propagate
+through submodule commits first), §11.4.17 (universal-vs-project
+classification), §11.4.20 (subagent delegation for the cross-
+submodule audit sweep), §11.4.25 (full-automation coverage
+ledger expanded to submodules), §11.4.26 (constitution-update
+workflow's submodule-pointer-bump step), §11.4.27 (100%-test-
+type coverage applies to every submodule's standalone surface),
+CONST-047 (recursive governance cascade). A round of work
+that violates §11.4.28 is a release blocker for the consuming
+project, severity-equivalent to a §11.4 PASS-bluff at the
+codebase-completeness layer.
+
 ### §11.4.27 — No-Fakes-Beyond-Unit-Tests + 100%-Test-Type-Coverage Mandate (User mandate, 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**

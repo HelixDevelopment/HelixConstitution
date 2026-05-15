@@ -326,6 +326,44 @@ to force-push without §9.2 authorization. No escape hatch. See
 Constitution §11.4.26 for the full pipeline (operational scope,
 cross-cutting reach).
 
+### Submodules-as-equal-codebase + decoupling + dependency-layout (§11.4.28, User mandate 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "All existing Submodules in the project that we are controlling and
+> belong to some our organizations (vasic-digital, HelixDevelopment,
+> red-elf, ATMOSphere1234321, Bear-Suite, BoatOS123456, Helix-Flow,
+> Helix-Track, Server-Factory — we can ALWAYS check dynamically using
+> GitHub and GitLab CLIs) are equal parts of the project's codebase!
+> We MUST work on that code as much as we do with main project's
+> codebase! ... We MUST NEVER modify Submodules to bring into them any
+> project specific context ... All Submodule dependencies that are
+> used by Submodule MUST BE acessed from the root of the project! We
+> MUST NOT have nested Submodule dependencies."
+
+Three invariants. **(A) Equal-codebase**: every owned-by-us submodule
+(orgs: vasic-digital, HelixDevelopment, red-elf, ATMOSphere1234321,
+Bear-Suite, BoatOS123456, Helix-Flow, Helix-Track, Server-Factory —
+discoverable via gh/glab) is an equal part of the consuming project's
+codebase. Same engineering attention: analysis, extension, tests,
+gap-fill, bug-fix, documentation. Coverage ledgers list each submodule
+as in-scope. **(B) Decoupling**: NEVER inject project-specific context
+INTO submodules; they remain project-not-aware, reusable, modular,
+testable. When a submodule needs parent info, use configuration
+injection. **(C) Dependency-layout**: every dependency consumed by an
+owned submodule lives at `<root>/<name>/` or `<root>/submodules/<name>/`
+of the parent project. Nested own-org submodule chains FORBIDDEN — add
+the dependency at the parent root; the submodule reaches it via
+documented import/SDK/runtime resolver. Third-party submodules exempt.
+
+Gates: `CM-OWNED-SUBMODULE-EQUAL-ENGINEERING`,
+`CM-OWNED-SUBMODULE-DECOUPLING`, `CM-OWNED-SUBMODULE-LAYOUT`. Paired
+mutations for each. Classification: universal (§11.4.17). No escape
+hatch. Severity-equivalent to a §11.4 PASS-bluff at the codebase-
+completeness layer. Composes with §1, §3, §11.4.17, §11.4.20,
+§11.4.25, §11.4.26, §11.4.27, CONST-047. See Constitution §11.4.28
+for the full mandate.
+
 ### No-fakes-beyond-unit-tests + 100%-test-type-coverage (§11.4.27, User mandate 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**
