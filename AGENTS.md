@@ -612,6 +612,36 @@ Classification: universal (§11.4.17). Composes with §2, §2.1, §3,
 §9.2, §11.4.17, §11.4.20, §11.4.28, §11.4.29, §11.4.30, §11.4.31.
 See Constitution §11.4.36 for the full mandate.
 
+### Fetch-before-edit (§11.4.37, User mandate 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Make sure that feedback_fetch_before_edit memory rule is part of
+> our constitution Submodule - the root Consitution, AGENTS.MD and
+> CLAUDE.MD. Validate and verify that Proejct-Toolkit and all
+> Submodules do inherit all of them!"
+
+FIRST git-touching action of any session: `git fetch --all
+--prune && git log --oneline HEAD..@{u} && git submodule foreach
+--recursive 'git fetch --all --prune --quiet'`. If `HEAD..@{u}` is
+non-empty, integrate (ff-merge / rebase / surface per §11.4.4)
+BEFORE any local edit, scanner, or test. Skipping on "nothing could
+have changed" is a §11.4.6 (no-guessing) violation — remote state
+is not knowable without a fetch.
+
+The originating 2026-05-15 incident: agent ran `git remote remove
+gitee` as a fresh task, but the work had been committed upstream by
+a parallel agent 25 minutes earlier — local config edit was a no-op
+echo of already-merged history. A 30-second fetch would have caught
+it.
+
+Scope: consuming project root + every owned submodule recursively
+(§11.4.28) + the constitution submodule itself (§11.4.26 step 1) +
+any dependency cloned via `incorporate-submodule` (§11.4.31) or
+`git submodule add` (§11.4.36). Gate
+`CM-FETCH-BEFORE-EDIT-AUDIT` + paired mutation per §1.1.
+Classification: universal (per §11.4.17). No escape hatch.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

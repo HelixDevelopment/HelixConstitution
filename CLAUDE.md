@@ -960,6 +960,57 @@ Classification: universal (§11.4.17). Composes with §2, §2.1, §3,
 §9.2, §11.4.17, §11.4.20, §11.4.28, §11.4.29, §11.4.30, §11.4.31.
 See Constitution §11.4.36 for the full mandate.
 
+### §11.4.37 — Fetch-before-edit mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Make sure that feedback_fetch_before_edit memory rule is part of
+> our constitution Submodule - the root Consitution, AGENTS.MD and
+> CLAUDE.MD. Validate and verify that Proejct-Toolkit and all
+> Submodules do inherit all of them!"
+
+The FIRST git-touching action of any session, on any consuming
+project, MUST be:
+
+```bash
+git fetch --all --prune
+git log --oneline HEAD..@{u}              # parent
+git submodule foreach --recursive 'git fetch --all --prune --quiet'
+```
+
+If `HEAD..@{u}` is non-empty, integrate (ff-merge / rebase / surface
+to operator per §11.4.4) BEFORE any local edit, scanner run, or
+test cycle. Multi-agent / multi-upstream codebases (Claude Code +
+Cursor + Aider + operator sessions in parallel) routinely lap each
+other; a 30-second fetch prevents the agent from redoing work a
+parallel session already finished, from filing a false-confidence
+"completion" of already-done work, and from doubling the
+multi-upstream conflict surface (§2.1) with sibling commits of the
+same change.
+
+The check is non-negotiable even when the operator says "do X
+immediately" — skipping it on the basis of "nothing could have
+changed in the last N minutes" is a §11.4.6 (no-guessing)
+violation: remote state is not knowable without a fetch. The
+fetch+log output (even if empty) is the captured evidence.
+
+Scope: consuming project root + every owned submodule recursively
+(§11.4.28) + the constitution submodule itself (§11.4.26 step 1
+made this explicit for constitution-side edits; §11.4.37
+generalises to ALL edits) + any dependency cloned via
+`incorporate-submodule` (§11.4.31) or `git submodule add`
+(§11.4.36).
+
+Pre-build gate `CM-FETCH-BEFORE-EDIT-AUDIT` (when implemented in
+the consuming project) audits the most-recent commit range against
+the upstream HEAD at the commit's parent — non-aligned parent =
+FAIL. Paired mutation (§1.1): synthetic commit whose parent was N
+commits behind the then-current upstream HEAD → gate FAILs.
+
+Classification: universal (§11.4.17). No escape hatch. Composes
+with §2.1, §11.4.4, §11.4.6, §11.4.20, §11.4.26, §11.4.32. See
+Constitution §11.4.37 for the full mandate.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
