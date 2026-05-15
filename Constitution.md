@@ -1506,6 +1506,265 @@ for itself the first time it diagnoses a build-resource regression.
 
 ---
 
+### §11.4.25 — Type-aware closure-status vocabulary (User mandate, 2026-05-15)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-15):**
+
+> "make sure we use proper wording for the workable item completion
+> status in Issues, Issues_Summary and Fixed docs: - Fixed -> into
+> the proper wording depending on the workable item type (task,
+> feature, and so on) - for example: Fixed, Implemented, Completed.
+> Add this important detail in our root Constitution, CLAUDE.MD and
+> AGENTS.MD so it is ALWAYS respected and followed!"
+
+**Classification:** §11.4.17-classified **universal** — naming
+discipline applies to every project that tracks work items by type.
+Bug closures aren't "implemented", feature deliveries aren't "fixed",
+and infrastructure refactors aren't either. Type-mismatched closure
+vocabulary is a quiet but persistent semantic-drift bluff at the
+documentation layer — it makes greppable releases lie about what
+shipped.
+
+**The mandate.** §11.4.15 defined the lifecycle Status closed-set
+including the closure terminal value `Fixed (→ Fixed.md)`. §11.4.16
+defined the Type closed-set `{Bug | Feature | Task}`. §11.4.25
+binds the two: the closure terminal value MUST agree with the item
+Type, drawn from this 3-element closed map:
+
+| Item `**Type:**` | Closure `**Status:**` value |
+|---|---|
+| `Bug` | `Fixed (→ Fixed.md)` |
+| `Feature` | `Implemented (→ Fixed.md)` |
+| `Task` | `Completed (→ Fixed.md)` |
+
+The `(→ Fixed.md)` suffix is preserved across all three so the
+existing migration-discipline tooling (Issues.md → Fixed.md atomic
+move per §11.4.19) continues to work without per-Type branching.
+Generators (`generate_issues_summary.sh`, `generate_fixed_summary.sh`,
+status-counter helpers, the §11.4.23 colorizer) MUST treat the three
+terminal values as semantically equivalent (all map to "closed,
+positive evidence captured") while preserving the literal in the
+emitted document.
+
+**No escape hatch.** Closing a `Feature` with `Fixed (→ Fixed.md)`
+or a `Task` with `Implemented (→ Fixed.md)` is a §11.4.25 violation.
+Pre-build gate (recommended, per consuming project) `CM-CLOSURE-
+VOCAB-TYPE-AWARE` walks every Fixed.md heading + every Issues.md
+heading whose `**Status:**` is one of the three terminal values, and
+asserts the Status value matches the item's `**Type:**` per the
+table. Paired mutation flips a Bug entry's status from
+`Fixed (→ Fixed.md)` to `Implemented (→ Fixed.md)` → gate FAILs.
+
+**Propagation.** Composes with §11.4.15 (item-status tracking),
+§11.4.16 (item-type tracking), §11.4.19 (Fixed-document column
+alignment), §11.4.23 (colorisation — the closed-state palette
+applies regardless of which of the three terminal words is used).
+
+---
+
+### §11.4.26 — Reopened-source attribution mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-15):**
+
+> "when we reopen some workable item (bug, task or feature) we MUST
+> HAVE details on who did reopened this and why (- Reopened status
+> needs: by who, AI or User + details in main Issues doc.). For
+> example, reopened by AI or reopened by real User, why - test
+> failed, manual testing detected problem, etc. Adapt our docs for
+> this - Issues, Isssues_SUmmary and Fixed."
+
+**Classification:** §11.4.17-classified **universal** — every
+project that uses §11.4.15's `Reopened` lifecycle value benefits
+from knowing the reopen source + cause. Without this, reopen-thrash
+patterns (the same item bouncing between Fixed and Reopened across
+cycles) cannot be diagnosed, and the §11.4.7 demotion-evidence rule
+loses its forensic counterparty (you cannot evaluate whether a
+reopen was operator-side observation or agent-side over-restoration
+without provenance).
+
+**The mandate.** Every Issues.md (or equivalent project tracker)
+heading whose `**Status:**` value is `Reopened` MUST carry, within
+8 non-blank lines of the heading, a `**Reopened-Details:**` line
+that captures four sub-facts:
+
+- **By:** `AI` or `User` (the source-of-truth observer who flipped
+  the status). `AI` covers in-loop reopens (test failure, gate
+  regression, captured-evidence retrospect). `User` covers operator-
+  side observations (manual testing, end-user report, design
+  reconsideration).
+- **On:** ISO date (`YYYY-MM-DD`).
+- **Reason:** one-line cause classification — chosen from a closed
+  vocabulary `{ test-failed | manual-testing-detected |
+  captured-evidence-contradicts | end-user-report |
+  cycle-re-discovered | design-reconsidered }`. Other values are
+  permitted with explicit `Reason: <free text>` annotation but the
+  closed list MUST be tried first.
+- **Evidence:** path to or short description of the captured
+  artefact that justifies the reopen — log file, recording, gate
+  failure ID, operator quote, etc. Reopens without evidence are
+  §11.4.6 / §11.4.7 violations: the reopen IS a demotion-from-Fixed
+  classification change, and demotion requires positive evidence
+  captured under the conditions that re-exposed the defect.
+
+The Issues_Summary.md (or equivalent) Status column MUST distinguish
+the four `Reopened` sub-states by source so a sweep query for
+"reopens by AI in the last 30 days" is mechanically possible.
+Suggested column rendering: `Reopened (AI: test-failed)` vs
+`Reopened (User: manual-testing)`.
+
+**No escape hatch.** A `Reopened` entry without
+`**Reopened-Details:**` is a §11.4.26 violation. Pre-build gate
+(recommended, per consuming project) `CM-ITEM-REOPENED-DETAILS`
+mirrors `CM-ITEM-OPERATOR-BLOCKED-DETAILS` (Phase 39.AT pattern):
+walks every actionable heading, scans 8 non-blank lines for a
+`**Status:** Reopened` line, then continues scanning for
+`**Reopened-Details:**`. Missing details line emits WARN initially,
+hardens to FAIL once backlog is fully populated.
+
+**Propagation.** Composes with §11.4.6 (no-guessing — the Reason
+must be drawn from the closed vocabulary or explicitly annotated;
+no `likely/probably/maybe` causes), §11.4.7 (demotion-evidence —
+reopen IS a demotion from Fixed), §11.4.15 (item-status tracking —
+extends the `Reopened` value's discipline), §11.4.21 (Operator-
+blocked discipline — same audit-line pattern with the same gate
+shape).
+
+---
+
+### §11.4.27 — Canonical-root inheritance clarity (User mandate, 2026-05-15)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-15):**
+
+> "Parent AGENTS.MD or CLAUDE.MD are located under constitution
+> directory (Submodule) containing these parent (root) which files
+> we are inheriting inside the project! Pay attention to this and
+> make sure you ALWAYS follow this rule! Same applies to the root
+> Constitution file!"
+>
+> "If needed (and we think it is needed it seems) add into the root
+> Constitution, AGENTS.MD and CLAUDE.MD located in constitution
+> directory (Submodule) which we are inheriting that the root
+> (parent) Constitution, AGENTS.MD and CLAUDE.MD are not the ones
+> in root of the project but inside the constitution directory
+> (Submodule). We are inheriting it and if project specific rules
+> have to be added or project specific constraints which are not
+> universal and reusable, then they go into the Constitution,
+> CLAUDE.MD and AGENTS.MD of the project directory itself!"
+
+**Classification:** §11.4.17-classified **universal** — every
+project that consumes this constitution as a Git submodule MUST
+unambiguously distinguish the **canonical root** (the constitution
+submodule's three files) from the **consumer extensions** (the
+project's own three files).
+
+**The defect this anchor closes.** Loose terminology — "parent
+CLAUDE.md", "root CLAUDE.md", "main constitution" — used without a
+file-path anchor causes a quiet but persistent confusion between
+the inheriting copy and the source-of-truth. AI agents have already
+been observed editing the consumer-side `CLAUDE.md` when the User's
+intent was to extend the canonical layer (or vice-versa), causing
+universal rules to leak into project-specific copies and
+project-specific rules to be falsely promoted as universal. The
+defect compounds: once a rule is misfiled, future propagation gates
+treat the misfile as canonical and silently spread it.
+
+**The mandate.** The three files in **this constitution submodule**
+(`constitution/Constitution.md`, `constitution/CLAUDE.md`,
+`constitution/AGENTS.md`) are the **canonical root** — also called
+the **parent** files. They contain only universal rules per
+§11.4.17 — rules that any project consuming this submodule benefits
+from.
+
+The three files in **the consuming project's repository root**
+(`<project-root>/CLAUDE.md`, `<project-root>/AGENTS.md`, optionally
+`<project-root>/Constitution.md` or equivalent) are the **consumer
+extensions**. They MUST start with the inheritance pointer per the
+existing constitution/CLAUDE.md "How inheritance works" section.
+They contain only project-specific rules per §11.4.17 — rules that
+reference particular hardware, vendor names, regulatory regions,
+internal asset names, or project-private conventions.
+
+**Operative invariants that follow:**
+
+1. **When in doubt about which file to edit:** if the rule is reusable
+   across any project, edit the constitution submodule's file. If the
+   rule references project-private specifics (a hardware revision, a
+   vendor SDK version, a regional constraint, a particular service),
+   edit the consumer's file. Default to consumer-side when uncertain
+   (per §11.4.17 — narrower scope is cheap to widen later, the
+   reverse is expensive).
+
+2. **Terminology anchor.** When prose in any file in this
+   constitutional family references "the parent CLAUDE.md" or "the
+   root Constitution," the referent is the constitution-submodule
+   file at `constitution/<filename>`, never the consumer's file.
+   When it references "the project CLAUDE.md" or "this project's
+   AGENTS.md," the referent is the consumer-side file at
+   `<project-root>/<filename>`. AI agents reading this constitution
+   MUST resolve ambiguous pronouns ("the CLAUDE.md", "the
+   constitution") via this rule.
+
+3. **Universal rules added to the consumer side are misfiled.** Per
+   §11.4.17 commit-time check, before adding a `MUST` to the consumer
+   file, the author assesses whether it would benefit other projects
+   that consume this constitution. If yes, lift it to the
+   constitution submodule first.
+
+4. **Project-specific rules added to the constitution submodule are
+   misfiled.** Per §11.4.17, before adding a `MUST` to the
+   constitution submodule, the author assesses whether it references
+   project-private specifics. If yes, demote it to the consumer
+   file (or genericise it to a universal form first).
+
+5. **Propagation gates target both layers but their contents
+   differ.** The existing `CM-COVENANT-114-N-PROPAGATION` gate
+   family verifies that anchor TEXT for §11.4.N exists in EVERY
+   `CLAUDE.md` and `AGENTS.md` across the project. The
+   constitution-submodule files carry the **canonical** text; the
+   consumer files carry **compact propagation pointers** that
+   reference the canonical authority by file path. Both forms count
+   as valid presence; the gate is satisfied when any form is found.
+
+6. **`@constitution/CLAUDE.md` import (Claude-Code-style) and the
+   pointer-block fallback (Aider/Codex/Gemini-style) are equivalent.**
+   The consumer's CLAUDE.md MUST start with one of:
+   - The native import: `@constitution/CLAUDE.md`
+   - The portable pointer-block per the `## INHERITED FROM
+     constitution/CLAUDE.md` heading defined in
+     `constitution/CLAUDE.md` "How inheritance works".
+
+7. **No silent demotion or silent promotion.** Moving a rule
+   between layers MUST be a visible commit — `git mv` of a section
+   if it's a clean clone, or an explicit "Lifted from <project> to
+   constitution per §11.4.27" / "Demoted from constitution to
+   <project> per §11.4.27" line in the commit message. AI agents
+   MUST NOT silently re-author a §11.4.X anchor in the wrong layer
+   and call it propagation.
+
+**Pre-build gate (recommended, per consuming project):**
+
+- **`CM-CANONICAL-ROOT-CLARITY`** — verifies (a) consumer's
+  `CLAUDE.md` opens with the inheritance pointer (either `@import`
+  or `## INHERITED FROM constitution/CLAUDE.md` heading), (b) the
+  constitution submodule's three files are present at the expected
+  path, (c) no `## INHERITED FROM` block in the constitution
+  submodule's own files (those ARE the source-of-truth, not
+  consumers).
+
+**Propagation.** Composes with §11.4.17 (universal-vs-project
+classification — §11.4.27 defines the file-layer split that §11.4.17
+classifies INTO), §11.4.18 (script documentation discipline — same
+canonical-vs-consumer file-layer rule applies to docs/scripts/).
+Reading order: this anchor first, then §11.4.17 for the
+classification rule.
+
+**No escape hatch.** Misfiling a rule between layers IS a §11.4.27
+violation regardless of intent. The fix is `git mv` + commit per
+invariant 7, not "leave both copies in place to be safe" — duplicates
+silently diverge over time.
+
+---
+
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN
 
 Every script, test, helper, and AI agent governed by this
