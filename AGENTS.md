@@ -520,6 +520,66 @@ Composes with §1, §7.1, §11.4.1–§11.4.26 (esp. §11.4.25 — strict
 per-type-of-test expansion). See Constitution §11.4.27 for full
 mandate.
 
+### Type-aware closure-status vocabulary (§11.4.33, User mandate 2026-05-15)
+
+Every project that tracks work items by Type per §11.4.16 MUST close
+them with the Type-appropriate closure-status word: `Bug` →
+`Fixed (→ Fixed.md)`, `Feature` → `Implemented (→ Fixed.md)`, `Task` →
+`Completed (→ Fixed.md)`. The `(→ Fixed.md)` suffix is preserved across
+all three so existing migration tooling (atomic Issues.md → Fixed.md
+move per §11.4.19) keeps working. Generators treat the three terminal
+values as semantically equivalent (all closed, positive evidence
+captured) but preserve the literal in emitted docs. Closing a
+`Feature` with `Fixed (→ Fixed.md)` or a `Task` with
+`Implemented (→ Fixed.md)` is a §11.4.33 violation. Pre-build gate
+`CM-CLOSURE-VOCAB-TYPE-AWARE`. Composes with §11.4.15 / §11.4.16 /
+§11.4.19 / §11.4.23. Classification: universal (per §11.4.17). No
+escape hatch.
+
+### Reopened-source attribution (§11.4.34, User mandate 2026-05-15)
+
+Every Issues.md heading whose `**Status:**` is `Reopened` MUST carry
+a `**Reopened-Details:**` line within 8 non-blank lines of the
+heading, capturing four sub-facts: **By:** `AI` or `User`; **On:**
+ISO date; **Reason:** one of `{ test-failed | manual-testing-detected
+| captured-evidence-contradicts | end-user-report |
+cycle-re-discovered | design-reconsidered }` or explicit free text;
+**Evidence:** path or short description of the captured artefact.
+Reopens without evidence are §11.4.6 / §11.4.7 violations: the reopen
+IS a demotion-from-Fixed change. Issues_Summary.md Status column MUST
+distinguish Reopened sub-states by source (e.g.,
+`Reopened (AI: test-failed)` vs `Reopened (User: manual-testing)`).
+Pre-build gate `CM-ITEM-REOPENED-DETAILS` mirrors §11.4.21 walk
+pattern. Composes with §11.4.6 / §11.4.7 / §11.4.15 / §11.4.21.
+Classification: universal (per §11.4.17). No escape hatch.
+
+### Canonical-root inheritance clarity (§11.4.35, User mandate 2026-05-15)
+
+**The constitution submodule's three files
+(`constitution/Constitution.md`, `constitution/CLAUDE.md`,
+`constitution/AGENTS.md`) ARE the canonical root** — also called the
+parent files. Universal rules per §11.4.17 live here.
+
+**The consuming project's repository-root files
+(`<project-root>/CLAUDE.md`, `<project-root>/AGENTS.md`, optionally
+`<project-root>/Constitution.md` or equivalent) are consumer
+extensions.** They open with the inheritance pointer (either
+`@constitution/CLAUDE.md` import or `## INHERITED FROM
+constitution/CLAUDE.md` heading). Project-specific rules per §11.4.17
+live here.
+
+When in doubt: universal rule → constitution submodule; project-
+specific rule → consumer's file. Default consumer-side when
+uncertain. "Parent CLAUDE.md" / "root Constitution" → constitution
+submodule file at `constitution/<filename>`. "Project CLAUDE.md" /
+"this project's AGENTS.md" → consumer file at
+`<project-root>/<filename>`. Moving a rule between layers MUST be a
+visible commit — `git mv` + explicit "Lifted from <project> to
+constitution per §11.4.35" / "Demoted from constitution to <project>
+per §11.4.35" line in the message. Pre-build gate
+`CM-CANONICAL-ROOT-CLARITY`. Composes with §11.4.17. Classification:
+universal (per §11.4.17). No escape hatch.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

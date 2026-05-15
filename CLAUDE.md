@@ -799,6 +799,125 @@ Composes with §1, §7.1, §11.4.1–§11.4.26 (esp. §11.4.25 — this
 is its strict expansion into per-type-of-test territory).
 See Constitution §11.4.27 for full mandate.
 
+### §11.4.33 — Type-aware closure-status vocabulary (User mandate, 2026-05-15)
+
+Every project that tracks work items by Type per §11.4.16 MUST close
+them with the Type-appropriate closure-status word, drawn from this
+3-element closed map:
+
+| Item `**Type:**` | Closure `**Status:**` value |
+|---|---|
+| `Bug` | `Fixed (→ Fixed.md)` |
+| `Feature` | `Implemented (→ Fixed.md)` |
+| `Task` | `Completed (→ Fixed.md)` |
+
+The `(→ Fixed.md)` suffix is preserved across all three so the
+existing migration-discipline tooling (atomic Issues.md → Fixed.md
+move per §11.4.19) keeps working without per-Type branching.
+Generators (`generate_issues_summary.sh`,
+`generate_fixed_summary.sh`, status-counter helpers, the §11.4.23
+colorizer) MUST treat the three terminal values as semantically
+equivalent (all map to "closed, positive evidence captured") while
+preserving the literal in the emitted document.
+
+Closing a `Feature` with `Fixed (→ Fixed.md)` or a `Task` with
+`Implemented (→ Fixed.md)` is a §11.4.33 violation. Pre-build gate
+(recommended) `CM-CLOSURE-VOCAB-TYPE-AWARE` walks every Fixed.md
+heading + every Issues.md heading whose `**Status:**` is one of the
+three terminal values and asserts the Status-Type match. Composes
+with §11.4.15 (status tracking), §11.4.16 (type tracking), §11.4.19
+(Fixed-document column alignment), §11.4.23 (colorisation).
+Classification: universal (per §11.4.17). No escape hatch.
+
+### §11.4.34 — Reopened-source attribution mandate (User mandate, 2026-05-15)
+
+Every Issues.md (or equivalent project tracker) heading whose
+`**Status:**` is `Reopened` MUST carry, within 8 non-blank lines of
+the heading, a `**Reopened-Details:**` line capturing four
+sub-facts:
+
+- **By:** `AI` or `User` (source-of-truth observer who flipped the
+  status). `AI` covers in-loop reopens (test failure, gate
+  regression, captured-evidence retrospect). `User` covers
+  operator-side observations (manual testing, end-user report,
+  design reconsideration).
+- **On:** ISO date (`YYYY-MM-DD`).
+- **Reason:** one-line cause classification — chosen from the
+  closed vocabulary `{ test-failed | manual-testing-detected |
+  captured-evidence-contradicts | end-user-report |
+  cycle-re-discovered | design-reconsidered }`. Other values are
+  permitted with explicit `Reason: <free text>` annotation but the
+  closed list MUST be tried first.
+- **Evidence:** path to or short description of the captured
+  artefact justifying the reopen — log file, recording, gate
+  failure ID, operator quote, etc. Reopens without evidence are
+  §11.4.6 / §11.4.7 violations: the reopen IS a demotion-from-Fixed
+  classification change, and demotion requires positive evidence
+  captured under the conditions that re-exposed the defect.
+
+The Issues_Summary.md (or equivalent) Status column MUST distinguish
+the four `Reopened` sub-states by source so a sweep query for
+"reopens by AI in the last 30 days" is mechanically possible.
+Suggested column rendering: `Reopened (AI: test-failed)` vs
+`Reopened (User: manual-testing)`.
+
+A `Reopened` entry without `**Reopened-Details:**` is a §11.4.34
+violation. Pre-build gate (recommended) `CM-ITEM-REOPENED-DETAILS`
+mirrors `CM-ITEM-OPERATOR-BLOCKED-DETAILS` (§11.4.21 walk pattern).
+Composes with §11.4.6 (no-guessing — Reason from closed vocabulary),
+§11.4.7 (demotion-evidence — reopen IS a demotion from Fixed),
+§11.4.15 (item-status tracking), §11.4.21 (Operator-blocked
+discipline — same audit-line pattern). Classification: universal
+(per §11.4.17). No escape hatch.
+
+### §11.4.35 — Canonical-root inheritance clarity (User mandate, 2026-05-15)
+
+**The constitution submodule's three files
+(`constitution/Constitution.md`, `constitution/CLAUDE.md`,
+`constitution/AGENTS.md`) ARE the canonical root** — also called the
+parent files. They contain only universal rules per §11.4.17.
+
+**The consuming project's repository-root files
+(`<project-root>/CLAUDE.md`, `<project-root>/AGENTS.md`, optionally
+`<project-root>/Constitution.md` or equivalent) are consumer
+extensions.** They open with the inheritance pointer (either the
+Claude-Code native `@constitution/CLAUDE.md` import or the portable
+`## INHERITED FROM constitution/CLAUDE.md` heading defined in this
+file's "How inheritance works" section). They contain only project-
+specific rules per §11.4.17 — rules that reference particular
+hardware, vendor names, regulatory regions, internal asset names, or
+project-private conventions.
+
+**When in doubt about which file to edit:** universal rule → edit
+constitution submodule's file; project-specific rule → edit
+consumer's file. Default consumer-side when uncertain (per §11.4.17,
+narrower scope is cheap to widen).
+
+**Terminology:** when prose references "the parent CLAUDE.md" or
+"the root Constitution," the referent is the constitution-submodule
+file at `constitution/<filename>`, never the consumer's file. When
+it references "the project CLAUDE.md" or "this project's
+AGENTS.md," the referent is the consumer-side file at
+`<project-root>/<filename>`. AI agents resolve ambiguous references
+via this rule.
+
+**No silent demotion or silent promotion.** Moving a rule between
+layers MUST be a visible commit — `git mv` of a section if it's a
+clean clone, or an explicit "Lifted from <project> to constitution
+per §11.4.35" / "Demoted from constitution to <project> per
+§11.4.35" line in the commit message.
+
+Pre-build gate (recommended) `CM-CANONICAL-ROOT-CLARITY` verifies
+(a) consumer's `CLAUDE.md` opens with the inheritance pointer (either
+`@import` or `## INHERITED FROM constitution/CLAUDE.md` heading), (b)
+the constitution submodule's three files are present at the expected
+path, (c) no `## INHERITED FROM` block in the constitution
+submodule's own files (those ARE the source-of-truth, not consumers).
+Composes with §11.4.17 (universal-vs-project classification — §11.4.35
+defines the file-layer split that §11.4.17 classifies INTO). Reading
+order: this anchor first, then §11.4.17. Classification: universal
+(per §11.4.17). No escape hatch.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
