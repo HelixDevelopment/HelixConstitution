@@ -2,21 +2,36 @@
 # install_upstreams.sh — Configure every declared upstream as a local
 # git remote so a single push fans out to every provider.
 #
-# Reads ./Upstreams/*.sh declaration files. Each declaration MUST
-# export UPSTREAMABLE_REPOSITORY=<git-url>.
+# Reads ./upstreams/*.sh (preferred, §11.4.29 / CONST-052 lowercase
+# snake_case) OR ./Upstreams/*.sh (legacy, kept working during the
+# migration window). When both directories exist, the lowercase
+# variant wins; old projects with only `Upstreams/` continue to
+# function unchanged.
+#
+# Each declaration MUST export UPSTREAMABLE_REPOSITORY=<git-url>.
 #
 # Usage (from the constitution submodule root):
 #   bash install_upstreams.sh
 #
-# Constitution: §2.1 "Multi-upstream push is the norm".
+# Constitution: §2.1 "Multi-upstream push is the norm";
+# §11.4.29 "Lowercase-Snake_Case-Naming Mandate".
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-UPSTREAMS_DIR="${SCRIPT_DIR}/Upstreams"
 
-if [[ ! -d "${UPSTREAMS_DIR}" ]]; then
-    echo "ERROR: Upstreams directory not found: ${UPSTREAMS_DIR}" >&2
+# Resolve the upstreams declaration directory. §11.4.29 transition:
+# prefer the lowercase form; fall back to the legacy uppercase form so
+# old checkouts keep working until they migrate. If neither exists,
+# fail with a directed error pointing the user at the snake_case
+# canonical name.
+if [[ -d "${SCRIPT_DIR}/upstreams" ]]; then
+    UPSTREAMS_DIR="${SCRIPT_DIR}/upstreams"
+elif [[ -d "${SCRIPT_DIR}/Upstreams" ]]; then
+    UPSTREAMS_DIR="${SCRIPT_DIR}/Upstreams"
+    echo "WARN: using legacy 'Upstreams/' — please rename to 'upstreams/' per §11.4.29" >&2
+else
+    echo "ERROR: upstreams directory not found (expected ${SCRIPT_DIR}/upstreams or ${SCRIPT_DIR}/Upstreams)" >&2
     exit 1
 fi
 
