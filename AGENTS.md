@@ -326,6 +326,47 @@ to force-push without §9.2 authorization. No escape hatch. See
 Constitution §11.4.26 for the full pipeline (operational scope,
 cross-cutting reach).
 
+### .gitignore + no-versioned-build-artifacts (§11.4.30, User mandate 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "every project module, every Submodule, every servcie and
+> apolication MUST HAVE proper .gitignore file! We MUST NOT git
+> version build artifacts, cache files, tmp files, main .env
+> file(s) or any files containing sensitive data, API keys or
+> token! ... If any violetion is detected it MUST be fixed before
+> commit is executed!"
+
+Every project module / submodule / service / application MUST
+ship a proper `.gitignore`. Forbidden-from-version-control:
+build artefacts (`bin/`, `build/`, `dist/`, `target/`, `*.exe`,
+`*.so`, `*.class`, `*.pyc`), cache files (`__pycache__/`,
+`node_modules/`, `.gradle/`, `.terraform/`), temp files
+(`*.tmp`, `*.swp`, `.DS_Store`), sensitive data (`.env`,
+`.env.*` except `.env.example` placeholder, `*.pem`, `*.key`,
+`id_rsa*`, `.netrc`, `secrets/`, `api_keys.sh`), generated logs
+(`*.log`, `coverage.out`, `htmlcov/`), OS/IDE personal state
+(`.idea/`, `.history/`).
+
+Anti-bluff invariant: ignore-line alone is not enough — no file
+matching forbidden patterns may be tracked. Pre-commit attention:
+every author inspects `git diff --staged` + `git status` BEFORE
+commit; violations abort the commit (un-stage, add to ignore,
+scrub if already-tracked). Gate `CM-GITIGNORE-PRECOMMIT-AUDIT` +
+paired mutation. Recreatable-content test: if a documented
+mechanism regenerates the file from sources, it's a build
+derivative and MUST be ignored.
+
+Secret-leak intersection (§11.4.10 / CONST-042 / §12.1): a `.env`
+leak is BOTH a §11.4.30 and a §11.4.10 violation; rotation +
+post-mortem required.
+
+Classification: universal (§11.4.17). Severity-equivalent to §11.4
+PASS-bluff at the repository-hygiene layer. Composes with §1, §2,
+§9.1, §11.4.10, §11.4.12, §11.4.17, §11.4.18, §11.4.20, §11.4.25,
+§11.4.26, §11.4.27, §11.4.28, §11.4.29, CONST-047. See Constitution
+§11.4.30 for the full mandate.
+
 ### Lowercase-snake_case-naming (§11.4.29, User mandate 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**

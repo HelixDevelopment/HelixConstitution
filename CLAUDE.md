@@ -488,6 +488,69 @@ blocker for every consuming project, severity-equivalent to a
 force-push without §9.2 authorization. See Constitution §11.4.26
 for the full mandate (operational scope, cross-cutting reach).
 
+### §11.4.30 — .gitignore + No-Versioned-Build-Artifacts Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "every project module, every Submodule, every servcie and
+> apolication MUST HAVE proper .gitignore file! We MUST NOT git
+> version build artifacts, cache files, tmp files, main .env
+> file(s) or any files containing sensitive data, API keys or
+> token! Any build derivate which we can recreate by executing
+> proper mechanism for generating MUST NOT be versioned! We MUST
+> pay attention what is going to be commited every time we are
+> preparing to execute commit! If any violetion is detected it
+> MUST be fixed before commit is executed!"
+
+Every project module / owned-by-us submodule / service /
+application MUST ship a proper `.gitignore` covering the
+forbidden-from-version-control classes:
+
+1. **Build artefacts**: `/bin/`, `/build/`, `/dist/`, `/out/`,
+   `target/`, `*.exe`, `*.dll`, `*.so`, `*.dylib`, `*.a`, `*.o`,
+   `*.class`, `*.pyc`, generator-produced files (when the
+   generator is committed).
+2. **Cache files**: `__pycache__/`, `.pytest_cache/`,
+   `.mypy_cache/`, `.ruff_cache/`, `node_modules/`, `.next/`,
+   `.nuxt/`, `.cache/`, `.gradle/`, `.terraform/`,
+   language-server caches.
+3. **Temp files**: `*.tmp`, `*.swp`, `*~`, `.DS_Store`,
+   `Thumbs.db`, `*.orig`, `*.rej`.
+4. **Sensitive-data files**: `.env`, `.env.*` (allow
+   `.env.example` placeholder), `*.pem`, `*.key`, `*.crt`,
+   `id_rsa*`, `id_ed25519*`, `.netrc`, `secrets/`, `api_keys.sh`.
+5. **Generated reports/logs**: `*.log`, `coverage.out`,
+   `htmlcov/`, runtime captures unless reference assets.
+6. **OS/IDE personal state**: `.idea/`, `.vscode/` (except shared
+   settings), `.history/`.
+
+Anti-bluff invariant: `.gitignore` line alone is not sufficient —
+no file matching the forbidden patterns may be currently tracked.
+A tracked `*.log` despite the ignore-line is a violation of equal
+severity to no ignore-line at all.
+
+Pre-commit attention: every commit author (human OR agent) MUST
+inspect `git diff --staged` + `git status` BEFORE the commit.
+Forbidden-class hits abort the commit until fixed (un-stage, add
+to `.gitignore`, scrub if already-tracked). Gate
+`CM-GITIGNORE-PRECOMMIT-AUDIT` + paired mutation.
+
+Secret-leak intersection: §11.4.30 composes tightly with §11.4.10
++ §12.1 (CONST-042) — a `.env` leak is BOTH a §11.4.30 and a
+§11.4.10 violation, requiring rotation + post-mortem.
+
+Recreatable-content test: if a documented mechanism regenerates
+the file from sources, it's a build derivative and MUST be
+ignored. Generators MUST be committed so consumers regenerate on
+demand.
+
+Classification: universal (§11.4.17). No escape hatch beyond
+enumerated exceptions. Severity-equivalent to §11.4 PASS-bluff at
+the repository-hygiene layer. Composes with §1, §2, §9.1,
+§11.4.10, §11.4.12, §11.4.17, §11.4.18, §11.4.20, §11.4.25,
+§11.4.26, §11.4.27, §11.4.28, §11.4.29, CONST-047. See
+Constitution §11.4.30 for the full mandate.
+
 ### §11.4.29 — Lowercase-Snake_Case-Naming Mandate (User mandate, 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**
