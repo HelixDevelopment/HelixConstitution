@@ -326,6 +326,44 @@ to force-push without §9.2 authorization. No escape hatch. See
 Constitution §11.4.26 for the full pipeline (operational scope,
 cross-cutting reach).
 
+### No-fakes-beyond-unit-tests + 100%-test-type-coverage (§11.4.27, User mandate 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Mocks, stubs, placeholders, TODOs or FIXMEs are allowed to
+> exist ONLY in Unit tests! All other test types MUST interract
+> with real fully implemented System! No fakes, empty
+> implementations or bluffing is allowed of any kind! All
+> codebase of the project MUST BE 100% covered with every
+> supported test type."
+
+Two invariants. **(A)** Mocks/stubs/fakes/placeholders/TODOs/
+FIXMEs/"for now" patterns PERMITTED only in unit-test sources;
+non-unit tests (integration, E2E, full-automation, security, DDoS,
+scaling, chaos, stress, performance, benchmarking, UI, UX,
+Challenges, HelixQA) MUST exercise the real, fully implemented
+system. Production code MUST NOT import mock paths. Gate
+`CM-NO-FAKES-BEYOND-UNIT-TESTS` + paired mutation. **(B)** Codebase
+MUST be covered by every supported test type the domain warrants:
+unit, integration, E2E, full-automation, security, DDoS, scaling,
+chaos, stress, performance, benchmarking, UI, UX, Challenges
+(vasic-digital/Challenges submodule fully incorporated), HelixQA
+(HelixDevelopment/HelixQA submodule fully incorporated, with full
+autonomous QA sessions executing every registered test bank).
+
+Required dependency submodules (recursive per CONST-047):
+Challenges (`git@github.com:vasic-digital/Challenges.git`) +
+HelixQA (`git@github.com:HelixDevelopment/HelixQA.git`) + any
+other functionality submodules under vasic-digital/HelixDevelopment
+orgs the project depends on. Pointers bumped to upstream HEAD in
+same commit as cascade work (§11.4.26 step 7).
+
+Classification: universal (§11.4.17). Severity-equivalent to a
+§11.4 PASS-bluff at the release-gate layer. No escape hatch.
+Composes with §1, §7.1, §11.4.1–§11.4.26 (esp. §11.4.25 — strict
+per-type-of-test expansion). See Constitution §11.4.27 for full
+mandate.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

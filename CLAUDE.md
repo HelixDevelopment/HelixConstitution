@@ -488,6 +488,63 @@ blocker for every consuming project, severity-equivalent to a
 force-push without §9.2 authorization. See Constitution §11.4.26
 for the full mandate (operational scope, cross-cutting reach).
 
+### §11.4.27 — No-Fakes-Beyond-Unit-Tests + 100%-Test-Type-Coverage Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Mocks, stubs, placeholders, TODOs or FIXMEs are allowed to
+> exist ONLY in Unit tests! All other test types MUST interract
+> with real fully implemented System! No fakes, empty
+> implementations or bluffing is allowed of any kind! All
+> codebase of the project MUST BE 100% covered with every
+> supported test type: unit tests, integration tests, e2e tests,
+> full automation tests, security tests, ddos tests, scaling
+> tests, chaos tests, stress tests, performance tests,
+> benchmarking tests, ui tests, ux tests, Challenges (fully
+> incorporating our Challenges Submodule). EVERYTHING MUST BE
+> tested using HelixQA (fully incorporating HelixQA Submodule).
+> HelixQA MUST BE used with all possible written tests suites
+> (test banks) for every applications, service, platform, etc
+> and execution of the full HelixQA QA autonomous sessions! All
+> required dependency Submodules MUST BE added into the project
+> as well (fully recursive!!!)."
+
+Two cooperating invariants:
+
+**(A) No-fakes-beyond-unit-tests.** Mocks, stubs, fakes,
+placeholders, `TODO`, `FIXME`, "for now", "in production this
+would", or empty-implementation patterns are PERMITTED only in
+unit-test sources. Every other test type — integration, E2E,
+full automation, security, DDoS, scaling, chaos, stress,
+performance, benchmarking, UI, UX, Challenges, HelixQA — MUST
+exercise the real, fully implemented system against real
+infrastructure. Production code MUST NOT import mock paths. Gate
+`CM-NO-FAKES-BEYOND-UNIT-TESTS` + paired mutation.
+
+**(B) 100% test-type coverage.** Codebase MUST be covered by
+every supported test type the domain warrants: unit, integration,
+E2E, full-automation, security, DDoS, scaling, chaos, stress,
+performance, benchmarking, UI, UX, Challenges (vasic-digital/
+Challenges submodule fully incorporated), HelixQA (HelixDevelopment/
+HelixQA submodule fully incorporated). HelixQA autonomous sessions
+drive end-to-end execution of every registered test bank with
+captured wire evidence per check.
+
+**Required dependency submodules** (recursive per CONST-047):
+- Challenges — `git@github.com:vasic-digital/Challenges.git`
+- HelixQA — `git@github.com:HelixDevelopment/HelixQA.git`
+- Any other functionality submodules under `vasic-digital/*` /
+  `HelixDevelopment/*` orgs the project depends on.
+
+Pointers bumped to upstream HEAD in same commit as cascade work
+(§11.4.26 step 7); pointer drift = §11.4.27 violation.
+
+Classification: universal (§11.4.17). Severity-equivalent to a
+§11.4 PASS-bluff at the release-gate layer. No escape hatch.
+Composes with §1, §7.1, §11.4.1–§11.4.26 (esp. §11.4.25 — this
+is its strict expansion into per-type-of-test territory).
+See Constitution §11.4.27 for full mandate.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
