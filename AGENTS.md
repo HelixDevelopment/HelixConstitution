@@ -268,6 +268,64 @@ failure paths of the build wrapper. Gate `CM-BUILD-RESOURCE-STATS-TRACKER`
 build-resource debugging without time-series data is the bluff this
 anchor forbids.
 
+### Full-Automation-Coverage (§11.4.25, User mandate 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Make sure that every feature, every functionality, every flow,
+> every use case, every edge case, every service or application, on
+> every platform we support is covered with full automation tests
+> which will confirm anti-bluff policy and provide the proof of
+> fully working capabilities, working implementation as expected,
+> no issues, no bugs, fully documented, tests covered!"
+
+No feature / functionality / flow / use case / edge case / service /
+application on any supported platform may be considered deliverable
+until automation tests prove six invariants: (1) anti-bluff posture
+with captured runtime evidence (§7.1 + §11.4); (2) proof of working
+capability end-to-end on target topology (§11.4.3, no mocks);
+(3) implementation matches documented promise; (4) no open
+issues/bugs surfaced (cross-checked vs §11.4.15 / §11.4.16);
+(5) full documentation (user manual + §11.4.18 for scripts) kept in
+sync via §11.4.12; (6) four-layer test floor per §1 (pre-build +
+post-build + runtime + paired mutation). Consuming projects publish
+a coverage ledger (feature × platform × invariant × status)
+regenerated at release-gate sweep. Classification: universal
+(§11.4.17). Severity-equivalent to a §11.4 PASS-bluff at the
+release-gate layer. No escape hatch. See Constitution §11.4.25 for
+the full mandate.
+
+### Constitution-Submodule Update Workflow (§11.4.26, User mandate 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Every time we add something into our root (constitution Submodule)
+> Constitution, CLAUDE.MD and AGENTS.MD we MUST FIRST fetch and pull
+> all new changes / work from constitution Submodule first! All
+> changes we apply MUST BE commited and pushed to all constitution
+> Submodule upstreams! In case of conflict, IT MUST BE carefully
+> resolved! Nothing can be broken, made faulty, corrupted or unusable!
+> After merging full validation and verification MUST BE done!"
+
+Before any modification to `constitution/{Constitution,CLAUDE,AGENTS}.md`,
+execute in order: (1) fetch + pull (--ff-only or --rebase; never
+strategy=ours / unrelated-histories without authorization) so the
+submodule is at upstream tip before editing; (2) apply the change
+with §11.4.17 classification + verbatim mandate quote; (3) validate
+(meta_test_inheritance.sh + no merge-conflict markers + cross-file
+consistency); (4) commit (governance files only, no `git add -A`)
++ push to EVERY configured upstream remote (§2.1 violation if not);
+(5) careful conflict resolution preserving union of governance
+content — force-push forbidden (§9.2); (6) post-merge validation:
+`git submodule update --remote --init` + re-run cascade verifier
+(CONST-047) confirming the new clause reaches every owned submodule;
+(7) bump consuming project's `.gitmodules` pointer to new HEAD in
+the SAME commit as cascade work — out-of-sync pointer = §11.4.26
+violation. Classification: universal (§11.4.17). Severity-equivalent
+to force-push without §9.2 authorization. No escape hatch. See
+Constitution §11.4.26 for the full pipeline (operational scope,
+cross-cutting reach).
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

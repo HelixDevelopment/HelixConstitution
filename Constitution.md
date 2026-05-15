@@ -1504,6 +1504,175 @@ build OOM'd, no idea why" into "build X at git-SHA Y peaked at Z GB
 at minute N, which is W% above the rolling p95". The discipline pays
 for itself the first time it diagnoses a build-resource regression.
 
+### §11.4.25 — Full-Automation-Coverage Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Make sure that every feature, every functionality, every flow,
+> every use case, every edge case, every service or application, on
+> every platform we support is covered with full automation tests
+> which will confirm anti-bluff policy and provide the proof of
+> fully working capabilities, working implementation as expected, no
+> issues, no bugs, fully documented, tests covered! Nothing less
+> than this does not give us a chance to deliver stable product!
+> This is mandatory constraint which MUST BE respected without
+> ignoring, skipping, slacking or forgetting it!"
+
+**Operative rule.** For every consuming project under this
+Constitution, no feature, functionality, flow, use case, edge case,
+service, or application on any supported platform may be considered
+**deliverable** until it is covered by automation tests that
+collectively prove six invariants:
+
+1. **Anti-bluff posture (per §7.1 + §11.4):** every assertion carries
+   captured runtime evidence; metadata-only / configuration-only /
+   grep-based / absence-of-error PASSes are forbidden.
+2. **Proof of working capability:** the user-visible behaviour is
+   exercised end-to-end on the target platform topology
+   (per §11.4.3), not in a mock or in-memory facsimile.
+3. **Working implementation as expected:** assertions match the
+   product's documented promise (in user manual, README, specs),
+   not an implementation-detail back-door.
+4. **No issues, no bugs:** the test suite is the canonical seam for
+   surfacing defects — passing without producing defect signals
+   means defects do not exist or have been previously surfaced,
+   tracked (per §11.4.15 / §11.4.16), and closed.
+5. **Fully documented:** the feature has a user-facing doc entry
+   (per §11.4.18 for scripts, and project-level user-manual
+   coverage for everything else); the doc is kept in sync with the
+   tests (per §11.4.12).
+6. **Tests-covered (the four-layer floor per §1):** pre-build
+   presence-of-change gate, post-build artifact-shipped gate,
+   runtime / integration / on-device gate, AND meta-test paired
+   mutation that proves the runtime gate catches the break.
+
+**Cross-cutting reach.** This mandate is **universal** — it applies
+to every project consuming this Constitution, every feature surface
+they expose (HTTP endpoints, CLI commands, slash commands, IPC
+channels, plugins, hooks, MCP servers, agents, providers, integrations,
+GUI flows, mobile flows, scheduled jobs), and every supported
+platform (Linux, macOS, Windows, iOS, Android, AuroraOS, HarmonyOS,
+embedded, containers, headless servers, kiosk, etc.). A project that
+ships a feature without satisfying all six invariants is **not
+delivering a stable product**, irrespective of how green its summary
+line looks.
+
+**Coverage audit.** Consuming projects MUST publish a coverage
+ledger (matrix of: feature × platform × invariant-1..6 × status)
+that is regenerated as part of the release-gate sweep. The ledger
+itself is documented (per §11.4.18 / §11.4.12) and committed via
+the §11.4.22 lightweight doc-sync wrapper. Gaps in the ledger
+(`UNCONFIRMED:` / `PENDING:` / `BLOCKED:` cells) MUST cite a tracked
+work item per §11.4.15 + §11.4.16; rows that quietly omit a
+platform are §11.4.25 violations.
+
+**Composition.** §11.4.25 explicitly stacks on top of §1
+(four-layer test-coverage floor), §1.1 (false-positive immunity),
+§7.1 (positive-evidence-only validation), §11.4.1 (FAIL-bluffs
+forbidden), §11.4.2 (recorded-evidence requirement), §11.4.3
+(per-environment-topology dispatch), §11.4.6 (no-guessing),
+§11.4.15 / §11.4.16 (status + type tracking), §11.4.17
+(universal-vs-project classification — this rule is universal),
+§11.4.18 (script documentation), §11.4.20 (subagent delegation
+when the work is multi-step), §11.4.22 (lightweight doc-sync).
+It does NOT supersede them; it forecloses the loophole "the
+feature works locally for me, ship it".
+
+**Classification:** universal (per §11.4.17). No escape hatch.
+Severity-equivalent to a §11.4 PASS-bluff at the release-gate
+layer — a project claiming "Done" without honoring §11.4.25 is
+making a false claim regardless of how the work-item tracker
+labels the row.
+
+### §11.4.26 — Constitution-Submodule Update Workflow Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Every time we add something into our root (constitution
+> Submodule) Constitution, CLAUDE.MD and AGENTS.MD we MUST FIRST
+> fetch and pull all new changes / work from constitution Submodule
+> first! All changes we apply MUST BE commited and pushed to all
+> constitution Submodule upstreams! In case of conflict, IT MUST BE
+> carefully resolved! Nothing can be broken, made faulty, corrupted
+> or unusable! After merging full validation and verification MUST
+> BE done!"
+
+**Operative rule.** Before ANY agent or operator modifies the
+`constitution/Constitution.md`, `constitution/CLAUDE.md`, or
+`constitution/AGENTS.md` files of a project that consumes this
+Constitution as a submodule, the agent or operator MUST execute
+the following pipeline in order, with NO step skipped:
+
+1. **Fetch + pull first.** From inside the `constitution/`
+   submodule worktree, run `git fetch <every-configured-remote>`
+   followed by `git pull --ff-only origin <branch>` (or
+   `--rebase` if non-FF-mergeable; **never** `--strategy=ours` /
+   `--allow-unrelated-histories` without explicit operator
+   authorization). The submodule MUST be at upstream tip BEFORE
+   any local edit is applied.
+2. **Apply the change.** Edit the relevant file(s). The edit MUST
+   classify itself per §11.4.17 (universal vs project-specific) —
+   only universal additions belong in the constitution submodule;
+   project-specific clauses belong in the consuming project's
+   own governance files. The edit MUST include the verbatim user
+   mandate (if it originated from one) as a forensic anchor.
+3. **Validate before commit.** Run the constitution submodule's
+   `meta_test_inheritance.sh` (or equivalent) to confirm the
+   inheritance chain still resolves. Verify no governance file
+   was left with merge-conflict markers (`<<<<<<<`, `=======`,
+   `>>>>>>>`). Verify all three governance files (Constitution +
+   CLAUDE + AGENTS) cross-reference the new clause consistently.
+4. **Commit + push to ALL upstreams.** Stage only the governance
+   files (NEVER `git add -A` inside the constitution submodule —
+   stray local artefacts MUST NOT enter governance). Commit with
+   a message that cites the user mandate (verbatim quote) + the
+   classification line per §11.4.17. Push to **every** configured
+   remote of the constitution submodule. A commit that lives on
+   one upstream but not others is a §11.4.26 violation equivalent
+   to a §2.1 multi-upstream-push violation.
+5. **Conflict resolution.** If `pull --ff-only` reports
+   non-fast-forward, the merge MUST be performed carefully:
+   inspect both sides, preserve the union of governance content
+   (no clause silently dropped), re-classify per §11.4.17, validate
+   per step 3. Force-push to "make conflicts go away" is FORBIDDEN
+   (§9.2). Nothing about the constitution may be broken, made
+   faulty, corrupted, or rendered unusable by the merge.
+6. **Post-merge validation + verification.** After the push lands,
+   re-clone (or `git submodule update --remote --init`) in a
+   throwaway worktree and re-run the consumer project's
+   inheritance-cascade verifier (e.g. `scripts/verify-governance-
+   cascade.sh`) to confirm the new clause reaches every owned
+   submodule per CONST-047. Any cascade gap MUST be closed in the
+   same change-window.
+7. **Update the consuming project's pointer.** The consuming
+   project's `.gitmodules`-tracked submodule pointer MUST be
+   bumped to the new constitution HEAD in the SAME commit as any
+   downstream cascade work; out-of-sync submodule pointers are a
+   §11.4.26 violation.
+
+**Operational scope.** This workflow applies regardless of who
+initiates the change (operator, primary agent, subagent per
+§11.4.20, automated lint suggestion). The workflow CANNOT be
+shortcut by "I'll fetch later" or "I'll push to the other
+upstreams in the next commit". The constitution is the **single
+source of truth** for every project that imports it; allowing it
+to fragment across upstreams is the structural equivalent of a
+§11.4 PASS-bluff at the governance layer.
+
+**Cross-cutting reach.** §11.4.26 composes with: §2 (single-
+entrypoint commit wrapper), §2.1 (multi-upstream push), §3
+(submodule changes propagate through submodule commits first),
+§9.1 / §9.2 (data-safety + force-push authorization),
+§11.4.17 (universal-vs-project classification), §11.4.22
+(lightweight doc-sync), §11.4.25 (full-automation coverage —
+the post-merge validation step is itself a form of automation
+coverage). It does NOT supersede them.
+
+**Classification:** universal (per §11.4.17). No escape hatch.
+A constitution-submodule change that violates §11.4.26 is a
+release blocker for every consuming project, equivalent in
+severity to a force-push without §9.2 authorization.
+
 ---
 
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN

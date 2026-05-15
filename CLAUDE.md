@@ -396,6 +396,98 @@ forensic anchors are the empirical motivation for this telemetry). No
 escape hatch — build-resource debugging without time-series data is the
 bluff this anchor forbids.
 
+### §11.4.25 — Full-Automation-Coverage Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Make sure that every feature, every functionality, every flow,
+> every use case, every edge case, every service or application, on
+> every platform we support is covered with full automation tests
+> which will confirm anti-bluff policy and provide the proof of
+> fully working capabilities, working implementation as expected,
+> no issues, no bugs, fully documented, tests covered! Nothing less
+> than this does not give us a chance to deliver stable product!"
+
+For every consuming project, no feature / functionality / flow /
+use case / edge case / service / application on any supported
+platform may be considered **deliverable** until it is covered by
+automation tests proving six invariants: (1) anti-bluff posture
+(captured runtime evidence per §7.1 + §11.4); (2) proof of working
+capability end-to-end on the target topology (per §11.4.3, not in
+a mock); (3) working implementation matching the documented promise;
+(4) no open issues / bugs surfaced by the suite (cross-checked
+against §11.4.15 / §11.4.16 trackers); (5) full documentation
+(user manual entry + §11.4.18 for scripts) kept in sync per
+§11.4.12; (6) four-layer test floor per §1 (pre-build + post-build
++ runtime + paired mutation). Consuming projects MUST publish a
+coverage ledger (feature × platform × invariant-1..6 × status),
+regenerated as part of release-gate sweeps, with gaps tracked per
+§11.4.15. Classification: universal (§11.4.17). No escape hatch.
+A project that ships a feature without all six invariants is **not
+delivering a stable product** — severity-equivalent to a §11.4
+PASS-bluff at the release-gate layer. See Constitution §11.4.25
+for the full mandate (cross-cutting reach, composition, audit
+requirements).
+
+### §11.4.26 — Constitution-Submodule Update Workflow Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Every time we add something into our root (constitution
+> Submodule) Constitution, CLAUDE.MD and AGENTS.MD we MUST FIRST
+> fetch and pull all new changes / work from constitution Submodule
+> first! All changes we apply MUST BE commited and pushed to all
+> constitution Submodule upstreams! In case of conflict, IT MUST
+> BE carefully resolved! Nothing can be broken, made faulty,
+> corrupted or unusable! After merging full validation and
+> verification MUST BE done!"
+
+Before ANY modification to `constitution/Constitution.md`,
+`constitution/CLAUDE.md`, or `constitution/AGENTS.md`, the agent
+or operator MUST execute the following pipeline in order:
+
+1. **Fetch + pull first** — inside the constitution submodule
+   worktree run `git fetch` against every remote, then
+   `git pull --ff-only` (or `--rebase` if non-FF-mergeable;
+   never `--strategy=ours` / `--allow-unrelated-histories`
+   without explicit authorization). The submodule MUST be at
+   upstream tip BEFORE any local edit.
+2. **Apply the change** — classify per §11.4.17 (only universal
+   additions belong here; project-specific clauses stay in the
+   consuming project's governance). Cite the verbatim user
+   mandate if one originated the change.
+3. **Validate before commit** — run `meta_test_inheritance.sh`
+   (or equivalent); verify no merge-conflict markers
+   (`<<<<<<<`, `=======`, `>>>>>>>`); verify Constitution +
+   CLAUDE + AGENTS cross-reference the new clause consistently.
+4. **Commit + push to ALL upstreams** — stage only the
+   governance files (NEVER `git add -A` inside the submodule);
+   commit message cites the user mandate + §11.4.17
+   classification; push to every configured remote. A commit
+   landing on one upstream but not others is a §2.1 violation
+   AND a §11.4.26 violation.
+5. **Conflict resolution** — if `pull --ff-only` reports
+   non-fast-forward, merge carefully (preserve union of
+   governance content, no clause silently dropped, re-classify,
+   re-validate). Force-push to "make conflicts go away" is
+   FORBIDDEN (§9.2). Nothing about the constitution may be
+   broken, made faulty, corrupted, or rendered unusable.
+6. **Post-merge validation + verification** — after the push
+   lands, `git submodule update --remote --init` and re-run the
+   consumer project's cascade verifier (per CONST-047) to
+   confirm the new clause reaches every owned submodule. Any
+   cascade gap closed in the same change-window.
+7. **Bump consuming project pointer** — `.gitmodules`-tracked
+   submodule pointer MUST be advanced to the new constitution
+   HEAD in the SAME commit as any cascade work. Out-of-sync
+   pointers are §11.4.26 violations.
+
+Classification: universal (§11.4.17). No escape hatch. A
+constitution-submodule change violating §11.4.26 is a release
+blocker for every consuming project, severity-equivalent to a
+force-push without §9.2 authorization. See Constitution §11.4.26
+for the full mandate (operational scope, cross-cutting reach).
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
