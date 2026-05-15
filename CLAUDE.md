@@ -488,6 +488,70 @@ blocker for every consuming project, severity-equivalent to a
 force-push without §9.2 authorization. See Constitution §11.4.26
 for the full mandate (operational scope, cross-cutting reach).
 
+### §11.4.31 — Submodule-Dependency-Manifest Mandate (User mandate, 2026-05-15)
+
+Every owned-by-us submodule MUST ship a machine-readable dependency
+manifest at canonical path `helix-deps.yaml` (or .json/.toml) listing
+its own-org Git SSH dependencies. Schema (per Constitution §11.4.31):
+`schema_version`, `deps: [{name, ssh_url, ref, why, layout: flat|grouped}]`,
+`transitive_handling.recursive: true`, `transitive_handling.conflict_resolution:
+operator-required`, `language_specific_subtree: bool`.
+
+Tooling: `incorporate-submodule <ssh-url>` adds the submodule at its
+declared canonical path (CONST-051(C) flat/grouped), reads its
+helix-deps.yaml, recurses for each declared dep, aborts on conflicting
+refs, emits `<root>/.helix-manifest.yaml` audit record.
+
+Anti-bluff guarantee: every manifest paired with a Challenge that
+bootstraps a throwaway consuming project, runs `incorporate-submodule`,
+asserts produced layout matches manifest, runs the submodule's own
+tests against the bootstrapped layout, captures wire evidence per
+§11.4.2. A manifest without this proof is a §11.4.31 violation.
+
+§11.4.31 is the operational complement of §11.4.28 / CONST-051(C):
+nested own-org submodule chains are FORBIDDEN, manifests are the
+bridge that lets consumers reconstruct the dependency graph at the
+parent root.
+
+Classification: universal (§11.4.17). Composes with §1, §3, §11.4.12,
+§11.4.17, §11.4.18, §11.4.20, §11.4.25, §11.4.26, §11.4.27, §11.4.28,
+§11.4.29, §11.4.30, CONST-047. See Constitution §11.4.31 for the
+full mandate.
+
+### §11.4.32 — Post-Constitution-Pull Validation Mandate (User mandate, 2026-05-15)
+
+Whenever a project's constitution submodule is fetched + pulled with
+any content change, the project MUST run a full-project +
+recursive-submodule validation sweep BEFORE the new constitution HEAD
+is treated as canonical for any other work.
+
+Sweep contract (canonical script:
+`scripts/verify-all-constitution-rules.sh`): re-runs the governance-
+cascade verifier; for every rule with a programmatic gate (CONST-053
+.gitignore audit, CONST-051(C) nested-own-org-chain audit, CONST-052
+case audit, CONST-050(A) mock-from-production audit, CONST-035
+anti-bluff smoke), runs the gate against post-pull tree. Failures
+produce directed FAIL entries → tracker per §11.4.15 with Status:
+`Reopened`, Type: `Bug`. Closure requires positive-evidence per
+§11.4 anti-bluff covenant.
+
+Pull-time invocation: `git submodule update --remote constitution`
+triggers the sweep automatically (post-update hook or commit wrapper);
+operator-explicit manual invocation also available.
+
+Anti-bluff: sweep's own meta-test (paired mutation §1.1) plants a
+known violation of each enforced gate and asserts sweep reports
+FAIL for the planted gate. A sweep that exits PASS without running
+every implementable gate is a §11.4.32 violation.
+
+§11.4.32 is the **enforcement engine** for every other §11.4.x and
+CONST-NNN rule — without it, new rules cascade as anchors but never
+get enforced in the codebase.
+
+Classification: universal (§11.4.17). Composes with every rule that
+has a programmatic gate. See Constitution §11.4.32 for the full
+mandate.
+
 ### §11.4.30 — .gitignore + No-Versioned-Build-Artifacts Mandate (User mandate, 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**

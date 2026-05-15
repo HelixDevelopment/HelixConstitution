@@ -326,6 +326,40 @@ to force-push without §9.2 authorization. No escape hatch. See
 Constitution §11.4.26 for the full pipeline (operational scope,
 cross-cutting reach).
 
+### Submodule-dependency-manifest (§11.4.31, User mandate 2026-05-15)
+
+Every owned-by-us submodule MUST ship `helix-deps.yaml` listing its
+own-org dependencies: `{name, ssh_url, ref, why, layout: flat|grouped}`.
+Tooling `incorporate-submodule <ssh-url>` adds the submodule at the
+parent project's canonical path (CONST-051(C)) + reads its
+helix-deps.yaml + recurses + aborts on conflicting refs + emits
+`<root>/.helix-manifest.yaml` audit record. Anti-bluff: each manifest
+paired with a Challenge that bootstraps from scratch, asserts layout
+matches manifest, runs submodule tests, captures wire evidence. Without
+the proof, the manifest is a §11.4.31 violation. This rule is the
+operational complement of §11.4.28 / CONST-051(C) — manifests are the
+bridge that lets consumers reconstruct the dependency graph at the
+parent root. Classification: universal (§11.4.17). See Constitution
+§11.4.31 for the full mandate.
+
+### Post-constitution-pull validation (§11.4.32, User mandate 2026-05-15)
+
+Whenever a project's constitution submodule is fetched + pulled with
+any content change, run `scripts/verify-all-constitution-rules.sh`
+BEFORE the new HEAD is treated as canonical for other work. The
+sweep re-runs the governance-cascade verifier + every implementable
+rule gate (CONST-053 .gitignore audit, CONST-051(C) nested-own-org
+audit, CONST-052 case audit, CONST-050(A) mock-from-production audit,
+CONST-035 anti-bluff smoke). Failures populate Issues per §11.4.15
+(Status: Reopened, Type: Bug); closure requires positive-evidence per
+§11.4. Pull-time invocation auto-triggered by `git submodule update
+--remote constitution`. Anti-bluff: sweep's own meta-test (paired
+mutation §1.1) plants a violation per gate, asserts sweep FAILs.
+This is the **enforcement engine** for every other rule — without it,
+new rules are decorative anchors rather than enforced gates.
+Classification: universal (§11.4.17). See Constitution §11.4.32 for
+the full mandate.
+
 ### .gitignore + no-versioned-build-artifacts (§11.4.30, User mandate 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**

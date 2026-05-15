@@ -1675,6 +1675,215 @@ severity to a force-push without §9.2 authorization.
 
 ---
 
+### §11.4.31 — Submodule-Dependency-Manifest Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "We MUST HAVE mechanism for each Submodule to determine / know
+> what are its Submodule dependencies so new projects or palces we
+> are incorporate them can add these Submodules to the project root
+> and make them available! Suggested idea is configuration file
+> with expected Submodules Git ssh urls perhaps? New project can
+> read it, and recursively add each Submodule to the root of the
+> project and install / expose it to veryone. This MUST be
+> analyzed and applied. We MUST apply the best strategy for this
+> which can be easily executed just by following our root
+> Constitution, AGENTS.MD and CLAUDE.MD! Process this, extend out
+> Constitution, AGENTS.MD and CLAUDE.MD with mandatory
+> instructions and then process project root and all Submodules
+> deep recursively so proper configuration Submodules dependency
+> files are created! Document EVERYTHING and cover with all
+> supported test types! Any kind of bluff is strictyl forbidden!
+> All wotk MUST come with mechanism for validation and
+> verification by creating proper proofs for all critical points!"
+
+**Operative rule.** Every owned-by-us submodule MUST ship a
+machine-readable, version-controlled **dependency manifest** at
+the canonical path `helix-deps.yaml` (or `helix-deps.json` /
+`helix-deps.toml` if the submodule's ecosystem strongly prefers a
+different serialisation — but only one canonical file per
+submodule, and its name MUST appear in the submodule's
+`README.md` + governance trio).
+
+**Manifest schema (CONST-051(C)-aligned):**
+
+```yaml
+# helix-deps.yaml
+# Declares this submodule's own-org dependencies. Consuming projects
+# read this manifest recursively and add each declared dependency to
+# their root at <root>/<name>/ or <root>/submodules/<name>/ per
+# CONST-051(C). Nested own-org submodule chains are FORBIDDEN — this
+# manifest is the bridge.
+
+schema_version: 1
+deps:
+  - name: Challenges                                  # canonical name (will become snake_case per §11.4.29)
+    ssh_url: git@github.com:vasic-digital/Challenges.git
+    ref: main                                         # branch or pinned tag
+    why: "Cross-cutting Challenges + Panoptic browser harness"
+    layout: flat                                      # 'flat' = <root>/<name>/; 'grouped' = <root>/submodules/<name>/
+  - name: HelixQA
+    ssh_url: git@github.com:HelixDevelopment/HelixQA.git
+    ref: main
+    why: "Anti-bluff QA orchestration + autonomous-session driver"
+    layout: flat
+
+transitive_handling:
+  # Each declared dep itself ships a helix-deps.yaml. The incorporator
+  # tooling MUST recurse — top-level project gets the union of all
+  # transitively-declared deps, flattened to root.
+  recursive: true
+
+  # When two submodules declare the same dependency at different
+  # refs, CONFLICT — operator MUST resolve before incorporation
+  # proceeds. The incorporator aborts on conflict (never silently
+  # picks one).
+  conflict_resolution: operator-required
+
+language_specific_subtree: false      # set true for Android/Kotlin/Apple
+                                       # roots (per §11.4.29 exception);
+                                       # excludes inner subtree from
+                                       # snake_case enforcement.
+```
+
+**Tooling contract.** A consuming project MUST be able to bootstrap
+its entire own-org dependency graph by:
+
+1. Running `incorporate-submodule <ssh-url>` (canonical name; lives
+   in the constitution submodule's `scripts/` or in a parent
+   project's bin path).
+2. The script:
+   - Adds the supplied submodule at its declared canonical path
+     (per CONST-051(C) `flat` vs `grouped` layout).
+   - Reads the newly-added submodule's `helix-deps.yaml`.
+   - For each declared dep, checks if it already exists at the
+     consuming project's root; if missing, recurses (incorporate-
+     submodule on the dep's ssh_url).
+   - On conflict (same name declared at different ref by two
+     submodules), aborts with a directed error pointing the
+     operator at the conflicting declarations.
+   - Emits a final manifest-of-manifests file at
+     `<root>/.helix-manifest.yaml` listing every submodule + its
+     declared deps, for audit + reproducibility.
+
+**Anti-bluff guarantee.** Every manifest MUST be paired with a
+**verification proof**: a Challenge script (per §11.4.27 +
+CONST-050(B)) that:
+
+- Bootstraps a throwaway consuming project from scratch in a temp
+  directory.
+- Runs `incorporate-submodule` against the manifest under test.
+- Verifies the produced submodule layout matches the manifest's
+  declarations (every dep present at its declared layout path; no
+  extras; no missing).
+- Runs the submodule's own test suite against the bootstrapped
+  layout; asserts pass.
+- Captures wire evidence (per §11.4.2) of every step.
+
+A manifest without this verification proof is a §11.4.31 violation
+of equal severity to a §11.4 PASS-bluff at the dependency-graph
+layer.
+
+**Cascade requirement.** Every owned-by-us submodule MUST ship
+`helix-deps.yaml` at its root, recursively (sub-submodules of
+submodules ship their own). The constitution submodule itself
+ships a manifest declaring its own deps (currently empty for the
+universal Constitution; project consumers may have project-specific
+extensions). The verifier (`scripts/verify-governance-cascade.sh`
+or its successor) MUST check every owned submodule for manifest
+presence.
+
+**Composition.** §11.4.31 directly enables §11.4.28 / CONST-051(C)
+flat-layout enforcement: nested own-org submodule chains can be
+mechanically flattened because each submodule declares what it
+needs, and the incorporator places those deps at the root.
+Composes with §1 (manifest schema is itself tested for parse +
+validation), §3 (submodule-first commit discipline applies to
+manifest changes too), §11.4.12 (manifest changes regenerate any
+derived docs/diagrams), §11.4.17 (universal — no project-specific
+assumptions in the manifest format), §11.4.18 (manifest documented
+in script-doc + external user guide), §11.4.20 (subagent delegation
+for cross-submodule manifest authoring), §11.4.25 (manifest
+presence in coverage ledger), §11.4.26 (constitution-update
+workflow when extending manifest schema), §11.4.27 (manifest test
+matrix), §11.4.28 (this rule is its operational complement),
+§11.4.29 (manifests use snake_case names + canonical paths),
+§11.4.30 (manifest is tracked source — not a build artefact),
+CONST-047 (manifests cascade recursively).
+
+**Classification:** universal (per §11.4.17). No escape hatch.
+Severity-equivalent to a §11.4 PASS-bluff at the dependency-graph
+layer.
+
+### §11.4.32 — Post-Constitution-Pull Validation Mandate (User mandate, 2026-05-15)
+
+**Forensic anchor — verbatim user mandate (2026-05-15):**
+
+> "Every time we fetch and pull new changes on constitution
+> Submodule we MUST process the whole project and all Submodule
+> (deep recursively) for validation and verification taht every
+> single rule or mandatory constraint is followed and respected!
+> If it is not, IT MUST BE!"
+
+**Operative rule.** Whenever a consuming project's constitution
+submodule is fetched + pulled with **any** content change (rule
+addition, rule revision, gate addition, anchor reference, version
+bump), the consuming project MUST execute a full-project +
+recursive-submodule validation sweep BEFORE the new constitution
+HEAD is treated as canonical for any other work.
+
+**Validation sweep contract.** The sweep is implemented as
+`scripts/verify-all-constitution-rules.sh` (canonical name) which:
+
+1. Re-runs the existing governance-cascade verifier (`scripts/
+   verify-governance-cascade.sh`) covering every §11.9 + CONST-*
+   anchor across every owned submodule (recursive per CONST-047).
+2. For each rule whose enforcement gate is implementable
+   programmatically (e.g., CONST-053 `.gitignore`-pattern audit;
+   CONST-051(C) nested-own-org-chain audit; CONST-052
+   case-conformance audit; CONST-050(A) mock-path-from-production-
+   code audit; CONST-035 anti-bluff smoke-scan), the sweep runs
+   the corresponding gate against the post-pull tree.
+3. Any failure produces a directed FAIL entry naming the rule
+   (e.g., `FAIL: CONST-053 — *.log tracked at HelixCode/foo.log`)
+   + the canonical fix.
+4. Failures populate the project's Issues tracker per §11.4.15
+   with Status: `Reopened` (since a previously-passing audit now
+   fails) and Type: `Bug` (since real codebase state violates the
+   constitution).
+5. The agent or operator MUST resolve every FAIL before treating
+   the new constitution HEAD as canonical — closure of each
+   reopened item per the existing §11.4 anti-bluff covenant
+   (positive-evidence-only, captured wire evidence).
+
+**Pull-time invocation.** `git submodule update --remote constitution`
+MUST trigger the sweep automatically (post-update hook OR the
+operator's commit wrapper invokes it as part of any commit that
+advances the constitution submodule pointer). Operator-explicit
+manual invocation MUST also be available
+(`./scripts/verify-all-constitution-rules.sh`).
+
+**Anti-bluff guarantee.** A sweep that exits PASS without actually
+running every implementable gate is a §11.4.32 violation. The
+sweep's own meta-test (paired mutation, §1.1) MUST plant a known
+violation of each enforced gate and assert the sweep reports
+FAIL for the planted gate.
+
+**Composition.** §11.4.32 is the **enforcement engine** for every
+other §11.4.x and CONST-NNN rule. Without it, new rules cascade
+as anchors but never get enforced in the codebase. Composes with
+every rule that has a programmatic gate: §1, §1.1, §11.4.10,
+§11.4.12, §11.4.15, §11.4.16, §11.4.18, §11.4.20, §11.4.22,
+§11.4.24, §11.4.25, §11.4.26, §11.4.27, §11.4.28, §11.4.29,
+§11.4.30, §11.4.31, CONST-035, CONST-038, CONST-042, CONST-043,
+CONST-044, CONST-045, CONST-046, CONST-047, CONST-048, CONST-049,
+CONST-050, CONST-051, CONST-052, CONST-053, CONST-054.
+
+**Classification:** universal (per §11.4.17). No escape hatch.
+Severity-equivalent to a §11.4 PASS-bluff at the constitutional-
+enforcement layer — without §11.4.32, every other rule is a
+decorative anchor rather than an enforced gate.
+
 ### §11.4.30 — .gitignore + No-Versioned-Build-Artifacts Mandate (User mandate, 2026-05-15)
 
 **Forensic anchor — verbatim user mandate (2026-05-15):**
