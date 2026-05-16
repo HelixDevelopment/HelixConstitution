@@ -1011,6 +1011,27 @@ Classification: universal (§11.4.17). No escape hatch. Composes
 with §2.1, §11.4.4, §11.4.6, §11.4.20, §11.4.26, §11.4.32. See
 Constitution §11.4.37 for the full mandate.
 
+### §11.4.38 — Installable-Asset Evidence Mandate (User mandate, 2026-05-17)
+
+For any user-distributable build artifact (package, bundle, installer,
+or container image produced by the build pipeline and distributed to
+end users), tests and challenges MUST open the artifact and verify
+each user-visible asset is **present** and **non-degenerate**.
+
+A PASS without opening the artifact and verifying the asset chain
+end-to-end is a §11.4 PASS-bluff. The specific failure mode: source
+file exists → build packages it → post-build checks pass at the source
+layer → artifact produced with the asset stripped or misconfigured,
+and no gate ever opens the artifact to verify.
+
+Each consuming project ships one challenge script per artifact type
+that opens the produced artifact and verifies every declared
+user-visible asset. The challenge MUST run as part of the project's
+standard QA gate.
+
+Classification: universal (§11.4.17). No escape hatch. See
+Constitution §11.4.38 for the full mandate.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session

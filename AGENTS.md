@@ -642,6 +642,22 @@ any dependency cloned via `incorporate-submodule` (§11.4.31) or
 `CM-FETCH-BEFORE-EDIT-AUDIT` + paired mutation per §1.1.
 Classification: universal (per §11.4.17). No escape hatch.
 
+### Installable-asset evidence (§11.4.38, User mandate 2026-05-17)
+
+For any user-distributable build artifact (package, bundle, installer,
+or container image), tests/challenges MUST open the artifact and verify
+each user-visible asset is **present** and **non-degenerate**. A PASS
+without artifact-opening verification is a §11.4 PASS-bluff. The
+failure mode: source file exists → build packages it → source-layer
+checks pass → artifact produced with asset stripped or misconfigured,
+and no gate opens the artifact to verify.
+
+Required per consuming project: one challenge script per artifact type
+that opens the produced artifact and verifies every declared
+user-visible asset. The challenge MUST run as part of the standard QA
+gate. Classification: universal (per §11.4.17). No escape hatch. See
+Constitution §11.4.38 for the full mandate.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**
