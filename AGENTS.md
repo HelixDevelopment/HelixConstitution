@@ -662,6 +662,22 @@ user-visible asset. The challenge MUST run as part of the standard QA
 gate. Classification: universal (per §11.4.17). No escape hatch. See
 Constitution §11.4.38 for the full mandate.
 
+### Full-suite retest before release tag (§11.4.40, User mandate 2026-05-17)
+
+Release tag MUST NOT be created until a COMPLETE retest with ALL
+existing tests runs on a clean baseline AFTER every workable item in
+the batch is done, fixed, polished, individually verified. Spot-check
+retests FORBIDDEN — miss interaction defects. Comprises 7 steps:
+(1) pre-build full sweep, (2) post-build full sweep, (3) on-device
+4-phase cycle on EVERY owned device, (4) meta-test full mutation
+sweep, (5) Challenge bank full sweep, (6) Issues.md/Fixed.md state
+audit, (7) CONTINUATION.md sync check. Typically 12–48h elapsed,
+NOT optional, NOT abbreviated. Composes with §11.4.4 (per-fix retest
+still required at fix granularity) + §11.4.7 (full-suite is
+authoritative baseline for closures) + §11.4.39 (per-feature on-device
+validation runs as step 3). Classification: universal (per §11.4.17).
+No escape hatch. See Constitution §11.4.40 for the full mandate.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

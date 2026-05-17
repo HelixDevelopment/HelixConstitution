@@ -1053,6 +1053,32 @@ standard QA gate.
 Classification: universal (§11.4.17). No escape hatch. See
 Constitution §11.4.38 for the full mandate.
 
+### §11.4.40 — Full-suite retest before release tag mandate (User mandate, 2026-05-17)
+
+A release tag MUST NOT be created until a COMPLETE retest with ALL
+existing tests has been executed on a clean baseline AFTER every
+workable item in the batch is done, fixed, polished, and individually
+verified. Spot-check retests that run only the tests touched by the
+batch are FORBIDDEN — they miss interaction defects between batch
+fixes and previously-stable code.
+
+The complete retest comprises: (1) pre-build full sweep, (2) post-
+build full sweep, (3) on-device 4-phase cycle on EVERY owned device,
+(4) meta-test full mutation sweep, (5) Challenge bank full sweep,
+(6) Issues.md/Fixed.md state audit, (7) CONTINUATION.md sync check.
+
+Time is essential — typically 12–48h elapsed effort. NOT optional,
+NOT abbreviated. Skipping is the exact "tests pass but feature
+broken" failure mode §11.4 prohibits.
+
+Composes with §11.4.4 (per-fix retest still required at fix
+granularity) + §11.4.7 (full-suite retest is authoritative baseline
+for closures) + §11.4.39 (per-feature on-device validation runs as
+step 3 of the full-suite retest).
+
+Classification: universal (§11.4.17). No escape hatch. See
+Constitution §11.4.40 for the full mandate.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
