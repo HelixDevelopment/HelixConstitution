@@ -75,6 +75,10 @@ working.
    RAM.
 10. **Credentials NEVER tracked** (§11.4.10) — `.env` patterns
     git-ignored; runtime-load only; per-service file separation.
+    **Pre-store leak audit** (§11.4.10.A, 2026-05-17) — before
+    storing operator-provided credentials in any gitignored config,
+    grep the entire tracked tree AND git history for the literal
+    value(s); surface any findings to operator before storing.
 11. **CONTINUATION.md kept in sync** (§12.10) — every non-trivial
     state change updates the continuation document in the same
     commit.

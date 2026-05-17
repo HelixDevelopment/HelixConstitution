@@ -184,6 +184,27 @@ or log credentials. Per-service file separation limits blast radius.
 `chmod 600` on credential files, `chmod 700` on parent directory.
 Rotation on suspected leak.
 
+### §11.4.10.A — Pre-store credential leak audit (User mandate, 2026-05-17)
+
+**Forensic anchor — verbatim user mandate (2026-05-17):**
+
+> "Us these for all future testing (full automation testing) and make
+> sure they are not leaking anywhere or get git versioned!"
+
+When an operator provides credentials, API tokens, signing keys, or
+any other secret material to be stored in the project's gitignored
+configuration, the storing agent MUST FIRST execute a repo-wide
+audit for prior leaks of THOSE specific values BEFORE storing:
+(1) `git ls-files | xargs grep -l <value>` for tree-leaks, (2)
+`git log -S<value> --all --source --remotes` for history-leaks,
+(3) surface findings to operator BEFORE storing (operator may rotate,
+accept-as-compromise, or abort), (4) on finding open a §6/§7
+sixth-law-incidents record + redact tracked files in-place to
+`<redacted-per-§11.4.10>` + record OPERATOR ACTION REQUIRED for
+rotation per §11.4.10 sub-clause 7, (5) extend pre-push hook
+credential-pattern grep to catch the escaped class in the same
+commit. See Constitution §11.4.10.A for the full mandate.
+
 ### §11.4.11 — File-layout discipline
 
 Project files organised by purpose, not historical accident. Source
