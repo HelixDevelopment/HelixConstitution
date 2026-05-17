@@ -2958,6 +2958,111 @@ multi-agent codebase. No escape hatch. Severity-equivalent to a
 state is the operational analog of asserting truth from unverified
 premises.
 
+### §11.4.38 — Installable-Asset Evidence Mandate (User mandate, 2026-05-17)
+
+**Forensic anchor — verbatim operator report (2026-05-17):**
+
+> "app does not have a launcher icon anymore — the latest published
+> app tester build(s). how come app passed anti-bluff checks?"
+
+For any user-distributable build artifact (package, bundle, installer,
+or container image produced by the build pipeline and distributed to
+end users), tests and challenges MUST open the artifact and verify
+each user-visible asset is **present** and **non-degenerate**.
+
+"User-visible asset" includes (non-exhaustive):
+
+- Application icons for every density / resolution tier declared in
+  the artifact metadata, including any platform-specific icon format
+  (multi-resolution container, adaptive XML, symbol set, etc.) that
+  the target OS uses when the minimum supported OS version requires it.
+- Splash screens declared in the install metadata.
+- Application name strings as declared in the install metadata.
+- Any other asset whose absence causes the user to be unable to
+  identify, launch, or interact with the installed application from
+  the OS launcher / home screen / app drawer.
+
+**A PASS without opening the artifact and verifying the asset chain
+end-to-end is a §11.4 PASS-bluff**, regardless of whether source
+files exist and tests otherwise pass. The specific failure mode this
+rule targets is: source file exists → build pipeline packages it →
+post-build checks pass at the source layer → artifact ACTUALLY
+produced with the asset stripped or misconfigured, and no gate ever
+opens the artifact to verify.
+
+**Required evidence:** the anti-bluff challenge for a user-distributable
+artifact MUST produce per-asset PASS/FAIL lines showing: (a) the asset
+entry exists in the artifact package listing, (b) the asset is
+non-empty / non-degenerate (size ≥ platform-defined minimum OR
+format-validated), (c) where the OS's asset-resolution path involves
+indirection (alias, XML reference chain, density-qualifier override),
+the full chain is traced to the final rendered resource.
+
+**Consuming-project implementation:** each consuming project ships one
+challenge script per artifact type that opens the produced artifact and
+verifies every declared user-visible asset. The challenge MUST run as
+part of the project's standard QA gate (equivalent of `make qa-all`).
+
+**Root cause of §11.4.38 introduction:** a consuming project shipped
+multiple releases with the application icon absent on the target OS
+because: (1) the icon XML used a resource type that the OS resolves
+differently above a specific API level, (2) all pre-ship challenges
+verified source files only, none opened the packaged artifact. This
+is a pure §11.4 PASS-bluff — every test and challenge reported green
+while the end user saw no icon.
+
+Classification: universal (per §11.4.17). No escape hatch. Severity-
+equivalent to a §11.4 PASS-bluff at the artifact-packaging layer.
+Composes with §11.4.1–§11.4.5 (evidence requirements), §11.4.25
+(full automation coverage), §11.4.27 (no fakes beyond unit tests —
+source-layer checks of a distributable artifact are the distributable-
+layer analog of unit-test-only coverage). See Constitution §11.4.38
+for the full mandate.
+
+### §11.4.39 — Per-Feature On-Device End-User Validation Mandate (iter-76, 2026-05-17)
+
+Every user-facing feature in a consuming project MUST have at least one HelixQA scenario
+that exercises the feature from cold-launch with **positive runtime evidence**:
+
+- A screenshot or screen recording captured at a named checkpoint.
+- At least one assertion of type `screenshot`, `accessibility_count`,
+  `accessibility_node`, `ocr_text`, `pixel_histogram`, or `editor_state`.
+- Evidence files written to a discoverable output directory so every PASS
+  is cross-verifiable after the fact.
+
+Scenarios MUST be RE-EXECUTED on every release candidate to catch cross-iteration
+regression. A scenario authored but never re-run on subsequent iterations degrades
+to a metadata-only gate — a §11.4 PASS-bluff at the regression layer.
+
+**Authoring rules (consuming project sets project-specific paths):**
+
+1. Scenarios are stored in a canonical bank directory designated by the consuming
+   project (e.g. `<banks-root>/feature-coverage/`).
+2. Each scenario YAML MUST include: `name`, `version`, `metadata`, `platforms`,
+   `test_cases`, and at least one step with `evidence_required: true` and a
+   specific `evidence_type`.
+3. A **coverage matrix** document MUST exist listing feature × iteration × scenario.
+   Matrix rules: (a) new iteration MUST add ≥ 1 scenario per new user-facing
+   feature; (b) prior scenarios MUST NOT be deleted (mark as `status: retired` if
+   feature is removed); (c) all non-retired scenarios MUST PASS for ship-ready.
+4. A **static gate** (challenge script) MUST assert the scenario count ≥ N (where N
+   is the number of user-facing features registered in the coverage matrix) and that
+   each YAML contains a `evidence_type:` assertion.
+5. **Portable host tooling**: evidence-validation scripts MUST use POSIX-portable
+   file-size helpers (e.g. `wc -c < file`) instead of OS-specific commands
+   (e.g. GNU `stat -c%s`) to avoid silent 0-byte reports on BSD/macOS hosts.
+   A regression challenge MUST verify the portable helper on the actual host.
+
+**iOS / platform-deferred pattern:** scenarios written platform-agnostically with
+the target platform listed in a comment deferral (e.g. `# iOS: deferred — tracker #X`)
+are valid; add the platform to the `platforms:` list when the automation toolchain
+becomes available — no structural change to the scenario is needed.
+
+Classification: universal (§11.4.17). Composes with §7.1, §11.4 (anti-bluff),
+§11.4.25 (full automation coverage), §11.4.27 (no fakes), §11.4.38 (artifact
+evidence). No escape hatch — a feature without an on-device scenario is NOT
+covered per §11.4.25 invariant 2. See Constitution §11.4.39 for the full mandate.
+
 ---
 
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN
