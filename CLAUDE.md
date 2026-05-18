@@ -1079,6 +1079,57 @@ step 3 of the full-suite retest).
 Classification: universal (§11.4.17). No escape hatch. See
 Constitution §11.4.40 for the full mandate.
 
+### §11.4.41 — Pre-Force-Push Merge-First Mandate (User mandate, 2026-05-17)
+
+**Forensic anchor — verbatim user mandate (2026-05-17):**
+
+> "make sure we bring everything from branches to our side before
+> forc push is done! Afer everything is safely and fully merged
+> and all potential conflicts (if any) resolved, then do force
+> push! make sure nothing isnlost, broken or corrupted on bith
+> sides!"
+
+Any force-push (`--force`, `--force-with-lease`, `+<ref>`,
+equivalent history-rewrite) authorised under CONST-043 MUST be
+preceded by a 4-step merge-first pipeline:
+
+1. **Fetch every remote** — `git fetch --all --prune --tags`
+   against origin + every upstream; capture output.
+2. **Integrate every divergent commit locally** — rebase / merge
+   / operator-confirmed cherry-pick per the appropriate strategy
+   for every non-empty `HEAD..<remote>/<branch>` range.
+3. **Audit the integrated tree** — no conflict markers anywhere
+   (`grep -rn '^<<<<<<< \|^=======$\|^>>>>>>> '` returns empty
+   in governance + source + test files); no file silently
+   dropped; previously-passing tests still pass; captured-
+   evidence artefacts still validate.
+4. **Force-push** — only after steps 1-3 produce clean integration
+   evidence: `git push --force-with-lease` (NEVER `--force`
+   alone unless authorised per §9.2 sub-clause 6).
+
+**Two-gate composition with CONST-043.** §11.4.41 does NOT
+relax CONST-043's operator-approval requirement — it adds a
+SECOND mechanical gate. Both required: CONST-043 alone
+authorises a push that loses remote work; §11.4.41 alone risks
+pushing without operator awareness.
+
+**Three failure modes prevented:** (a) remote-side content loss
+when parallel sessions land work between fetches; (b) stale-state
+acts when `--force-with-lease` reads stale local refs; (c)
+conflict-driven corruption when markers get committed verbatim
+(observed 2026-05-17 in helix_qa + containers governance files).
+
+**Verification artefact** — `docs/changelogs/<tag>.md`
+"Force-push merge-first audit" section captures fetch output,
+per-remote divergence log, integration strategy, conflict-
+marker scan, test delta, push output with lease SHA, CONST-043
+authorisation quote. Gate `CM-FORCE-PUSH-MERGE-FIRST` + paired
+mutation.
+
+Classification: universal (§11.4.17). No escape hatch. Composes
+with §9.2, §11.4.4, §11.4.6, §11.4.26, §11.4.32, §11.4.37,
+§11.4.40, CONST-043, CONST-047. See Constitution §11.4.41 for
+the full mandate.
 ### §11.4.42 — Iteration-discipline mandate (User mandate, 2026-05-18)
 
 Project work proceeds in priority-ordered iteration cycles. Each

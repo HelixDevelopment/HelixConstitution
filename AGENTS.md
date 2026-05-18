@@ -678,6 +678,44 @@ authoritative baseline for closures) + §11.4.39 (per-feature on-device
 validation runs as step 3). Classification: universal (per §11.4.17).
 No escape hatch. See Constitution §11.4.40 for the full mandate.
 
+### Pre-force-push merge-first (§11.4.41, User mandate 2026-05-17)
+
+**Forensic anchor — verbatim user mandate (2026-05-17):**
+
+> "make sure we bring everything from branches to our side before
+> forc push is done! Afer everything is safely and fully merged
+> and all potential conflicts (if any) resolved, then do force
+> push! make sure nothing isnlost, broken or corrupted on bith
+> sides!"
+
+Any force-push authorised under CONST-043 MUST be preceded by a
+mechanical 4-step merge-first pipeline: (1) fetch every remote
+(`git fetch --all --prune --tags`); (2) integrate every divergent
+commit locally (rebase / merge / operator-confirmed cherry-pick
+per appropriate strategy); (3) audit the integrated tree (no
+conflict markers anywhere in governance + source + test files;
+no file silently dropped; previously-passing tests still pass;
+captured-evidence artefacts still validate); (4) only THEN
+execute `git push --force-with-lease`.
+
+**Two-gate composition with CONST-043.** §11.4.41 does NOT relax
+CONST-043 — it adds a SECOND mechanical gate. CONST-043 alone
+authorises a push that loses remote work; §11.4.41 alone risks
+pushing without operator awareness. Both required.
+
+Three failure modes prevented: remote-side content loss (parallel
+sessions overwritten), stale-state acts (--force-with-lease reads
+stale local refs without prior fetch), conflict-driven corruption
+(markers committed verbatim — observed 2026-05-17 in helix_qa +
+containers governance files). Verification artefact:
+`docs/changelogs/<tag>.md` "Force-push merge-first audit" section
+captures fetch output, divergence log, integration strategy,
+conflict-marker scan, test delta, push output with lease SHA, +
+CONST-043 authorisation quote. Gate `CM-FORCE-PUSH-MERGE-FIRST`
++ paired mutation. Classification: universal (§11.4.17). No
+escape hatch. Composes with §9.2, §11.4.4, §11.4.6, §11.4.26,
+§11.4.32, §11.4.37, §11.4.40, CONST-043, CONST-047. See
+Constitution §11.4.41 for the full mandate.
 ### Iteration-discipline mandate (§11.4.42, User mandate 2026-05-18)
 
 Work proceeds in priority-ordered cycles. Five mandatory steps per
