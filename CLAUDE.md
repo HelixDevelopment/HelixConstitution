@@ -1516,6 +1516,64 @@ No escape hatch — no `--allow-operator-attended-only`,
 
 Non-compliance is a release blocker regardless of context.
 
+**§11.4.53 — Fixed_Summary parity mandate (User mandate, 2026-05-18)**
+
+**Forensic anchor — verbatim user mandate (2026-05-18T17:55Z):**
+
+> "Note: Just like for Issues we have Issues_Summary, for Fixed we
+> MUST HAVE Fixed_Summary - like all other docs: ALWAYS in sync and
+> up to date and ALWAYS exported into the PDF and HTML! Add this
+> mandatory rule / constraint into the root (constitution Submodule)
+> Constitution, AGENTS.MD and CLAUDE.MD."
+
+`docs/Fixed_Summary.md` is the symmetric short-form summary of
+`docs/Fixed.md`. MUST be regenerated whenever `Fixed.md` changes.
+HTML + PDF exports MUST travel with the markdown (identical mtimes
+within `sync_issues_docs.sh` granularity). Stale exports are
+§11.4.53 violations regardless of whether the underlying `.md` is
+correct — an operator (or future agent) reading the HTML or PDF
+gets a divergent view of which items are closed, and the §12.10
+CONTINUATION resumption guarantee silently breaks. Same discipline
+as §11.4.12 Issues_Summary applied to Fixed.md.
+
+Generator: `scripts/testing/generate_fixed_summary.sh` (canonical,
+MUST be executable, MUST emit a markdown table whose header columns
+include `Status` and `Type` per §11.4.19 column-alignment). Auto-
+sync wrapper: `scripts/testing/sync_issues_docs.sh` regenerates
+BOTH Issues_Summary AND Fixed_Summary in one shot (stages 1a +
+1b), then exports HTML + PDF (stage 2), then colorizes per §11.4.23
+(stage 3), then re-renders the PDFs from the colorized HTML (stage
+3b). MUST be invoked after any edit to `Fixed.md`. No `--issues-only`
+flag exists, and §11.4.53 prohibits adding one.
+
+Sort order: closure date DESC (most-recent-Fixed first), §-letter /
+Fix-# secondary. Documented at the top of the generated file.
+
+Composes with §11.4.12 (Issues_Summary parity is the sibling rule;
+§11.4.12 + §11.4.53 are the canonical pair), §11.4.19 (atomic
+Issues→Fixed migration triggers Fixed_Summary regen — column-aligned
+structure), §11.4.23 (visual-cue + grouping colorizer post-processes
+both summaries), §11.4.33 (type-aware closure vocabulary —
+Fixed_Summary respects `Fixed (→ Fixed.md)` / `Implemented (→ Fixed.md)` /
+`Completed (→ Fixed.md)` terminal values literally), §11.4.44
+(revision header applies to `Fixed_Summary.md`), §12.10
+(CONTINUATION.md resumption guarantee depends on divergent-summary
+problem NOT existing).
+
+Pre-build gates `CM-FIXED-SUMMARY-SYNC` (6 invariants: Fixed_Summary
+exists; HTML + PDF mtime ≥ md mtime; Fixed_Summary mtime ≥ Fixed
+mtime; generator script exists + executable; sync wrapper invokes
+generator) + `CM-COVENANT-114-53-PROPAGATION` (anchor literal across
+canonical files + per-consumer propagation). Paired mutations strip
+the anchor literal AND move the generator aside AND backdate
+Fixed_Summary mtime. No escape hatch — no `--skip-fixed-summary-sync`,
+`--issues-only`, `--summary-not-applicable` flag.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](Constitution.md) §11.4.53.
+
+Non-compliance is a release blocker regardless of context.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session

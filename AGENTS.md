@@ -989,6 +989,43 @@ hatch — no `--allow-operator-attended-only` / `--skip-autonomous-path`
 Classification: universal (§11.4.17). See Constitution §11.4.52 for
 the full mandate.
 
+### Fixed_Summary parity (§11.4.53, User mandate 2026-05-18)
+
+**Forensic anchor — verbatim user mandate (2026-05-18T17:55Z):**
+
+> "Note: Just like for Issues we have Issues_Summary, for Fixed we
+> MUST HAVE Fixed_Summary - like all other docs: ALWAYS in sync and
+> up to date and ALWAYS exported into the PDF and HTML!"
+
+`docs/Fixed_Summary.md` is the symmetric short-form summary of
+`docs/Fixed.md`. MUST be regenerated whenever `Fixed.md` changes.
+HTML + PDF exports MUST travel with the markdown. Stale exports
+are §11.4.53 violations regardless of whether the underlying `.md`
+is correct. Same discipline as §11.4.12 Issues_Summary applied to
+Fixed.md.
+
+Generator: `scripts/testing/generate_fixed_summary.sh` (canonical).
+Auto-sync wrapper: `scripts/testing/sync_issues_docs.sh`
+regenerates BOTH Issues_Summary AND Fixed_Summary in one shot,
+exports HTML + PDF, colorizes per §11.4.23, re-renders PDFs.
+MUST be invoked after any edit to `Fixed.md`. No `--issues-only`
+flag exists.
+
+Sort order: closure date DESC (most-recent-Fixed first), §-letter /
+Fix-# secondary. Documented at top of generated file.
+
+Composes with §11.4.12 (Issues_Summary sibling), §11.4.19 (atomic
+migration trigger), §11.4.23 (colorizer), §11.4.33 (type-aware
+closure terminal values), §11.4.44 (revision header), §12.10
+(CONTINUATION.md resumption).
+
+Pre-build gates `CM-FIXED-SUMMARY-SYNC` + `CM-COVENANT-114-53-PROPAGATION`.
+Paired mutations. No escape hatch — no `--skip-fixed-summary-sync`,
+`--issues-only`, `--summary-not-applicable` flag.
+
+Classification: universal (§11.4.17). See Constitution §11.4.53 for
+the full mandate.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**
