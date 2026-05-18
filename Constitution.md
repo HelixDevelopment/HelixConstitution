@@ -3150,7 +3150,7 @@ who feel time-pressured to skip the full retest should instead
 delay the release until the retest completes; shipping unverified
 code is worse than delayed shipping.
 
-### §11.4.41 — Iteration-discipline mandate (User mandate, 2026-05-18)
+### §11.4.42 — Iteration-discipline mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -3224,7 +3224,7 @@ faster — that is exactly the bluff §11.4 forbids.
 §11.4.7 (closures require same-conditions positive evidence; step 4
 is authoritative baseline) + §11.4.9 (source-side batching inside
 step 2) + §11.4.34 (Reopened items attribute By: AI / User) +
-§11.4.40 (the multi-hour full-suite retest IS step 4 — §11.4.41 is
+§11.4.40 (the multi-hour full-suite retest IS step 4 — §11.4.42 is
 the meta-loop conductor binding the instruments).
 
 **Anti-bluff coupling.** Per §11.4.2 + §11.4.5, every smoke-test
@@ -3235,22 +3235,22 @@ PASS-bluff.
 
 **No escape hatch.** No `--skip-priority-batch`, `--skip-smoke`,
 `--full-suite-only`, or `--release-without-loop` flag exists.
-Subagents performing autonomous work default to the §11.4.41 path.
+Subagents performing autonomous work default to the §11.4.42 path.
 Operators who feel time-pressured to short-circuit the loop should
 add capacity (more devices in parallel, more agent slots) rather
 than skip steps. Shipping under-validated code is worse than delayed
 shipping.
 
-**Gate `CM-COVENANT-114-41-PROPAGATION`** mirrors
+**Gate `CM-COVENANT-114-42-PROPAGATION`** mirrors
 `CM-COVENANT-114-40-PROPAGATION` 1:1 — every CLAUDE.md / AGENTS.md
-in the covenant file set carries the §11.4.41 anchor. Paired
+in the covenant file set carries the §11.4.42 anchor. Paired
 mutation strips the anchor literal from one consumer file → gate
 FAILs.
 
 **Classification:** universal (per §11.4.17) — every consuming
 project's iteration workflow.
 
-### §11.4.42 — TDD-Fix-Discipline Mandate (User mandate, 2026-05-18)
+### §11.4.43 — TDD-Fix-Discipline Mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -3314,7 +3314,7 @@ workflow:
    the PASS MUST carry positive captured evidence (presence +
    correctness — RMS amplitude, ffprobe channel count, frame count,
    OCR text, sink codec state, etc.). Per §11.4.2 video tests
-   MUST cross-check via the recording-analyzer. Per §11.4.41 a
+   MUST cross-check via the recording-analyzer. Per §11.4.42 a
    reliability check at the iteration count (typically 10
    iterations) MUST PASS all iterations — a single intermittent
    FAIL keeps the item in `In progress` per §11.4.7.
@@ -3329,7 +3329,7 @@ workflow:
    §11.4.4(b); `docs/CONTINUATION.md` per §12.10; project memory
    file if non-obvious.
 
-**Composition.** §11.4.42 is the workflow that ENACTS the existing
+**Composition.** §11.4.43 is the workflow that ENACTS the existing
 covenant. Composes with: §11.4.1 (the RED FAIL is a real defect),
 §11.4.2 (captured evidence at both RED and VERIFY), §11.4.3
 (topology dispatch in the RED test), §11.4.4 (four-layer coverage
@@ -3338,11 +3338,11 @@ guessing during the LIVE-PROBE hypothesis statement —
 `UNCONFIRMED:` until probe proves it), §11.4.7 (demotion-evidence
 at VERIFY — same conditions), §11.4.8 (research citation precedes
 step 1), §11.4.9 (GREEN is batched), §11.4.40 (full-suite retest
-is the release-tag-time additional check), §11.4.41 (10-iteration
+is the release-tag-time additional check), §11.4.42 (10-iteration
 reliability loop IS step 4's inner cycle).
 
-**Gate `CM-COVENANT-114-42-PROPAGATION`.** Pre-build gate verifies
-the §11.4.42 anchor is present in every CLAUDE.md / AGENTS.md
+**Gate `CM-COVENANT-114-43-PROPAGATION`.** Pre-build gate verifies
+the §11.4.43 anchor is present in every CLAUDE.md / AGENTS.md
 across the covenant file set. Paired mutation strips the anchor
 literal from one consumer file → gate FAILs.
 
@@ -3354,7 +3354,7 @@ project's fix workflow. **No escape hatch.** No `--skip-red-test`,
 only that the test agrees with the fix, not that the test catches
 the bug.
 
-### §11.4.43 — Document Revision Header Mandate (User mandate, 2026-05-18)
+### §11.4.44 — Document Revision Header Mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -3393,7 +3393,7 @@ Optional encouraged fields: `**Description:**`, `**Authority:**`,
 **Last modified:** 2026-05-18T13:42:00Z
 **Description:** Open / in-flight bug + work tracker
 **Authority:** Constitution §11.4 covenant
-**Maintainer:** Operator + AI loop per §11.4.41
+**Maintainer:** Operator + AI loop per §11.4.42
 
 <content...>
 ```
@@ -3431,9 +3431,9 @@ stamp.
   operators who skipped the hook installation are still covered.
 
 **Composition with §12.10.** CONTINUATION.md already carries
-`Last updated:` per §12.10. §11.4.43 adds `**Revision:** N`
+`Last updated:` per §12.10. §11.4.44 adds `**Revision:** N`
 directly under H1 + reuses the existing `Last updated:` line as
-the §11.4.43 `Last modified:` line. One source of truth, two
+the §11.4.44 `Last modified:` line. One source of truth, two
 pointers — no duplication.
 
 **Composition with §11.4.12.** Issues_Summary.md / Fixed_Summary.md
@@ -3447,7 +3447,7 @@ colorizer leaves alone (only Issues-table rows are mutated).
 
 **Gates:** `CM-DOC-REVISION-HEADER-PRESENT` walks IN-scope docs
 and asserts both mandatory fields appear within 15 lines below the
-H1 title; `CM-COVENANT-114-43-PROPAGATION` asserts the anchor
+H1 title; `CM-COVENANT-114-44-PROPAGATION` asserts the anchor
 literal is present in every covenant file. Paired mutations strip
 the `**Revision:**` line OR the anchor literal → gates FAIL.
 
@@ -3456,7 +3456,7 @@ no `--skip-revision-bump`, `--no-header`, `--allow-missing-revision`
 flag exists. Operators who feel pressured to skip the bump should
 land smaller commits, not bypass the discipline.
 
-### §11.4.44 — Integration-Status-Doc Maintenance Mandate (User mandate, 2026-05-18)
+### §11.4.45 — Integration-Status-Doc Maintenance Mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -3467,9 +3467,9 @@ land smaller commits, not bypass the discipline.
 > document is ALWAYS in sync! Add all this into our Constitution,
 > AGENTS.MD and CLAUDE.MD."
 
-**Generalisation note.** §11.4.44 is the generic form of §12.10
+**Generalisation note.** §11.4.45 is the generic form of §12.10
 (CONTINUATION.md) applied to every domain integration. §12.10
-binds the canonical handoff document specifically; §11.4.44
+binds the canonical handoff document specifically; §11.4.45
 generalises the sync-and-evidence pattern to every non-trivial
 integration (Dolby/Arvus, NanoKVM, Firebase, Widevine L1/L3, Play
 Protect, Netflix, Cuttlefish, Chromecast, WiFi chip, ES8388 codec,
@@ -3486,7 +3486,7 @@ Every integration-status document at
 
 1. MUST exist when a domain integration is non-trivial (more than
    one fix / test / gate landing for that integration).
-2. MUST carry the §11.4.43 revision header directly below the H1
+2. MUST carry the §11.4.44 revision header directly below the H1
    title (Revision + Last modified + Description + Authority +
    Maintainer + Scope).
 3. MUST be auto-synced (HTML + PDF) on every related-test-cycle
@@ -3523,10 +3523,10 @@ Every integration-status document at
 
 **Gates:**
 
-- `CM-COVENANT-114-44-PROPAGATION` — anchor text propagated to
+- `CM-COVENANT-114-45-PROPAGATION` — anchor text propagated to
   every CLAUDE.md / AGENTS.md across the covenant file set.
 - `CM-AF-INTEGRATION-STATUS-DOCS` — discovers all
-  `docs/**/Status.md` via glob, verifies each carries the §11.4.43
+  `docs/**/Status.md` via glob, verifies each carries the §11.4.44
   header, has a sync wrapper, HTML+PDF exports are mtime-current
   vs the source, colorization applied (cell-status class present
   in the colorized HTML).
@@ -3543,7 +3543,7 @@ inject `likely` outside `UNCONFIRMED:` block → existing
 wrapper pattern reused for HTML+PDF re-export), §11.4.13 (sink-side
 captured evidence is a specific instance of the generic rule),
 §11.4.15 (status values), §11.4.22 (commit_docs.sh wrapper),
-§11.4.23 (colorizer extends to Status.md HTML), §11.4.43 (every
+§11.4.23 (colorizer extends to Status.md HTML), §11.4.44 (every
 Status.md carries the revision header), §12.10 (CONTINUATION.md
 references Status.md paths in §3).
 
@@ -3555,7 +3555,7 @@ updates into one giant push.
 
 **Classification:** universal (per §11.4.17).
 
-### §11.4.45 — Validate-recent-work-before-post-flash-tests mandate (User mandate, 2026-05-18)
+### §11.4.46 — Validate-recent-work-before-post-flash-tests mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -3614,7 +3614,7 @@ coverage violations (a fix without an on-device test is forbidden)
    stores the device boot epoch in the marker and re-validates.
 
 **Anti-bluff during validation.** Each recent-work item that
-landed a fix in this batch MUST have a paired §11.4.42 RED test
+landed a fix in this batch MUST have a paired §11.4.43 RED test
 (captured before the fix) AND the same test now GREEN (captured
 after the fix). A GREEN with no prior RED is itself the bluff
 §11.4 forbids — the gate FAILs.
@@ -3628,14 +3628,14 @@ per §11.4.7 PENDING_CYCLE_RETEST, NEVER silently demote).
 
 **Composition.** §11.4.4 (STOP-on-discovery) + §11.4.6 (no-
 guessing) + §11.4.7 (demotion-evidence) + §11.4.40 (full-suite
-gate) + §11.4.41 (iteration discipline — smoke-test ≡ recent-work-
-validation) + §11.4.42 (RED test for each recent-work item IS the
-validation test) + §11.4.43 (revision header determines recency) +
+gate) + §11.4.42 (iteration discipline — smoke-test ≡ recent-work-
+validation) + §11.4.43 (RED test for each recent-work item IS the
+validation test) + §11.4.44 (revision header determines recency) +
 §12.10 (CONTINUATION.md source-of-truth for §3 Active work).
 
 **Gates:**
 
-- `CM-COVENANT-114-45-PROPAGATION` — anchor literal present in
+- `CM-COVENANT-114-46-PROPAGATION` — anchor literal present in
   every CLAUDE.md / AGENTS.md across the covenant file set.
 - `CM-AF-RECENT-WORK-VALIDATION-GATE` — asserts
   `scripts/testing/recent_work_validate.sh` exists + executable +
@@ -3658,7 +3658,7 @@ a defect.
 
 **Classification:** universal (per §11.4.17).
 
-### §11.4.46 — Firebase Data Review Mandate (User mandate, 2026-05-18)
+### §11.4.47 — Firebase Data Review Mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -3679,7 +3679,7 @@ pre-flash, pre-tag, daily, post-deployment burn-in) the operator/
 loop MUST execute the Firebase review pass via
 `scripts/firebase/review_round.sh`. The pass queries Crashlytics
 (fatals + non-fatals + ANRs) + Analytics + Performance, classifies
-each finding by the §11.4.46 severity table, dedup-maps to existing
+each finding by the §11.4.47 severity table, dedup-maps to existing
 Issues.md entries via the three-tier algorithm, and drafts new
 Issue entries for unrecognised findings. Skipping the pass is a
 §11.4 PASS-bluff: Firebase IS the captured evidence from real
@@ -3710,7 +3710,7 @@ broken in the wild" failure mode §11.4 prohibits.
 5. **Comprehensive root-cause analysis.** Every Firebase-sourced
    Issue carries the §11.4.4(a) systematic-debugging output —
    Phase 1 evidence, Phase 2 pattern, Phase 3 root-cause hypothesis
-   (UNCONFIRMED until §11.4.42 RED test reproduces), Phase 4 fix
+   (UNCONFIRMED until §11.4.43 RED test reproduces), Phase 4 fix
    direction. Comment-only entries ("crash in App X") are
    PASS-bluff stubs and FAIL the Issue-xref gate.
 
@@ -3724,7 +3724,7 @@ with §11.4.16 Type assignment.
 
 **Gates:**
 
-- `CM-COVENANT-114-46-PROPAGATION` — anchor present across every
+- `CM-COVENANT-114-47-PROPAGATION` — anchor present across every
   CLAUDE.md / AGENTS.md in the covenant file set.
 - `CM-AF-FIREBASE-REVIEW-CADENCE` — `scripts/firebase/review_round.sh`
   exists, executable, contains the 7-stage pipeline literals +
@@ -3749,10 +3749,10 @@ contradicts" per §11.4.34), §11.4.10 (credentials — never log the
 bearer token), §11.4.12 (Issues_Summary sync), §11.4.14 (cleanup
 of `/tmp/firebase_review_*` work-dirs), §11.4.15 (Status: Queued),
 §11.4.16 (Type per severity), §11.4.34 (Reopened-Details on
-Firebase-resurface), §11.4.41 (implicit step 2 inclusion),
-§11.4.42 (RED test per stacktrace before fix lands), §11.4.43
-(revision header on every Firebase-sourced Issue), §11.4.44
-(Firebase Status.md at `docs/firebase/status/Status.md`), §11.4.45
+Firebase-resurface), §11.4.42 (implicit step 2 inclusion),
+§11.4.43 (RED test per stacktrace before fix lands), §11.4.44
+(revision header on every Firebase-sourced Issue), §11.4.45
+(Firebase Status.md at `docs/firebase/status/Status.md`), §11.4.46
 (validation pass consults latest Firebase delta).
 
 **No escape hatch.** No `--skip-firebase-review`, `--no-issue-from-
@@ -3764,7 +3764,7 @@ major`) to reduce noise but the pass itself MUST execute.
 project that ships to real end-user devices benefits from the same
 review cadence and the same dedup algorithm.
 
-### §11.4.47 — UI-Driven Video Testing Mandate (User mandate, 2026-05-18)
+### §11.4.48 — UI-Driven Video Testing Mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -3865,7 +3865,7 @@ codec (AC-3, E-AC-3, TrueHD, DTS, etc.) — composed with §11.4.13
   per §11.4.3, never FAIL
 
 **Pre-build gates:**
-- `CM-COVENANT-114-47-PROPAGATION` — asserts anchor literal
+- `CM-COVENANT-114-48-PROPAGATION` — asserts anchor literal
   present in every CLAUDE.md / AGENTS.md across parent + 10
   owned submodules + HelixQA dependencies (42-file scan).
 - `CM-AF-UI-DRIVEN-VIDEO-COVERAGE` — asserts the directory
@@ -3876,7 +3876,7 @@ codec (AC-3, E-AC-3, TrueHD, DTS, etc.) — composed with §11.4.13
   run_ui_driven_video_suite.sh` is executable.
 - Paired mutations: deleting `ui_driver.sh` → CM-AF-UI-DRIVEN-
   VIDEO-COVERAGE FAILs; stripping the anchor literal →
-  CM-COVENANT-114-47-PROPAGATION FAILs.
+  CM-COVENANT-114-48-PROPAGATION FAILs.
 
 **No escape hatch.** No `--use-intent-shortcut` /
 `--skip-ui-traverse` / `--legacy-intent-mode` flag exists. The
@@ -3891,16 +3891,16 @@ fan-out) rather than bypass the discipline.
 - §11.4.5 — captured-evidence quality (every UI tap captured)
 - §11.4.13 — Arvus codec-state mandate
 - §11.4.14 — playback cleanup verified via UI back-button path
-- §11.4.42 — RED-test-first discipline (initial UI tests RED
+- §11.4.43 — RED-test-first discipline (initial UI tests RED
   against §CL/§CM)
-- §11.4.43 — revision header on every plan/driver doc
+- §11.4.44 — revision header on every plan/driver doc
 - §CG — Arvus dashboard screenshot
 
 **Classification:** universal (per §11.4.17). Applies to every
 project that consumes the constitution submodule AND ships any
 video-capable Android app.
 
-### §11.4.48 — Dual-Approach Testing Mandate (User mandate, 2026-05-18)
+### §11.4.49 — Dual-Approach Testing Mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -3912,9 +3912,9 @@ video-capable Android app.
 > much as needed new tests for all supported test types and
 > Challenges!"
 
-**Composition with §11.4.47.** §11.4.47 mandated UI-driven traversal
+**Composition with §11.4.48.** §11.4.48 mandated UI-driven traversal
 for every video routing test, eliminating the Intent-only PASS-bluffs.
-§11.4.48 REFINES rather than replaces: every feature test ships in
+§11.4.49 REFINES rather than replaces: every feature test ships in
 BOTH variants — UI-driven AND Intent-driven — over a shared assertion
 base. Either alone is a §11.4 PASS-bluff for the OPPOSITE half of the
 stack. UI catches app-side bugs (content selection, player surface
@@ -3928,7 +3928,7 @@ paths).
 
 1. **Both variants required.** Every feature test exercising a
    user-visible behaviour MUST ship both `<feature>_ui.sh`
-   (uiautomator-based, §11.4.47 surfaces A–E) AND `test_<feature>_
+   (uiautomator-based, §11.4.48 surfaces A–E) AND `test_<feature>_
    intent.sh` (`am start --es` / `am broadcast`-based). Either alone
    is forbidden.
 2. **Shared assertion base.** Codec-state assertions, captured-
@@ -3938,7 +3938,7 @@ paths).
    (`tests/lib/dual_approach_test_base.sh`) and reused by BOTH
    variants of every dual-approach test. Code duplication in the
    shared layer is forbidden.
-3. **Specialised driver code.** UI variant uses §11.4.47 per-app
+3. **Specialised driver code.** UI variant uses §11.4.48 per-app
    driver scripts under `tests/ui_driven/<app>/`. Intent variant
    uses `am start --es content_id <id> --es audio_track_id <track>`
    / `am broadcast -a <action>` directly. Each variant's specialised
@@ -3946,7 +3946,7 @@ paths).
    everything downstream of "playback is now happening" routes
    through the shared base.
 4. **Comprehensive documentation per test.** Every dual-approach
-   test set ships with: (a) §11.4.43 revision header in BOTH variant
+   test set ships with: (a) §11.4.44 revision header in BOTH variant
    scripts, (b) per-feature contract under `docs/dual_approach/
    <feature>.md` describing the captured-evidence pairing and
    operator-side verification, (c) Issues.md / Fixed.md entry
@@ -3957,7 +3957,7 @@ paths).
    features (Netflix Dolby Atmos, MPV DTS-HD, Lampa+TorrServe HEVC,
    VLC FLAC) port to the same pattern. The §CN subagent's fix to
    the underlying decoder pipeline is the FIRST GREEN target of
-   these tests; both variants are RED per §11.4.42 until §CN lands.
+   these tests; both variants are RED per §11.4.43 until §CN lands.
 
 **Captured-evidence directory contract.** Both variants write to
 mirror-structured directories `qa-results/dual_approach/<F>/<run-
@@ -3967,7 +3967,7 @@ vice-versa) is itself a finding — it pinpoints which half of the
 stack contains the bug.
 
 **Pre-build gates:**
-- `CM-COVENANT-114-48-PROPAGATION` — anchor literal in every
+- `CM-COVENANT-114-49-PROPAGATION` — anchor literal in every
   CLAUDE.md / AGENTS.md across parent + 10 owned submodules +
   HelixQA dependencies (42-file scan).
 - `CM-AF-DUAL-APPROACH-COVERAGE` — `tests/lib/dual_approach_test_
@@ -3999,9 +3999,9 @@ parallelism rather than bypass the discipline.
 - §11.4.13 — Arvus codec-state mandate (out-of-band evidence)
 - §11.4.14 — playback cleanup via EXIT trap in shared base
 - §11.4.17 — universal classification
-- §11.4.42 — RED-first TDD (both variants RED until §CN fix lands)
-- §11.4.43 — revision header on every variant script + design doc
-- §11.4.47 — UI-driven traversal (this MANDATE refines, not replaces)
+- §11.4.43 — RED-first TDD (both variants RED until §CN fix lands)
+- §11.4.44 — revision header on every variant script + design doc
+- §11.4.48 — UI-driven traversal (this MANDATE refines, not replaces)
 - §CG — Arvus dashboard screenshot via Presenter receiver
 - §CB — credentials loader
 
@@ -4010,7 +4010,7 @@ project that consumes the constitution submodule AND ships any
 Android app whose user-visible behaviour can be triggered through
 both UI and Intent/Broadcast paths.
 
-### §11.4.49 — Deterministic Consistency Mandate (User mandate, 2026-05-18)
+### §11.4.50 — Deterministic Consistency Mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -4029,7 +4029,7 @@ both UI and Intent/Broadcast paths.
 **Why this anchor exists.** §11.4.7 already forbids the vocabulary
 `intermittent` / `transient` / `flake` in closure narratives, but
 that's a textual ban — operators could still let a test "PASS once,
-FAIL once, PASS again" and report only the first PASS. §11.4.49
+FAIL once, PASS again" and report only the first PASS. §11.4.50
 closes that gap MECHANICALLY by requiring every PASS to come from
 N identical iterations rather than from a single observation.
 
@@ -4071,20 +4071,20 @@ N identical iterations rather than from a single observation.
    - Pre-build gate enforces minimum threshold; threshold ratchets
      up each phase (70 → 85 → 95 → 99)
 
-5. **Composes with every prior anti-bluff anchor.** §11.4.49 does
-   NOT replace §11.4.42 / §11.4.47 / §11.4.48 — it adds the
+5. **Composes with every prior anti-bluff anchor.** §11.4.50 does
+   NOT replace §11.4.43 / §11.4.48 / §11.4.49 — it adds the
    N-iter consistency dimension across all of them. RED-first TDD
-   (§11.4.42) still applies: every new test starts RED and
-   becomes GREEN after the fix lands. UI-driven (§11.4.47) and
-   dual-approach (§11.4.48) still apply: every test ships in both
+   (§11.4.43) still applies: every new test starts RED and
+   becomes GREEN after the fix lands. UI-driven (§11.4.48) and
+   dual-approach (§11.4.49) still apply: every test ships in both
    variants AND each variant passes N iterations identically.
 
 **Pre-build gates:**
 
-- `CM-COVENANT-114-49-PROPAGATION` — anchor literal `§11.4.49`
+- `CM-COVENANT-114-50-PROPAGATION` — anchor literal `§11.4.50`
   present in every CLAUDE.md / AGENTS.md across parent + 10 owned
   submodules + HelixQA dependencies (≥42-file scan; phase 1 uses
-  5-canonical-file scan matching §11.4.48 propagation pattern).
+  5-canonical-file scan matching §11.4.49 propagation pattern).
 - `CM-AF-RELIABILITY-CHECK-WIRED` — `ab_run_n_times` function
   literal present in `device/rockchip/rk3588/tests/lib/
   anti_bluff.sh` AND at least 3 on-device tests source-reference
@@ -4096,8 +4096,8 @@ N identical iterations rather than from a single observation.
 
 **Paired mutations (3):**
 
-- Strip the `§11.4.49` anchor literal from `constitution/CLAUDE.md`
-  via `sed -i 's|11\.4\.49|11.4.MUTATED|g'` → `CM-COVENANT-114-49-
+- Strip the `§11.4.50` anchor literal from `constitution/CLAUDE.md`
+  via `sed -i 's|11\.4\.50|11.4.MUTATED|g'` → `CM-COVENANT-114-50-
   PROPAGATION` MUST FAIL.
 - Rename `ab_run_n_times` to `ab_run_n_times_DISABLED` in
   `anti_bluff.sh` via targeted sed → `CM-AF-RELIABILITY-CHECK-
@@ -4118,13 +4118,13 @@ discipline exists because the user mandate is unambiguous:
   budget assumption)
 - §11.4.7 — forbidden flake/intermittent vocabulary (enforced
   mechanically by this mandate)
-- §11.4.42 — RED-first TDD (every new test starts RED, N-iter
+- §11.4.43 — RED-first TDD (every new test starts RED, N-iter
   applies across the GREEN transition)
-- §11.4.45 — validate-before-suite (N-iter applied at single-test
+- §11.4.46 — validate-before-suite (N-iter applied at single-test
   scope first)
-- §11.4.47 — UI-driven traversal (each UI traversal MUST be
+- §11.4.48 — UI-driven traversal (each UI traversal MUST be
   N-iter-consistent)
-- §11.4.48 — dual-approach (both variants of every dual-approach
+- §11.4.49 — dual-approach (both variants of every dual-approach
   test MUST pass N iterations identically)
 
 **Classification:** universal (per §11.4.17). Applies to every
@@ -4132,7 +4132,7 @@ project that consumes the constitution submodule.
 
 ---
 
-### §11.4.50 — Live-ADB-First Maximization Mandate (User mandate, 2026-05-18)
+### §11.4.51 — Live-ADB-First Maximization Mandate (User mandate, 2026-05-18)
 
 **Forensic anchor — verbatim user mandate (2026-05-18):**
 
@@ -4147,7 +4147,7 @@ project that consumes the constitution submodule.
 > EVERY DETAIL IS IMPORTANT!!!! Not a single idea or idea's detail
 > can be ignored, skipped, relativized or bluffed!"
 
-§11.4.50 REFINES §11.4.42 step 2 ("LIVE-ADB-PROBE — try the fix on
+§11.4.51 REFINES §11.4.43 step 2 ("LIVE-ADB-PROBE — try the fix on
 the running device first") with mechanical enforcement: a per-file-
 class decision matrix, a classifier helper, and a commit-message
 footer literal.
@@ -4164,7 +4164,7 @@ footer literal.
    (`adb push` for scripts, `setprop persist.*` for runtime
    properties, `mount -o remount,rw /vendor` for boot scripts,
    `pm install -r` for APKs built locally via gradle). Run the
-   §11.4.42 RED test against the live-probed device, capture
+   §11.4.43 RED test against the live-probed device, capture
    positive-evidence PASS, THEN commit source-side + rebuild +
    reflash as belt-and-suspenders re-validation. Commit message
    footer MUST state `LIVE_ADB_VALIDATED: yes` with one-line
@@ -4217,27 +4217,27 @@ footer literal.
 | `Android.bp` / `Android.mk` / `device.mk` / `BoardConfig.mk` | YES | rebuilt-into-image artifacts |
 | Test fixture binary assets | NO | adb push to /data/local/tmp/ |
 
-Pre-build gates: `CM-COVENANT-114-50-PROPAGATION` (anchor across
+Pre-build gates: `CM-COVENANT-114-51-PROPAGATION` (anchor across
 canonical files) + `CM-AF-CLASSIFY-FIX-HELPER-EXISTS` (helper
 present + sentinel literals) + `CM-AF-LIVE-ADB-FIRST-COMMIT-MARKER`
 (advisory WARN that scans recent commits for the footer literal).
 Three paired meta-test mutations.
 
 **Composition.**
-- §11.4.42 — TDD-fix workflow (§11.4.50 REFINES step 2 with the
+- §11.4.43 — TDD-fix workflow (§11.4.51 REFINES step 2 with the
   mechanical classifier).
 - §11.4.9 — batch-source-fixes-before-rebuild (compose: live-ADB-
   test individually, then batch-commit).
 - §11.4.6 — no guessing (each classification justified by matrix
   row; unmatched paths default to rebuild-required, never silent
   testable).
-- §11.4.45 — validate-recent-work-before-post-flash (live-probe IS
+- §11.4.46 — validate-recent-work-before-post-flash (live-probe IS
   implicit pre-validation).
-- §11.4.47 — UI-driven tests (live-probe CAN use uiautomator over
+- §11.4.48 — UI-driven tests (live-probe CAN use uiautomator over
   adb shell).
-- §11.4.48 — dual-approach (live-probe applies to both UI and
+- §11.4.49 — dual-approach (live-probe applies to both UI and
   Intent variants).
-- §11.4.49 — deterministic consistency (live-probe runs N
+- §11.4.50 — deterministic consistency (live-probe runs N
   iterations on the live device before commit).
 
 **No escape hatch** — no `--skip-classify`, `--assume-rebuild`,

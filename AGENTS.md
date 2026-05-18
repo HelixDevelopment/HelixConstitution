@@ -678,7 +678,7 @@ authoritative baseline for closures) + §11.4.39 (per-feature on-device
 validation runs as step 3). Classification: universal (per §11.4.17).
 No escape hatch. See Constitution §11.4.40 for the full mandate.
 
-### Iteration-discipline mandate (§11.4.41, User mandate 2026-05-18)
+### Iteration-discipline mandate (§11.4.42, User mandate 2026-05-18)
 
 Work proceeds in priority-ordered cycles. Five mandatory steps per
 cycle: (1) select TOP + MIDDLE critical only (defer LOW until
@@ -686,14 +686,14 @@ critical batch closed), (2) batch implementation per §11.4.4 +
 §11.4.9, (3) smoke gate (<30 min), (4) ONLY if smoke GREEN and no
 new user/operator report → §11.4.40 full retest (12–48 h), (5)
 release-ready OR loop back. Composes with §11.4.4 / §11.4.7 /
-§11.4.9 / §11.4.34 / §11.4.40 — §11.4.41 is the meta-loop
+§11.4.9 / §11.4.34 / §11.4.40 — §11.4.42 is the meta-loop
 conductor binding them. Every PASS in smoke and full retest MUST
 carry positive captured evidence (§11.4.2 + §11.4.5). Tests AND
 Challenges bound equally. No escape hatch. Classification:
-universal (per §11.4.17). See Constitution §11.4.41 for the full
+universal (per §11.4.17). See Constitution §11.4.42 for the full
 mandate.
 
-### TDD-Fix-Discipline (§11.4.42, User mandate 2026-05-18)
+### TDD-Fix-Discipline (§11.4.43, User mandate 2026-05-18)
 
 Every fix follows 5-step workflow: **RED** (failing test FIRST,
 real product defect, captured evidence) → **LIVE-ADB-PROBE** (try
@@ -702,15 +702,15 @@ on running device when feasible; INFEASIBLE for kernel / framework
 rebuild; cite `LIVE_PROBE_INFEASIBLE: <reason>` in commit) →
 **GREEN** (source patch, batched per §11.4.9, four-layer coverage
 per §11.4.4) → **VERIFY** (re-run RED test, PASSes under SAME
-conditions per §11.4.7, 10-iteration reliability per §11.4.41) →
+conditions per §11.4.7, 10-iteration reliability per §11.4.42) →
 **DOCUMENT** (Issues.md → Fixed.md with type-aware closure
 §11.4.33, CLAUDE.md Applied Fixes row, changelog, guides, HelixQA
 bank, CONTINUATION.md §12.10 — all in SAME commit). Test-after-fix
 is a §11.4 PASS-bluff: test agrees with fix but does not catch the
 bug. No escape hatch. Classification: universal (§11.4.17). See
-Constitution §11.4.42 for the full mandate.
+Constitution §11.4.43 for the full mandate.
 
-### Document revision header (§11.4.43, User mandate 2026-05-18)
+### Document revision header (§11.4.44, User mandate 2026-05-18)
 
 Every IN-scope tracked Markdown document (Issues.md / Issues_Summary.md
 / Fixed.md / Fixed_Summary.md / CONTINUATION.md / docs/guides/** /
@@ -728,31 +728,31 @@ staging, OR rely on the pre-commit hook. Agents MUST NOT manually
 edit the revision number — only the bump script is authoritative.
 
 Pre-build gates `CM-DOC-REVISION-HEADER-PRESENT` +
-`CM-COVENANT-114-43-PROPAGATION` + paired mutations. Composes with
+`CM-COVENANT-114-44-PROPAGATION` + paired mutations. Composes with
 §12.10 (CONTINUATION.md header reuse), §11.4.12, §11.4.22, §11.4.23,
 §11.4.18. No escape hatch. Classification: universal (§11.4.17).
-See Constitution §11.4.43 for the full mandate.
+See Constitution §11.4.44 for the full mandate.
 
-### Integration-status-doc maintenance (§11.4.44, User mandate 2026-05-18)
+### Integration-status-doc maintenance (§11.4.45, User mandate 2026-05-18)
 
 Every non-trivial domain integration MUST have a
-`docs/<domain>/<integration>/Status.md` carrying the §11.4.43
+`docs/<domain>/<integration>/Status.md` carrying the §11.4.44
 revision header + auto-synced HTML+PDF + auto-colorized per
 §11.4.23 + sync wrapper + captured-evidence table (every claim
 cites the test log / recording / sink-probe path) + closed status
 vocabulary (PASS / FAIL / SKIP / PENDING_FORENSICS /
 OPERATOR-BLOCKED) + operator-blocked items at the top + reference
-from CONTINUATION.md §3 when non-terminal. §11.4.44 is the generic
+from CONTINUATION.md §3 when non-terminal. §11.4.45 is the generic
 form of §12.10 applied to every integration domain.
 
-Pre-build gates `CM-COVENANT-114-44-PROPAGATION` +
+Pre-build gates `CM-COVENANT-114-45-PROPAGATION` +
 `CM-AF-INTEGRATION-STATUS-DOCS` + 4 paired mutations. Composes
 with §11.4.5 / §11.4.12 / §11.4.13 / §11.4.15 / §11.4.22 /
-§11.4.23 / §11.4.43 / §12.10. No escape hatch. Classification:
-universal (§11.4.17). See Constitution §11.4.44 for the full
+§11.4.23 / §11.4.44 / §12.10. No escape hatch. Classification:
+universal (§11.4.17). See Constitution §11.4.45 for the full
 mandate.
 
-### Validate-recent-work-before-post-flash-tests (§11.4.45, User mandate 2026-05-18)
+### Validate-recent-work-before-post-flash-tests (§11.4.46, User mandate 2026-05-18)
 
 Every post-flash run MUST first run a recent-work validation pass
 (targeted tests for Issues.md In-progress / Ready-for-testing /
@@ -761,16 +761,16 @@ Full `test_all_fixes.sh` runs ONLY after 100% green.
 
 Helper: `scripts/testing/recent_work_validate.sh --device <serial>`
 writes `/data/local/tmp/.recent_work_validated`; full suite refuses
-without it. Each recent fix needs paired §11.4.42 RED-then-GREEN —
+without it. Each recent fix needs paired §11.4.43 RED-then-GREEN —
 naked GREEN is a bluff. Composes with §11.4.4 + §11.4.7 + §11.4.40
-+ §11.4.41 + §11.4.42 + §11.4.43 + §12.10. Pre-build gates
-`CM-COVENANT-114-45-PROPAGATION` +
++ §11.4.42 + §11.4.43 + §11.4.44 + §12.10. Pre-build gates
+`CM-COVENANT-114-46-PROPAGATION` +
 `CM-AF-RECENT-WORK-VALIDATION-GATE` +
 `CM-AF-VALIDATION-ARTIFACT-FILE` + paired mutations.
 Classification: universal (§11.4.17). No escape hatch. See
-Constitution §11.4.45 for the full mandate.
+Constitution §11.4.46 for the full mandate.
 
-### Firebase data review (§11.4.46, User mandate 2026-05-18)
+### Firebase data review (§11.4.47, User mandate 2026-05-18)
 
 Before every "bigger working round" (pre-build / pre-flash /
 pre-tag blocking; daily / post-deployment burn-in non-blocking)
@@ -788,16 +788,16 @@ three sources), Issues.md output with Firebase metadata (Issue
 IDs + URL + Cluster Hash / KPI / Funnel), 3-tier dedup, and
 comprehensive root-cause analysis per Issue.
 
-Pre-build gates `CM-COVENANT-114-46-PROPAGATION` +
+Pre-build gates `CM-COVENANT-114-47-PROPAGATION` +
 `CM-AF-FIREBASE-REVIEW-CADENCE` + `CM-AF-FIREBASE-ISSUE-XREF` +
 3 paired mutations. Composes with §11.4.4 / §11.4.4(a) / §11.4.6 /
 §11.4.7 / §11.4.10 / §11.4.12 / §11.4.14 / §11.4.15 / §11.4.16 /
-§11.4.34 / §11.4.41 / §11.4.42 / §11.4.43 / §11.4.44 / §11.4.45.
+§11.4.34 / §11.4.42 / §11.4.43 / §11.4.44 / §11.4.45 / §11.4.46.
 No escape hatch — no `--skip-firebase-review`. Classification:
-universal (§11.4.17). See Constitution §11.4.46 for the full
+universal (§11.4.17). See Constitution §11.4.47 for the full
 mandate.
 
-### UI-driven video testing (§11.4.47, User mandate 2026-05-18)
+### UI-driven video testing (§11.4.48, User mandate 2026-05-18)
 
 Every test that asserts video playback on a secondary display MUST
 traverse the user-equivalent UI path (launcher icon → app home →
@@ -812,19 +812,19 @@ display verified via ffprobe-on-captured-mp4 + VOM activeDecoder
 state. Arvus codec-state cross-check per §11.4.13 + §CG screenshot.
 
 Per §11.4.4 four-layer: pre-build gate `CM-AF-UI-DRIVEN-VIDEO-
-COVERAGE` + propagation gate `CM-COVENANT-114-47-PROPAGATION` +
+COVERAGE` + propagation gate `CM-COVENANT-114-48-PROPAGATION` +
 on-device test framework at `device/rockchip/rk3588/tests/ui_driven/`
 (Layer 1 helper + Layer 2 per-app drivers + Layer 3 scenarios) +
 Layer 4 orchestrator `scripts/testing/run_ui_driven_video_suite.sh` +
 paired meta-test mutations. No escape hatch — no
 `--use-intent-shortcut`, `--skip-ui-traverse`, `--legacy-intent-mode`
-flag. Classification: universal (§11.4.17). See Constitution §11.4.47
+flag. Classification: universal (§11.4.17). See Constitution §11.4.48
 for the full mandate.
 
-### Dual-approach testing (§11.4.48, User mandate 2026-05-18)
+### Dual-approach testing (§11.4.49, User mandate 2026-05-18)
 
 Every feature test exercising a user-visible behaviour MUST ship in
-TWO variants: a UI-driven variant (uiautomator-based, §11.4.47
+TWO variants: a UI-driven variant (uiautomator-based, §11.4.48
 surfaces A–E) AND an Intent/Broadcast-driven variant (`am start
 --es` / `am broadcast`-based). Either alone is a §11.4 PASS-bluff
 for the OPPOSITE half of the stack — UI catches app-side bugs;
@@ -842,15 +842,15 @@ pinpoints which half of the stack contains a bug. Status mismatch
 between variants is itself a finding.
 
 Kinopoisk 5.1 EAC3 is the canonical first implementation. Both
-variants are RED per §11.4.42 until the §CN decoder pipeline fix
-lands. Pre-build gates: `CM-COVENANT-114-48-PROPAGATION` +
+variants are RED per §11.4.43 until the §CN decoder pipeline fix
+lands. Pre-build gates: `CM-COVENANT-114-49-PROPAGATION` +
 `CM-AF-DUAL-APPROACH-COVERAGE` + `CM-AF-KINOPOISK-5-1-DUAL-
 COVERAGE`. Three paired meta-test mutations. No escape hatch —
 no `--ui-only` / `--intent-only` / `--skip-dual` flag.
-Classification: universal (§11.4.17). See Constitution §11.4.48
+Classification: universal (§11.4.17). See Constitution §11.4.49
 for the full mandate.
 
-### Deterministic consistency (§11.4.49, User mandate 2026-05-18)
+### Deterministic consistency (§11.4.50, User mandate 2026-05-18)
 
 Every test that PASSes MUST have been executed N times (default N=3
 normal tests, N=10 cycle-validation suites) against the same firmware
@@ -871,14 +871,14 @@ bluff library loops, captures evidence-hash per iter, asserts all N
 hashes + exit codes identical. NO operator-facing escape converts
 divergence to PASS.
 
-Pre-build gates: `CM-COVENANT-114-49-PROPAGATION` +
+Pre-build gates: `CM-COVENANT-114-50-PROPAGATION` +
 `CM-AF-RELIABILITY-CHECK-WIRED` + `CM-AF-FEATURE-COVERAGE-MATRIX`.
 Three paired meta-test mutations. No escape hatch — no `--allow-flake`,
 `--first-pass-suffices`, `--skip-n-iter`, `--skip-coverage-audit` flag.
-Classification: universal (§11.4.17). See Constitution §11.4.49 for
+Classification: universal (§11.4.17). See Constitution §11.4.50 for
 the full mandate.
 
-### Live-ADB-First maximization (§11.4.50, User mandate 2026-05-18)
+### Live-ADB-First maximization (§11.4.51, User mandate 2026-05-18)
 
 Every fix MUST be classified by rebuild-requirement before commit
 using the project's per-file-class decision matrix. If
@@ -886,7 +886,7 @@ using the project's per-file-class decision matrix. If
 atmosphere-*.sh boot scripts, persist.* properties, markdown docs,
 test fixture assets, HelixQA YAML banks), the operator MUST first
 apply the fix to the running device via `adb push` / `setprop` /
-`pm install -r` / `mount -o remount,rw`, run the §11.4.42 RED test
+`pm install -r` / `mount -o remount,rw`, run the §11.4.43 RED test
 live, capture PASS, THEN commit + rebuild + reflash. Commit footer:
 `LIVE_ADB_VALIDATED: yes`. If `REQUIRES_REBUILD` (kernel, framework
 Java/AIDL, native C++ in APEX, sepolicy, init.rc, ro.* properties,
@@ -894,20 +894,20 @@ XML overlays, codec XML in APEX, Android.bp/.mk), the operator
 proceeds directly to source-side + rebuild. Commit footer:
 `REQUIRES_REBUILD: <reason>`. Mixed batches use partial.
 
-§11.4.50 REFINES §11.4.42 step 2 with mechanical enforcement.
+§11.4.51 REFINES §11.4.43 step 2 with mechanical enforcement.
 Helper: `classify_fix_rebuild_requirement.sh` walks `git diff
 --name-only`, looks up each file against the matrix, emits per-
 file classification + recommended commit-message footer. Unmatched
 paths classify as `REQUIRES_REBUILD: unmatched-path` (safe default
 per §11.4.6).
 
-Pre-build gates: `CM-COVENANT-114-50-PROPAGATION` +
+Pre-build gates: `CM-COVENANT-114-51-PROPAGATION` +
 `CM-AF-CLASSIFY-FIX-HELPER-EXISTS` +
 `CM-AF-LIVE-ADB-FIRST-COMMIT-MARKER`. Three paired meta-test
 mutations. No escape hatch — no `--skip-classify` /
 `--assume-rebuild` / `--no-footer-required` flag.
 
-Classification: universal (§11.4.17). See Constitution §11.4.50 for
+Classification: universal (§11.4.17). See Constitution §11.4.51 for
 the full mandate.
 
 ### Credentials-handling (§11.4.10)
