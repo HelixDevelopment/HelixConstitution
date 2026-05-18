@@ -948,6 +948,47 @@ mutations. No escape hatch — no `--skip-classify` /
 Classification: universal (§11.4.17). See Constitution §11.4.51 for
 the full mandate.
 
+### Autonomous-Validation (§11.4.52, User mandate 2026-05-18)
+
+**Forensic anchor — verbatim user mandate:**
+
+> "Make sure we have full automation tests which will do all this
+> work in full automation! IMPORTANT: Make sure that all existing
+> tests and Challenges do work in anti-bluff manner — they MUST
+> confirm that all tested codebase really works as expected!
+> execution of tests and Challenges MUST guarantee the quality, the
+> completition and full usability by end users of the product!"
+
+Every user-facing feature MUST have at least one autonomous
+validation path: end-to-end via `adb shell` + scripted automation,
+captured runtime evidence per §11.4.5, PASS/FAIL verdict WITHOUT
+human presence. Operator-attended tests are SUPPLEMENTARY, never
+PRIMARY. A feature whose ONLY path is operator-attended is a
+§11.4.52 violation: the path does not scale to CI, does not run on
+every commit, does not survive operator unavailability, and
+produces the exact "tests pass but feature doesn't work for users"
+failure mode §11.4 forbids.
+
+Acceptable autonomous paths: instrumentation APK (SDK-API
+exercises + JSON result file), headless intent dispatch + state
+poll (`am start --es` + `dumpsys`/`/proc/<pid>/maps` polling),
+ADB-driven uiautomator (ONLY if hierarchy has ≥1 clickable node —
+empty hierarchy demands fallback to APK/intent), network-side sink
+probe (§11.4.13), HelixQA autonomous QA session (§11.4.27).
+
+Coverage ledger (§11.4.25) classifies each feature as
+`AUTONOMOUS_VERIFIED` / `AUTONOMOUS_DESIGNED` / `OPERATOR_ATTENDED_ONLY` /
+`NOT_APPLICABLE`. `OPERATOR_ATTENDED_ONLY` blocks release until
+migrated; cite a tracked work item per §11.4.15 + §11.4.16.
+
+Pre-build gates `CM-COVENANT-114-52-PROPAGATION` +
+`CM-AF-AUTONOMOUS-PATH-PER-FEATURE`. Paired mutations. No escape
+hatch — no `--allow-operator-attended-only` / `--skip-autonomous-path`
+/ `--manual-validation-suffices` flag.
+
+Classification: universal (§11.4.17). See Constitution §11.4.52 for
+the full mandate.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

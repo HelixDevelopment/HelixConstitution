@@ -1449,6 +1449,73 @@ mutations. No escape hatch — no `--skip-classify` /
 
 Non-compliance is a release blocker regardless of context.
 
+**§11.4.52 — Autonomous-Validation Mandate (User mandate, 2026-05-18)**
+
+**Forensic anchor — verbatim user mandate (2026-05-18):**
+
+> "Make sure we have full automation tests which will do all this
+> work in full automation! IMPORTANT: Make sure that all existing
+> tests and Challenges do work in anti-bluff manner — they MUST
+> confirm that all tested codebase really works as expected! We had
+> been in position that all tests do execute with success and all
+> Challenges as well, but in reality the most of the features does
+> not work and can't be used! This MUST NOT be the case and execution
+> of tests and Challenges MUST guarantee the quality, the completition
+> and full usability by end users of the product!"
+
+Every user-facing feature MUST have at least one autonomous
+validation path: end-to-end via `adb shell` + scripted automation,
+captured runtime evidence per §11.4.5, PASS/FAIL verdict WITHOUT a
+human present to drive UI, observe screen, or make decisions.
+Operator-attended tests are SUPPLEMENTARY, never PRIMARY. A feature
+whose ONLY validation path is operator-attended is a §11.4.52
+violation — the path does not scale to CI, does not run on every
+commit, does not survive operator unavailability, and produces the
+exact "tests pass but feature doesn't work for users" failure mode
+§11.4 forbids.
+
+Acceptable autonomous paths: programmatic instrumentation APK
+(SDK-API exercises like `MediaCodec.createDecoderByName` + JSON
+result file), headless intent dispatch + state poll (`am start --es`
++ `dumpsys` / `/proc/<pid>/maps` / `media.metrics` polling),
+ADB-driven uiautomator (ONLY if `uiautomator dump | grep -c
+clickable=true` ≥ 1 — near-empty hierarchy proves UI-driven
+INFEASIBLE and demands fallback to APK/intent), network-side sink
+probe (Arvus dashboard, Sonos REST, etc. per §11.4.13), HelixQA
+autonomous QA session (§11.4.27).
+
+Per-feature coverage ledger (§11.4.25) MUST classify each row as
+`AUTONOMOUS_VERIFIED` / `AUTONOMOUS_DESIGNED` / `OPERATOR_ATTENDED_ONLY` /
+`NOT_APPLICABLE`. `OPERATOR_ATTENDED_ONLY` is a release blocker
+until promoted, citing a tracked migration work item per §11.4.15 +
+§11.4.16. Autonomous paths themselves MUST be anti-bluff: positive
+captured evidence per §11.4.5, paired meta-test mutation per §1.1.
+
+Composes with §11.4.25 (full-automation-coverage — §11.4.52
+strictens invariants 1+2), §11.4.27 (no-fakes-beyond-unit + 100%
+type coverage — operational layer closing the gap), §11.4.39
+(per-feature on-device end-user validation — refined to mandate
+autonomous drivability), §11.4.43 (TDD-fix — autonomous path RED
+before fix, GREEN after), §11.4.48 (UI-driven — fallback to
+APK/intent when uiautomator hierarchy empty), §11.4.49
+(dual-approach — Intent variant often IS the autonomous path),
+§11.4.50 (deterministic consistency — autonomous paths scale to
+N iterations), §11.4.51 (live-ADB-first — instrumentation APK is
+LIVE_ADB_TESTABLE).
+
+Pre-build gates `CM-COVENANT-114-52-PROPAGATION` (anchor literal
+across canonical files) + `CM-AF-AUTONOMOUS-PATH-PER-FEATURE`
+(coverage-ledger classification column non-empty + valid value).
+Paired mutations strip the anchor literal AND inject an
+`OPERATOR_ATTENDED_ONLY` row without a tracked migration item.
+No escape hatch — no `--allow-operator-attended-only`,
+`--skip-autonomous-path`, `--manual-validation-suffices` flag.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](Constitution.md) §11.4.52.
+
+Non-compliance is a release blocker regardless of context.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
