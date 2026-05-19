@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">README</h1>
+</header>
+<h1 id="helix-constitution">Helix Constitution</h1>
+<blockquote>
+<p>The universal engineering constitution shared by every project that
+includes this repository as a Git submodule.</p>
+</blockquote>
+<h2 id="what-this-is">What this is</h2>
+<p>This repository contains the <strong>universal,
+project-agnostic</strong> rules, constraints, and conventions that every
+Helix project (and any other project that opts in) inherits
+automatically. Project-specific rules live in the consuming project's
+own <code>Constitution.md</code> / <code>CLAUDE.md</code> /
+<code>AGENTS.md</code> and <strong>extend</strong> what is in here.</p>
+<p>The model is three-layer (top-to-bottom evaluation, project overrides
+universal when conflicts are explicit):</p>
+<ol type="1">
+<li><strong>Base layer (this submodule)</strong> — universal rules:
+anti-bluff covenant, data safety, host safety, test coverage,
+commit/push discipline, credentials handling, documentation
+discipline.</li>
+<li><strong>Project layer</strong> — project root
+<code>Constitution.md</code> / <code>CLAUDE.md</code> /
+<code>AGENTS.md</code>: domain-specific rules, hardware-specific
+constraints, service-specific configuration.</li>
+<li><strong>Subdirectory layer (optional)</strong> —
+<code>&lt;subdir&gt;/CLAUDE.md</code> for module-local overrides. CLI
+agents (Claude Code et al.) merge these by walking up from the working
+directory.</li>
+</ol>
+<h2 id="how-to-consume">How to consume</h2>
+<h3 id="1-add-the-submodule">1. Add the submodule</h3>
+<p>In each consuming project:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule add git@github.com:HelixDevelopment/HelixConstitution.git constitution</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Pin to a tag for reproducibility (recommended)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> constitution</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout v1.0.0          <span class="co"># whatever the current stable tag is</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ..</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add constitution</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;chore: add Helix Constitution submodule pinned to v1.0.0&quot;</span></span></code></pre></div>
+<p>When teammates clone your project:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--recurse-submodules</span> <span class="op">&lt;</span>your-project-url<span class="op">&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># or if already cloned:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule update <span class="at">--init</span> <span class="at">--recursive</span></span></code></pre></div>
+<h3 id="2-wire-the-inheritance">2. Wire the inheritance</h3>
+<p>Add a clearly-marked pointer at the top of your project's root
+<code>CLAUDE.md</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## INHERITED FROM constitution/CLAUDE.md</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>All rules in <span class="in">`constitution/CLAUDE.md`</span> (and the <span class="in">`constitution/Constitution.md`</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>it references) apply unconditionally. Project-specific rules below</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>extend them.</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>@constitution/CLAUDE.md</span></code></pre></div>
+<p>Same for <code>AGENTS.md</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Base agent rules: </span><span class="in">`constitution/AGENTS.md`</span><span class="at"> — READ IT FIRST.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; The base file is authoritative for any topic not covered here.</span></span></code></pre></div>
+<p>And for your project Constitution:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>This constitution **extends** the Helix Universal Constitution at</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="in">`constitution/Constitution.md`</span>. All clauses there apply unless</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>explicitly overridden below with an explicit <span class="in">`Override §X.Y`</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>section.</span></code></pre></div>
+<h3 id="3-set-up-the-multi-upstream-push">3. Set up the multi-upstream
+push</h3>
+<p>From the <strong>constitution submodule's</strong> root
+directory:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> constitution</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> install_upstreams.sh</span></code></pre></div>
+<p>This reads every <code>Upstreams/*.sh</code> declaration and
+configures matching git remotes locally, so a single
+<code>git push</code> reaches every provider (GitHub, GitLab, GitFlic,
+GitVerse).</p>
+<p>Alternatively, if your toolkit ships the system-wide
+<code>install_upstreams</code> command (Project-Toolkit
+<code>Upstreamable/</code>), you can invoke that instead — it reads the
+same <code>Upstreams/</code> directory.</p>
+<h3 id="4-verify-inheritance-with-an-automated-test">4. Verify
+inheritance with an automated test</h3>
+<p>Every consuming project should ship a test that verifies the
+constitution submodule is present, at the expected pinned revision, and
+that the project's CLAUDE.md / AGENTS.md / Constitution all reference
+the submodule. See the ATMOSphere project's
+<code>test_constitution_inheritance.sh</code> for a reference
+implementation.</p>
+<h2 id="contents">Contents</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Constitution.md</code></td>
+<td><strong>The canonical universal constitution.</strong> All clauses
+are project-agnostic.</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>Universal CLAUDE.md for Claude Code agents. Imports
+<code>Constitution.md</code> by reference.</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code></td>
+<td>Universal AGENTS.md for every other CLI agent (Codex, Cursor, Aider,
+etc.).</td>
+</tr>
+<tr>
+<td><code>LICENSE</code></td>
+<td>License governing the constitution text itself.</td>
+</tr>
+<tr>
+<td><code>Upstreams/</code></td>
+<td>One <code>.sh</code> declaration file per upstream Git remote.</td>
+</tr>
+<tr>
+<td><code>install_upstreams.sh</code></td>
+<td>Configures every declared upstream as a local git remote.</td>
+</tr>
+<tr>
+<td><code>find_constitution.sh</code></td>
+<td>Helper that locates this submodule from arbitrary nested depth.</td>
+</tr>
+<tr>
+<td><code>meta_test_inheritance.sh</code></td>
+<td>Sentinel-based meta-test that verifies the inheritance gate catches
+a deletion of the §11.4 anchor.</td>
+</tr>
+<tr>
+<td><code>templates/</code></td>
+<td>Templates for project-specific Constitution / CLAUDE / AGENTS
+files.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="multi-upstream-topology">Multi-upstream topology</h2>
+<p>This repository is hosted on four providers, with GitHub as the
+primary:</p>
+<table>
+<thead>
+<tr>
+<th>Remote</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>github</code> (primary)</td>
+<td><code>git@github.com:HelixDevelopment/HelixConstitution.git</code></td>
+</tr>
+<tr>
+<td><code>gitlab</code></td>
+<td><code>git@gitlab.com:helixdevelopment1/helixconstitution.git</code></td>
+</tr>
+<tr>
+<td><code>gitflic</code></td>
+<td><code>git@gitflic.ru:helixdevelopment/helixconstitution.git</code></td>
+</tr>
+<tr>
+<td><code>gitverse</code></td>
+<td><code>git@gitverse.ru:helixdevelopment/HelixConstitution.git</code></td>
+</tr>
+</tbody>
+</table>
+<p>Every commit MUST be pushed to ALL four. The <code>origin</code>
+remote is configured with multiple push URLs so
+<code>git push origin &lt;branch&gt;</code> fans out to every provider
+in one command.</p>
+<h2 id="recursive-inheritance">Recursive inheritance</h2>
+<p>Between the consuming project's root and any submodule that uses this
+constitution there may be N intermediate levels. The
+<code>find_constitution.sh</code> helper walks up parents until it
+locates the constitution submodule, so nested submodules can source the
+helper without knowing their own depth.</p>
+<h2 id="versioning">Versioning</h2>
+<p>Tag the constitution at semantically meaningful checkpoints
+(<code>v1.0.0</code>, <code>v1.1.0</code>, <code>v2.0.0</code>).
+Consuming projects pin to a specific tag and upgrade deliberately. Major
+version bumps mean breaking changes to the universal rules; minor bumps
+mean additions; patches mean clarifications.</p>
+<h2 id="contributing">Contributing</h2>
+<p>Universal status has to be <strong>earned</strong>, not assumed.
+Project-specific content does NOT belong here. When in doubt, classify a
+rule as project-specific and keep it in the consuming project's own
+Constitution.</p>
+<p>A rule is <strong>universal</strong> only if ALL are true:</p>
+<ol type="1">
+<li>It would be true for at least 3 unrelated projects across different
+domains.</li>
+<li>It does not reference a specific service / schema / port / topic /
+table / vendor / hardware unique to one project.</li>
+<li>It encodes a <em>policy</em> or <em>principle</em>, not a
+<em>configuration value</em>.</li>
+<li>Removing it from any consuming project would be just as wrong as
+removing it from any other.</li>
+</ol>
+<p>A rule is <strong>project-specific</strong> if any are true:</p>
+<ul>
+<li>Mentions a specific service, package, topic, table, ML model,
+protocol version, hardware, or vendor.</li>
+<li>Encodes a numeric threshold tuned for one codebase (coverage %,
+latency SLOs, retry counts).</li>
+<li>Describes a workaround for a bug or quirk in a dependency this
+project uses.</li>
+</ul>
+<h2 id="license">License</h2>
+<p>See <code>LICENSE</code>.</p>
+</body>
+</html>

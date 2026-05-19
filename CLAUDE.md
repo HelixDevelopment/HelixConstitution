@@ -1883,6 +1883,16 @@ Composes with §11.4.12 + §11.4.15 + §11.4.16 + §11.4.19 + §11.4.23 +
 
 Non-compliance is a release blocker regardless of context.
 
+**§11.4.63 — Workable-items procedure docs as single source of truth (User mandate, 2026-05-19)**
+
+Every workable-item action (open / update / close / reopen / migrate) MUST follow the canonical procedure document at `docs/procedures/issues/<Action>.md`. Closed-set of 5 procedure docs: `Creation.md`, `Updating.md`, `Resolution.md`, `Reopening.md`, `Migration.md`. Each carries §11.4.44 revision header + HTML + PDF exports (refreshed by `scripts/testing/sync_procedure_docs_export.sh`, invoked as the final stage of `sync_issues_docs.sh`). ALL work — new features, behavioural changes, tasks (refactor / doc / infra / gate / audit / cleanup), bug fixes, investigation, documentation — MUST flow through these procedures. No ad-hoc procedure permitted.
+
+Pre-build gate `CM-PROCEDURES-DOCS-PRESENT` checks all 5 procedure docs exist + carry revision header + have current HTML/PDF exports + sync helper is wired into `sync_issues_docs.sh`. Paired mutation: rename one procedure doc → gate FAILs. Propagation gate `CM-COVENANT-114-63-PROPAGATION` enforces this anchor literal in every CLAUDE.md / AGENTS.md.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.63.
+
+Non-compliance is a release blocker regardless of context.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
@@ -2003,3 +2013,30 @@ Universal conventions applicable to most projects:
 - If still unclear, ask the operator. Do NOT guess. Do NOT bluff.
 
 ---
+
+**§11.4.65 — Universal Markdown export mandate (User mandate, 2026-05-19)**
+
+Every Markdown document inside the project that is NOT part of an
+application or service's source-code tree MUST have synchronized
+`.html` and `.pdf` siblings. Includes: project-root `*.md`,
+`docs/**/*.md`, `scripts/**/*.md` (doc-format companion docs),
+owned-submodule top-level README.md / CLAUDE.md / AGENTS.md /
+CHANGELOG.md and their `docs/**/*.md`, `constitution/**/*.md`,
+owned HelixQA submodules' equivalents. Excludes: `external/**`,
+`prebuilts/**`, `packages/modules/**`, `kernel-5.10/**`, `out/**`,
+`build/**`, application/service source-code trees, and third-party
+submodules NOT in the owned set. Every edit triggers regeneration
+via `scripts/testing/sync_all_markdown_exports.sh` (pandoc HTML +
+weasyprint PDF, `timeout 60` per file, capped at 500 candidates).
+HTML + PDF mtime MUST be ≥ source `.md` mtime at all times.
+
+Pre-build gates `CM-UNIVERSAL-MARKDOWN-EXPORT-SYNC` + `CM-COVENANT-114-65-PROPAGATION`. Paired meta-test mutations.
+Composes with §11.4.12 / §11.4.18 / §11.4.23 / §11.4.44 / §11.4.45 /
+§11.4.53 / §11.4.59 / §11.4.60 / §11.4.63 / §11.4.64. No escape
+hatch — no `--skip-md-exports`, `--no-pdf-only`,
+`--md-export-not-applicable` flag.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](constitution/Constitution.md) §11.4.65.
+
+Non-compliance is a release blocker regardless of context.

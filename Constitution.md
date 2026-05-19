@@ -5552,6 +5552,232 @@ doc-class instance paths are consumer-side per-project.
 
 Non-compliance is a release blocker regardless of context.
 
+### §11.4.63 — Workable-items procedure docs as single source of truth (User mandate, 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19 ~10:30Z):**
+
+> "To make workable items tracking and creation through all of the
+> mentioned mandatory documents we MUST create proper procedure
+> document which will be named in Constitution, AGENTS.md and
+> CLAUDE.md as single source of truth for this procedure! Make sure
+> it is created under: docs/procedures/issues/Creation.md which
+> will be always exported to PDF and HTML whenever it is updated. We
+> MUST create procedure documents for Updating.md, Resolution.md,
+> Reopening.md and other workable items actions that we have. ...
+> Everything done on project - new features, changes, tasks, bug
+> fixes, investigation, ordinary tasks (writing documentation for
+> example) MUST ALL go through the workable items flow and proper
+> procedures!"
+
+Every workable-item action — opening, updating, closing, reopening,
+migrating across Issues.md ↔ Fixed.md — MUST follow the canonical
+procedure document at `docs/procedures/issues/<Action>.md`. The five
+procedure docs are MANDATORY references; no agent or operator may
+invent ad-hoc procedures. The closed-set:
+
+| Procedure doc | Covers |
+|---|---|
+| `Creation.md` | Opening a new workable item (Bug / Feature / Task) |
+| `Updating.md` | Non-closure, non-reopen edits — status transitions, evidence append, type re-classification |
+| `Resolution.md` | Atomic Issues.md → Fixed.md close (Bug→Fixed, Feature→Implemented, Task→Completed per §11.4.33) |
+| `Reopening.md` | Atomic Fixed.md → Issues.md reopen with §11.4.34 source attribution + §11.4.55 reopens-history |
+| `Migration.md` | Bidirectional atomic-move mechanics + sync_issues_docs.sh internals (consumed by Resolution + Reopening) |
+
+Each procedure doc carries the §11.4.44 revision header + HTML + PDF
+exports synchronised to its `.md` source. New helper
+`scripts/testing/sync_procedure_docs_export.sh` walks the procedure-
+docs directory and emits matching `.html` + `.pdf` for each `.md`;
+invoked as the final stage of `scripts/testing/sync_issues_docs.sh`
+so a single operator invocation refreshes every doc-side artifact.
+
+**Universality of scope.** All work — new features, behavioural
+changes, tasks (refactor / doc / infra / gate / audit / cleanup), bug
+fixes, investigation, documentation work — MUST flow through these
+procedures. The "I'll just tweak this one file" escape hatch is
+forbidden because it produces silent doc drift and reopens the §11.4
+covenant's PASS-bluff failure mode at the process-tracking layer.
+
+**Composes with** §11.4.6 (no-guessing — every procedure step is
+mechanical, no `likely` / `seems`), §11.4.7 (demotion-evidence —
+Reopening.md is the canonical implementation), §11.4.11 (file-layout
+— procedure docs live in `docs/procedures/issues/`, qa-results
+forensics live in `qa-results/`), §11.4.12 (Issues_Summary sync —
+all five procedures invoke `sync_issues_docs.sh` whose pipeline is
+documented in Migration.md), §11.4.15 (Status closed-set — all five
+procedures cite the same closed-set), §11.4.16 (Type closed-set),
+§11.4.19 (atomic Issues↔Fixed move — Migration.md is the
+implementation), §11.4.23 (visual cue + grouping colorization —
+invoked by sync wrapper, no procedure-side bypass), §11.4.33 (type-
+aware closure vocabulary — Resolution.md enforces), §11.4.34
+(Reopened-source attribution — Reopening.md enforces), §11.4.44
+(revision header on every procedure doc), §11.4.53 (Fixed_Summary
+parity — Migration.md documents the pipeline), §11.4.54 (ATM-NNN
+identifier — Creation.md allocates), §11.4.55 (Reopens-history per-
+item doc — Reopening.md authors), §11.4.60 (documentation always-
+sync composite — procedure docs are an additional doc class binding
+to the composite covenant).
+
+**Pre-build gate** `CM-PROCEDURES-DOCS-PRESENT` checks (1) all 5
+procedure docs exist at `docs/procedures/issues/{Creation,Updating,
+Resolution,Reopening,Migration}.md`, (2) each carries the §11.4.44
+revision header, (3) each has matching `.html` + `.pdf` exports with
+mtime ≥ the .md mtime, (4) `scripts/testing/sync_procedure_docs_
+export.sh` exists + is executable, (5) `scripts/testing/sync_issues_
+docs.sh` invokes `sync_procedure_docs_export.sh`. Paired mutation:
+rename one procedure doc → gate FAILs.
+
+**Propagation gate** `CM-COVENANT-114-63-PROPAGATION` enforces this
+anchor literal in every CLAUDE.md / AGENTS.md across parent + 10
+owned submodules + nested submodules + HelixQA dependencies. Paired
+mutation strips the anchor literal → gate FAILs.
+
+No escape hatch — no `--ad-hoc-procedure`, `--skip-procedure-doc`,
+`--procedure-not-applicable` flag exists. Inventing an alternate
+procedure for a "small" change is the exact failure mode this anchor
+closes.
+
+**Classification:** universal (per §11.4.17). The closed-set of five
+procedure docs and the sync-wrapper composition are universal; the
+specific test-name / fix-name examples within each procedure doc may
+be consumer-side per-project.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](Constitution.md) §11.4.63.
+
+Non-compliance is a release blocker regardless of context.
+
+### §11.4.65 — Universal Markdown export mandate (User mandate, 2026-05-19)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-19):**
+
+> "Any markdown document inside the project and which is not part of
+> the applications or services source code MUST BE exported (be
+> available) in PDF and HTML! Any already existing Markdown document
+> that fulfills this condition and which does not have HTML or PDF at
+> all or it is not in sync with it MUST HAVE (re)generated PDF and
+> HTML version! Every time when Markdown document (file) is modified,
+> its proper HTML and PDF versions MUST BE regenerated. Markdown
+> documents MUST BE at all times in sync with PDF and HTML versions!"
+
+The covenant generalizes the per-class always-sync discipline of
+§11.4.12 / §11.4.18 / §11.4.44 / §11.4.45 / §11.4.53 / §11.4.56 /
+§11.4.57 / §11.4.59 / §11.4.60 / §11.4.63 / §11.4.64 to **every
+Markdown document in the project that is not part of an application
+or service's source-code tree**. Per-class anchors govern specific
+files (Issues, Fixed, Status, README, etc.); §11.4.65 is the catch-
+all: any *other* `.md` file that documents the project — guides,
+research notes, plans, hardware-ID notes, script-companion docs,
+changelogs, procedure docs, README files inside owned submodules —
+MUST also have `.html` + `.pdf` siblings, all three artefacts in
+sync at all times. Stale exports of *any* documentation surface are
+the exact "operator reads divergent HTML/PDF while .md is correct"
+PASS-bluff §11.4 forbids — only the per-class enforcement so far
+prevented it for specifically-named docs; §11.4.65 closes the long
+tail.
+
+**Scope (closed-set):**
+
+INCLUDED:
+- Project root `*.md` (README.md, CLAUDE.md, AGENTS.md, CONTRIBUTING.md, etc.)
+- `docs/**/*.md` (guides, research, plans, changelogs, procedures, hardware notes)
+- `scripts/**/*.md` (script-companion docs in documentation format, NOT shebang scripts)
+- Owned-submodule trees at `device/rockchip/atmosphere/<submodule>/`:
+  top-level README.md / CLAUDE.md / AGENTS.md / CHANGELOG.md and any `docs/**/*.md`
+- `constitution/**/*.md` (the canonical-root submodule)
+- `tools/helixqa/<helixqa-submodule>/` top-level README.md / CLAUDE.md / AGENTS.md
+  and any `docs/**/*.md` (owned HelixQA dependencies)
+
+EXCLUDED (NOT subject to §11.4.65 — these are application/service source
+code or third-party trees we do not own):
+- `external/**` (AOSP-mainline / upstream-mirror source trees)
+- `prebuilts/**` (binary prebuilts + their bundled docs)
+- `packages/modules/**` (AOSP mainline modules)
+- `kernel-5.10/**` (kernel source tree — has its own upstream docs)
+- `out/**` (build output)
+- `build/**` (AOSP build system)
+- Application / service source-code trees (e.g. Java/Kotlin module-internal
+  `*.md` shipped with library code, README files inside source-only
+  third-party gradle module directories)
+- Any third-party submodule NOT in the owned-submodule set (presenter,
+  vlc-player, nova-player, mpv-player, gramophone-player, rhythm-player,
+  strep-player, smarttube-player, torrserve, lampa) or HelixQA-owned set
+  (Challenges, Containers, DocProcessor, LLMOrchestrator, LLMProvider,
+  VisionEngine)
+
+**Mandatory protections (ALL must hold):**
+
+1. **Every INCLUDED `.md` file has `.html` and `.pdf` siblings.** A
+   missing export is a §11.4.65 violation regardless of when the
+   markdown was last touched.
+2. **`.html` and `.pdf` mtime ≥ `.md` mtime** (within the same
+   sync-wrapper invocation granularity). Stale exports are violations
+   even if the .md itself is correct.
+3. **Every modification triggers regeneration.** Whether via direct
+   sync-wrapper invocation (`sync_all_markdown_exports.sh`), a git
+   pre-commit hook auto-regenerating on staged `.md` changes, or the
+   existing per-class wrappers (§11.4.12 sync_issues_docs.sh, §11.4.18
+   script-docs sync, §11.4.59 sync_readme_export.sh, etc.) all of
+   which delegate the universal export path to the same canonical
+   helper.
+4. **Pre-build gate enforces parity.** `CM-UNIVERSAL-MARKDOWN-EXPORT-
+   SYNC` walks the INCLUDED scope, verifies every `.md` has `.html`
+   + `.pdf` siblings with mtime ≥ `.md` mtime, and FAILs the build
+   if any are missing or stale.
+5. **No escape hatch.** No `--skip-md-exports`, `--no-pdf-only`,
+   `--md-export-not-applicable`, `--application-internal-doc` flag
+   exists for files inside the INCLUDED scope. The EXCLUDED scope is
+   the only legitimate path to opt out, and it is closed-set.
+
+**Canonical helper.** `scripts/testing/sync_all_markdown_exports.sh`
+walks the INCLUDED scope, invokes pandoc (HTML) + weasyprint (PDF)
+with `timeout 60` each (graceful per-file degradation), uses
+`docs/_progress-style.css` for visual consistency, and supports
+`--check-only` (exit nonzero if any out-of-sync, print list) and
+`--regenerate-all` (force) modes. Caps at 500 candidates with
+explicit abort+list if the scope is unexpectedly large (e.g. after a
+new submodule lands without scope-update review). Idempotent.
+
+**Composition.** Composes with §11.4.12 (Issues_Summary sync —
+universal helper is the back-end), §11.4.18 (script-companion docs),
+§11.4.23 (HTML colorizer continues to post-process the always-sync
+docs for visual cues), §11.4.44 (revision header on every .md the
+universal helper exports), §11.4.45 (Status.md auto-sync), §11.4.53
+(Fixed_Summary), §11.4.59 (README always-sync — the universal helper
+covers the long tail of every *other* root-level .md too), §11.4.60
+(composite always-sync covenant — §11.4.65 is the structural
+generalization), §11.4.63 (procedure docs — already always-sync;
+§11.4.65 adds catch-all for every doc class not yet anchored),
+§11.4.64 (topic discoverability — summary docs the universal helper
+exports continue to be post-processed by inject_topic_index.py).
+
+**Pre-build gates:**
+
+- `CM-UNIVERSAL-MARKDOWN-EXPORT-SYNC` — invariants: (a)
+  `scripts/testing/sync_all_markdown_exports.sh` exists + executable,
+  (b) running it in `--check-only` mode returns 0 (no out-of-sync
+  file in the INCLUDED scope).
+- `CM-COVENANT-114-65-PROPAGATION` — anchor literal `11.4.65` in
+  every CLAUDE.md / AGENTS.md across canonical-root + parent +
+  10 owned submodules + nested submodules + HelixQA dependencies
+  (42-file fleet — same propagation set as §11.4.58).
+
+Paired meta-test mutations: one strips the `CM-UNIVERSAL-MARKDOWN-
+EXPORT-SYNC` gate's enforcement literal; one strips the §11.4.65
+anchor literal from a sentinel propagation file. Both mutations
+assert the corresponding gate FAILs when applied.
+
+**Classification:** universal (per §11.4.17). The mandate to export
+every project-doc Markdown to HTML+PDF is universal across every
+project that consumes this Constitution; the specific INCLUDED /
+EXCLUDED scope path lists are consumer-side per-project (since each
+consumer has different submodule topology, build trees, and source-
+code roots).
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](Constitution.md) §11.4.65.
+
+Non-compliance is a release blocker regardless of context.
+
 ---
 
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN

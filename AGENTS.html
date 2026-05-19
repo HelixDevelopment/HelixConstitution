@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AGENTS</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AGENTS</h1>
+</header>
+<h1 id="helix-constitution--universal-agentsmd">Helix Constitution —
+Universal AGENTS.md</h1>
+<blockquote>
+<p>This is the <strong>base AGENTS.md</strong> for any CLI agent (Codex,
+Cursor, Aider, Continue, Gemini CLI, future LLMs) working on a project
+that includes the Helix Constitution submodule. Project-level
+<code>AGENTS.md</code> may extend or tighten rules but MUST NOT weaken
+them.</p>
+<p>Last revision: 2026-05-14</p>
+</blockquote>
+<h2 id="how-inheritance-works">How inheritance works</h2>
+<p>Because not every CLI agent honours the Markdown <code>@import</code>
+syntax, each consuming project's root <code>AGENTS.md</code> MUST do one
+of:</p>
+<ol type="1">
+<li><p><strong>Reference + restate critical rules</strong> (safest —
+works for every agent):</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># &lt;Project&gt; — AGENTS.md</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Base agent rules: </span><span class="in">`constitution/AGENTS.md`</span><span class="at"> — READ IT FIRST.</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; The base file is authoritative for any topic not covered here.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Critical base rules restated (for agents that don&#39;t follow links)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Never commit secrets.</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>All commits go through the project&#39;s commit wrapper.</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Anti-bluff covenant binds every test (Constitution §11.4).</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">## Project-specific</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>...</span></code></pre></div></li>
+<li><p><strong>Generate at build time</strong> — keep one
+source-of-truth in this submodule, concatenate with a project-specific
+delta file. A <code>compose-agents.sh</code> script in this submodule's
+<code>Upstreams/</code> (or <code>scripts/</code> if added) would output
+<code>constitution/AGENTS.md</code> followed by <code>---</code>
+followed by <code>AGENTS.project.md</code>.</p></li>
+</ol>
+<h2 id="identity--posture">Identity &amp; posture</h2>
+<p>You are working inside a project that has opted into the Helix
+Constitution. The Constitution is the source of truth for engineering
+discipline (test coverage, anti-bluff covenant, data safety, host
+safety, credentials handling, documentation discipline). Whenever this
+AGENTS.md mentions a <code>§X.Y</code> reference, it points to
+<code>constitution/Constitution.md</code>.</p>
+<p>The Constitution applies recursively to every submodule of every
+project that includes it — you MUST treat the Constitution's rules as
+in-force regardless of how deep into the submodule tree you are
+working.</p>
+<h2 id="top-level-invariants-for-every-agent">Top-level invariants for
+every agent</h2>
+<ol type="1">
+<li><strong>Never assume; verify by reading files.</strong> Especially
+before any destructive action.</li>
+<li><strong>Never bluff.</strong> Do not invent file paths, command
+outputs, test results, or library APIs you have not verified. If you are
+unsure, say so explicitly and verify.</li>
+<li><strong>No guessing language</strong> (§11.4.6).
+<code>likely</code>, <code>probably</code>, <code>maybe</code>,
+<code>might</code>, <code>appears</code>, <code>seems</code> are
+forbidden when reporting causes. Use captured evidence or mark
+explicitly <code>UNCONFIRMED:</code>.</li>
+<li><strong>Test coverage for every change</strong> (§1) — pre-build
+gate, post-build gate, runtime test, AND a meta-test mutation that
+proves the gate catches regressions.</li>
+<li><strong>Commit through the project's official wrapper.</strong>
+Direct <code>git add</code> / <code>git commit</code> /
+<code>git push</code> on the main repo is forbidden in normal
+workflow.</li>
+<li><strong>Never skip hooks</strong> (<code>--no-verify</code>,
+<code>--no-gpg-sign</code>).</li>
+<li><strong>Never force-push.</strong> Force-push requires explicit
+per-session human authorization AND a green §9.1.5 post-op gate.</li>
+<li><strong>Hardlinked backup before any destructive op</strong> (§9).
+Zero excuse.</li>
+<li><strong>Host safety</strong> (§12) — abort if pre-flight check
+fails; wrap heavy work in bounded execution scopes; never exceed 60% of
+host RAM.</li>
+<li><strong>Credentials NEVER tracked</strong> (§11.4.10) —
+<code>.env</code> patterns git-ignored; runtime-load only; per-service
+file separation. <strong>Pre-store leak audit</strong> (§11.4.10.A,
+2026-05-17) — before storing operator-provided credentials in any
+gitignored config, grep the entire tracked tree AND git history for the
+literal value(s); surface any findings to operator before storing.</li>
+<li><strong>CONTINUATION.md kept in sync</strong> (§12.10) — every
+non-trivial state change updates the continuation document in the same
+commit.</li>
+</ol>
+<h2
+id="critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don't honour @imports)</h2>
+<h3 id="anti-bluff-covenant--end-user-quality-guarantee-114">Anti-bluff
+covenant — END-USER QUALITY GUARANTEE (§11.4)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-04-28):</strong></p>
+<blockquote>
+<p>"We had been in position that all tests do execute with success and
+all Challenges as well, but in reality the most of the features does not
+work and can't be used! This MUST NOT be the case and execution of tests
+and Challenges MUST guarantee the quality, the completion and full
+usability by end users of the product!"</p>
+</blockquote>
+<p>The bar for shipping is <strong>not</strong> "tests pass" but
+<strong>"users can use the feature."</strong> Every PASS MUST carry
+positive evidence captured during execution that the feature works for
+the end user. Metadata-only PASS, configuration-only PASS,
+absence-of-error PASS, and grep-based PASS without runtime evidence are
+critical defects.</p>
+<h3 id="mutation-paired-gates-11">Mutation-paired gates (§1.1)</h3>
+<p>Every new gate MUST be paired with a mutation entry in the project's
+meta-test harness that mutates the asserted condition and asserts the
+gate now FAILs. A gate without a paired mutation is a bluff gate and is
+forbidden.</p>
+<h3 id="recorded-evidence-requirement-1142">Recorded-evidence
+requirement (§11.4.2)</h3>
+<p>Every PASS for a user-visible feature MUST be cross-checked against a
+captured recording + action timeline. A PASS that lacks at least one
+matched timeline event in the analyzer findings is a §11.4
+PASS-bluff.</p>
+<h3 id="test-interrupt-on-discovery-1144">Test-interrupt-on-discovery
+(§11.4.4)</h3>
+<p>The moment any defect is re-discovered, re-produced, or newly
+identified during a test cycle, the cycle MUST stop. Then: systematic
+debugging → fix at root cause → four-layer test coverage (pre-build /
+post-build / runtime / meta-test paired mutation) → full rebuild →
+re-deploy on every target → full retest from beginning.</p>
+<h3 id="no-guessing-mandate-1146">No-guessing mandate (§11.4.6)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-08):</strong></p>
+<blockquote>
+<p>"'LIKELY' is guessing, we MUST NOT have guessing, since it can be or
+may not be! No bluffing and uncertainity is allowed at any cost! We MUST
+always know exactly precisly what is happening exactly, in any context,
+under any conditions, everywhere!"</p>
+</blockquote>
+<p>Forbidden vocabulary when reporting causes: <code>likely</code>,
+<code>probably</code>, <code>maybe</code>, <code>might</code>,
+<code>possibly</code>, <code>presumably</code>, <code>seems</code>,
+<code>appears to</code>, <code>guess</code>, <code>seemingly</code>,
+<code>apparently</code>, <code>perhaps</code>, <code>supposedly</code>,
+<code>conjectured</code>, and synonyms.</p>
+<h3 id="item-type-tracking-11416">Item-type tracking (§11.4.16)</h3>
+<p>Every active item in the project Issues file MUST carry a
+<code>**Type:**</code> line within eight non-blank lines of its heading.
+Three-value CLOSED vocabulary: <code>Bug</code> (product defect /
+regression / user-visible broken behaviour), <code>Feature</code> (new
+capability not previously offered to end users), <code>Task</code>
+(internal workstream — refactor, doc, infra, gate, audit; the
+lowest-stakes default when ambiguous). The Issues_Summary file carries
+the Type column for every active item. All three Issues / Issues_Summary
+/ Fixed file types kept in sync (Markdown + HTML + PDF). Pre-build gates
+<code>CM-ITEM-TYPE-TRACKING</code> +
+<code>CM-COVENANT-114-16-PROPAGATION</code> enforce the mandate. No
+escape hatch.</p>
+<h3
+id="universal-vs-project-classification-11417-user-mandate-2026-05-14">Universal-vs-project
+classification (§11.4.17, User mandate 2026-05-14)</h3>
+<p>Before adding ANY new rule / mandatory constraint / covenant clause /
+gate / "MUST"-bearing statement, classify it: <strong>universal</strong>
+(any project → constitution submodule) or
+<strong>project-specific</strong> (specific hardware / vendor / package
+/ region → project / submodule layer). Commit message MUST carry
+<code>Classification:</code> line + one-sentence rationale. When
+uncertain, default to project-specific. Gate
+<code>CM-UNIVERSAL-VS-PROJECT-CLASSIFICATION</code> audits new rule
+commits. Paired mutation enforces the gate is not a bluff.</p>
+<h3
+id="subagent-driven-by-default-11420-user-mandate-2026-05-14">Subagent-driven-by-default
+(§11.4.20, User mandate 2026-05-14)</h3>
+<p>When the runtime supports subagent delegation (Agent tool / task
+runner / sub-session), the primary agent MUST default to subagent
+delegation for multi-step scope (≥3 phases), parallelisable independent
+subtasks, long-running diagnostic loops, OR specialised domain
+workflows. Foreground-only is reserved for single-file edits,
+mid-execution operator clarification, critical-state sequencing (commits
+/ pushes / tags), or tasks under ~30s. Discipline: tight scope (4-6
+tasks), checkpoint commits per task, anti-stall protection in prompts,
+anti-bluff verification of subagent claims via repo state. Parallel
+subagents MUST partition non-overlapping files; parent
+<code>commit_all.sh --auto-cascade</code> bundles via
+<code>git add -A</code>. Gate <code>CM-SUBAGENT-DELEGATION-AUDIT</code>
+(per consuming project) flags foreground multi-step work as a violation.
+Paired mutation enforces the gate is not a bluff.</p>
+<h3
+id="script-documentation-mandate-11418-user-mandate-2026-05-14">Script
+documentation mandate (§11.4.18, User mandate 2026-05-14)</h3>
+<p>Every Bash / shell / POSIX-sh script under <code>scripts/</code> /
+<code>bin/</code> / <code>tests/</code> / library dirs / CI hooks
+(depth-N recursive) MUST carry (1) an in-source documentation block at
+the top (Purpose / Usage / Inputs / Outputs / Side-effects /
+Dependencies / Cross-references) AND (2) an external user guide under
+<code>docs/scripts/&lt;script-name&gt;.md</code> (Overview /
+Prerequisites / Usage examples / Edge cases / Internal behaviour /
+Related scripts / Last verified date). When a script is modified, BOTH
+the in-source block AND the external user guide MUST be updated in the
+SAME commit. <strong>No documentation ever out of sync with its
+codebase.</strong> Gate <code>CM-SCRIPT-DOCS-SYNC</code> enforces.
+Paired mutation strips the invariant.</p>
+<h3
+id="fixed-document-column-alignment-11419-user-mandate-2026-05-14">Fixed-document
+column-alignment (§11.4.19, User mandate 2026-05-14)</h3>
+<p>The closed-archive tracker (<code>Fixed.md</code>) MUST mirror the
+open-work tracker (<code>Issues.md</code> +
+<code>Issues_Summary.md</code>) along the same lifecycle axes — at
+minimum <strong>Status</strong> and <strong>Type</strong>. Concretely:
+(1) every <code>### </code> / <code>#### </code> heading in
+<code>Fixed.md</code> carries <code>**Status:**</code> (from closed-set
+<code>{Fixed (→ Fixed.md) | Fixed — pending device verification | Fixed — RECLASSIFIED}</code>)
+and <code>**Type:**</code> (<code>{Bug | Feature | Task}</code>) within
+8 non-blank lines of the heading; (2) <code>Fixed_Summary.md</code>
+companion exists with column structure
+<code># | Level | Status | Type | One-line description</code> matching
+<code>Issues_Summary.md</code> exactly; (3) all three formats
+(<code>.md</code>, <code>.html</code>, <code>.pdf</code>) for BOTH Fixed
+and Fixed_Summary stay in sync via the same single-shot wrapper that
+handles Issues + Issues_Summary; (4) closure is atomic — resolved items
+migrate from Issues.md to Fixed.md in the same commit. Pre-build gate
+<code>CM-FIXED-COLUMN-ALIGNMENT</code> (5+ invariants: file-exists,
+header-has-Status+Type, mtime ≥ Fixed.md, generator script present, sync
+wrapper invokes it, HTML+PDF exports present). Paired mutation strips
+Status column from Fixed_Summary header → gate FAILs. Classification:
+universal (per §11.4.17).</p>
+<h3
+id="operator-blocked-status--self-resolution-exhaustion-11421-user-mandate-2026-05-14">Operator-blocked
+status + self-resolution exhaustion (§11.4.21, User mandate
+2026-05-14)</h3>
+<p><code>Operator-blocked</code> is the §11.4.15 Status closed-set's 7th
+value alongside
+<code>{Queued | In progress | Ready for testing | In testing | Reopened | Fixed (→ Fixed.md)}</code>.
+<strong>Last-resort classification</strong> — agent MUST first exhaust
+applicable self-resolution paths: (a) CLI / ADB / SSH / API access
+already available, (b) subagent delegation per §11.4.20, (c) existing
+repo tooling, (d) captured fallback (synthetic event / asset
+substitution / §11.4.3 SKIP), (e) external research per §11.4.8. Every
+<code>Operator-blocked</code> item MUST carry
+<code>**Operator-Block-Details:**</code> within 8 non-blank lines of its
+heading stating WHAT (action) / WHY (each exhausted alternative) /
+UNBLOCK CONDITION (observable signal) / WHO (contact or doc pointer).
+<code>Issues_Summary.md</code> lists it as a sortable Status value.
+Items re-evaluated every Nth tag cycle (≥3rd recommended). Fake
+<code>Operator-blocked</code> without exhaustion audit = §11.4 covenant
+violation at planning layer (PASS-bluff equivalent). Gates
+<code>CM-ITEM-OPERATOR-BLOCKED-DETAILS</code> +
+<code>CM-OPERATOR-BLOCKED-SELF- RESOLUTION-AUDIT</code> (every NEW
+Operator-blocked commit carries an "Attempted: a — ...; b — ...; c —
+..." trail). Classification: universal (per §11.4.17). No escape
+hatch.</p>
+<h3
+id="document-sync-commit-discipline-11422-user-mandate-2026-05-14">Document-sync
+commit discipline (§11.4.22, User mandate 2026-05-14)</h3>
+<p>Every project tracking work items through an Issues / Fixed lifecycle
+MUST provide a <strong>lightweight commit path</strong> distinct from
+the full-repo commit wrapper. Stages, commits, pushes ONLY the
+status-tracking doc set: Issues + Issues_Summary + Fixed + Fixed_Summary
++ CONTINUATION + their HTML + PDF exports + auto-generated audit
+artifact. Wrapper MUST: (a) auto-invoke the project's
+export-regeneration pipeline first so Markdown + HTML + PDF stay in
+sync; (b) stage ONLY the explicit doc-set list — NEVER
+<code>git add -A</code>; (c) use a separate flock disjoint from the
+full-tree wrapper; (d) push to every parent-repo remote; (e) exit
+<code>3</code> on nothing-to-commit (informational). MUST be invocable
+standalone OR via a delegation flag on the full-tree wrapper (e.g.
+<code>commit_all.sh --docs-only</code>). Inherits §9 preflight. Gate
+<code>CM-COMMIT-DOCS-EXISTS</code> + paired mutation. Composes with
+§11.4.12 / §11.4.15 / §11.4.18 / §12.10. Classification: universal (per
+§11.4.17). No escape hatch — doc-status drift is a §11.4 PASS-bluff at
+the documentation layer.</p>
+<h3
+id="build-resource-stats-tracking-11424-user-mandate-2026-05-14">Build-resource
+stats tracking (§11.4.24, User mandate 2026-05-14)</h3>
+<p>Every project under this Constitution with a build exceeding 1 minute
+wall-clock MUST run a host-side resource sampler for every build —
+samples /proc/meminfo + /proc/loadavg + /proc/stat + /proc/diskstats at
+a fixed interval (recommended 5 s); writes TSV. On stop, computes
+<strong>min / max / mean / p95</strong> per metric; appends one TSV row
+per build to a registry; regenerates a Markdown report (Stats.md) whose
+top surfaces <strong>ever-values</strong> (min / max / mean across all
+tracked builds) and whose body lists per-build entries most-recent-first
+with SUCCESS / FAIL / UNKNOWN + reason. Stats.md exported to Stats.html
++ Stats.pdf through the project's normal export pipeline per §11.4.12.
+Triple committed via the §11.4.22 lightweight doc-sync wrapper. Sampler
+MUST stay under 50 MB RSS / 5% CPU. Stop hook called from both success
+AND failure paths of the build wrapper. Gate
+<code>CM-BUILD-RESOURCE-STATS-TRACKER</code></p>
+<ul>
+<li>paired mutation. Classification: mixed (per §11.4.17). Composes with
+§11.4.12 / §11.4.18 / §11.4.22 / §12.6 / §12.7 / §12.9. No escape hatch
+— build-resource debugging without time-series data is the bluff this
+anchor forbids.</li>
+</ul>
+<h3
+id="full-automation-coverage-11425-user-mandate-2026-05-15">Full-Automation-Coverage
+(§11.4.25, User mandate 2026-05-15)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-15):</strong></p>
+<blockquote>
+<p>"Make sure that every feature, every functionality, every flow, every
+use case, every edge case, every service or application, on every
+platform we support is covered with full automation tests which will
+confirm anti-bluff policy and provide the proof of fully working
+capabilities, working implementation as expected, no issues, no bugs,
+fully documented, tests covered!"</p>
+</blockquote>
+<p>No feature / functionality / flow / use case / edge case / service /
+application on any supported platform may be considered deliverable
+until automation tests prove six invariants: (1) anti-bluff posture with
+captured runtime evidence (§7.1 + §11.4); (2) proof of working
+capability end-to-end on target topology (§11.4.3, no mocks); (3)
+implementation matches documented promise; (4) no open issues/bugs
+surfaced (cross-checked vs §11.4.15 / §11.4.16); (5) full documentation
+(user manual + §11.4.18 for scripts) kept in sync via §11.4.12; (6)
+four-layer test floor per §1 (pre-build + post-build + runtime + paired
+mutation). Consuming projects publish a coverage ledger (feature ×
+platform × invariant × status) regenerated at release-gate sweep.
+Classification: universal (§11.4.17). Severity-equivalent to a §11.4
+PASS-bluff at the release-gate layer. No escape hatch. See Constitution
+§11.4.25 for the full mandate.</p>
+<h3
+id="constitution-submodule-update-workflow-11426-user-mandate-2026-05-15">Constitution-Submodule
+Update Workflow (§11.4.26, User mandate 2026-05-15)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-15):</strong></p>
+<blockquote>
+<p>"Every time we add something into our root (constitution Submodule)
+Constitution, CLAUDE.MD and AGENTS.MD we MUST FIRST fetch and pull all
+new changes / work from constitution Submodule first! All changes we
+apply MUST BE commited and pushed to all constitution Submodule
+upstreams! In case of conflict, IT MUST BE carefully resolved! Nothing
+can be broken, made faulty, corrupted or unusable! After merging full
+validation and verification MUST BE done!"</p>
+</blockquote>
+<p>Before any modification to
+<code>constitution/{Constitution,CLAUDE,AGENTS}.md</code>, execute in
+order: (1) fetch + pull (--ff-only or --rebase; never strategy=ours /
+unrelated-histories without authorization) so the submodule is at
+upstream tip before editing; (2) apply the change with §11.4.17
+classification + verbatim mandate quote; (3) validate
+(meta_test_inheritance.sh + no merge-conflict markers + cross-file
+consistency); (4) commit (governance files only, no
+<code>git add -A</code>)</p>
+<ul>
+<li>push to EVERY configured upstream remote (§2.1 violation if not);
+(5) careful conflict resolution preserving union of governance content —
+force-push forbidden (§9.2); (6) post-merge validation:
+<code>git submodule update --remote --init</code> + re-run cascade
+verifier (CONST-047) confirming the new clause reaches every owned
+submodule; (7) bump consuming project's <code>.gitmodules</code> pointer
+to new HEAD in the SAME commit as cascade work — out-of-sync pointer =
+§11.4.26 violation. Classification: universal (§11.4.17).
+Severity-equivalent to force-push without §9.2 authorization. No escape
+hatch. See Constitution §11.4.26 for the full pipeline (operational
+scope, cross-cutting reach).</li>
+</ul>
+<h3
+id="submodule-dependency-manifest-11431-user-mandate-2026-05-15">Submodule-dependency-manifest
+(§11.4.31, User mandate 2026-05-15)</h3>
+<p>Every owned-by-us submodule MUST ship <code>helix-deps.yaml</code>
+listing its own-org dependencies:
+<code>{name, ssh_url, ref, why, layout: flat|grouped}</code>. Tooling
+<code>incorporate-submodule &lt;ssh-url&gt;</code> adds the submodule at
+the parent project's canonical path (CONST-051(C)) + reads its
+helix-deps.yaml + recurses + aborts on conflicting refs + emits
+<code>&lt;root&gt;/.helix-manifest.yaml</code> audit record. Anti-bluff:
+each manifest paired with a Challenge that bootstraps from scratch,
+asserts layout matches manifest, runs submodule tests, captures wire
+evidence. Without the proof, the manifest is a §11.4.31 violation. This
+rule is the operational complement of §11.4.28 / CONST-051(C) —
+manifests are the bridge that lets consumers reconstruct the dependency
+graph at the parent root. Classification: universal (§11.4.17). See
+Constitution §11.4.31 for the full mandate.</p>
+<h3
+id="post-constitution-pull-validation-11432-user-mandate-2026-05-15">Post-constitution-pull
+validation (§11.4.32, User mandate 2026-05-15)</h3>
+<p>Whenever a project's constitution submodule is fetched + pulled with
+any content change, run
+<code>scripts/verify-all-constitution-rules.sh</code> BEFORE the new
+HEAD is treated as canonical for other work. The sweep re-runs the
+governance-cascade verifier + every implementable rule gate (CONST-053
+.gitignore audit, CONST-051(C) nested-own-org audit, CONST-052 case
+audit, CONST-050(A) mock-from-production audit, CONST-035 anti-bluff
+smoke). Failures populate Issues per §11.4.15 (Status: Reopened, Type:
+Bug); closure requires positive-evidence per §11.4. Pull-time invocation
+auto-triggered by
+<code>git submodule update --remote constitution</code>. Anti-bluff:
+sweep's own meta-test (paired mutation §1.1) plants a violation per
+gate, asserts sweep FAILs. This is the <strong>enforcement
+engine</strong> for every other rule — without it, new rules are
+decorative anchors rather than enforced gates. Classification: universal
+(§11.4.17). See Constitution §11.4.32 for the full mandate.</p>
+<h3
+id="gitignore--no-versioned-build-artifacts-11430-user-mandate-2026-05-15">.gitignore
++ no-versioned-build-artifacts (§11.4.30, User mandate 2026-05-15)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-15):</strong></p>
+<blockquote>
+<p>"every project module, every Submodule, every servcie and apolication
+MUST HAVE proper .gitignore file! We MUST NOT git version build
+artifacts, cache files, tmp files, main .env file(s) or any files
+containing sensitive data, API keys or token! ... If any violetion is
+detected it MUST be fixed before commit is executed!"</p>
+</blockquote>
+<p>Every project module / submodule / service / application MUST ship a
+proper <code>.gitignore</code>. Forbidden-from-version-control: build
+artefacts (<code>bin/</code>, <code>build/</code>, <code>dist/</code>,
+<code>target/</code>, <code>*.exe</code>, <code>*.so</code>,
+<code>*.class</code>, <code>*.pyc</code>), cache files
+(<code>__pycache__/</code>, <code>node_modules/</code>,
+<code>.gradle/</code>, <code>.terraform/</code>), temp files
+(<code>*.tmp</code>, <code>*.swp</code>, <code>.DS_Store</code>),
+sensitive data (<code>.env</code>, <code>.env.*</code> except
+<code>.env.example</code> placeholder, <code>*.pem</code>,
+<code>*.key</code>, <code>id_rsa*</code>, <code>.netrc</code>,
+<code>secrets/</code>, <code>api_keys.sh</code>), generated logs
+(<code>*.log</code>, <code>coverage.out</code>, <code>htmlcov/</code>),
+OS/IDE personal state (<code>.idea/</code>, <code>.history/</code>).</p>
+<p>Anti-bluff invariant: ignore-line alone is not enough — no file
+matching forbidden patterns may be tracked. Pre-commit attention: every
+author inspects <code>git diff --staged</code> + <code>git status</code>
+BEFORE commit; violations abort the commit (un-stage, add to ignore,
+scrub if already-tracked). Gate
+<code>CM-GITIGNORE-PRECOMMIT-AUDIT</code> + paired mutation.
+Recreatable-content test: if a documented mechanism regenerates the file
+from sources, it's a build derivative and MUST be ignored.</p>
+<p>Secret-leak intersection (§11.4.10 / CONST-042 / §12.1): a
+<code>.env</code> leak is BOTH a §11.4.30 and a §11.4.10 violation;
+rotation + post-mortem required.</p>
+<p>Classification: universal (§11.4.17). Severity-equivalent to §11.4
+PASS-bluff at the repository-hygiene layer. Composes with §1, §2, §9.1,
+§11.4.10, §11.4.12, §11.4.17, §11.4.18, §11.4.20, §11.4.25, §11.4.26,
+§11.4.27, §11.4.28, §11.4.29, CONST-047. See Constitution §11.4.30 for
+the full mandate.</p>
+<h3
+id="lowercase-snake_case-naming-11429-user-mandate-2026-05-15">Lowercase-snake_case-naming
+(§11.4.29, User mandate 2026-05-15)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-15):</strong></p>
+<blockquote>
+<p>"naming convention for Submodules and directories (applied deep into
+hierarchy recursively) - all directories and Submodules MSUT HAVE
+lowercase names with space separator between the words of '_' character
+(snake-case)! All existing Submodules and directories which are not
+following this rule MUST BE renamed! ... NOTE: Rules lowercase /
+snake-case do apply to all project files as well and references to it
+and from them!"</p>
+</blockquote>
+<p>Every directory / submodule / file MUST use lowercase snake_case.
+Non-compliant names MUST be renamed; every reference (configs, docs,
+source imports, governance files) updated atomically (reference drift =
+§11.4.29 violation of equal severity). Exceptions (common-sense,
+technology-preserving): language- mandated case for
+Java/Kotlin/Android/Apple/C#/Swift inside the language root; vendor
+third-party submodules; build artefacts.</p>
+<p><code>Upstreams/</code> → <code>upstreams/</code> transition:
+constitution submodule's <code>install_upstreams.sh</code> MUST support
+BOTH directory names during migration; lowercase wins when both
+present.</p>
+<p>Project-Toolkit Upstreamable machinery fetched+pulled before any
+rename batch + itself complies. Lacking BOTH-dir support is a release
+blocker.</p>
+<p>Test coverage of renames: regression test for reference resolution +
+full CONST-050(B) test-type matrix + anti-bluff wire-evidence.</p>
+<p>Phased execution: brainstorming → phase plan → fine-grained
+tasks/subtasks → every change covered. §11.4.20 subagent delegation for
+cross-cutting rename sweeps.</p>
+<p>Classification: universal (§11.4.17). No escape hatch beyond
+common-sense exceptions. Severity-equivalent to §11.4 PASS-bluff at the
+reference-integrity layer. Composes with §1, §11.4.12, §11.4.17,
+§11.4.18, §11.4.20, §11.4.25, §11.4.26, §11.4.27, §11.4.28, CONST-047.
+See Constitution §11.4.29 for the full mandate.</p>
+<h3
+id="submodules-as-equal-codebase--decoupling--dependency-layout-11428-user-mandate-2026-05-15">Submodules-as-equal-codebase
++ decoupling + dependency-layout (§11.4.28, User mandate
+2026-05-15)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-15):</strong></p>
+<blockquote>
+<p>"All existing Submodules in the project that we are controlling and
+belong to some our organizations (vasic-digital, HelixDevelopment,
+red-elf, ATMOSphere1234321, Bear-Suite, BoatOS123456, Helix-Flow,
+Helix-Track, Server-Factory — we can ALWAYS check dynamically using
+GitHub and GitLab CLIs) are equal parts of the project's codebase! We
+MUST work on that code as much as we do with main project's codebase!
+... We MUST NEVER modify Submodules to bring into them any project
+specific context ... All Submodule dependencies that are used by
+Submodule MUST BE acessed from the root of the project! We MUST NOT have
+nested Submodule dependencies."</p>
+</blockquote>
+<p>Three invariants. <strong>(A) Equal-codebase</strong>: every
+owned-by-us submodule (orgs: vasic-digital, HelixDevelopment, red-elf,
+ATMOSphere1234321, Bear-Suite, BoatOS123456, Helix-Flow, Helix-Track,
+Server-Factory — discoverable via gh/glab) is an equal part of the
+consuming project's codebase. Same engineering attention: analysis,
+extension, tests, gap-fill, bug-fix, documentation. Coverage ledgers
+list each submodule as in-scope. <strong>(B) Decoupling</strong>: NEVER
+inject project-specific context INTO submodules; they remain
+project-not-aware, reusable, modular, testable. When a submodule needs
+parent info, use configuration injection. <strong>(C)
+Dependency-layout</strong>: every dependency consumed by an owned
+submodule lives at <code>&lt;root&gt;/&lt;name&gt;/</code> or
+<code>&lt;root&gt;/submodules/&lt;name&gt;/</code> of the parent
+project. Nested own-org submodule chains FORBIDDEN — add the dependency
+at the parent root; the submodule reaches it via documented
+import/SDK/runtime resolver. Third-party submodules exempt.</p>
+<p>Gates: <code>CM-OWNED-SUBMODULE-EQUAL-ENGINEERING</code>,
+<code>CM-OWNED-SUBMODULE-DECOUPLING</code>,
+<code>CM-OWNED-SUBMODULE-LAYOUT</code>. Paired mutations for each.
+Classification: universal (§11.4.17). No escape hatch.
+Severity-equivalent to a §11.4 PASS-bluff at the codebase- completeness
+layer. Composes with §1, §3, §11.4.17, §11.4.20, §11.4.25, §11.4.26,
+§11.4.27, CONST-047. See Constitution §11.4.28 for the full mandate.</p>
+<h3
+id="no-fakes-beyond-unit-tests--100-test-type-coverage-11427-user-mandate-2026-05-15">No-fakes-beyond-unit-tests
++ 100%-test-type-coverage (§11.4.27, User mandate 2026-05-15)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-15):</strong></p>
+<blockquote>
+<p>"Mocks, stubs, placeholders, TODOs or FIXMEs are allowed to exist
+ONLY in Unit tests! All other test types MUST interract with real fully
+implemented System! No fakes, empty implementations or bluffing is
+allowed of any kind! All codebase of the project MUST BE 100% covered
+with every supported test type."</p>
+</blockquote>
+<p>Two invariants. <strong>(A)</strong>
+Mocks/stubs/fakes/placeholders/TODOs/ FIXMEs/"for now" patterns
+PERMITTED only in unit-test sources; non-unit tests (integration, E2E,
+full-automation, security, DDoS, scaling, chaos, stress, performance,
+benchmarking, UI, UX, Challenges, HelixQA) MUST exercise the real, fully
+implemented system. Production code MUST NOT import mock paths. Gate
+<code>CM-NO-FAKES-BEYOND-UNIT-TESTS</code> + paired mutation.
+<strong>(B)</strong> Codebase MUST be covered by every supported test
+type the domain warrants: unit, integration, E2E, full-automation,
+security, DDoS, scaling, chaos, stress, performance, benchmarking, UI,
+UX, Challenges (vasic-digital/Challenges submodule fully incorporated),
+HelixQA (HelixDevelopment/HelixQA submodule fully incorporated, with
+full autonomous QA sessions executing every registered test bank).</p>
+<p>Required dependency submodules (recursive per CONST-047): Challenges
+(<code>git@github.com:vasic-digital/Challenges.git</code>) + HelixQA
+(<code>git@github.com:HelixDevelopment/HelixQA.git</code>) + any other
+functionality submodules under vasic-digital/HelixDevelopment orgs the
+project depends on. Pointers bumped to upstream HEAD in same commit as
+cascade work (§11.4.26 step 7).</p>
+<p>Classification: universal (§11.4.17). Severity-equivalent to a §11.4
+PASS-bluff at the release-gate layer. No escape hatch. Composes with §1,
+§7.1, §11.4.1–§11.4.26 (esp. §11.4.25 — strict per-type-of-test
+expansion). See Constitution §11.4.27 for full mandate.</p>
+<h3
+id="type-aware-closure-status-vocabulary-11433-user-mandate-2026-05-15">Type-aware
+closure-status vocabulary (§11.4.33, User mandate 2026-05-15)</h3>
+<p>Every project that tracks work items by Type per §11.4.16 MUST close
+them with the Type-appropriate closure-status word: <code>Bug</code> →
+<code>Fixed (→ Fixed.md)</code>, <code>Feature</code> →
+<code>Implemented (→ Fixed.md)</code>, <code>Task</code> →
+<code>Completed (→ Fixed.md)</code>. The <code>(→ Fixed.md)</code>
+suffix is preserved across all three so existing migration tooling
+(atomic Issues.md → Fixed.md move per §11.4.19) keeps working.
+Generators treat the three terminal values as semantically equivalent
+(all closed, positive evidence captured) but preserve the literal in
+emitted docs. Closing a <code>Feature</code> with
+<code>Fixed (→ Fixed.md)</code> or a <code>Task</code> with
+<code>Implemented (→ Fixed.md)</code> is a §11.4.33 violation. Pre-build
+gate <code>CM-CLOSURE-VOCAB-TYPE-AWARE</code>. Composes with §11.4.15 /
+§11.4.16 / §11.4.19 / §11.4.23. Classification: universal (per
+§11.4.17). No escape hatch.</p>
+<h3
+id="reopened-source-attribution-11434-user-mandate-2026-05-15">Reopened-source
+attribution (§11.4.34, User mandate 2026-05-15)</h3>
+<p>Every Issues.md heading whose <code>**Status:**</code> is
+<code>Reopened</code> MUST carry a <code>**Reopened-Details:**</code>
+line within 8 non-blank lines of the heading, capturing four sub-facts:
+<strong>By:</strong> <code>AI</code> or <code>User</code>;
+<strong>On:</strong> ISO date; <strong>Reason:</strong> one of
+<code>{ test-failed | manual-testing-detected | captured-evidence-contradicts | end-user-report | cycle-re-discovered | design-reconsidered }</code>
+or explicit free text; <strong>Evidence:</strong> path or short
+description of the captured artefact. Reopens without evidence are
+§11.4.6 / §11.4.7 violations: the reopen IS a demotion-from-Fixed
+change. Issues_Summary.md Status column MUST distinguish Reopened
+sub-states by source (e.g., <code>Reopened (AI: test-failed)</code> vs
+<code>Reopened (User: manual-testing)</code>). Pre-build gate
+<code>CM-ITEM-REOPENED-DETAILS</code> mirrors §11.4.21 walk pattern.
+Composes with §11.4.6 / §11.4.7 / §11.4.15 / §11.4.21. Classification:
+universal (per §11.4.17). No escape hatch.</p>
+<h3
+id="canonical-root-inheritance-clarity-11435-user-mandate-2026-05-15">Canonical-root
+inheritance clarity (§11.4.35, User mandate 2026-05-15)</h3>
+<p><strong>The constitution submodule's three files
+(<code>constitution/Constitution.md</code>,
+<code>constitution/CLAUDE.md</code>,
+<code>constitution/AGENTS.md</code>) ARE the canonical root</strong> —
+also called the parent files. Universal rules per §11.4.17 live
+here.</p>
+<p><strong>The consuming project's repository-root files
+(<code>&lt;project-root&gt;/CLAUDE.md</code>,
+<code>&lt;project-root&gt;/AGENTS.md</code>, optionally
+<code>&lt;project-root&gt;/Constitution.md</code> or equivalent) are
+consumer extensions.</strong> They open with the inheritance pointer
+(either <code>@constitution/CLAUDE.md</code> import or
+<code>## INHERITED FROM constitution/CLAUDE.md</code> heading).
+Project-specific rules per §11.4.17 live here.</p>
+<p>When in doubt: universal rule → constitution submodule; project-
+specific rule → consumer's file. Default consumer-side when uncertain.
+"Parent CLAUDE.md" / "root Constitution" → constitution submodule file
+at <code>constitution/&lt;filename&gt;</code>. "Project CLAUDE.md" /
+"this project's AGENTS.md" → consumer file at
+<code>&lt;project-root&gt;/&lt;filename&gt;</code>. Moving a rule
+between layers MUST be a visible commit — <code>git mv</code> + explicit
+"Lifted from <project> to constitution per §11.4.35" / "Demoted from
+constitution to <project> per §11.4.35" line in the message. Pre-build
+gate <code>CM-CANONICAL-ROOT-CLARITY</code>. Composes with §11.4.17.
+Classification: universal (per §11.4.17). No escape hatch.</p>
+<h3
+id="mandatory-install_upstreams-on-cloneadd-11436-user-mandate-2026-05-15">Mandatory
+install_upstreams on clone/add (§11.4.36, User mandate 2026-05-15)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-15):</strong></p>
+<blockquote>
+<p>"Every Submodule or Git repository we add or clone MUST BE upstreams
+installed using Upstreamable utility which MUST BE available through
+exported paths of the host system (in .bashrc or .zhrc) using
+install_upstreams command executed from the root of the cloned (added)
+repository - only if in it is Upstreams or upstreams directory present
+with bash script files (recipes) for all repository's upstreams!"</p>
+</blockquote>
+<p>Every clone / add of a Git repository under any consuming project
+MUST be followed by <code>install_upstreams</code> invocation from the
+repository's root IF its tree contains <code>upstreams/</code> (or
+legacy <code>Upstreams/</code> per §11.4.29 transition) populated with
+<code>*.sh</code> recipe files. The utility (installed on operator's
+<code>PATH</code> via <code>.bashrc</code>/ <code>.zshrc</code>,
+implementation lives in this constitution submodule) reads recipe files
++ configures every declared upstream as a named git remote + fans out
+<code>origin</code> push URLs.</p>
+<p>Skipping the invocation when <code>upstreams/</code> is present
+silently breaks §2.1 (multi-upstream push is the norm). Gate
+<code>CM-INSTALL-UPSTREAMS-ON-CLONE</code> + paired mutation.
+Automation: <code>incorporate-submodule</code> (§11.4.31) auto-invokes;
+manual invocation also supported. Pre-commit check:
+<code>git remote -v | grep -c push</code> reports expected upstream
+count.</p>
+<p>Classification: universal (§11.4.17). Composes with §2, §2.1, §3,
+§9.2, §11.4.17, §11.4.20, §11.4.28, §11.4.29, §11.4.30, §11.4.31. See
+Constitution §11.4.36 for the full mandate.</p>
+<h3
+id="fetch-before-edit-11437-user-mandate-2026-05-15">Fetch-before-edit
+(§11.4.37, User mandate 2026-05-15)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-15):</strong></p>
+<blockquote>
+<p>"Make sure that feedback_fetch_before_edit memory rule is part of our
+constitution Submodule - the root Consitution, AGENTS.MD and CLAUDE.MD.
+Validate and verify that Proejct-Toolkit and all Submodules do inherit
+all of them!"</p>
+</blockquote>
+<p>FIRST git-touching action of any session:
+<code>git fetch --all --prune &amp;&amp; git log --oneline HEAD..@{u} &amp;&amp; git submodule foreach --recursive 'git fetch --all --prune --quiet'</code>.
+If <code>HEAD..@{u}</code> is non-empty, integrate (ff-merge / rebase /
+surface per §11.4.4) BEFORE any local edit, scanner, or test. Skipping
+on "nothing could have changed" is a §11.4.6 (no-guessing) violation —
+remote state is not knowable without a fetch.</p>
+<p>The originating 2026-05-15 incident: agent ran
+<code>git remote remove gitee</code> as a fresh task, but the work had
+been committed upstream by a parallel agent 25 minutes earlier — local
+config edit was a no-op echo of already-merged history. A 30-second
+fetch would have caught it.</p>
+<p>Scope: consuming project root + every owned submodule recursively
+(§11.4.28) + the constitution submodule itself (§11.4.26 step 1) + any
+dependency cloned via <code>incorporate-submodule</code> (§11.4.31) or
+<code>git submodule add</code> (§11.4.36). Gate
+<code>CM-FETCH-BEFORE-EDIT-AUDIT</code> + paired mutation per §1.1.
+Classification: universal (per §11.4.17). No escape hatch.</p>
+<h3
+id="installable-asset-evidence-11438-user-mandate-2026-05-17">Installable-asset
+evidence (§11.4.38, User mandate 2026-05-17)</h3>
+<p>For any user-distributable build artifact (package, bundle,
+installer, or container image), tests/challenges MUST open the artifact
+and verify each user-visible asset is <strong>present</strong> and
+<strong>non-degenerate</strong>. A PASS without artifact-opening
+verification is a §11.4 PASS-bluff. The failure mode: source file exists
+→ build packages it → source-layer checks pass → artifact produced with
+asset stripped or misconfigured, and no gate opens the artifact to
+verify.</p>
+<p>Required per consuming project: one challenge script per artifact
+type that opens the produced artifact and verifies every declared
+user-visible asset. The challenge MUST run as part of the standard QA
+gate. Classification: universal (per §11.4.17). No escape hatch. See
+Constitution §11.4.38 for the full mandate.</p>
+<h3
+id="full-suite-retest-before-release-tag-11440-user-mandate-2026-05-17">Full-suite
+retest before release tag (§11.4.40, User mandate 2026-05-17)</h3>
+<p>Release tag MUST NOT be created until a COMPLETE retest with ALL
+existing tests runs on a clean baseline AFTER every workable item in the
+batch is done, fixed, polished, individually verified. Spot-check
+retests FORBIDDEN — miss interaction defects. Comprises 7 steps: (1)
+pre-build full sweep, (2) post-build full sweep, (3) on-device 4-phase
+cycle on EVERY owned device, (4) meta-test full mutation sweep, (5)
+Challenge bank full sweep, (6) Issues.md/Fixed.md state audit, (7)
+CONTINUATION.md sync check. Typically 12–48h elapsed, NOT optional, NOT
+abbreviated. Composes with §11.4.4 (per-fix retest still required at fix
+granularity) + §11.4.7 (full-suite is authoritative baseline for
+closures) + §11.4.39 (per-feature on-device validation runs as step 3).
+Classification: universal (per §11.4.17). No escape hatch. See
+Constitution §11.4.40 for the full mandate.</p>
+<h3
+id="pre-force-push-merge-first-11441-user-mandate-2026-05-17">Pre-force-push
+merge-first (§11.4.41, User mandate 2026-05-17)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-17):</strong></p>
+<blockquote>
+<p>"make sure we bring everything from branches to our side before forc
+push is done! Afer everything is safely and fully merged and all
+potential conflicts (if any) resolved, then do force push! make sure
+nothing isnlost, broken or corrupted on bith sides!"</p>
+</blockquote>
+<p>Any force-push authorised under CONST-043 MUST be preceded by a
+mechanical 4-step merge-first pipeline: (1) fetch every remote
+(<code>git fetch --all --prune --tags</code>); (2) integrate every
+divergent commit locally (rebase / merge / operator-confirmed
+cherry-pick per appropriate strategy); (3) audit the integrated tree (no
+conflict markers anywhere in governance + source + test files; no file
+silently dropped; previously-passing tests still pass; captured-evidence
+artefacts still validate); (4) only THEN execute
+<code>git push --force-with-lease</code>.</p>
+<p><strong>Two-gate composition with CONST-043.</strong> §11.4.41 does
+NOT relax CONST-043 — it adds a SECOND mechanical gate. CONST-043 alone
+authorises a push that loses remote work; §11.4.41 alone risks pushing
+without operator awareness. Both required.</p>
+<p>Three failure modes prevented: remote-side content loss (parallel
+sessions overwritten), stale-state acts (--force-with-lease reads stale
+local refs without prior fetch), conflict-driven corruption (markers
+committed verbatim — observed 2026-05-17 in helix_qa + containers
+governance files). Verification artefact:
+<code>docs/changelogs/&lt;tag&gt;.md</code> "Force-push merge-first
+audit" section captures fetch output, divergence log, integration
+strategy, conflict-marker scan, test delta, push output with lease SHA,
++ CONST-043 authorisation quote. Gate
+<code>CM-FORCE-PUSH-MERGE-FIRST</code></p>
+<ul>
+<li>paired mutation. Classification: universal (§11.4.17). No escape
+hatch. Composes with §9.2, §11.4.4, §11.4.6, §11.4.26, §11.4.32,
+§11.4.37, §11.4.40, CONST-043, CONST-047. See Constitution §11.4.41 for
+the full mandate.</li>
+</ul>
+<h3
+id="iteration-discipline-mandate-11442-user-mandate-2026-05-18">Iteration-discipline
+mandate (§11.4.42, User mandate 2026-05-18)</h3>
+<p>Work proceeds in priority-ordered cycles. Five mandatory steps per
+cycle: (1) select TOP + MIDDLE critical only (defer LOW until critical
+batch closed), (2) batch implementation per §11.4.4 + §11.4.9, (3) smoke
+gate (&lt;30 min), (4) ONLY if smoke GREEN and no new user/operator
+report → §11.4.40 full retest (12–48 h), (5) release-ready OR loop back.
+Composes with §11.4.4 / §11.4.7 / §11.4.9 / §11.4.34 / §11.4.40 —
+§11.4.42 is the meta-loop conductor binding them. Every PASS in smoke
+and full retest MUST carry positive captured evidence (§11.4.2 +
+§11.4.5). Tests AND Challenges bound equally. No escape hatch.
+Classification: universal (per §11.4.17). See Constitution §11.4.42 for
+the full mandate.</p>
+<h3
+id="tdd-fix-discipline-11443-user-mandate-2026-05-18">TDD-Fix-Discipline
+(§11.4.43, User mandate 2026-05-18)</h3>
+<p>Every fix follows 5-step workflow: <strong>RED</strong> (failing test
+FIRST, real product defect, captured evidence) →
+<strong>LIVE-ADB-PROBE</strong> (try on running device when feasible;
+INFEASIBLE for kernel / framework / HAL / vendor / init.rc / sepolicy /
+ro.* / Android.bp — must rebuild; cite
+<code>LIVE_PROBE_INFEASIBLE: &lt;reason&gt;</code> in commit) →
+<strong>GREEN</strong> (source patch, batched per §11.4.9, four-layer
+coverage per §11.4.4) → <strong>VERIFY</strong> (re-run RED test, PASSes
+under SAME conditions per §11.4.7, 10-iteration reliability per
+§11.4.42) → <strong>DOCUMENT</strong> (Issues.md → Fixed.md with
+type-aware closure §11.4.33, CLAUDE.md Applied Fixes row, changelog,
+guides, HelixQA bank, CONTINUATION.md §12.10 — all in SAME commit).
+Test-after-fix is a §11.4 PASS-bluff: test agrees with fix but does not
+catch the bug. No escape hatch. Classification: universal (§11.4.17).
+See Constitution §11.4.43 for the full mandate.</p>
+<h3 id="document-revision-header-11444-user-mandate-2026-05-18">Document
+revision header (§11.4.44, User mandate 2026-05-18)</h3>
+<p>Every IN-scope tracked Markdown document (Issues.md /
+Issues_Summary.md / Fixed.md / Fixed_Summary.md / CONTINUATION.md /
+docs/guides/** / docs/research/** / docs/scripts/** / docs/changelogs/**
+/ docs/superpowers/plans/** / docs/hardware/** / every other docs/*.md)
+carries <code>**Revision:** N</code> (monotonic positive integer)</p>
+<ul>
+<li><code>**Last modified:** YYYY-MM-DDTHH:MM:SSZ</code> directly below
+the H1 title. CLAUDE.md / AGENTS.md / README / LICENSE / VERSION /
+rendered HTML / rendered PDF are OUT of scope. Agents MUST read the
+<code>**Revision:** N</code> literal from the document head when
+reporting document state, NEVER infer freshness from filename mtime or
+commit log — both can lie. Agents writing to an IN-scope doc MUST invoke
+<code>scripts/doc_revision_bump.sh &lt;file&gt;</code> as the final step
+before staging, OR rely on the pre-commit hook. Agents MUST NOT manually
+edit the revision number — only the bump script is authoritative.</li>
+</ul>
+<p>Pre-build gates <code>CM-DOC-REVISION-HEADER-PRESENT</code> +
+<code>CM-COVENANT-114-44-PROPAGATION</code> + paired mutations. Composes
+with §12.10 (CONTINUATION.md header reuse), §11.4.12, §11.4.22,
+§11.4.23, §11.4.18. No escape hatch. Classification: universal
+(§11.4.17). See Constitution §11.4.44 for the full mandate.</p>
+<h3
+id="integration-status-doc-maintenance-11445-user-mandate-2026-05-18">Integration-status-doc
+maintenance (§11.4.45, User mandate 2026-05-18)</h3>
+<p>Every non-trivial domain integration MUST have a
+<code>docs/&lt;domain&gt;/&lt;integration&gt;/Status.md</code> carrying
+the §11.4.44 revision header + auto-synced HTML+PDF + auto-colorized per
+§11.4.23 + sync wrapper + captured-evidence table (every claim cites the
+test log / recording / sink-probe path) + closed status vocabulary (PASS
+/ FAIL / SKIP / PENDING_FORENSICS / OPERATOR-BLOCKED) + operator-blocked
+items at the top + reference from CONTINUATION.md §3 when non-terminal.
+§11.4.45 is the generic form of §12.10 applied to every integration
+domain.</p>
+<p>Pre-build gates <code>CM-COVENANT-114-45-PROPAGATION</code> +
+<code>CM-AF-INTEGRATION-STATUS-DOCS</code> + 4 paired mutations.
+Composes with §11.4.5 / §11.4.12 / §11.4.13 / §11.4.15 / §11.4.22 /
+§11.4.23 / §11.4.44 / §12.10. No escape hatch. Classification: universal
+(§11.4.17). See Constitution §11.4.45 for the full mandate.</p>
+<h3
+id="validate-recent-work-before-post-flash-tests-11446-user-mandate-2026-05-18">Validate-recent-work-before-post-flash-tests
+(§11.4.46, User mandate 2026-05-18)</h3>
+<p>Every post-flash run MUST first run a recent-work validation pass
+(targeted tests for Issues.md In-progress / Ready-for-testing / Reopened
++ Fixed.md last-7-days + CONTINUATION.md §3 active work). Full
+<code>test_all_fixes.sh</code> runs ONLY after 100% green.</p>
+<p>Helper:
+<code>scripts/testing/recent_work_validate.sh --device &lt;serial&gt;</code>
+writes <code>/data/local/tmp/.recent_work_validated</code>; full suite
+refuses without it. Each recent fix needs paired §11.4.43 RED-then-GREEN
+— naked GREEN is a bluff. Composes with §11.4.4 + §11.4.7 + §11.4.40</p>
+<ul>
+<li>§11.4.42 + §11.4.43 + §11.4.44 + §12.10. Pre-build gates
+<code>CM-COVENANT-114-46-PROPAGATION</code> +
+<code>CM-AF-RECENT-WORK-VALIDATION-GATE</code> +
+<code>CM-AF-VALIDATION-ARTIFACT-FILE</code> + paired mutations.
+Classification: universal (§11.4.17). No escape hatch. See Constitution
+§11.4.46 for the full mandate.</li>
+</ul>
+<h3 id="firebase-data-review-11447-user-mandate-2026-05-18">Firebase
+data review (§11.4.47, User mandate 2026-05-18)</h3>
+<p>Before every "bigger working round" (pre-build / pre-flash / pre-tag
+blocking; daily / post-deployment burn-in non-blocking) the
+operator/loop MUST execute
+<code>scripts/firebase/review_round.sh</code>. The pass queries
+Crashlytics (fatals + non-fatals + ANRs) + Analytics + Performance,
+classifies findings by severity, dedup- maps to existing Issues.md
+entries via a three-tier algorithm (exact Firebase Issue-ID match →
+stacktrace-similarity cluster hash → operator merge review), and drafts
+new Issue entries for unrecognised findings with full Firebase Console
+URL refs + §11.4.4(a) systematic-debugging output.</p>
+<p>Five mandatory elements: 5-trigger cadence, 3-source query (all three
+sources), Issues.md output with Firebase metadata (Issue IDs + URL +
+Cluster Hash / KPI / Funnel), 3-tier dedup, and comprehensive root-cause
+analysis per Issue.</p>
+<p>Pre-build gates <code>CM-COVENANT-114-47-PROPAGATION</code> +
+<code>CM-AF-FIREBASE-REVIEW-CADENCE</code> +
+<code>CM-AF-FIREBASE-ISSUE-XREF</code> + 3 paired mutations. Composes
+with §11.4.4 / §11.4.4(a) / §11.4.6 / §11.4.7 / §11.4.10 / §11.4.12 /
+§11.4.14 / §11.4.15 / §11.4.16 / §11.4.34 / §11.4.42 / §11.4.43 /
+§11.4.44 / §11.4.45 / §11.4.46. No escape hatch — no
+<code>--skip-firebase-review</code>. Classification: universal
+(§11.4.17). See Constitution §11.4.47 for the full mandate.</p>
+<h3 id="ui-driven-video-testing-11448-user-mandate-2026-05-18">UI-driven
+video testing (§11.4.48, User mandate 2026-05-18)</h3>
+<p>Every test that asserts video playback on a secondary display MUST
+traverse the user-equivalent UI path (launcher icon → app home → content
+list → tile tap → playback → in-app pause/resume → back button stop).
+NOT Intent/Broadcast shortcuts (<code>am start -a VIEW</code>,
+<code>cmd media_session play</code>). Real <code>uiautomator dump</code>
+element resolution</p>
+<ul>
+<li><code>input tap X Y</code>. Coverage: every video-capable app in
+PRODUCT_PACKAGES + every stream type (progressive HTTP / HLS / DASH /
+RTMP / file-local / DRM) + every codec (H.264/265/VP9/AV1/MPEG-2/MP4V
+video; AC-3/E-AC-3/TrueHD/DTS/DTS-HD/MLP/Opus/AAC audio). Secondary
+display verified via ffprobe-on-captured-mp4 + VOM activeDecoder state.
+Arvus codec-state cross-check per §11.4.13 + §CG screenshot.</li>
+</ul>
+<p>Per §11.4.4 four-layer: pre-build gate
+<code>CM-AF-UI-DRIVEN-VIDEO- COVERAGE</code> + propagation gate
+<code>CM-COVENANT-114-48-PROPAGATION</code> + on-device test framework
+at <code>device/rockchip/rk3588/tests/ui_driven/</code> (Layer 1 helper
++ Layer 2 per-app drivers + Layer 3 scenarios) + Layer 4 orchestrator
+<code>scripts/testing/run_ui_driven_video_suite.sh</code> + paired
+meta-test mutations. No escape hatch — no
+<code>--use-intent-shortcut</code>, <code>--skip-ui-traverse</code>,
+<code>--legacy-intent-mode</code> flag. Classification: universal
+(§11.4.17). See Constitution §11.4.48 for the full mandate.</p>
+<h3
+id="dual-approach-testing-11449-user-mandate-2026-05-18">Dual-approach
+testing (§11.4.49, User mandate 2026-05-18)</h3>
+<p>Every feature test exercising a user-visible behaviour MUST ship in
+TWO variants: a UI-driven variant (uiautomator-based, §11.4.48 surfaces
+A–E) AND an Intent/Broadcast-driven variant (<code>am start --es</code>
+/ <code>am broadcast</code>-based). Either alone is a §11.4 PASS-bluff
+for the OPPOSITE half of the stack — UI catches app-side bugs; Intent
+catches framework/system-server bugs (MediaCodec.configure hook,
+IVideoOutputManager bind timing, broadcast permission gating).</p>
+<p>Shared assertion base
+<code>tests/lib/dual_approach_test_base.sh</code> — both variants share
+<code>dat_init</code> / <code>dat_start_capture</code> /
+<code>dat_assert_codec_state</code> /
+<code>dat_assert_video_frames</code> /
+<code>dat_assert_audio_channels</code> /
+<code>dat_arvus_dashboard_capture</code> / <code>dat_cleanup</code> /
+<code>dat_report_finding</code>. Both variants gather identical evidence
+into mirror dirs
+<code>qa-results/dual_approach/ &lt;F&gt;/&lt;run-ts&gt;/{ui,intent}/</code>
+so orchestrator diffs results and pinpoints which half of the stack
+contains a bug. Status mismatch between variants is itself a
+finding.</p>
+<p>Kinopoisk 5.1 EAC3 is the canonical first implementation. Both
+variants are RED per §11.4.43 until the §CN decoder pipeline fix lands.
+Pre-build gates: <code>CM-COVENANT-114-49-PROPAGATION</code> +
+<code>CM-AF-DUAL-APPROACH-COVERAGE</code> +
+<code>CM-AF-KINOPOISK-5-1-DUAL- COVERAGE</code>. Three paired meta-test
+mutations. No escape hatch — no <code>--ui-only</code> /
+<code>--intent-only</code> / <code>--skip-dual</code> flag.
+Classification: universal (§11.4.17). See Constitution §11.4.49 for the
+full mandate.</p>
+<h3
+id="deterministic-consistency-11450-user-mandate-2026-05-18">Deterministic
+consistency (§11.4.50, User mandate 2026-05-18)</h3>
+<p>Every test that PASSes MUST have been executed N times (default N=3
+normal tests, N=10 cycle-validation suites) against the same firmware
+MD5 + same device + same topology and produced IDENTICAL PASS in every
+iteration. A divergent N-iter run is auto-FAIL — there is no "first
+PASSed therefore X was a flake" path. §11.4.7's
+<code>intermittent</code> / <code>transient</code> / <code>flake</code>
+/ <code>flaky</code> vocabulary is enforced MECHANICALLY by this
+mandate, not merely textually.</p>
+<p>Coverage: every public API path (Activity / Service / Broadcast
+receiver / ContentProvider URI / IPC interface / JNI entry / sysprop
+write / sysfs node / init.rc trigger) MUST have ≥1 dedicated test that
+drives it. Untested paths surface in a feature-coverage-matrix audit;
+the threshold ratchets 70 → 85 → 95 → 99 over phases.</p>
+<p>Reliability mechanism: <code>ab_run_n_times</code> helper in the
+project anti- bluff library loops, captures evidence-hash per iter,
+asserts all N hashes + exit codes identical. NO operator-facing escape
+converts divergence to PASS.</p>
+<p>Pre-build gates: <code>CM-COVENANT-114-50-PROPAGATION</code> +
+<code>CM-AF-RELIABILITY-CHECK-WIRED</code> +
+<code>CM-AF-FEATURE-COVERAGE-MATRIX</code>. Three paired meta-test
+mutations. No escape hatch — no <code>--allow-flake</code>,
+<code>--first-pass-suffices</code>, <code>--skip-n-iter</code>,
+<code>--skip-coverage-audit</code> flag. Classification: universal
+(§11.4.17). See Constitution §11.4.50 for the full mandate.</p>
+<h3
+id="live-adb-first-maximization-11451-user-mandate-2026-05-18">Live-ADB-First
+maximization (§11.4.51, User mandate 2026-05-18)</h3>
+<p>Every fix MUST be classified by rebuild-requirement before commit
+using the project's per-file-class decision matrix. If
+<code>LIVE_ADB_TESTABLE</code> (on-device test scripts, host scripts,
+atmosphere-<em>.sh boot scripts, persist.</em> properties, markdown
+docs, test fixture assets, HelixQA YAML banks), the operator MUST first
+apply the fix to the running device via <code>adb push</code> /
+<code>setprop</code> / <code>pm install -r</code> /
+<code>mount -o remount,rw</code>, run the §11.4.43 RED test live,
+capture PASS, THEN commit + rebuild + reflash. Commit footer:
+<code>LIVE_ADB_VALIDATED: yes</code>. If <code>REQUIRES_REBUILD</code>
+(kernel, framework Java/AIDL, native C++ in APEX, sepolicy, init.rc,
+ro.* properties, XML overlays, codec XML in APEX, Android.bp/.mk), the
+operator proceeds directly to source-side + rebuild. Commit footer:
+<code>REQUIRES_REBUILD: &lt;reason&gt;</code>. Mixed batches use
+partial.</p>
+<p>§11.4.51 REFINES §11.4.43 step 2 with mechanical enforcement. Helper:
+<code>classify_fix_rebuild_requirement.sh</code> walks
+<code>git diff --name-only</code>, looks up each file against the
+matrix, emits per- file classification + recommended commit-message
+footer. Unmatched paths classify as
+<code>REQUIRES_REBUILD: unmatched-path</code> (safe default per
+§11.4.6).</p>
+<p>Pre-build gates: <code>CM-COVENANT-114-51-PROPAGATION</code> +
+<code>CM-AF-CLASSIFY-FIX-HELPER-EXISTS</code> +
+<code>CM-AF-LIVE-ADB-FIRST-COMMIT-MARKER</code>. Three paired meta-test
+mutations. No escape hatch — no <code>--skip-classify</code> /
+<code>--assume-rebuild</code> / <code>--no-footer-required</code>
+flag.</p>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.51 for
+the full mandate.</p>
+<h3
+id="autonomous-validation-11452-user-mandate-2026-05-18">Autonomous-Validation
+(§11.4.52, User mandate 2026-05-18)</h3>
+<p><strong>Forensic anchor — verbatim user mandate:</strong></p>
+<blockquote>
+<p>"Make sure we have full automation tests which will do all this work
+in full automation! IMPORTANT: Make sure that all existing tests and
+Challenges do work in anti-bluff manner — they MUST confirm that all
+tested codebase really works as expected! execution of tests and
+Challenges MUST guarantee the quality, the completition and full
+usability by end users of the product!"</p>
+</blockquote>
+<p>Every user-facing feature MUST have at least one autonomous
+validation path: end-to-end via <code>adb shell</code> + scripted
+automation, captured runtime evidence per §11.4.5, PASS/FAIL verdict
+WITHOUT human presence. Operator-attended tests are SUPPLEMENTARY, never
+PRIMARY. A feature whose ONLY path is operator-attended is a §11.4.52
+violation: the path does not scale to CI, does not run on every commit,
+does not survive operator unavailability, and produces the exact "tests
+pass but feature doesn't work for users" failure mode §11.4 forbids.</p>
+<p>Acceptable autonomous paths: instrumentation APK (SDK-API exercises +
+JSON result file), headless intent dispatch + state poll
+(<code>am start --es</code> +
+<code>dumpsys</code>/<code>/proc/&lt;pid&gt;/maps</code> polling),
+ADB-driven uiautomator (ONLY if hierarchy has ≥1 clickable node — empty
+hierarchy demands fallback to APK/intent), network-side sink probe
+(§11.4.13), HelixQA autonomous QA session (§11.4.27).</p>
+<p>Coverage ledger (§11.4.25) classifies each feature as
+<code>AUTONOMOUS_VERIFIED</code> / <code>AUTONOMOUS_DESIGNED</code> /
+<code>OPERATOR_ATTENDED_ONLY</code> / <code>NOT_APPLICABLE</code>.
+<code>OPERATOR_ATTENDED_ONLY</code> blocks release until migrated; cite
+a tracked work item per §11.4.15 + §11.4.16.</p>
+<p>Pre-build gates <code>CM-COVENANT-114-52-PROPAGATION</code> +
+<code>CM-AF-AUTONOMOUS-PATH-PER-FEATURE</code>. Paired mutations. No
+escape hatch — no <code>--allow-operator-attended-only</code> /
+<code>--skip-autonomous-path</code> /
+<code>--manual-validation-suffices</code> flag.</p>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.52 for
+the full mandate.</p>
+<h3
+id="fixed_summary-parity-11453-user-mandate-2026-05-18">Fixed_Summary
+parity (§11.4.53, User mandate 2026-05-18)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-18T17:55Z):</strong></p>
+<blockquote>
+<p>"Note: Just like for Issues we have Issues_Summary, for Fixed we MUST
+HAVE Fixed_Summary - like all other docs: ALWAYS in sync and up to date
+and ALWAYS exported into the PDF and HTML!"</p>
+</blockquote>
+<p><code>docs/Fixed_Summary.md</code> is the symmetric short-form
+summary of <code>docs/Fixed.md</code>. MUST be regenerated whenever
+<code>Fixed.md</code> changes. HTML + PDF exports MUST travel with the
+markdown. Stale exports are §11.4.53 violations regardless of whether
+the underlying <code>.md</code> is correct. Same discipline as §11.4.12
+Issues_Summary applied to Fixed.md.</p>
+<p>Generator: <code>scripts/testing/generate_fixed_summary.sh</code>
+(canonical). Auto-sync wrapper:
+<code>scripts/testing/sync_issues_docs.sh</code> regenerates BOTH
+Issues_Summary AND Fixed_Summary in one shot, exports HTML + PDF,
+colorizes per §11.4.23, re-renders PDFs. MUST be invoked after any edit
+to <code>Fixed.md</code>. No <code>--issues-only</code> flag exists.</p>
+<p>Sort order: closure date DESC (most-recent-Fixed first), §-letter /
+Fix-# secondary. Documented at top of generated file.</p>
+<p>Composes with §11.4.12 (Issues_Summary sibling), §11.4.19 (atomic
+migration trigger), §11.4.23 (colorizer), §11.4.33 (type-aware closure
+terminal values), §11.4.44 (revision header), §12.10 (CONTINUATION.md
+resumption).</p>
+<p>Pre-build gates <code>CM-FIXED-SUMMARY-SYNC</code> +
+<code>CM-COVENANT-114-53-PROPAGATION</code>. Paired mutations. No escape
+hatch — no <code>--skip-fixed-summary-sync</code>,
+<code>--issues-only</code>, <code>--summary-not-applicable</code>
+flag.</p>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.53 for
+the full mandate.</p>
+<h3 id="atm-nnn-ticket-identifier-11454-user-mandate-2026-05-19">ATM-NNN
+ticket identifier (§11.4.54, User mandate 2026-05-19)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-19):</strong></p>
+<blockquote>
+<p>"Every workable item in Issues / Issues_Summary / Fixed /
+Fixed_Summary MUST carry a stable, unique, auto-incremental ATM-NNN
+ticket identifier."</p>
+</blockquote>
+<p>Every workable item heading in <code>docs/Issues.md</code> AND
+<code>docs/Fixed.md</code> MUST carry <code>[ATM-NNN]</code> (form
+<code>## §X.Y. [ATM-NNN] &lt;title&gt;</code>, zero-padded ≥3 digits).
+Allocated by <code>scripts/testing/assign_atm_ticket_ids.sh</code> and
+persisted to <code>scripts/testing/.atm_ticket_state.json</code>
+(jsonl). Identifiers are monotonic, never renumbered, never reused, no
+gaps. Issues_Summary.md and Fixed_Summary.md MUST carry an
+<code>ATM ID</code> column as the leftmost data column.</p>
+<p>Composes with §11.4.15 + §11.4.16 + §11.4.19 + §11.4.33 + §11.4.12 +
+§11.4.53 + §11.4.55 + §11.4.57.</p>
+<p>Pre-build gates <code>CM-ATM-TICKET-IDS-COMPLETE</code> +
+<code>CM-ATM-TICKET-IDS-UNIQUE</code> +
+<code>CM-ATM-TICKET-IDS-MONOTONIC</code> +
+<code>CM-COVENANT-114-54-PROPAGATION</code>. Paired mutations. No escape
+hatch.</p>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.54 for
+the full mandate.</p>
+<h3
+id="reopens-history-tracking--per-item-reopensmd-11455-user-mandate-2026-05-19">Reopens-history
+tracking + per-item Reopens.md (§11.4.55, User mandate 2026-05-19)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-19):</strong></p>
+<blockquote>
+<p>"Add a Reopens-count column. For any item whose reopens-count &gt; 0,
+create docs/issues/ATM-NNN/Reopens.md (+ HTML + PDF) with comprehensive
+reopen history + Fixed cycles."</p>
+</blockquote>
+<p>Every workable item with <code>reopens_count &gt; 0</code> MUST have
+<code>docs/issues/&lt;ATM-NNN&gt;/Reopens.md</code> (+ HTML + PDF).
+Required content: §11.4.44 revision header, item identification, cycle
+counters, chronological timeline (By AI/User per §11.4.34, On ISO date,
+Event, Reason, Evidence, Outcome), reasoning chain for each closure,
+most-recent state-change pointer.</p>
+<p>Issues_Summary.md and Fixed_Summary.md MUST carry a
+<code>Reopens</code> column; count &gt; 0 hyperlinks to per-item
+Reopens.md.</p>
+<p>Composes with §11.4.34 (per-event capture), §11.4.54 (ATM-NNN path),
+§11.4.44 (revision header), §11.4.45 (Status.md analogue), §11.4.53
+(Fixed_Summary parity — Reopens column symmetric).</p>
+<p>Pre-build gates <code>CM-REOPENS-DOC-EXISTS-WHEN-COUNT-GT-ZERO</code>
++ <code>CM-REOPENS-DOC-REVISION-HEADER</code> +
+<code>CM-REOPENS-COL-IN-SUMMARIES</code> +
+<code>CM-COVENANT-114-55-PROPAGATION</code>. Paired mutations. No escape
+hatch.</p>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.55 for
+the full mandate.</p>
+<h3
+id="status_summary-parity--two-audience-format-11456-user-mandate-2026-05-19">Status_Summary
+parity + two-audience format (§11.4.56, User mandate 2026-05-19)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-19):</strong></p>
+<blockquote>
+<p>"Every Status.md doc gets a Status_Summary parity companion ALWAYS in
+sync, exported to HTML + PDF. Two-page format: page 1 = non-developer
+audience (team-specific), page 2 = software engineer summary."</p>
+</blockquote>
+<p>For every
+<code>docs/&lt;domain&gt;/&lt;integration&gt;/Status.md</code> a
+companion <code>Status_Summary.md</code> MUST exist with: §11.4.44
+revision header; <strong>Page 1 — For the <team></strong>
+(audience-specific — audio team for <code>docs/dolby/*</code>, video
+team for <code>docs/video/*</code>, etc.) plain- language summary, What
+works, What's broken or pending, Operator actions — NO §-letter jargon,
+NO captured-evidence file paths; <strong>Page 2 — For software
+engineers</strong> — §-letter refs, gate names, commit hashes,
+captured-evidence paths, ATM-NNN cross-refs. HTML + PDF exports travel
+with the markdown.</p>
+<p>Generator:
+<code>scripts/testing/generate_status_summary.sh &lt;Status.md path&gt;</code>.
+Invoked from <code>sync_integration_status.sh</code> (§11.4.45 wrapper)
+on every Status.md update.</p>
+<p>Composes with §11.4.45 (Status.md — Status_Summary COMPLEMENTS),
+§11.4.12 + §11.4.53 (parity discipline), §11.4.44 (revision header),
+§11.4.23 (colorizer), §12.10 (CONTINUATION.md).</p>
+<p>Pre-build gates
+<code>CM-STATUS-SUMMARY-EXISTS-FOR-EVERY-STATUS</code> +
+<code>CM-STATUS-SUMMARY-TWO-AUDIENCE</code> +
+<code>CM-STATUS-SUMMARY-REVISION-HEADER</code> +
+<code>CM-COVENANT-114-56-PROPAGATION</code>. Paired mutations. No escape
+hatch.</p>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.56 for
+the full mandate.</p>
+<h3
+id="readmemd-doc-link-section--revision-metadata-11457-user-mandate-2026-05-19">README.md
+doc-link section + revision metadata (§11.4.57, User mandate
+2026-05-19)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-19):</strong></p>
+<blockquote>
+<p>"Add a doc-link section to README.md — links to Issues +
+Issues_Summary + Fixed + Fixed_Summary + CONTINUATION + ALL Status docs
++ their exports. Each link shows revision + last-modified."</p>
+</blockquote>
+<p>Every project's top-level <code>README.md</code> MUST contain a
+section titled <code>Tracked-Items + Status Documents</code> (heading
+MUST contain literal <code>Tracked-Items</code>). The section is a
+markdown table with columns: <code>Document</code>,
+<code>Last modified</code>, <code>Revision</code>,
+<code>Markdown</code>, <code>HTML</code>, <code>PDF</code>. Links to:
+Issues.md + Issues_Summary.md, Fixed.md + Fixed_Summary.md,
+CONTINUATION.md, every <code>docs/**/Status.md</code> + its
+Status_Summary.md pair. Status docs auto-discovered by the generator via
+<code>find docs -name 'Status.md'</code>.</p>
+<p>Generator: <code>scripts/testing/update_readme_doc_links.sh</code>
+extracts each doc's revision + last-modified from its §11.4.44 header,
+renders the table, replaces the section between explicit markers
+(<code>&lt;!-- doc-link-section:begin --&gt;</code> /
+<code>&lt;!-- doc-link-section:end --&gt;</code>). Invoked from
+<code>sync_issues_docs.sh</code> AND
+<code>sync_integration_status.sh</code>.</p>
+<p>Composes with §11.4.12 + §11.4.19 + §11.4.53 (Issues / Fixed /
+summaries), §11.4.44 (revision-header data source), §11.4.45 + §11.4.56
+(Status pairs), §12.10 (CONTINUATION.md).</p>
+<p>Pre-build gates <code>CM-README-DOC-LINK-SECTION-PRESENT</code> +
+<code>CM-README-DOC-LINK-ROWS-COMPLETE</code> +
+<code>CM-README-DOC-LINK-FRESHNESS</code> +
+<code>CM-COVENANT-114-57-PROPAGATION</code>. Paired mutations strip
+markers, remove rows, backdate <code>Last modified</code>, strip anchor
+literal. No escape hatch.</p>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.57 for
+the full mandate.</p>
+<h3
+id="parallel-development-methodology-11458-user-mandate-2026-05-19">Parallel-development
+methodology (§11.4.58, User mandate 2026-05-19)</h3>
+<p><strong>Forensic anchor — verbatim user mandate (2026-05-19T~05:00Z
+MSK):</strong></p>
+<blockquote>
+<p>"We MUST CREATE adjusted improoved version of working methodology
+where multiple workable items could be done in parallel, all come into
+the central (main) branch as they are done, then we at particular moment
+rebuild and reflash the System and in background full testing with
+validation and verification is done. Each parallel work on one workable
+(or more) item(s) must use parallel agents as much as possible! …
+Writing in depth tests (all supported types of the tests) with
+Challenges and full HelixQA use is MANDATORY! Every test we execute
+besides executed with success MUST RESULT in proof that actual
+functionality being tested REALLY DOES WORK with NO BLUFF of any
+kind!"</p>
+</blockquote>
+<p>Project work proceeds through the <strong>Parallel Work Unit (PWU)
+pipeline</strong>. Each PWU is a self-contained workable item with:
+ATM-NNN identifier per §11.4.54, Issues.md entry per §11.4.15+§11.4.16,
+file- scope manifest, §11.4.43 RED test, source patch, pre-build gate,
+post-flash test, paired meta-test mutation per §1.1, HelixQA Challenge
+bank entry, captured-evidence directory per §11.4.5+§11.4.52.</p>
+<p><strong>5-stage pipeline:</strong> Stage 1 DEVELOP (parallel PWU
+agents in isolated worktrees) → Stage 2 MERGE (serial via
+<code>commit_all.sh</code> flock + §11.4.41 4-step merge-first) → Stage
+3 REBUILD+FLASH (parallel where hardware allows) → Stage 4 VALIDATE
+(parallel D3+D4+meta-test+coverage) → Stage 5 SWEEP (parallel HelixQA +
+Fixed.md migration + README refresh). Stage 1 of round N+1 overlaps with
+Stages 4-5 of round N — throughput multiplier.</p>
+<p><strong>Synchronization:</strong> 4-layer lock hierarchy (parent
+flock / per- submodule git / contention-path advisory locks / per-PWU
+worktree). Disjoint-scope PWUs fully parallel.</p>
+<p><strong>Anti-bluff merge-time enforcement (mandatory, all
+four):</strong> RED-test captured (§11.4.43), paired meta-test mutation
+(§1.1), 3-iter deterministic-consistency (§11.4.50), captured-evidence
+per §11.4.5. Metadata-only / configuration-only / absence-of-error PASS
+REJECTED. HelixQA Challenge MANDATORY for every user-visible PWU.</p>
+<p>Pre-build gates <code>CM-PWU-LOCK-HIERARCHY</code> +
+<code>CM-PWU-ANTI-BLUFF-COVERAGE</code></p>
+<ul>
+<li><code>CM-PWU-MERGE-QUEUE-DISCIPLINE</code> +
+<code>CM-PWU-PARALLEL-AGENT-LIMIT</code> +
+<code>CM-COVENANT-114-58-PROPAGATION</code>. Paired mutations cover each
+gate. No escape hatch.</li>
+</ul>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.58 for
+the full mandate. Project-specific implementation reference in
+consumer-side
+<code>docs/guides/PARALLEL_DEVELOPMENT_METHODOLOGY.md</code>.</p>
+<h3 id="readme-always-sync-11459-user-mandate-2026-05-19">README
+always-sync (§11.4.59, User mandate 2026-05-19)</h3>
+<p><code>README.md</code> is a §11.4.12-class always-sync document. HTML
++ PDF exports refresh on every update via
+<code>scripts/testing/sync_readme_export.sh</code> (pandoc +
+weasyprint); auto-invoked by <code>sync_issues_docs.sh</code> so a
+single doc-sync run refreshes Issues / Issues_Summary / Fixed /
+Fixed_Summary / CONTINUATION / README (md + html + pdf). README carries
+a §11.4.44 revision header and a Documentation Map section linking to
+every Status.md + Status_Summary.md + spec + plan + guide +
+script-companion doc + changelog + the constitution submodule, plus
+per-audience navigation (end user / developer / QA / agent). Pre-build
+gate <code>CM-README-EXPORT-SYNC</code> enforces mtime parity
+(README.html + README.pdf ≥ README.md). Paired meta-test mutation
+backdates HTML+PDF → gate FAILs. No escape hatch — no
+<code>--skip-readme-sync</code>, <code>--no-readme-export</code>,
+<code>--readme-stale-OK</code> flag. Composes with §11.4.12</p>
+<ul>
+<li>§11.4.18 + §11.4.44 + §11.4.45 + §11.4.53 + §11.4.56 + §11.4.57 +
+§12.10.</li>
+</ul>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.59 for
+the full mandate.</p>
+<h3
+id="documentation-always-sync-composite-covenant-11460-user-mandate-2026-05-19">Documentation
+always-sync composite covenant (§11.4.60, User mandate 2026-05-19)</h3>
+<p>Eight doc classes — Issues, Issues_Summary, Fixed, Fixed_Summary,
+CONTINUATION, README, every Status.md (domain-scoped), every
+Status_Summary.md — MUST be in sync across <code>.md</code> +
+<code>.html</code> + <code>.pdf</code>. Composite pre-build gate
+<code>CM-DOCS-COMPOSITE-SYNC</code> walks all 8 classes (Status fleet
+via recursive <code>docs/**</code> find), FAILs the build if ANY
+<code>.html</code> or <code>.pdf</code> mtime is older than its
+<code>.md</code>. Per-class anchors §11.4.12 / §11.4.44 / §11.4.45 /
+§11.4.53 / §11.4.56 / §11.4.57 / §11.4.59 / §12.10 govern individually;
+the composite catches what they miss when one is silently bypassed.
+Paired mutation backdates <code>docs/Issues.html</code> → gate FAILs. No
+escape hatch.</p>
+<p>Classification: universal (§11.4.17). See Constitution §11.4.60 for
+the full mandate.</p>
+<h3 id="credentials-handling-11410">Credentials-handling (§11.4.10)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-12):</strong></p>
+<blockquote>
+<p>"Credentials or any secret and sensitive data MUST NOT leak!"</p>
+</blockquote>
+<p><code>.env</code> patterns git-ignored project-wide.
+Runtime-load-only — tests load credentials at execution time from
+operator-populated files under <code>scripts/testing/secrets/</code> (or
+per-project equivalent). Test scripts MUST NEVER print or log
+credentials.</p>
+<h3 id="host-session-safety-12">Host-session safety (§12)</h3>
+<p>Project procedures MUST NOT use more than <strong>60%</strong> of
+total system RAM. Heavy work wrapped in bounded execution scopes so the
+kernel OOM-kills only the scope — <code>user@&lt;uid&gt;.service</code>
+stays alive. Hibernating / suspending / logging out the user is
+FORBIDDEN (directly OR indirectly).</p>
+<h3 id="continuation-document-1210">Continuation document (§12.10)</h3>
+<p><code>docs/CONTINUATION.md</code> MUST exist at the project root and
+reflect the live state of the work. Every non-trivial state change
+updates it in the same commit. Any agent must be able to resume work
+exactly where the previous session left off by reading this single
+file.</p>
+<h3 id="data-safety-9">Data safety (§9)</h3>
+<p>Hardlinked backup before any destructive operation. Post-op gate MUST
+pass. Force-push requires explicit per-session human authorization.
+Every history rewrite gets a <code>docs/changelogs/</code> audit
+entry.</p>
+<h2 id="cli-workflow-expectations">CLI workflow expectations</h2>
+<ol type="1">
+<li><strong>Read before write.</strong> Use file-reading tools to
+inspect the current state before editing. Edits in the dark are how bugs
+sneak in.</li>
+<li><strong>Use the project's commit wrapper.</strong> Direct
+<code>git add</code> / <code>git commit</code> is forbidden unless
+explicitly carved out.</li>
+<li><strong>Commit messages cite forensic evidence</strong> for any
+non-trivial fix (logs, captures, /sys readings, dropbox entries,
+strace). Speculative narratives are §11.4.6 violations.</li>
+<li><strong>Update CONTINUATION.md</strong> in the same commit as the
+work (§12.10).</li>
+<li><strong>Run pre-build / post-build / runtime gates</strong> before
+declaring a change complete. NEVER report "done" without running the
+relevant gate.</li>
+<li><strong>Cite external research sources</strong> for non-trivial
+fixes (§11.4.8). Either a citation OR the literal "NO external solution
+found — original work".</li>
+<li><strong>Refuse to bluff.</strong> If a step requires information you
+don't have, say so and STOP. Don't guess.</li>
+</ol>
+<h2 id="hierarchy-of-project-authority">Hierarchy of project
+authority</h2>
+<p>When a project files declares conflicting rules with this base
+AGENTS.md, resolve in this order:</p>
+<ol type="1">
+<li><strong>Project's
+<code>docs/guides/&lt;PROJECT&gt;_CONSTITUTION.md</code></strong> — most
+specific, project-tailored.</li>
+<li><strong><code>constitution/Constitution.md</code></strong> (this
+submodule) — universal.</li>
+<li><strong>Project's root <code>CLAUDE.md</code> /
+<code>AGENTS.md</code></strong> — agent-facing summaries; lossy compared
+to the Constitution.</li>
+<li><strong>This <code>constitution/CLAUDE.md</code> /
+<code>AGENTS.md</code></strong> — universal agent-facing summary; lossy
+compared to the Constitution.</li>
+</ol>
+<p>If a project's own files contradict the Constitution, that is itself
+a Constitution violation and MUST be reported. Do NOT silently follow
+the contradicting project file.</p>
+<h2 id="when-stuck">When stuck</h2>
+<ul>
+<li>Read <code>constitution/Constitution.md</code>.</li>
+<li>Cross-reference the project's CLAUDE.md / AGENTS.md.</li>
+<li>If still unclear, ask the operator. Do NOT guess. Do NOT bluff.</li>
+</ul>
+<hr />
+<p><strong>§11.4.65 — Universal Markdown export mandate (User mandate,
+2026-05-19)</strong></p>
+<p>Every Markdown document inside the project that is NOT part of an
+application or service's source-code tree MUST have synchronized
+<code>.html</code> and <code>.pdf</code> siblings. Includes:
+project-root <code>*.md</code>, <code>docs/**/*.md</code>,
+<code>scripts/**/*.md</code> (doc-format companion docs),
+owned-submodule top-level README.md / CLAUDE.md / AGENTS.md /
+CHANGELOG.md and their <code>docs/**/*.md</code>,
+<code>constitution/**/*.md</code>, owned HelixQA submodules'
+equivalents. Excludes: <code>external/**</code>,
+<code>prebuilts/**</code>, <code>packages/modules/**</code>,
+<code>kernel-5.10/**</code>, <code>out/**</code>, <code>build/**</code>,
+application/service source-code trees, and third-party submodules NOT in
+the owned set. Every edit triggers regeneration via
+<code>scripts/testing/sync_all_markdown_exports.sh</code> (pandoc HTML +
+weasyprint PDF, <code>timeout 60</code> per file, capped at 500
+candidates). HTML + PDF mtime MUST be ≥ source <code>.md</code> mtime at
+all times.</p>
+<p>Pre-build gates <code>CM-UNIVERSAL-MARKDOWN-EXPORT-SYNC</code> +
+<code>CM-COVENANT-114-65-PROPAGATION</code>. Paired meta-test mutations.
+Composes with §11.4.12 / §11.4.18 / §11.4.23 / §11.4.44 / §11.4.45 /
+§11.4.53 / §11.4.59 / §11.4.60 / §11.4.63 / §11.4.64. No escape hatch —
+no <code>--skip-md-exports</code>, <code>--no-pdf-only</code>,
+<code>--md-export-not-applicable</code> flag.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.65.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+</body>
+</html>
