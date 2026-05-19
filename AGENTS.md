@@ -1228,6 +1228,23 @@ README.pdf ≥ README.md). Paired meta-test mutation backdates HTML+PDF
 Classification: universal (§11.4.17). See Constitution §11.4.59 for
 the full mandate.
 
+### Documentation always-sync composite covenant (§11.4.60, User mandate 2026-05-19)
+
+Eight doc classes — Issues, Issues_Summary, Fixed, Fixed_Summary,
+CONTINUATION, README, every Status.md (domain-scoped), every
+Status_Summary.md — MUST be in sync across `.md` + `.html` +
+`.pdf`. Composite pre-build gate `CM-DOCS-COMPOSITE-SYNC` walks
+all 8 classes (Status fleet via recursive `docs/**` find), FAILs
+the build if ANY `.html` or `.pdf` mtime is older than its `.md`.
+Per-class anchors §11.4.12 / §11.4.44 / §11.4.45 / §11.4.53 /
+§11.4.56 / §11.4.57 / §11.4.59 / §12.10 govern individually; the
+composite catches what they miss when one is silently bypassed.
+Paired mutation backdates `docs/Issues.html` → gate FAILs. No
+escape hatch.
+
+Classification: universal (§11.4.17). See Constitution §11.4.60 for
+the full mandate.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

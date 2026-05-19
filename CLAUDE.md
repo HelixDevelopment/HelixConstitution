@@ -1861,6 +1861,28 @@ Composes with §11.4.12 + §11.4.18 + §11.4.44 + §11.4.45 + §11.4.53 +
 
 Non-compliance is a release blocker regardless of context.
 
+**§11.4.60 — Documentation always-sync composite covenant (User mandate, 2026-05-19)**
+
+Eight documentation classes (Issues, Issues_Summary, Fixed,
+Fixed_Summary, CONTINUATION, README, every Status.md, every
+Status_Summary.md) MUST be in sync at all times across `.md` +
+`.html` + `.pdf` artefacts. Per-class anchors §11.4.12 / §11.4.44 /
+§11.4.45 / §11.4.53 / §11.4.56 / §11.4.57 / §11.4.59 / §12.10
+govern individually; §11.4.60 binds them via single composite gate
+`CM-DOCS-COMPOSITE-SYNC` that FAILs if ANY instance's `.html` or
+`.pdf` mtime is older than `.md` mtime. Walks `docs/**` recursively
+for Status.md fleet. Paired mutation backdates `docs/Issues.html`
+→ gate FAILs. No escape hatch — no `--skip-composite-doc-sync`,
+`--allow-stale-html`, `--summary-not-applicable` flag exists.
+Composes with §11.4.12 + §11.4.15 + §11.4.16 + §11.4.19 + §11.4.23 +
+§11.4.33 + §11.4.44 + §11.4.45 + §11.4.53 + §11.4.56 + §11.4.57 +
+§11.4.59 + §12.10.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](Constitution.md) §11.4.60.
+
+Non-compliance is a release blocker regardless of context.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
