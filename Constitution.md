@@ -1,5 +1,113 @@
 # Helix Universal Constitution
 
+| Field | Value |
+|---|---|
+| Revision | 1 |
+| Created | 2026-05-14 |
+| Last modified | 2026-05-19 |
+| Status | active |
+| Status summary | — |
+| Issues | none |
+| Issues summary | — |
+| Fixed | none |
+| Fixed summary | — |
+| Continuation | — |
+
+## Table of contents
+
+- [1. Test coverage is mandatory for every change](#1-test-coverage-is-mandatory-for-every-change)
+  - [1.1 False-positive immunity is an invariant](#11-false-positive-immunity-is-an-invariant)
+- [2. Commit and push mechanics — single entrypoint, locked](#2-commit-and-push-mechanics-single-entrypoint-locked)
+  - [2.1 Multi-upstream push is the norm](#21-multi-upstream-push-is-the-norm)
+- [3. Submodule changes propagate through submodule commits first](#3-submodule-changes-propagate-through-submodule-commits-first)
+- [4. Every tag on the main repo MUST be mirrored on every owned submodule](#4-every-tag-on-the-main-repo-must-be-mirrored-on-every-owned-submodule)
+- [5. Changelog discipline and multi-format export](#5-changelog-discipline-and-multi-format-export)
+- [6. Documentation up to the nano-details](#6-documentation-up-to-the-nano-details)
+- [7. Making false-success results literally impossible](#7-making-false-success-results-literally-impossible)
+  - [§7.1 NO BLUFF — positive-evidence-only validation](#71-no-bluff-positive-evidence-only-validation)
+- [§8. Bleeding-edge ultra-perfection quality bar](#8-bleeding-edge-ultra-perfection-quality-bar)
+- [§9. Absolute codebase and data safety — zero risk, zero loss](#9-absolute-codebase-and-data-safety-zero-risk-zero-loss)
+  - [§9.1 Mandatory safety protocol for destructive operations](#91-mandatory-safety-protocol-for-destructive-operations)
+  - [§9.2 Force-push requires explicit user authorization every time](#92-force-push-requires-explicit-user-authorization-every-time)
+  - [§9.3 Hardlinked backup is the standard — there is no excuse](#93-hardlinked-backup-is-the-standard-there-is-no-excuse)
+  - [§9.4 Commit-message audit trail for history rewrites](#94-commit-message-audit-trail-for-history-rewrites)
+- [§10. Enforcement](#10-enforcement)
+- [§11. End-user quality covenant](#11-end-user-quality-covenant)
+  - [§11.4 End-user quality guarantee — forensic anchor (User mandate, 2026-04-28)](#114-end-user-quality-guarantee-forensic-anchor-user-mandate-2026-04-28)
+  - [§11.4.1 — FAIL-bluffs are equally forbidden](#1141-fail-bluffs-are-equally-forbidden)
+  - [§11.4.2 — Recorded-evidence requirement](#1142-recorded-evidence-requirement)
+  - [§11.4.3 — Per-environment-topology test dispatch](#1143-per-environment-topology-test-dispatch)
+  - [§11.4.4 — Test-interrupt-on-discovery + retest-from-clean-baseline](#1144-test-interrupt-on-discovery-retest-from-clean-baseline)
+  - [§11.4.5 — Captured-evidence quality analysis](#1145-captured-evidence-quality-analysis)
+  - [§11.4.6 — No-guessing mandate](#1146-no-guessing-mandate)
+  - [§11.4.7 — Demotion-evidence rule](#1147-demotion-evidence-rule)
+  - [§11.4.8 — Deep-web-research-before-implementation](#1148-deep-web-research-before-implementation)
+  - [§11.4.9 — Batch-source-fixes-before-rebuild](#1149-batch-source-fixes-before-rebuild)
+  - [§11.4.10 — Credentials-handling mandate](#11410-credentials-handling-mandate)
+  - [§11.4.10.A — Pre-store credential leak audit (User mandate, 2026-05-17)](#11410a-pre-store-credential-leak-audit-user-mandate-2026-05-17)
+  - [§11.4.11 — File-layout discipline](#11411-file-layout-discipline)
+  - [§11.4.12 — Auto-generated docs sync mandate](#11412-auto-generated-docs-sync-mandate)
+  - [§11.4.13 — Out-of-band sink-side captured-evidence](#11413-out-of-band-sink-side-captured-evidence)
+  - [§11.4.14 — Test playback cleanup mandate](#11414-test-playback-cleanup-mandate)
+  - [§11.4.15 — Item-status tracking mandate](#11415-item-status-tracking-mandate)
+  - [§11.4.16 — Item-type tracking mandate](#11416-item-type-tracking-mandate)
+  - [§11.4.17 — Universal-vs-project classification of new rules (User mandate, 2026-05-14)](#11417-universal-vs-project-classification-of-new-rules-user-mandate-2026-05-14)
+  - [§11.4.20 — Subagent-driven-by-default mandate (User mandate, 2026-05-14)](#11420-subagent-driven-by-default-mandate-user-mandate-2026-05-14)
+  - [§11.4.18 — Script documentation mandate (User mandate, 2026-05-14)](#11418-script-documentation-mandate-user-mandate-2026-05-14)
+  - [§11.4.19 — Fixed-document column-alignment mandate (User mandate, 2026-05-14)](#11419-fixed-document-column-alignment-mandate-user-mandate-2026-05-14)
+  - [§11.4.21 — Operator-blocked status + self-resolution exhaustion mandate (User mandate, 2026-05-14)](#11421-operator-blocked-status-self-resolution-exhaustion-mandate-user-mandate-2026-05-14)
+  - [§11.4.22 — Document-sync commit discipline (User mandate, 2026-05-14)](#11422-document-sync-commit-discipline-user-mandate-2026-05-14)
+  - [§11.4.23 — Visual-cue & grouping mandate for Issues docs (User mandate, 2026-05-14)](#11423-visual-cue-grouping-mandate-for-issues-docs-user-mandate-2026-05-14)
+  - [§11.4.24 — Build-resource stats tracking mandate (User mandate, 2026-05-14)](#11424-build-resource-stats-tracking-mandate-user-mandate-2026-05-14)
+  - [§11.4.25 — Full-Automation-Coverage Mandate (User mandate, 2026-05-15)](#11425-full-automation-coverage-mandate-user-mandate-2026-05-15)
+  - [§11.4.26 — Constitution-Submodule Update Workflow Mandate (User mandate, 2026-05-15)](#11426-constitution-submodule-update-workflow-mandate-user-mandate-2026-05-15)
+  - [§11.4.31 — Submodule-Dependency-Manifest Mandate (User mandate, 2026-05-15)](#11431-submodule-dependency-manifest-mandate-user-mandate-2026-05-15)
+  - [§11.4.32 — Post-Constitution-Pull Validation Mandate (User mandate, 2026-05-15)](#11432-post-constitution-pull-validation-mandate-user-mandate-2026-05-15)
+  - [§11.4.30 — .gitignore + No-Versioned-Build-Artifacts Mandate (User mandate, 2026-05-15)](#11430-gitignore-no-versioned-build-artifacts-mandate-user-mandate-2026-05-15)
+  - [§11.4.29 — Lowercase-Snake_Case-Naming Mandate (User mandate, 2026-05-15)](#11429-lowercase-snake_case-naming-mandate-user-mandate-2026-05-15)
+  - [§11.4.28 — Submodules-As-Equal-Codebase + Decoupling + Dependency-Layout Mandate (User mandate, 2026-05-15)](#11428-submodules-as-equal-codebase-decoupling-dependency-layout-mandate-user-mandate-2026-05-15)
+  - [§11.4.27 — No-Fakes-Beyond-Unit-Tests + 100%-Test-Type-Coverage Mandate (User mandate, 2026-05-15)](#11427-no-fakes-beyond-unit-tests-100-test-type-coverage-mandate-user-mandate-2026-05-15)
+  - [§11.4.33 — Type-aware closure-status vocabulary (User mandate, 2026-05-15)](#11433-type-aware-closure-status-vocabulary-user-mandate-2026-05-15)
+  - [§11.4.34 — Reopened-source attribution mandate (User mandate, 2026-05-15)](#11434-reopened-source-attribution-mandate-user-mandate-2026-05-15)
+  - [§11.4.35 — Canonical-root inheritance clarity (User mandate, 2026-05-15)](#11435-canonical-root-inheritance-clarity-user-mandate-2026-05-15)
+  - [§11.4.36 — Mandatory install_upstreams on clone/add Mandate (User mandate, 2026-05-15)](#11436-mandatory-install_upstreams-on-cloneadd-mandate-user-mandate-2026-05-15)
+  - [§11.4.37 — Fetch-before-edit mandate (User mandate, 2026-05-15)](#11437-fetch-before-edit-mandate-user-mandate-2026-05-15)
+  - [§11.4.38 — Installable-Asset Evidence Mandate (User mandate, 2026-05-17)](#11438-installable-asset-evidence-mandate-user-mandate-2026-05-17)
+  - [§11.4.39 — Per-Feature On-Device End-User Validation Mandate (iter-76, 2026-05-17)](#11439-per-feature-on-device-end-user-validation-mandate-iter-76-2026-05-17)
+  - [§11.4.40 — Full-suite retest before release tag mandate (User mandate, 2026-05-17)](#11440-full-suite-retest-before-release-tag-mandate-user-mandate-2026-05-17)
+  - [§11.4.41 — Pre-Force-Push Merge-First Mandate (User mandate, 2026-05-17)](#11441-pre-force-push-merge-first-mandate-user-mandate-2026-05-17)
+  - [§11.4.42 — Iteration-discipline mandate (User mandate, 2026-05-18)](#11442-iteration-discipline-mandate-user-mandate-2026-05-18)
+  - [§11.4.43 — TDD-Fix-Discipline Mandate (User mandate, 2026-05-18)](#11443-tdd-fix-discipline-mandate-user-mandate-2026-05-18)
+  - [§11.4.44 — Document Revision Header Mandate (User mandate, 2026-05-18)](#11444-document-revision-header-mandate-user-mandate-2026-05-18)
+  - [§11.4.45 — Integration-Status-Doc Maintenance Mandate (User mandate, 2026-05-18)](#11445-integration-status-doc-maintenance-mandate-user-mandate-2026-05-18)
+  - [§11.4.46 — Validate-recent-work-before-post-flash-tests mandate (User mandate, 2026-05-18)](#11446-validate-recent-work-before-post-flash-tests-mandate-user-mandate-2026-05-18)
+  - [§11.4.47 — Firebase Data Review Mandate (User mandate, 2026-05-18)](#11447-firebase-data-review-mandate-user-mandate-2026-05-18)
+  - [§11.4.48 — UI-Driven Video Testing Mandate (User mandate, 2026-05-18)](#11448-ui-driven-video-testing-mandate-user-mandate-2026-05-18)
+  - [§11.4.49 — Dual-Approach Testing Mandate (User mandate, 2026-05-18)](#11449-dual-approach-testing-mandate-user-mandate-2026-05-18)
+  - [§11.4.50 — Deterministic Consistency Mandate (User mandate, 2026-05-18)](#11450-deterministic-consistency-mandate-user-mandate-2026-05-18)
+  - [§11.4.51 — Live-ADB-First Maximization Mandate (User mandate, 2026-05-18)](#11451-live-adb-first-maximization-mandate-user-mandate-2026-05-18)
+  - [§11.4.52 — Autonomous-Validation Mandate (User mandate, 2026-05-18)](#11452-autonomous-validation-mandate-user-mandate-2026-05-18)
+  - [§11.4.53 — Fixed_Summary parity mandate (User mandate, 2026-05-18)](#11453-fixed_summary-parity-mandate-user-mandate-2026-05-18)
+  - [§11.4.54 — ATM-NNN ticket identifier mandate (User mandate, 2026-05-19)](#11454-atm-nnn-ticket-identifier-mandate-user-mandate-2026-05-19)
+  - [§11.4.55 — Reopens-history tracking + per-item Reopens.md doc (User mandate, 2026-05-19)](#11455-reopens-history-tracking-per-item-reopensmd-doc-user-mandate-2026-05-19)
+  - [§11.4.56 — Status_Summary parity + two-audience format (User mandate, 2026-05-19)](#11456-status_summary-parity-two-audience-format-user-mandate-2026-05-19)
+  - [§11.4.57 — README.md doc-link section + revision metadata (User mandate, 2026-05-19)](#11457-readmemd-doc-link-section-revision-metadata-user-mandate-2026-05-19)
+  - [§11.4.58 — Parallel-development methodology (User mandate, 2026-05-19)](#11458-parallel-development-methodology-user-mandate-2026-05-19)
+  - [§11.4.59 — README always-sync mandate (User mandate, 2026-05-19)](#11459-readme-always-sync-mandate-user-mandate-2026-05-19)
+  - [§11.4.60 — Documentation always-sync composite covenant (User mandate, 2026-05-19)](#11460-documentation-always-sync-composite-covenant-user-mandate-2026-05-19)
+  - [§11.4.61 — Mandatory Markdown metadata table + structured-doc ToC (User mandate, 2026-05-19)](#11461-mandatory-markdown-metadata-table-structured-doc-toc-user-mandate-2026-05-19)
+  - [§11.4.63 — Workable-items procedure docs as single source of truth (User mandate, 2026-05-19)](#11463-workable-items-procedure-docs-as-single-source-of-truth-user-mandate-2026-05-19)
+  - [§11.4.65 — Universal Markdown export mandate (User mandate, 2026-05-19)](#11465-universal-markdown-export-mandate-user-mandate-2026-05-19)
+- [§12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN](#12-host-session-safety-directly-or-indirectly-signing-the-user-out-is-forbidden)
+  - [§12.1 Forbidden operations — directly OR indirectly](#121-forbidden-operations-directly-or-indirectly)
+  - [§12.2 Required safeguards](#122-required-safeguards)
+  - [§12.3 Container hygiene](#123-container-hygiene)
+  - [§12.6 Memory-Budget Ceiling — 60% MAXIMUM](#126-memory-budget-ceiling-60-maximum)
+  - [§12.10 Continuation document — sacred invariant](#1210-continuation-document-sacred-invariant)
+- [Appendix A — Mutation testing — academic and industrial foundations](#appendix-a-mutation-testing-academic-and-industrial-foundations)
+- [Appendix B — Recursive inheritance & path-independence](#appendix-b-recursive-inheritance-path-independence)
+- [Appendix C — Multi-upstream push](#appendix-c-multi-upstream-push)
+
 > **This document defines mandatory, non-negotiable rules for every project
 > that includes this constitution submodule. Every AI agent and every
 > human contributor MUST comply. Violations are blockers.**
@@ -5549,6 +5657,141 @@ doc-class instance paths are consumer-side per-project.
 
 **Canonical authority:** constitution submodule
 [`Constitution.md`](Constitution.md) §11.4.60.
+
+Non-compliance is a release blocker regardless of context.
+
+### §11.4.61 — Mandatory Markdown metadata table + structured-doc ToC (User mandate, 2026-05-19)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-19):**
+
+> "For every Markdown document which contains structured content (with
+> headings / sections and sub-sections) make sure that every time we
+> apply change to the structure, table of contents on the top of the
+> document is created or updated! This is MANDATORY for every structured
+> MARKDOWN document. Automatically its PDF and HTML versions MUST BE
+> (re)generated!"
+>
+> "Introduce ... revision number, date and time of creation, date and
+> time of last modification, other useful information we have in
+> documents such as Issues, Issues_Summary, Fixed, Fixed_Summary, Status,
+> Status_Summary, Continuation and similar. ... make this mandatory for
+> EVERY Markdown document from now on, update root constitution Submodule
+> with these changes and commit and push it all to all upstreams."
+
+**Scope of §11.4.61.** This clause adds two universal disciplines that
+sit alongside (NOT replacing) the §11.4.65 universal export mandate.
+§11.4.65 governs the existence and freshness of `.html` + `.pdf`
+siblings; §11.4.61 governs the *content* of the Markdown sources:
+how revision/status metadata is displayed at the top, and how the
+document's navigation map (Table of contents) is kept in lockstep
+with the heading structure. The two clauses compose — §11.4.65
+guarantees readers see *something current*; §11.4.61 guarantees what
+they see communicates its own provenance and is internally navigable.
+
+**A. Canonical metadata table (supersedes §11.4.44 format).** The
+§11.4.44 bold-line revision header is superseded by a **Markdown
+table** placed immediately after the document's H1 title (and any
+blank line that follows). Pre-existing bold-line headers remain
+historically valid but MUST migrate to the canonical table at the
+next substantive edit. The canonical table has these MANDATORY rows:
+
+| Field | Value |
+|---|---|
+| Revision | positive integer; starts at 1, monotonic, never reset |
+| Created | ISO 8601 date — first commit touching the file |
+| Last modified | ISO 8601 date — most recent commit touching the file |
+| Status | one of `active` / `draft` / `deprecated` / `superseded` |
+
+ENCOURAGED rows (REQUIRED when the document tracks workable items or
+has a known continuation; render with `—` / `none` when N/A):
+
+| Field | Value |
+|---|---|
+| Status summary | one-line current-state hook |
+| Issues | comma-separated workable-item IDs |
+| Issues summary | one-line summary of open issues |
+| Fixed | comma-separated workable-item IDs of resolved items |
+| Fixed summary | one-line summary of fixes |
+| Continuation | next action or linked CONTINUATION.md anchor |
+
+Additional rows MAY be added for project-specific metadata as long
+as the MANDATORY rows are present.
+
+**B. Structured-document Table of contents.** Any tracked `*.md`
+with **two or more H2 sections** ("structured content") MUST include
+a `## Table of contents` section immediately after the metadata
+table. The ToC MUST list every H2 and H3 in document order with
+anchor links and MUST be regenerated on every structural change
+(heading added / removed / renamed / reordered). A stale ToC is a
+§11.4 PASS-bluff: operators reading the rendered Markdown see a
+navigation map that no longer matches the body.
+
+**Scope (IN-scope under §11.4.61).** Every tracked `*.md` in the
+§11.4.65 INCLUDED set (project-root `*.md`, `docs/**/*.md`,
+`scripts/**/*.md` companion docs, owned-submodule trees,
+`constitution/**/*.md`, owned HelixQA dependencies). The §11.4.44
+exclusions for `CLAUDE.md` / `AGENTS.md` / `README.md` are
+SUPERSEDED here too — explicit metadata in the file itself is
+preferred over indirect tracking via a separate VERSION file because
+operators reading the rendered document see the freshness directly.
+
+**Narrow exemptions (NOT IN-scope).** Same EXCLUDED set as §11.4.65
+(`external/**`, `prebuilts/**`, `out/**`, `build/**`, application-
+internal `*.md` shipped with source code, non-owned third-party
+submodule trees). Additional exemptions for the structural rules:
+`LICENSE`, `LICENSE.md`, `NOTICE`, `VERSION`, `OWNERS`, machine-
+generated `CHANGELOG.md`.
+
+**PDF + HTML siblings.** Deferred to §11.4.65. The metadata table
+and ToC are *content* requirements; their export-freshness
+guarantee lives in §11.4.65's `CM-UNIVERSAL-MARKDOWN-EXPORT-SYNC`
+gate. A §11.4.61 metadata or ToC change is a `.md` modification,
+which transitively triggers §11.4.65 regeneration — the two clauses
+compose without duplicate enforcement.
+
+**Anti-bluff captured-evidence gates (planned):**
+
+- `CM-MD-METADATA-PRESENT` — walks every tracked `*.md` (minus
+  exemptions) and asserts (a) H1 present, (b) within 25 lines below
+  H1 a Markdown table contains all four MANDATORY rows
+  (`| Revision |`, `| Created |`, `| Last modified |`, `| Status |`).
+- `CM-MD-TOC-PARITY` — for every `*.md` with `≥ 2` H2 sections,
+  asserts a `## Table of contents` is present and its entries'
+  anchor slugs match the document's live H2/H3 set in order.
+
+**Paired §1.1 mutation tests (planned):**
+
+- Strip the `| Revision |` row from one `*.md` → `CM-MD-METADATA-PRESENT` FAILs.
+- Rename one H2 without updating ToC → `CM-MD-TOC-PARITY` FAILs.
+
+**Composition with §11.4.44.** §11.4.44 remains the authoritative
+clause for the *fact* that documents must carry revision metadata;
+§11.4.61 changes the *format* (bold-lines → table) and *scope*
+(`docs/**/*.md` → every tracked `*.md` per §11.4.65 INCLUDED set).
+Consumer projects with existing gates that grep for `**Revision:**`
+MUST update those gates to also accept the canonical table form.
+Migration period: 30 days from §11.4.61 landing.
+
+**Composition with §11.4.45 / §11.4.59 / §11.4.60 / §11.4.65.**
+The per-class always-sync clauses (Status.md §11.4.45, README
+§11.4.59, composite §11.4.60) and the universal export covenant
+§11.4.65 govern *artefact existence and freshness*; §11.4.61 governs
+*content discipline inside the source `.md`*. The clauses are
+orthogonal layers of the same anti-bluff posture.
+
+**No escape hatch.** No `--skip-md-metadata`, `--no-metadata-table`,
+`--toc-stale-OK`, `--allow-missing-revision` flag exists. Divergent
+metadata and stale ToCs are §11.4 PASS-bluff patterns at the
+doc-surface layer.
+
+**Classification:** universal (per §11.4.17). Applies to every
+project consuming this Constitution. The canonical table format and
+ToC mandate are universal; the per-project tracker IDs (e.g.
+`HRD-`) and specific Issues/Fixed-class doc paths are consumer-side
+per-project.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](Constitution.md) §11.4.61.
 
 Non-compliance is a release blocker regardless of context.
 
