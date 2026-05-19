@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Constitution</title>
+  <title>Helix Universal Constitution</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -91,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -154,7 +155,6 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -238,9 +238,348 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">Constitution</h1>
+<h1 class="title">Helix Universal Constitution</h1>
 </header>
 <h1 id="helix-universal-constitution">Helix Universal Constitution</h1>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-05-14</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-05-19</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Status summary</td>
+<td>§11.4.66 ToC entry added per §11.4.61 hygiene</td>
+</tr>
+<tr>
+<td>Issues</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Issues summary</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Fixed</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Fixed summary</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Continuation</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li><a href="#1-test-coverage-is-mandatory-for-every-change">1. Test
+coverage is mandatory for every change</a>
+<ul>
+<li><a href="#11-false-positive-immunity-is-an-invariant">1.1
+False-positive immunity is an invariant</a></li>
+</ul></li>
+<li><a href="#2-commit-and-push-mechanics-single-entrypoint-locked">2.
+Commit and push mechanics — single entrypoint, locked</a>
+<ul>
+<li><a href="#21-multi-upstream-push-is-the-norm">2.1 Multi-upstream
+push is the norm</a></li>
+</ul></li>
+<li><a
+href="#3-submodule-changes-propagate-through-submodule-commits-first">3.
+Submodule changes propagate through submodule commits first</a></li>
+<li><a
+href="#4-every-tag-on-the-main-repo-must-be-mirrored-on-every-owned-submodule">4.
+Every tag on the main repo MUST be mirrored on every owned
+submodule</a></li>
+<li><a href="#5-changelog-discipline-and-multi-format-export">5.
+Changelog discipline and multi-format export</a></li>
+<li><a href="#6-documentation-up-to-the-nano-details">6. Documentation
+up to the nano-details</a></li>
+<li><a href="#7-making-false-success-results-literally-impossible">7.
+Making false-success results literally impossible</a>
+<ul>
+<li><a href="#71-no-bluff-positive-evidence-only-validation">§7.1 NO
+BLUFF — positive-evidence-only validation</a></li>
+</ul></li>
+<li><a href="#8-bleeding-edge-ultra-perfection-quality-bar">§8.
+Bleeding-edge ultra-perfection quality bar</a></li>
+<li><a
+href="#9-absolute-codebase-and-data-safety-zero-risk-zero-loss">§9.
+Absolute codebase and data safety — zero risk, zero loss</a>
+<ul>
+<li><a
+href="#91-mandatory-safety-protocol-for-destructive-operations">§9.1
+Mandatory safety protocol for destructive operations</a></li>
+<li><a
+href="#92-force-push-requires-explicit-user-authorization-every-time">§9.2
+Force-push requires explicit user authorization every time</a></li>
+<li><a
+href="#93-hardlinked-backup-is-the-standard-there-is-no-excuse">§9.3
+Hardlinked backup is the standard — there is no excuse</a></li>
+<li><a href="#94-commit-message-audit-trail-for-history-rewrites">§9.4
+Commit-message audit trail for history rewrites</a></li>
+</ul></li>
+<li><a href="#10-enforcement">§10. Enforcement</a></li>
+<li><a href="#11-end-user-quality-covenant">§11. End-user quality
+covenant</a>
+<ul>
+<li><a
+href="#114-end-user-quality-guarantee-forensic-anchor-user-mandate-2026-04-28">§11.4
+End-user quality guarantee — forensic anchor (User mandate,
+2026-04-28)</a></li>
+<li><a href="#1141-fail-bluffs-are-equally-forbidden">§11.4.1 —
+FAIL-bluffs are equally forbidden</a></li>
+<li><a href="#1142-recorded-evidence-requirement">§11.4.2 —
+Recorded-evidence requirement</a></li>
+<li><a href="#1143-per-environment-topology-test-dispatch">§11.4.3 —
+Per-environment-topology test dispatch</a></li>
+<li><a
+href="#1144-test-interrupt-on-discovery-retest-from-clean-baseline">§11.4.4
+— Test-interrupt-on-discovery + retest-from-clean-baseline</a></li>
+<li><a href="#1145-captured-evidence-quality-analysis">§11.4.5 —
+Captured-evidence quality analysis</a></li>
+<li><a href="#1146-no-guessing-mandate">§11.4.6 — No-guessing
+mandate</a></li>
+<li><a href="#1147-demotion-evidence-rule">§11.4.7 — Demotion-evidence
+rule</a></li>
+<li><a href="#1148-deep-web-research-before-implementation">§11.4.8 —
+Deep-web-research-before-implementation</a></li>
+<li><a href="#1149-batch-source-fixes-before-rebuild">§11.4.9 —
+Batch-source-fixes-before-rebuild</a></li>
+<li><a href="#11410-credentials-handling-mandate">§11.4.10 —
+Credentials-handling mandate</a></li>
+<li><a
+href="#11410a-pre-store-credential-leak-audit-user-mandate-2026-05-17">§11.4.10.A
+— Pre-store credential leak audit (User mandate, 2026-05-17)</a></li>
+<li><a href="#11411-file-layout-discipline">§11.4.11 — File-layout
+discipline</a></li>
+<li><a href="#11412-auto-generated-docs-sync-mandate">§11.4.12 —
+Auto-generated docs sync mandate</a></li>
+<li><a href="#11413-out-of-band-sink-side-captured-evidence">§11.4.13 —
+Out-of-band sink-side captured-evidence</a></li>
+<li><a href="#11414-test-playback-cleanup-mandate">§11.4.14 — Test
+playback cleanup mandate</a></li>
+<li><a href="#11415-item-status-tracking-mandate">§11.4.15 — Item-status
+tracking mandate</a></li>
+<li><a href="#11416-item-type-tracking-mandate">§11.4.16 — Item-type
+tracking mandate</a></li>
+<li><a
+href="#11417-universal-vs-project-classification-of-new-rules-user-mandate-2026-05-14">§11.4.17
+— Universal-vs-project classification of new rules (User mandate,
+2026-05-14)</a></li>
+<li><a
+href="#11420-subagent-driven-by-default-mandate-user-mandate-2026-05-14">§11.4.20
+— Subagent-driven-by-default mandate (User mandate, 2026-05-14)</a></li>
+<li><a
+href="#11418-script-documentation-mandate-user-mandate-2026-05-14">§11.4.18
+— Script documentation mandate (User mandate, 2026-05-14)</a></li>
+<li><a
+href="#11419-fixed-document-column-alignment-mandate-user-mandate-2026-05-14">§11.4.19
+— Fixed-document column-alignment mandate (User mandate,
+2026-05-14)</a></li>
+<li><a
+href="#11421-operator-blocked-status-self-resolution-exhaustion-mandate-user-mandate-2026-05-14">§11.4.21
+— Operator-blocked status + self-resolution exhaustion mandate (User
+mandate, 2026-05-14)</a></li>
+<li><a
+href="#11422-document-sync-commit-discipline-user-mandate-2026-05-14">§11.4.22
+— Document-sync commit discipline (User mandate, 2026-05-14)</a></li>
+<li><a
+href="#11423-visual-cue-grouping-mandate-for-issues-docs-user-mandate-2026-05-14">§11.4.23
+— Visual-cue &amp; grouping mandate for Issues docs (User mandate,
+2026-05-14)</a></li>
+<li><a
+href="#11424-build-resource-stats-tracking-mandate-user-mandate-2026-05-14">§11.4.24
+— Build-resource stats tracking mandate (User mandate,
+2026-05-14)</a></li>
+<li><a
+href="#11425-full-automation-coverage-mandate-user-mandate-2026-05-15">§11.4.25
+— Full-Automation-Coverage Mandate (User mandate, 2026-05-15)</a></li>
+<li><a
+href="#11426-constitution-submodule-update-workflow-mandate-user-mandate-2026-05-15">§11.4.26
+— Constitution-Submodule Update Workflow Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11431-submodule-dependency-manifest-mandate-user-mandate-2026-05-15">§11.4.31
+— Submodule-Dependency-Manifest Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11432-post-constitution-pull-validation-mandate-user-mandate-2026-05-15">§11.4.32
+— Post-Constitution-Pull Validation Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11430-gitignore-no-versioned-build-artifacts-mandate-user-mandate-2026-05-15">§11.4.30
+— .gitignore + No-Versioned-Build-Artifacts Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11429-lowercase-snake_case-naming-mandate-user-mandate-2026-05-15">§11.4.29
+— Lowercase-Snake_Case-Naming Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11428-submodules-as-equal-codebase-decoupling-dependency-layout-mandate-user-mandate-2026-05-15">§11.4.28
+— Submodules-As-Equal-Codebase + Decoupling + Dependency-Layout Mandate
+(User mandate, 2026-05-15)</a></li>
+<li><a
+href="#11427-no-fakes-beyond-unit-tests-100-test-type-coverage-mandate-user-mandate-2026-05-15">§11.4.27
+— No-Fakes-Beyond-Unit-Tests + 100%-Test-Type-Coverage Mandate (User
+mandate, 2026-05-15)</a></li>
+<li><a
+href="#11433-type-aware-closure-status-vocabulary-user-mandate-2026-05-15">§11.4.33
+— Type-aware closure-status vocabulary (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11434-reopened-source-attribution-mandate-user-mandate-2026-05-15">§11.4.34
+— Reopened-source attribution mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11435-canonical-root-inheritance-clarity-user-mandate-2026-05-15">§11.4.35
+— Canonical-root inheritance clarity (User mandate, 2026-05-15)</a></li>
+<li><a
+href="#11436-mandatory-install_upstreams-on-cloneadd-mandate-user-mandate-2026-05-15">§11.4.36
+— Mandatory install_upstreams on clone/add Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11437-fetch-before-edit-mandate-user-mandate-2026-05-15">§11.4.37
+— Fetch-before-edit mandate (User mandate, 2026-05-15)</a></li>
+<li><a
+href="#11438-installable-asset-evidence-mandate-user-mandate-2026-05-17">§11.4.38
+— Installable-Asset Evidence Mandate (User mandate, 2026-05-17)</a></li>
+<li><a
+href="#11439-per-feature-on-device-end-user-validation-mandate-iter-76-2026-05-17">§11.4.39
+— Per-Feature On-Device End-User Validation Mandate (iter-76,
+2026-05-17)</a></li>
+<li><a
+href="#11440-full-suite-retest-before-release-tag-mandate-user-mandate-2026-05-17">§11.4.40
+— Full-suite retest before release tag mandate (User mandate,
+2026-05-17)</a></li>
+<li><a
+href="#11441-pre-force-push-merge-first-mandate-user-mandate-2026-05-17">§11.4.41
+— Pre-Force-Push Merge-First Mandate (User mandate, 2026-05-17)</a></li>
+<li><a
+href="#11442-iteration-discipline-mandate-user-mandate-2026-05-18">§11.4.42
+— Iteration-discipline mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11443-tdd-fix-discipline-mandate-user-mandate-2026-05-18">§11.4.43
+— TDD-Fix-Discipline Mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11444-document-revision-header-mandate-user-mandate-2026-05-18">§11.4.44
+— Document Revision Header Mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11445-integration-status-doc-maintenance-mandate-user-mandate-2026-05-18">§11.4.45
+— Integration-Status-Doc Maintenance Mandate (User mandate,
+2026-05-18)</a></li>
+<li><a
+href="#11446-validate-recent-work-before-post-flash-tests-mandate-user-mandate-2026-05-18">§11.4.46
+— Validate-recent-work-before-post-flash-tests mandate (User mandate,
+2026-05-18)</a></li>
+<li><a
+href="#11447-firebase-data-review-mandate-user-mandate-2026-05-18">§11.4.47
+— Firebase Data Review Mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11448-ui-driven-video-testing-mandate-user-mandate-2026-05-18">§11.4.48
+— UI-Driven Video Testing Mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11449-dual-approach-testing-mandate-user-mandate-2026-05-18">§11.4.49
+— Dual-Approach Testing Mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11450-deterministic-consistency-mandate-user-mandate-2026-05-18">§11.4.50
+— Deterministic Consistency Mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11451-live-adb-first-maximization-mandate-user-mandate-2026-05-18">§11.4.51
+— Live-ADB-First Maximization Mandate (User mandate,
+2026-05-18)</a></li>
+<li><a
+href="#11452-autonomous-validation-mandate-user-mandate-2026-05-18">§11.4.52
+— Autonomous-Validation Mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11453-fixed_summary-parity-mandate-user-mandate-2026-05-18">§11.4.53
+— Fixed_Summary parity mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11454-atm-nnn-ticket-identifier-mandate-user-mandate-2026-05-19">§11.4.54
+— ATM-NNN ticket identifier mandate (User mandate, 2026-05-19)</a></li>
+<li><a
+href="#11455-reopens-history-tracking-per-item-reopensmd-doc-user-mandate-2026-05-19">§11.4.55
+— Reopens-history tracking + per-item Reopens.md doc (User mandate,
+2026-05-19)</a></li>
+<li><a
+href="#11456-status_summary-parity-two-audience-format-user-mandate-2026-05-19">§11.4.56
+— Status_Summary parity + two-audience format (User mandate,
+2026-05-19)</a></li>
+<li><a
+href="#11457-readmemd-doc-link-section-revision-metadata-user-mandate-2026-05-19">§11.4.57
+— README.md doc-link section + revision metadata (User mandate,
+2026-05-19)</a></li>
+<li><a
+href="#11458-parallel-development-methodology-user-mandate-2026-05-19">§11.4.58
+— Parallel-development methodology (User mandate, 2026-05-19)</a></li>
+<li><a
+href="#11459-readme-always-sync-mandate-user-mandate-2026-05-19">§11.4.59
+— README always-sync mandate (User mandate, 2026-05-19)</a></li>
+<li><a
+href="#11460-documentation-always-sync-composite-covenant-user-mandate-2026-05-19">§11.4.60
+— Documentation always-sync composite covenant (User mandate,
+2026-05-19)</a></li>
+<li><a
+href="#11461-mandatory-markdown-metadata-table-structured-doc-toc-user-mandate-2026-05-19">§11.4.61
+— Mandatory Markdown metadata table + structured-doc ToC (User mandate,
+2026-05-19)</a></li>
+<li><a
+href="#11463-workable-items-procedure-docs-as-single-source-of-truth-user-mandate-2026-05-19">§11.4.63
+— Workable-items procedure docs as single source of truth (User mandate,
+2026-05-19)</a></li>
+<li><a
+href="#11465-universal-markdown-export-mandate-user-mandate-2026-05-19">§11.4.65
+— Universal Markdown export mandate (User mandate, 2026-05-19)</a></li>
+<li><a
+href="#11466-blocker-resolution-interactive-clarification-mandate-user-mandate-2026-05-19">§11.4.66
+— Blocker-resolution interactive-clarification mandate (User mandate,
+2026-05-19)</a></li>
+</ul></li>
+<li><a
+href="#12-host-session-safety-directly-or-indirectly-signing-the-user-out-is-forbidden">§12.
+Host-session safety — directly OR indirectly signing the user out is
+FORBIDDEN</a>
+<ul>
+<li><a href="#121-forbidden-operations-directly-or-indirectly">§12.1
+Forbidden operations — directly OR indirectly</a></li>
+<li><a href="#122-required-safeguards">§12.2 Required
+safeguards</a></li>
+<li><a href="#123-container-hygiene">§12.3 Container hygiene</a></li>
+<li><a href="#126-memory-budget-ceiling-60-maximum">§12.6 Memory-Budget
+Ceiling — 60% MAXIMUM</a></li>
+<li><a href="#1210-continuation-document-sacred-invariant">§12.10
+Continuation document — sacred invariant</a></li>
+</ul></li>
+<li><a
+href="#appendix-a-mutation-testing-academic-and-industrial-foundations">Appendix
+A — Mutation testing — academic and industrial foundations</a></li>
+<li><a
+href="#appendix-b-recursive-inheritance-path-independence">Appendix B —
+Recursive inheritance &amp; path-independence</a></li>
+<li><a href="#appendix-c-multi-upstream-push">Appendix C —
+Multi-upstream push</a></li>
+</ul>
 <blockquote>
 <p><strong>This document defines mandatory, non-negotiable rules for
 every project that includes this constitution submodule. Every AI agent
@@ -6205,6 +6544,189 @@ doc classes. The composite gate logic is universal; the specific
 doc-class instance paths are consumer-side per-project.</p>
 <p><strong>Canonical authority:</strong> constitution submodule <a
 href="Constitution.md"><code>Constitution.md</code></a> §11.4.60.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<h3
+id="11461--mandatory-markdown-metadata-table--structured-doc-toc-user-mandate-2026-05-19">§11.4.61
+— Mandatory Markdown metadata table + structured-doc ToC (User mandate,
+2026-05-19)</h3>
+<p><strong>Forensic anchor — direct user mandate (verbatim,
+2026-05-19):</strong></p>
+<blockquote>
+<p>"For every Markdown document which contains structured content (with
+headings / sections and sub-sections) make sure that every time we apply
+change to the structure, table of contents on the top of the document is
+created or updated! This is MANDATORY for every structured MARKDOWN
+document. Automatically its PDF and HTML versions MUST BE
+(re)generated!"</p>
+<p>"Introduce ... revision number, date and time of creation, date and
+time of last modification, other useful information we have in documents
+such as Issues, Issues_Summary, Fixed, Fixed_Summary, Status,
+Status_Summary, Continuation and similar. ... make this mandatory for
+EVERY Markdown document from now on, update root constitution Submodule
+with these changes and commit and push it all to all upstreams."</p>
+</blockquote>
+<p><strong>Scope of §11.4.61.</strong> This clause adds two universal
+disciplines that sit alongside (NOT replacing) the §11.4.65 universal
+export mandate. §11.4.65 governs the existence and freshness of
+<code>.html</code> + <code>.pdf</code> siblings; §11.4.61 governs the
+<em>content</em> of the Markdown sources: how revision/status metadata
+is displayed at the top, and how the document's navigation map (Table of
+contents) is kept in lockstep with the heading structure. The two
+clauses compose — §11.4.65 guarantees readers see <em>something
+current</em>; §11.4.61 guarantees what they see communicates its own
+provenance and is internally navigable.</p>
+<p><strong>A. Canonical metadata table (supersedes §11.4.44
+format).</strong> The §11.4.44 bold-line revision header is superseded
+by a <strong>Markdown table</strong> placed immediately after the
+document's H1 title (and any blank line that follows). Pre-existing
+bold-line headers remain historically valid but MUST migrate to the
+canonical table at the next substantive edit. The canonical table has
+these MANDATORY rows:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>positive integer; starts at 1, monotonic, never reset</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>ISO 8601 date — first commit touching the file</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>ISO 8601 date — most recent commit touching the file</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>one of <code>active</code> / <code>draft</code> /
+<code>deprecated</code> / <code>superseded</code></td>
+</tr>
+</tbody>
+</table>
+<p>ENCOURAGED rows (REQUIRED when the document tracks workable items or
+has a known continuation; render with <code>—</code> / <code>none</code>
+when N/A):</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Status summary</td>
+<td>one-line current-state hook</td>
+</tr>
+<tr>
+<td>Issues</td>
+<td>comma-separated workable-item IDs</td>
+</tr>
+<tr>
+<td>Issues summary</td>
+<td>one-line summary of open issues</td>
+</tr>
+<tr>
+<td>Fixed</td>
+<td>comma-separated workable-item IDs of resolved items</td>
+</tr>
+<tr>
+<td>Fixed summary</td>
+<td>one-line summary of fixes</td>
+</tr>
+<tr>
+<td>Continuation</td>
+<td>next action or linked CONTINUATION.md anchor</td>
+</tr>
+</tbody>
+</table>
+<p>Additional rows MAY be added for project-specific metadata as long as
+the MANDATORY rows are present.</p>
+<p><strong>B. Structured-document Table of contents.</strong> Any
+tracked <code>*.md</code> with <strong>two or more H2 sections</strong>
+("structured content") MUST include a <code>## Table of contents</code>
+section immediately after the metadata table. The ToC MUST list every H2
+and H3 in document order with anchor links and MUST be regenerated on
+every structural change (heading added / removed / renamed / reordered).
+A stale ToC is a §11.4 PASS-bluff: operators reading the rendered
+Markdown see a navigation map that no longer matches the body.</p>
+<p><strong>Scope (IN-scope under §11.4.61).</strong> Every tracked
+<code>*.md</code> in the §11.4.65 INCLUDED set (project-root
+<code>*.md</code>, <code>docs/**/*.md</code>,
+<code>scripts/**/*.md</code> companion docs, owned-submodule trees,
+<code>constitution/**/*.md</code>, owned HelixQA dependencies). The
+§11.4.44 exclusions for <code>CLAUDE.md</code> / <code>AGENTS.md</code>
+/ <code>README.md</code> are SUPERSEDED here too — explicit metadata in
+the file itself is preferred over indirect tracking via a separate
+VERSION file because operators reading the rendered document see the
+freshness directly.</p>
+<p><strong>Narrow exemptions (NOT IN-scope).</strong> Same EXCLUDED set
+as §11.4.65 (<code>external/**</code>, <code>prebuilts/**</code>,
+<code>out/**</code>, <code>build/**</code>, application- internal
+<code>*.md</code> shipped with source code, non-owned third-party
+submodule trees). Additional exemptions for the structural rules:
+<code>LICENSE</code>, <code>LICENSE.md</code>, <code>NOTICE</code>,
+<code>VERSION</code>, <code>OWNERS</code>, machine- generated
+<code>CHANGELOG.md</code>.</p>
+<p><strong>PDF + HTML siblings.</strong> Deferred to §11.4.65. The
+metadata table and ToC are <em>content</em> requirements; their
+export-freshness guarantee lives in §11.4.65's
+<code>CM-UNIVERSAL-MARKDOWN-EXPORT-SYNC</code> gate. A §11.4.61 metadata
+or ToC change is a <code>.md</code> modification, which transitively
+triggers §11.4.65 regeneration — the two clauses compose without
+duplicate enforcement.</p>
+<p><strong>Anti-bluff captured-evidence gates (planned):</strong></p>
+<ul>
+<li><code>CM-MD-METADATA-PRESENT</code> — walks every tracked
+<code>*.md</code> (minus exemptions) and asserts (a) H1 present, (b)
+within 25 lines below H1 a Markdown table contains all four MANDATORY
+rows (<code>| Revision |</code>, <code>| Created |</code>,
+<code>| Last modified |</code>, <code>| Status |</code>).</li>
+<li><code>CM-MD-TOC-PARITY</code> — for every <code>*.md</code> with
+<code>≥ 2</code> H2 sections, asserts a
+<code>## Table of contents</code> is present and its entries' anchor
+slugs match the document's live H2/H3 set in order.</li>
+</ul>
+<p><strong>Paired §1.1 mutation tests (planned):</strong></p>
+<ul>
+<li>Strip the <code>| Revision |</code> row from one <code>*.md</code> →
+<code>CM-MD-METADATA-PRESENT</code> FAILs.</li>
+<li>Rename one H2 without updating ToC → <code>CM-MD-TOC-PARITY</code>
+FAILs.</li>
+</ul>
+<p><strong>Composition with §11.4.44.</strong> §11.4.44 remains the
+authoritative clause for the <em>fact</em> that documents must carry
+revision metadata; §11.4.61 changes the <em>format</em> (bold-lines →
+table) and <em>scope</em> (<code>docs/**/*.md</code> → every tracked
+<code>*.md</code> per §11.4.65 INCLUDED set). Consumer projects with
+existing gates that grep for <code>**Revision:**</code> MUST update
+those gates to also accept the canonical table form. Migration period:
+30 days from §11.4.61 landing.</p>
+<p><strong>Composition with §11.4.45 / §11.4.59 / §11.4.60 /
+§11.4.65.</strong> The per-class always-sync clauses (Status.md
+§11.4.45, README §11.4.59, composite §11.4.60) and the universal export
+covenant §11.4.65 govern <em>artefact existence and freshness</em>;
+§11.4.61 governs <em>content discipline inside the source
+<code>.md</code></em>. The clauses are orthogonal layers of the same
+anti-bluff posture.</p>
+<p><strong>No escape hatch.</strong> No <code>--skip-md-metadata</code>,
+<code>--no-metadata-table</code>, <code>--toc-stale-OK</code>,
+<code>--allow-missing-revision</code> flag exists. Divergent metadata
+and stale ToCs are §11.4 PASS-bluff patterns at the doc-surface
+layer.</p>
+<p><strong>Classification:</strong> universal (per §11.4.17). Applies to
+every project consuming this Constitution. The canonical table format
+and ToC mandate are universal; the per-project tracker IDs (e.g.
+<code>HRD-</code>) and specific Issues/Fixed-class doc paths are
+consumer-side per-project.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.61.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <h3
 id="11463--workable-items-procedure-docs-as-single-source-of-truth-user-mandate-2026-05-19">§11.4.63

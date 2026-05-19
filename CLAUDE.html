@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>CLAUDE</title>
+  <title>Helix Constitution — Universal CLAUDE.md</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -91,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -154,7 +155,6 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -238,10 +238,232 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">CLAUDE</h1>
+<h1 class="title">Helix Constitution — Universal CLAUDE.md</h1>
 </header>
 <h1 id="helix-constitution--universal-claudemd">Helix Constitution —
 Universal CLAUDE.md</h1>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-05-14</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-05-19</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Status summary</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Issues</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Issues summary</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Fixed</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Fixed summary</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Continuation</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li><a href="#how-inheritance-works">How inheritance works</a></li>
+<li><a href="#mandatory-development-principles">MANDATORY DEVELOPMENT
+PRINCIPLES</a></li>
+<li><a
+href="#mandatory-anti-bluff-covenant-end-user-quality-guarantee">MANDATORY
+ANTI-BLUFF COVENANT — END-USER QUALITY GUARANTEE</a>
+<ul>
+<li><a href="#1141-fail-bluffs-are-equally-forbidden">§11.4.1 —
+FAIL-bluffs are equally forbidden</a></li>
+<li><a href="#1142-recorded-evidence-requirement">§11.4.2 —
+Recorded-evidence requirement</a></li>
+<li><a href="#1143-per-environment-topology-test-dispatch">§11.4.3 —
+Per-environment-topology test dispatch</a></li>
+<li><a
+href="#1144-test-interrupt-on-discovery-retest-from-clean-baseline">§11.4.4
+— Test-interrupt-on-discovery + retest-from-clean-baseline</a></li>
+<li><a href="#1145-captured-evidence-quality-analysis">§11.4.5 —
+Captured-evidence quality analysis</a></li>
+<li><a href="#1146-no-guessing-mandate">§11.4.6 — No-guessing
+mandate</a></li>
+<li><a href="#1147-demotion-evidence-rule">§11.4.7 — Demotion-evidence
+rule</a></li>
+<li><a href="#1148-deep-web-research-before-implementation">§11.4.8 —
+Deep-web-research-before-implementation</a></li>
+<li><a href="#1149-batch-source-fixes-before-rebuild">§11.4.9 —
+Batch-source-fixes-before-rebuild</a></li>
+<li><a href="#11410-credentials-handling-mandate">§11.4.10 —
+Credentials-handling mandate</a></li>
+<li><a
+href="#11410a-pre-store-credential-leak-audit-user-mandate-2026-05-17">§11.4.10.A
+— Pre-store credential leak audit (User mandate, 2026-05-17)</a></li>
+<li><a href="#11411-file-layout-discipline">§11.4.11 — File-layout
+discipline</a></li>
+<li><a href="#11412-auto-generated-docs-sync">§11.4.12 — Auto-generated
+docs sync</a></li>
+<li><a href="#11413-out-of-band-sink-side-captured-evidence">§11.4.13 —
+Out-of-band sink-side captured-evidence</a></li>
+<li><a href="#11414-test-playback-cleanup">§11.4.14 — Test playback
+cleanup</a></li>
+<li><a href="#11415-item-status-tracking">§11.4.15 — Item-status
+tracking</a></li>
+<li><a href="#11416-item-type-tracking">§11.4.16 — Item-type
+tracking</a></li>
+<li><a
+href="#11417-universal-vs-project-classification-of-new-rules-user-mandate-2026-05-14">§11.4.17
+— Universal-vs-project classification of new rules (User mandate,
+2026-05-14)</a></li>
+<li><a
+href="#11420-subagent-driven-by-default-mandate-user-mandate-2026-05-14">§11.4.20
+— Subagent-driven-by-default mandate (User mandate, 2026-05-14)</a></li>
+<li><a
+href="#11418-script-documentation-mandate-user-mandate-2026-05-14">§11.4.18
+— Script documentation mandate (User mandate, 2026-05-14)</a></li>
+<li><a
+href="#11419-fixed-document-column-alignment-mandate-user-mandate-2026-05-14">§11.4.19
+— Fixed-document column-alignment mandate (User mandate,
+2026-05-14)</a></li>
+<li><a
+href="#11421-operator-blocked-status-self-resolution-exhaustion-user-mandate-2026-05-14">§11.4.21
+— Operator-blocked status + self-resolution exhaustion (User mandate,
+2026-05-14)</a></li>
+<li><a
+href="#11422-document-sync-commit-discipline-user-mandate-2026-05-14">§11.4.22
+— Document-sync commit discipline (User mandate, 2026-05-14)</a></li>
+<li><a
+href="#11424-build-resource-stats-tracking-mandate-user-mandate-2026-05-14">§11.4.24
+— Build-resource stats tracking mandate (User mandate,
+2026-05-14)</a></li>
+<li><a
+href="#11425-full-automation-coverage-mandate-user-mandate-2026-05-15">§11.4.25
+— Full-Automation-Coverage Mandate (User mandate, 2026-05-15)</a></li>
+<li><a
+href="#11426-constitution-submodule-update-workflow-mandate-user-mandate-2026-05-15">§11.4.26
+— Constitution-Submodule Update Workflow Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11431-submodule-dependency-manifest-mandate-user-mandate-2026-05-15">§11.4.31
+— Submodule-Dependency-Manifest Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11432-post-constitution-pull-validation-mandate-user-mandate-2026-05-15">§11.4.32
+— Post-Constitution-Pull Validation Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11430-gitignore-no-versioned-build-artifacts-mandate-user-mandate-2026-05-15">§11.4.30
+— .gitignore + No-Versioned-Build-Artifacts Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11429-lowercase-snake_case-naming-mandate-user-mandate-2026-05-15">§11.4.29
+— Lowercase-Snake_Case-Naming Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11428-submodules-as-equal-codebase-decoupling-dependency-layout-mandate-user-mandate-2026-05-15">§11.4.28
+— Submodules-As-Equal-Codebase + Decoupling + Dependency-Layout Mandate
+(User mandate, 2026-05-15)</a></li>
+<li><a
+href="#11427-no-fakes-beyond-unit-tests-100-test-type-coverage-mandate-user-mandate-2026-05-15">§11.4.27
+— No-Fakes-Beyond-Unit-Tests + 100%-Test-Type-Coverage Mandate (User
+mandate, 2026-05-15)</a></li>
+<li><a
+href="#11433-type-aware-closure-status-vocabulary-user-mandate-2026-05-15">§11.4.33
+— Type-aware closure-status vocabulary (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11434-reopened-source-attribution-mandate-user-mandate-2026-05-15">§11.4.34
+— Reopened-source attribution mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11435-canonical-root-inheritance-clarity-user-mandate-2026-05-15">§11.4.35
+— Canonical-root inheritance clarity (User mandate, 2026-05-15)</a></li>
+<li><a
+href="#11436-mandatory-install_upstreams-on-cloneadd-mandate-user-mandate-2026-05-15">§11.4.36
+— Mandatory install_upstreams on clone/add Mandate (User mandate,
+2026-05-15)</a></li>
+<li><a
+href="#11437-fetch-before-edit-mandate-user-mandate-2026-05-15">§11.4.37
+— Fetch-before-edit mandate (User mandate, 2026-05-15)</a></li>
+<li><a
+href="#11438-installable-asset-evidence-mandate-user-mandate-2026-05-17">§11.4.38
+— Installable-Asset Evidence Mandate (User mandate, 2026-05-17)</a></li>
+<li><a
+href="#11440-full-suite-retest-before-release-tag-mandate-user-mandate-2026-05-17">§11.4.40
+— Full-suite retest before release tag mandate (User mandate,
+2026-05-17)</a></li>
+<li><a
+href="#11441-pre-force-push-merge-first-mandate-user-mandate-2026-05-17">§11.4.41
+— Pre-Force-Push Merge-First Mandate (User mandate, 2026-05-17)</a></li>
+<li><a
+href="#11442-iteration-discipline-mandate-user-mandate-2026-05-18">§11.4.42
+— Iteration-discipline mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11443-tdd-fix-discipline-mandate-user-mandate-2026-05-18">§11.4.43
+— TDD-Fix-Discipline mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11444-document-revision-header-mandate-user-mandate-2026-05-18">§11.4.44
+— Document revision header mandate (User mandate, 2026-05-18)</a></li>
+<li><a
+href="#11445-integration-status-doc-maintenance-mandate-user-mandate-2026-05-18">§11.4.45
+— Integration-status-doc maintenance mandate (User mandate,
+2026-05-18)</a></li>
+<li><a
+href="#11446-validate-recent-work-before-post-flash-tests-mandate-user-mandate-2026-05-18">§11.4.46
+— Validate-recent-work-before-post-flash-tests mandate (User mandate,
+2026-05-18)</a></li>
+<li><a
+href="#11447-firebase-data-review-mandate-user-mandate-2026-05-18">§11.4.47
+— Firebase data review mandate (User mandate, 2026-05-18)</a></li>
+</ul></li>
+<li><a href="#mandatory-host-session-safety-constitution-12">MANDATORY
+HOST-SESSION SAFETY (Constitution §12)</a>
+<ul>
+<li><a href="#forbidden-directly-or-indirectly">Forbidden — directly OR
+indirectly</a></li>
+<li><a href="#required-safeguards-for-heavy-scripts">Required safeguards
+for heavy scripts</a></li>
+<li><a href="#126-memory-budget-ceiling-60-maximum">§12.6 Memory-Budget
+Ceiling — 60% MAXIMUM</a></li>
+<li><a href="#1210-continuation-document-maintenance">§12.10
+Continuation document maintenance</a></li>
+</ul></li>
+<li><a
+href="#mandatory-absolute-data-safety-zero-risk-constitution-9">MANDATORY
+ABSOLUTE DATA SAFETY — ZERO RISK (Constitution §9)</a></li>
+<li><a href="#mandatory-commit-push-constraints">MANDATORY COMMIT &amp;
+PUSH CONSTRAINTS</a></li>
+<li><a href="#mandatory-testing-constraints">MANDATORY TESTING
+CONSTRAINTS</a></li>
+<li><a href="#code-conventions">Code conventions</a></li>
+<li><a href="#when-in-doubt">When in doubt</a></li>
+</ul>
 <blockquote>
 <p>This is the <strong>base CLAUDE.md</strong> imported by every project
 that includes the Helix Constitution submodule. Project-level

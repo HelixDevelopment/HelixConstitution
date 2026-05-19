@@ -1,5 +1,80 @@
 # Helix Constitution — Universal AGENTS.md
 
+| Field | Value |
+|---|---|
+| Revision | 1 |
+| Created | 2026-05-14 |
+| Last modified | 2026-05-19 |
+| Status | active |
+| Status summary | — |
+| Issues | none |
+| Issues summary | — |
+| Fixed | none |
+| Fixed summary | — |
+| Continuation | — |
+
+## Table of contents
+
+- [How inheritance works](#how-inheritance-works)
+- [Identity & posture](#identity-posture)
+- [Top-level invariants for every agent](#top-level-invariants-for-every-agent)
+- [Critical base rules restated (for agents that don't honour @imports)](#critical-base-rules-restated-for-agents-that-dont-honour-imports)
+  - [Anti-bluff covenant — END-USER QUALITY GUARANTEE (§11.4)](#anti-bluff-covenant-end-user-quality-guarantee-114)
+  - [Mutation-paired gates (§1.1)](#mutation-paired-gates-11)
+  - [Recorded-evidence requirement (§11.4.2)](#recorded-evidence-requirement-1142)
+  - [Test-interrupt-on-discovery (§11.4.4)](#test-interrupt-on-discovery-1144)
+  - [No-guessing mandate (§11.4.6)](#no-guessing-mandate-1146)
+  - [Item-type tracking (§11.4.16)](#item-type-tracking-11416)
+  - [Universal-vs-project classification (§11.4.17, User mandate 2026-05-14)](#universal-vs-project-classification-11417-user-mandate-2026-05-14)
+  - [Subagent-driven-by-default (§11.4.20, User mandate 2026-05-14)](#subagent-driven-by-default-11420-user-mandate-2026-05-14)
+  - [Script documentation mandate (§11.4.18, User mandate 2026-05-14)](#script-documentation-mandate-11418-user-mandate-2026-05-14)
+  - [Fixed-document column-alignment (§11.4.19, User mandate 2026-05-14)](#fixed-document-column-alignment-11419-user-mandate-2026-05-14)
+  - [Operator-blocked status + self-resolution exhaustion (§11.4.21, User mandate 2026-05-14)](#operator-blocked-status-self-resolution-exhaustion-11421-user-mandate-2026-05-14)
+  - [Document-sync commit discipline (§11.4.22, User mandate 2026-05-14)](#document-sync-commit-discipline-11422-user-mandate-2026-05-14)
+  - [Build-resource stats tracking (§11.4.24, User mandate 2026-05-14)](#build-resource-stats-tracking-11424-user-mandate-2026-05-14)
+  - [Full-Automation-Coverage (§11.4.25, User mandate 2026-05-15)](#full-automation-coverage-11425-user-mandate-2026-05-15)
+  - [Constitution-Submodule Update Workflow (§11.4.26, User mandate 2026-05-15)](#constitution-submodule-update-workflow-11426-user-mandate-2026-05-15)
+  - [Submodule-dependency-manifest (§11.4.31, User mandate 2026-05-15)](#submodule-dependency-manifest-11431-user-mandate-2026-05-15)
+  - [Post-constitution-pull validation (§11.4.32, User mandate 2026-05-15)](#post-constitution-pull-validation-11432-user-mandate-2026-05-15)
+  - [.gitignore + no-versioned-build-artifacts (§11.4.30, User mandate 2026-05-15)](#gitignore-no-versioned-build-artifacts-11430-user-mandate-2026-05-15)
+  - [Lowercase-snake_case-naming (§11.4.29, User mandate 2026-05-15)](#lowercase-snake_case-naming-11429-user-mandate-2026-05-15)
+  - [Submodules-as-equal-codebase + decoupling + dependency-layout (§11.4.28, User mandate 2026-05-15)](#submodules-as-equal-codebase-decoupling-dependency-layout-11428-user-mandate-2026-05-15)
+  - [No-fakes-beyond-unit-tests + 100%-test-type-coverage (§11.4.27, User mandate 2026-05-15)](#no-fakes-beyond-unit-tests-100-test-type-coverage-11427-user-mandate-2026-05-15)
+  - [Type-aware closure-status vocabulary (§11.4.33, User mandate 2026-05-15)](#type-aware-closure-status-vocabulary-11433-user-mandate-2026-05-15)
+  - [Reopened-source attribution (§11.4.34, User mandate 2026-05-15)](#reopened-source-attribution-11434-user-mandate-2026-05-15)
+  - [Canonical-root inheritance clarity (§11.4.35, User mandate 2026-05-15)](#canonical-root-inheritance-clarity-11435-user-mandate-2026-05-15)
+  - [Mandatory install_upstreams on clone/add (§11.4.36, User mandate 2026-05-15)](#mandatory-install_upstreams-on-cloneadd-11436-user-mandate-2026-05-15)
+  - [Fetch-before-edit (§11.4.37, User mandate 2026-05-15)](#fetch-before-edit-11437-user-mandate-2026-05-15)
+  - [Installable-asset evidence (§11.4.38, User mandate 2026-05-17)](#installable-asset-evidence-11438-user-mandate-2026-05-17)
+  - [Full-suite retest before release tag (§11.4.40, User mandate 2026-05-17)](#full-suite-retest-before-release-tag-11440-user-mandate-2026-05-17)
+  - [Pre-force-push merge-first (§11.4.41, User mandate 2026-05-17)](#pre-force-push-merge-first-11441-user-mandate-2026-05-17)
+  - [Iteration-discipline mandate (§11.4.42, User mandate 2026-05-18)](#iteration-discipline-mandate-11442-user-mandate-2026-05-18)
+  - [TDD-Fix-Discipline (§11.4.43, User mandate 2026-05-18)](#tdd-fix-discipline-11443-user-mandate-2026-05-18)
+  - [Document revision header (§11.4.44, User mandate 2026-05-18)](#document-revision-header-11444-user-mandate-2026-05-18)
+  - [Integration-status-doc maintenance (§11.4.45, User mandate 2026-05-18)](#integration-status-doc-maintenance-11445-user-mandate-2026-05-18)
+  - [Validate-recent-work-before-post-flash-tests (§11.4.46, User mandate 2026-05-18)](#validate-recent-work-before-post-flash-tests-11446-user-mandate-2026-05-18)
+  - [Firebase data review (§11.4.47, User mandate 2026-05-18)](#firebase-data-review-11447-user-mandate-2026-05-18)
+  - [UI-driven video testing (§11.4.48, User mandate 2026-05-18)](#ui-driven-video-testing-11448-user-mandate-2026-05-18)
+  - [Dual-approach testing (§11.4.49, User mandate 2026-05-18)](#dual-approach-testing-11449-user-mandate-2026-05-18)
+  - [Deterministic consistency (§11.4.50, User mandate 2026-05-18)](#deterministic-consistency-11450-user-mandate-2026-05-18)
+  - [Live-ADB-First maximization (§11.4.51, User mandate 2026-05-18)](#live-adb-first-maximization-11451-user-mandate-2026-05-18)
+  - [Autonomous-Validation (§11.4.52, User mandate 2026-05-18)](#autonomous-validation-11452-user-mandate-2026-05-18)
+  - [Fixed_Summary parity (§11.4.53, User mandate 2026-05-18)](#fixed_summary-parity-11453-user-mandate-2026-05-18)
+  - [ATM-NNN ticket identifier (§11.4.54, User mandate 2026-05-19)](#atm-nnn-ticket-identifier-11454-user-mandate-2026-05-19)
+  - [Reopens-history tracking + per-item Reopens.md (§11.4.55, User mandate 2026-05-19)](#reopens-history-tracking-per-item-reopensmd-11455-user-mandate-2026-05-19)
+  - [Status_Summary parity + two-audience format (§11.4.56, User mandate 2026-05-19)](#status_summary-parity-two-audience-format-11456-user-mandate-2026-05-19)
+  - [README.md doc-link section + revision metadata (§11.4.57, User mandate 2026-05-19)](#readmemd-doc-link-section-revision-metadata-11457-user-mandate-2026-05-19)
+  - [Parallel-development methodology (§11.4.58, User mandate 2026-05-19)](#parallel-development-methodology-11458-user-mandate-2026-05-19)
+  - [README always-sync (§11.4.59, User mandate 2026-05-19)](#readme-always-sync-11459-user-mandate-2026-05-19)
+  - [Documentation always-sync composite covenant (§11.4.60, User mandate 2026-05-19)](#documentation-always-sync-composite-covenant-11460-user-mandate-2026-05-19)
+  - [Credentials-handling (§11.4.10)](#credentials-handling-11410)
+  - [Host-session safety (§12)](#host-session-safety-12)
+  - [Continuation document (§12.10)](#continuation-document-1210)
+  - [Data safety (§9)](#data-safety-9)
+- [CLI workflow expectations](#cli-workflow-expectations)
+- [Hierarchy of project authority](#hierarchy-of-project-authority)
+- [When stuck](#when-stuck)
+
 > This is the **base AGENTS.md** for any CLI agent (Codex, Cursor,
 > Aider, Continue, Gemini CLI, future LLMs) working on a project that
 > includes the Helix Constitution submodule. Project-level `AGENTS.md`

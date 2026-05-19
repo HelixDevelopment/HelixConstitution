@@ -1,5 +1,18 @@
 # Helix Constitution
 
+| Field | Value |
+|---|---|
+| Revision | 1 |
+| Created | 2026-05-14 |
+| Last modified | 2026-05-19 |
+| Status | active |
+| Status summary | — |
+| Issues | none |
+| Issues summary | — |
+| Fixed | none |
+| Fixed summary | — |
+| Continuation | — |
+
 > The universal engineering constitution shared by every project that
 > includes this repository as a Git submodule.
 

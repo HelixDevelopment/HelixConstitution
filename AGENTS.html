@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>AGENTS</title>
+  <title>Helix Constitution — Universal AGENTS.md</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -91,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -154,7 +155,6 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -238,10 +238,230 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">AGENTS</h1>
+<h1 class="title">Helix Constitution — Universal AGENTS.md</h1>
 </header>
 <h1 id="helix-constitution--universal-agentsmd">Helix Constitution —
 Universal AGENTS.md</h1>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-05-14</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-05-19</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Status summary</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Issues</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Issues summary</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Fixed</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Fixed summary</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Continuation</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li><a href="#how-inheritance-works">How inheritance works</a></li>
+<li><a href="#identity-posture">Identity &amp; posture</a></li>
+<li><a href="#top-level-invariants-for-every-agent">Top-level invariants
+for every agent</a></li>
+<li><a
+href="#critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don't honour @imports)</a>
+<ul>
+<li><a
+href="#anti-bluff-covenant-end-user-quality-guarantee-114">Anti-bluff
+covenant — END-USER QUALITY GUARANTEE (§11.4)</a></li>
+<li><a href="#mutation-paired-gates-11">Mutation-paired gates
+(§1.1)</a></li>
+<li><a href="#recorded-evidence-requirement-1142">Recorded-evidence
+requirement (§11.4.2)</a></li>
+<li><a
+href="#test-interrupt-on-discovery-1144">Test-interrupt-on-discovery
+(§11.4.4)</a></li>
+<li><a href="#no-guessing-mandate-1146">No-guessing mandate
+(§11.4.6)</a></li>
+<li><a href="#item-type-tracking-11416">Item-type tracking
+(§11.4.16)</a></li>
+<li><a
+href="#universal-vs-project-classification-11417-user-mandate-2026-05-14">Universal-vs-project
+classification (§11.4.17, User mandate 2026-05-14)</a></li>
+<li><a
+href="#subagent-driven-by-default-11420-user-mandate-2026-05-14">Subagent-driven-by-default
+(§11.4.20, User mandate 2026-05-14)</a></li>
+<li><a
+href="#script-documentation-mandate-11418-user-mandate-2026-05-14">Script
+documentation mandate (§11.4.18, User mandate 2026-05-14)</a></li>
+<li><a
+href="#fixed-document-column-alignment-11419-user-mandate-2026-05-14">Fixed-document
+column-alignment (§11.4.19, User mandate 2026-05-14)</a></li>
+<li><a
+href="#operator-blocked-status-self-resolution-exhaustion-11421-user-mandate-2026-05-14">Operator-blocked
+status + self-resolution exhaustion (§11.4.21, User mandate
+2026-05-14)</a></li>
+<li><a
+href="#document-sync-commit-discipline-11422-user-mandate-2026-05-14">Document-sync
+commit discipline (§11.4.22, User mandate 2026-05-14)</a></li>
+<li><a
+href="#build-resource-stats-tracking-11424-user-mandate-2026-05-14">Build-resource
+stats tracking (§11.4.24, User mandate 2026-05-14)</a></li>
+<li><a
+href="#full-automation-coverage-11425-user-mandate-2026-05-15">Full-Automation-Coverage
+(§11.4.25, User mandate 2026-05-15)</a></li>
+<li><a
+href="#constitution-submodule-update-workflow-11426-user-mandate-2026-05-15">Constitution-Submodule
+Update Workflow (§11.4.26, User mandate 2026-05-15)</a></li>
+<li><a
+href="#submodule-dependency-manifest-11431-user-mandate-2026-05-15">Submodule-dependency-manifest
+(§11.4.31, User mandate 2026-05-15)</a></li>
+<li><a
+href="#post-constitution-pull-validation-11432-user-mandate-2026-05-15">Post-constitution-pull
+validation (§11.4.32, User mandate 2026-05-15)</a></li>
+<li><a
+href="#gitignore-no-versioned-build-artifacts-11430-user-mandate-2026-05-15">.gitignore
++ no-versioned-build-artifacts (§11.4.30, User mandate
+2026-05-15)</a></li>
+<li><a
+href="#lowercase-snake_case-naming-11429-user-mandate-2026-05-15">Lowercase-snake_case-naming
+(§11.4.29, User mandate 2026-05-15)</a></li>
+<li><a
+href="#submodules-as-equal-codebase-decoupling-dependency-layout-11428-user-mandate-2026-05-15">Submodules-as-equal-codebase
++ decoupling + dependency-layout (§11.4.28, User mandate
+2026-05-15)</a></li>
+<li><a
+href="#no-fakes-beyond-unit-tests-100-test-type-coverage-11427-user-mandate-2026-05-15">No-fakes-beyond-unit-tests
++ 100%-test-type-coverage (§11.4.27, User mandate 2026-05-15)</a></li>
+<li><a
+href="#type-aware-closure-status-vocabulary-11433-user-mandate-2026-05-15">Type-aware
+closure-status vocabulary (§11.4.33, User mandate 2026-05-15)</a></li>
+<li><a
+href="#reopened-source-attribution-11434-user-mandate-2026-05-15">Reopened-source
+attribution (§11.4.34, User mandate 2026-05-15)</a></li>
+<li><a
+href="#canonical-root-inheritance-clarity-11435-user-mandate-2026-05-15">Canonical-root
+inheritance clarity (§11.4.35, User mandate 2026-05-15)</a></li>
+<li><a
+href="#mandatory-install_upstreams-on-cloneadd-11436-user-mandate-2026-05-15">Mandatory
+install_upstreams on clone/add (§11.4.36, User mandate
+2026-05-15)</a></li>
+<li><a
+href="#fetch-before-edit-11437-user-mandate-2026-05-15">Fetch-before-edit
+(§11.4.37, User mandate 2026-05-15)</a></li>
+<li><a
+href="#installable-asset-evidence-11438-user-mandate-2026-05-17">Installable-asset
+evidence (§11.4.38, User mandate 2026-05-17)</a></li>
+<li><a
+href="#full-suite-retest-before-release-tag-11440-user-mandate-2026-05-17">Full-suite
+retest before release tag (§11.4.40, User mandate 2026-05-17)</a></li>
+<li><a
+href="#pre-force-push-merge-first-11441-user-mandate-2026-05-17">Pre-force-push
+merge-first (§11.4.41, User mandate 2026-05-17)</a></li>
+<li><a
+href="#iteration-discipline-mandate-11442-user-mandate-2026-05-18">Iteration-discipline
+mandate (§11.4.42, User mandate 2026-05-18)</a></li>
+<li><a
+href="#tdd-fix-discipline-11443-user-mandate-2026-05-18">TDD-Fix-Discipline
+(§11.4.43, User mandate 2026-05-18)</a></li>
+<li><a
+href="#document-revision-header-11444-user-mandate-2026-05-18">Document
+revision header (§11.4.44, User mandate 2026-05-18)</a></li>
+<li><a
+href="#integration-status-doc-maintenance-11445-user-mandate-2026-05-18">Integration-status-doc
+maintenance (§11.4.45, User mandate 2026-05-18)</a></li>
+<li><a
+href="#validate-recent-work-before-post-flash-tests-11446-user-mandate-2026-05-18">Validate-recent-work-before-post-flash-tests
+(§11.4.46, User mandate 2026-05-18)</a></li>
+<li><a
+href="#firebase-data-review-11447-user-mandate-2026-05-18">Firebase data
+review (§11.4.47, User mandate 2026-05-18)</a></li>
+<li><a
+href="#ui-driven-video-testing-11448-user-mandate-2026-05-18">UI-driven
+video testing (§11.4.48, User mandate 2026-05-18)</a></li>
+<li><a
+href="#dual-approach-testing-11449-user-mandate-2026-05-18">Dual-approach
+testing (§11.4.49, User mandate 2026-05-18)</a></li>
+<li><a
+href="#deterministic-consistency-11450-user-mandate-2026-05-18">Deterministic
+consistency (§11.4.50, User mandate 2026-05-18)</a></li>
+<li><a
+href="#live-adb-first-maximization-11451-user-mandate-2026-05-18">Live-ADB-First
+maximization (§11.4.51, User mandate 2026-05-18)</a></li>
+<li><a
+href="#autonomous-validation-11452-user-mandate-2026-05-18">Autonomous-Validation
+(§11.4.52, User mandate 2026-05-18)</a></li>
+<li><a
+href="#fixed_summary-parity-11453-user-mandate-2026-05-18">Fixed_Summary
+parity (§11.4.53, User mandate 2026-05-18)</a></li>
+<li><a
+href="#atm-nnn-ticket-identifier-11454-user-mandate-2026-05-19">ATM-NNN
+ticket identifier (§11.4.54, User mandate 2026-05-19)</a></li>
+<li><a
+href="#reopens-history-tracking-per-item-reopensmd-11455-user-mandate-2026-05-19">Reopens-history
+tracking + per-item Reopens.md (§11.4.55, User mandate
+2026-05-19)</a></li>
+<li><a
+href="#status_summary-parity-two-audience-format-11456-user-mandate-2026-05-19">Status_Summary
+parity + two-audience format (§11.4.56, User mandate
+2026-05-19)</a></li>
+<li><a
+href="#readmemd-doc-link-section-revision-metadata-11457-user-mandate-2026-05-19">README.md
+doc-link section + revision metadata (§11.4.57, User mandate
+2026-05-19)</a></li>
+<li><a
+href="#parallel-development-methodology-11458-user-mandate-2026-05-19">Parallel-development
+methodology (§11.4.58, User mandate 2026-05-19)</a></li>
+<li><a href="#readme-always-sync-11459-user-mandate-2026-05-19">README
+always-sync (§11.4.59, User mandate 2026-05-19)</a></li>
+<li><a
+href="#documentation-always-sync-composite-covenant-11460-user-mandate-2026-05-19">Documentation
+always-sync composite covenant (§11.4.60, User mandate
+2026-05-19)</a></li>
+<li><a href="#credentials-handling-11410">Credentials-handling
+(§11.4.10)</a></li>
+<li><a href="#host-session-safety-12">Host-session safety (§12)</a></li>
+<li><a href="#continuation-document-1210">Continuation document
+(§12.10)</a></li>
+<li><a href="#data-safety-9">Data safety (§9)</a></li>
+</ul></li>
+<li><a href="#cli-workflow-expectations">CLI workflow
+expectations</a></li>
+<li><a href="#hierarchy-of-project-authority">Hierarchy of project
+authority</a></li>
+<li><a href="#when-stuck">When stuck</a></li>
+</ul>
 <blockquote>
 <p>This is the <strong>base AGENTS.md</strong> for any CLI agent (Codex,
 Cursor, Aider, Continue, Gemini CLI, future LLMs) working on a project

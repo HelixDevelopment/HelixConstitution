@@ -1,5 +1,80 @@
 # Helix Constitution — Universal CLAUDE.md
 
+| Field | Value |
+|---|---|
+| Revision | 1 |
+| Created | 2026-05-14 |
+| Last modified | 2026-05-19 |
+| Status | active |
+| Status summary | — |
+| Issues | none |
+| Issues summary | — |
+| Fixed | none |
+| Fixed summary | — |
+| Continuation | — |
+
+## Table of contents
+
+- [How inheritance works](#how-inheritance-works)
+- [MANDATORY DEVELOPMENT PRINCIPLES](#mandatory-development-principles)
+- [MANDATORY ANTI-BLUFF COVENANT — END-USER QUALITY GUARANTEE](#mandatory-anti-bluff-covenant-end-user-quality-guarantee)
+  - [§11.4.1 — FAIL-bluffs are equally forbidden](#1141-fail-bluffs-are-equally-forbidden)
+  - [§11.4.2 — Recorded-evidence requirement](#1142-recorded-evidence-requirement)
+  - [§11.4.3 — Per-environment-topology test dispatch](#1143-per-environment-topology-test-dispatch)
+  - [§11.4.4 — Test-interrupt-on-discovery + retest-from-clean-baseline](#1144-test-interrupt-on-discovery-retest-from-clean-baseline)
+  - [§11.4.5 — Captured-evidence quality analysis](#1145-captured-evidence-quality-analysis)
+  - [§11.4.6 — No-guessing mandate](#1146-no-guessing-mandate)
+  - [§11.4.7 — Demotion-evidence rule](#1147-demotion-evidence-rule)
+  - [§11.4.8 — Deep-web-research-before-implementation](#1148-deep-web-research-before-implementation)
+  - [§11.4.9 — Batch-source-fixes-before-rebuild](#1149-batch-source-fixes-before-rebuild)
+  - [§11.4.10 — Credentials-handling mandate](#11410-credentials-handling-mandate)
+  - [§11.4.10.A — Pre-store credential leak audit (User mandate, 2026-05-17)](#11410a-pre-store-credential-leak-audit-user-mandate-2026-05-17)
+  - [§11.4.11 — File-layout discipline](#11411-file-layout-discipline)
+  - [§11.4.12 — Auto-generated docs sync](#11412-auto-generated-docs-sync)
+  - [§11.4.13 — Out-of-band sink-side captured-evidence](#11413-out-of-band-sink-side-captured-evidence)
+  - [§11.4.14 — Test playback cleanup](#11414-test-playback-cleanup)
+  - [§11.4.15 — Item-status tracking](#11415-item-status-tracking)
+  - [§11.4.16 — Item-type tracking](#11416-item-type-tracking)
+  - [§11.4.17 — Universal-vs-project classification of new rules (User mandate, 2026-05-14)](#11417-universal-vs-project-classification-of-new-rules-user-mandate-2026-05-14)
+  - [§11.4.20 — Subagent-driven-by-default mandate (User mandate, 2026-05-14)](#11420-subagent-driven-by-default-mandate-user-mandate-2026-05-14)
+  - [§11.4.18 — Script documentation mandate (User mandate, 2026-05-14)](#11418-script-documentation-mandate-user-mandate-2026-05-14)
+  - [§11.4.19 — Fixed-document column-alignment mandate (User mandate, 2026-05-14)](#11419-fixed-document-column-alignment-mandate-user-mandate-2026-05-14)
+  - [§11.4.21 — Operator-blocked status + self-resolution exhaustion (User mandate, 2026-05-14)](#11421-operator-blocked-status-self-resolution-exhaustion-user-mandate-2026-05-14)
+  - [§11.4.22 — Document-sync commit discipline (User mandate, 2026-05-14)](#11422-document-sync-commit-discipline-user-mandate-2026-05-14)
+  - [§11.4.24 — Build-resource stats tracking mandate (User mandate, 2026-05-14)](#11424-build-resource-stats-tracking-mandate-user-mandate-2026-05-14)
+  - [§11.4.25 — Full-Automation-Coverage Mandate (User mandate, 2026-05-15)](#11425-full-automation-coverage-mandate-user-mandate-2026-05-15)
+  - [§11.4.26 — Constitution-Submodule Update Workflow Mandate (User mandate, 2026-05-15)](#11426-constitution-submodule-update-workflow-mandate-user-mandate-2026-05-15)
+  - [§11.4.31 — Submodule-Dependency-Manifest Mandate (User mandate, 2026-05-15)](#11431-submodule-dependency-manifest-mandate-user-mandate-2026-05-15)
+  - [§11.4.32 — Post-Constitution-Pull Validation Mandate (User mandate, 2026-05-15)](#11432-post-constitution-pull-validation-mandate-user-mandate-2026-05-15)
+  - [§11.4.30 — .gitignore + No-Versioned-Build-Artifacts Mandate (User mandate, 2026-05-15)](#11430-gitignore-no-versioned-build-artifacts-mandate-user-mandate-2026-05-15)
+  - [§11.4.29 — Lowercase-Snake_Case-Naming Mandate (User mandate, 2026-05-15)](#11429-lowercase-snake_case-naming-mandate-user-mandate-2026-05-15)
+  - [§11.4.28 — Submodules-As-Equal-Codebase + Decoupling + Dependency-Layout Mandate (User mandate, 2026-05-15)](#11428-submodules-as-equal-codebase-decoupling-dependency-layout-mandate-user-mandate-2026-05-15)
+  - [§11.4.27 — No-Fakes-Beyond-Unit-Tests + 100%-Test-Type-Coverage Mandate (User mandate, 2026-05-15)](#11427-no-fakes-beyond-unit-tests-100-test-type-coverage-mandate-user-mandate-2026-05-15)
+  - [§11.4.33 — Type-aware closure-status vocabulary (User mandate, 2026-05-15)](#11433-type-aware-closure-status-vocabulary-user-mandate-2026-05-15)
+  - [§11.4.34 — Reopened-source attribution mandate (User mandate, 2026-05-15)](#11434-reopened-source-attribution-mandate-user-mandate-2026-05-15)
+  - [§11.4.35 — Canonical-root inheritance clarity (User mandate, 2026-05-15)](#11435-canonical-root-inheritance-clarity-user-mandate-2026-05-15)
+  - [§11.4.36 — Mandatory install_upstreams on clone/add Mandate (User mandate, 2026-05-15)](#11436-mandatory-install_upstreams-on-cloneadd-mandate-user-mandate-2026-05-15)
+  - [§11.4.37 — Fetch-before-edit mandate (User mandate, 2026-05-15)](#11437-fetch-before-edit-mandate-user-mandate-2026-05-15)
+  - [§11.4.38 — Installable-Asset Evidence Mandate (User mandate, 2026-05-17)](#11438-installable-asset-evidence-mandate-user-mandate-2026-05-17)
+  - [§11.4.40 — Full-suite retest before release tag mandate (User mandate, 2026-05-17)](#11440-full-suite-retest-before-release-tag-mandate-user-mandate-2026-05-17)
+  - [§11.4.41 — Pre-Force-Push Merge-First Mandate (User mandate, 2026-05-17)](#11441-pre-force-push-merge-first-mandate-user-mandate-2026-05-17)
+  - [§11.4.42 — Iteration-discipline mandate (User mandate, 2026-05-18)](#11442-iteration-discipline-mandate-user-mandate-2026-05-18)
+  - [§11.4.43 — TDD-Fix-Discipline mandate (User mandate, 2026-05-18)](#11443-tdd-fix-discipline-mandate-user-mandate-2026-05-18)
+  - [§11.4.44 — Document revision header mandate (User mandate, 2026-05-18)](#11444-document-revision-header-mandate-user-mandate-2026-05-18)
+  - [§11.4.45 — Integration-status-doc maintenance mandate (User mandate, 2026-05-18)](#11445-integration-status-doc-maintenance-mandate-user-mandate-2026-05-18)
+  - [§11.4.46 — Validate-recent-work-before-post-flash-tests mandate (User mandate, 2026-05-18)](#11446-validate-recent-work-before-post-flash-tests-mandate-user-mandate-2026-05-18)
+  - [§11.4.47 — Firebase data review mandate (User mandate, 2026-05-18)](#11447-firebase-data-review-mandate-user-mandate-2026-05-18)
+- [MANDATORY HOST-SESSION SAFETY (Constitution §12)](#mandatory-host-session-safety-constitution-12)
+  - [Forbidden — directly OR indirectly](#forbidden-directly-or-indirectly)
+  - [Required safeguards for heavy scripts](#required-safeguards-for-heavy-scripts)
+  - [§12.6 Memory-Budget Ceiling — 60% MAXIMUM](#126-memory-budget-ceiling-60-maximum)
+  - [§12.10 Continuation document maintenance](#1210-continuation-document-maintenance)
+- [MANDATORY ABSOLUTE DATA SAFETY — ZERO RISK (Constitution §9)](#mandatory-absolute-data-safety-zero-risk-constitution-9)
+- [MANDATORY COMMIT & PUSH CONSTRAINTS](#mandatory-commit-push-constraints)
+- [MANDATORY TESTING CONSTRAINTS](#mandatory-testing-constraints)
+- [Code conventions](#code-conventions)
+- [When in doubt](#when-in-doubt)
+
 > This is the **base CLAUDE.md** imported by every project that includes
 > the Helix Constitution submodule. Project-level `CLAUDE.md` may
 > extend or tighten any rule by adding an explicit
