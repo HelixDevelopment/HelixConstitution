@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
+| Revision | 2 |
 | Created | 2026-05-14 |
 | Last modified | 2026-05-19 |
 | Status | active |
-| Status summary | — |
+| Status summary | §11.4.66 ToC entry added per §11.4.61 hygiene |
 | Issues | none |
 | Issues summary | — |
 | Fixed | none |
@@ -98,6 +98,7 @@
   - [§11.4.61 — Mandatory Markdown metadata table + structured-doc ToC (User mandate, 2026-05-19)](#11461-mandatory-markdown-metadata-table-structured-doc-toc-user-mandate-2026-05-19)
   - [§11.4.63 — Workable-items procedure docs as single source of truth (User mandate, 2026-05-19)](#11463-workable-items-procedure-docs-as-single-source-of-truth-user-mandate-2026-05-19)
   - [§11.4.65 — Universal Markdown export mandate (User mandate, 2026-05-19)](#11465-universal-markdown-export-mandate-user-mandate-2026-05-19)
+  - [§11.4.66 — Blocker-resolution interactive-clarification mandate (User mandate, 2026-05-19)](#11466-blocker-resolution-interactive-clarification-mandate-user-mandate-2026-05-19)
 - [§12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN](#12-host-session-safety-directly-or-indirectly-signing-the-user-out-is-forbidden)
   - [§12.1 Forbidden operations — directly OR indirectly](#121-forbidden-operations-directly-or-indirectly)
   - [§12.2 Required safeguards](#122-required-safeguards)
