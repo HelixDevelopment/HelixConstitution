@@ -1838,6 +1838,29 @@ implementation reference in consumer-side
 
 Non-compliance is a release blocker regardless of context.
 
+**§11.4.59 — README always-sync mandate (User mandate, 2026-05-19)**
+
+`README.md` is a §11.4.12-class always-sync document: HTML + PDF
+exports refresh on every update via
+`scripts/testing/sync_readme_export.sh` (pandoc + weasyprint);
+auto-invoked by `sync_issues_docs.sh` so a single doc-sync run
+refreshes Issues / Issues_Summary / Fixed / Fixed_Summary /
+CONTINUATION / README (md + html + pdf). README carries a §11.4.44
+revision header and a Documentation Map section linking to every
+Status.md + Status_Summary.md + spec + plan + guide + script-companion
+doc + changelog + the constitution submodule, plus per-audience
+navigation. Pre-build gate `CM-README-EXPORT-SYNC` enforces mtime
+parity (README.html + README.pdf ≥ README.md). Paired meta-test
+mutation backdates HTML+PDF → gate FAILs. No escape hatch — no
+`--skip-readme-sync`, `--no-readme-export`, `--readme-stale-OK` flag.
+Composes with §11.4.12 + §11.4.18 + §11.4.44 + §11.4.45 + §11.4.53 +
+§11.4.56 + §11.4.57 + §12.10.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](Constitution.md) §11.4.59.
+
+Non-compliance is a release blocker regardless of context.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session
