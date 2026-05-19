@@ -1026,6 +1026,136 @@ Paired mutations. No escape hatch — no `--skip-fixed-summary-sync`,
 Classification: universal (§11.4.17). See Constitution §11.4.53 for
 the full mandate.
 
+### ATM-NNN ticket identifier (§11.4.54, User mandate 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19):**
+
+> "Every workable item in Issues / Issues_Summary / Fixed /
+> Fixed_Summary MUST carry a stable, unique, auto-incremental
+> ATM-NNN ticket identifier."
+
+Every workable item heading in `docs/Issues.md` AND `docs/Fixed.md`
+MUST carry `[ATM-NNN]` (form `## §X.Y. [ATM-NNN] <title>`,
+zero-padded ≥3 digits). Allocated by
+`scripts/testing/assign_atm_ticket_ids.sh` and persisted to
+`scripts/testing/.atm_ticket_state.json` (jsonl). Identifiers are
+monotonic, never renumbered, never reused, no gaps.
+Issues_Summary.md and Fixed_Summary.md MUST carry an `ATM ID`
+column as the leftmost data column.
+
+Composes with §11.4.15 + §11.4.16 + §11.4.19 + §11.4.33 + §11.4.12 +
+§11.4.53 + §11.4.55 + §11.4.57.
+
+Pre-build gates `CM-ATM-TICKET-IDS-COMPLETE` +
+`CM-ATM-TICKET-IDS-UNIQUE` + `CM-ATM-TICKET-IDS-MONOTONIC` +
+`CM-COVENANT-114-54-PROPAGATION`. Paired mutations. No escape hatch.
+
+Classification: universal (§11.4.17). See Constitution §11.4.54 for
+the full mandate.
+
+### Reopens-history tracking + per-item Reopens.md (§11.4.55, User mandate 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19):**
+
+> "Add a Reopens-count column. For any item whose reopens-count > 0,
+> create docs/issues/ATM-NNN/Reopens.md (+ HTML + PDF) with
+> comprehensive reopen history + Fixed cycles."
+
+Every workable item with `reopens_count > 0` MUST have
+`docs/issues/<ATM-NNN>/Reopens.md` (+ HTML + PDF). Required content:
+§11.4.44 revision header, item identification, cycle counters,
+chronological timeline (By AI/User per §11.4.34, On ISO date, Event,
+Reason, Evidence, Outcome), reasoning chain for each closure,
+most-recent state-change pointer.
+
+Issues_Summary.md and Fixed_Summary.md MUST carry a `Reopens`
+column; count > 0 hyperlinks to per-item Reopens.md.
+
+Composes with §11.4.34 (per-event capture), §11.4.54 (ATM-NNN path),
+§11.4.44 (revision header), §11.4.45 (Status.md analogue), §11.4.53
+(Fixed_Summary parity — Reopens column symmetric).
+
+Pre-build gates `CM-REOPENS-DOC-EXISTS-WHEN-COUNT-GT-ZERO` +
+`CM-REOPENS-DOC-REVISION-HEADER` + `CM-REOPENS-COL-IN-SUMMARIES` +
+`CM-COVENANT-114-55-PROPAGATION`. Paired mutations. No escape hatch.
+
+Classification: universal (§11.4.17). See Constitution §11.4.55 for
+the full mandate.
+
+### Status_Summary parity + two-audience format (§11.4.56, User mandate 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19):**
+
+> "Every Status.md doc gets a Status_Summary parity companion
+> ALWAYS in sync, exported to HTML + PDF. Two-page format:
+> page 1 = non-developer audience (team-specific), page 2 =
+> software engineer summary."
+
+For every `docs/<domain>/<integration>/Status.md` a companion
+`Status_Summary.md` MUST exist with: §11.4.44 revision header;
+**Page 1 — For the <team>** (audience-specific — audio team for
+`docs/dolby/*`, video team for `docs/video/*`, etc.) plain-
+language summary, What works, What's broken or pending, Operator
+actions — NO §-letter jargon, NO captured-evidence file paths;
+**Page 2 — For software engineers** — §-letter refs, gate names,
+commit hashes, captured-evidence paths, ATM-NNN cross-refs. HTML +
+PDF exports travel with the markdown.
+
+Generator: `scripts/testing/generate_status_summary.sh
+<Status.md path>`. Invoked from `sync_integration_status.sh`
+(§11.4.45 wrapper) on every Status.md update.
+
+Composes with §11.4.45 (Status.md — Status_Summary COMPLEMENTS),
+§11.4.12 + §11.4.53 (parity discipline), §11.4.44 (revision
+header), §11.4.23 (colorizer), §12.10 (CONTINUATION.md).
+
+Pre-build gates `CM-STATUS-SUMMARY-EXISTS-FOR-EVERY-STATUS` +
+`CM-STATUS-SUMMARY-TWO-AUDIENCE` +
+`CM-STATUS-SUMMARY-REVISION-HEADER` +
+`CM-COVENANT-114-56-PROPAGATION`. Paired mutations. No escape hatch.
+
+Classification: universal (§11.4.17). See Constitution §11.4.56 for
+the full mandate.
+
+### README.md doc-link section + revision metadata (§11.4.57, User mandate 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19):**
+
+> "Add a doc-link section to README.md — links to Issues +
+> Issues_Summary + Fixed + Fixed_Summary + CONTINUATION + ALL
+> Status docs + their exports. Each link shows revision +
+> last-modified."
+
+Every project's top-level `README.md` MUST contain a section titled
+`Tracked-Items + Status Documents` (heading MUST contain literal
+`Tracked-Items`). The section is a markdown table with columns:
+`Document`, `Last modified`, `Revision`, `Markdown`, `HTML`, `PDF`.
+Links to: Issues.md + Issues_Summary.md, Fixed.md + Fixed_Summary.md,
+CONTINUATION.md, every `docs/**/Status.md` + its Status_Summary.md
+pair. Status docs auto-discovered by the generator via
+`find docs -name 'Status.md'`.
+
+Generator: `scripts/testing/update_readme_doc_links.sh` extracts
+each doc's revision + last-modified from its §11.4.44 header,
+renders the table, replaces the section between explicit markers
+(`<!-- doc-link-section:begin -->` /
+`<!-- doc-link-section:end -->`). Invoked from
+`sync_issues_docs.sh` AND `sync_integration_status.sh`.
+
+Composes with §11.4.12 + §11.4.19 + §11.4.53 (Issues / Fixed /
+summaries), §11.4.44 (revision-header data source), §11.4.45 +
+§11.4.56 (Status pairs), §12.10 (CONTINUATION.md).
+
+Pre-build gates `CM-README-DOC-LINK-SECTION-PRESENT` +
+`CM-README-DOC-LINK-ROWS-COMPLETE` +
+`CM-README-DOC-LINK-FRESHNESS` +
+`CM-COVENANT-114-57-PROPAGATION`. Paired mutations strip markers,
+remove rows, backdate `Last modified`, strip anchor literal. No
+escape hatch.
+
+Classification: universal (§11.4.17). See Constitution §11.4.57 for
+the full mandate.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**

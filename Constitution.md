@@ -4713,6 +4713,447 @@ mutations within one cycle of adopting this Constitution version.
 
 ---
 
+### §11.4.54 — ATM-NNN ticket identifier mandate (User mandate, 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19):**
+
+> "Every workable item in Issues.md / Issues_Summary.md / Fixed.md /
+> Fixed_Summary.md MUST carry a stable, unique, auto-incremental
+> ATM-NNN ticket identifier. ATM- prefix, monotonic, never
+> renumbered, append-only — once assigned to an item it stays bound
+> to that item for the lifetime of the project across every reopen,
+> migration, or rename."
+
+**Why this anchor exists.** §11.4.15 + §11.4.16 + §11.4.19 + §11.4.33
+established the lifecycle vocabulary for tracked items, but the
+items themselves were identified only by §-letter or Fix-# — both of
+which are **unstable across migrations**. §-letter is heading-local;
+when an item moves from Issues.md to Fixed.md the §-letter may be
+reused for a different item. Fix-# is only assigned on closure for
+items that touched source code; tasks / features / pure-doc items
+have no stable identifier at all. Cross-references between commits,
+test logs, captured-evidence artifacts, Reopens.md history (§11.4.55),
+README.md doc-link rows (§11.4.57), and external systems
+(Firebase Crashlytics Issue-IDs, Atlassian-style tracker rows) all
+need an identifier that is **monotonic, stable, and project-wide
+unique**. §11.4.54 closes that gap.
+
+**Operative rule.** Every workable item in `docs/Issues.md` AND
+`docs/Fixed.md` MUST carry a `[ATM-NNN]` ticket identifier in its
+heading, in the form `## §X.Y. [ATM-NNN] <title>` (or `### §X.Y.`
+for nested items). NNN is a positive integer, zero-padded to at
+least 3 digits (`ATM-001`, `ATM-042`, `ATM-127`, …). Identifiers are
+allocated by a **canonical helper script** (`scripts/testing/
+assign_atm_ticket_ids.sh`) that maintains an append-only state file
+(`scripts/testing/.atm_ticket_state.json`). Once assigned to an
+item, an ATM-NNN MUST NEVER be:
+
+1. **Renumbered** — the bind is permanent.
+2. **Reused** for a different item even if the original item is
+   force-deleted (the helper's state file detects collisions).
+3. **Decremented** — counter is monotonic-only.
+4. **Skipped intentionally** — gaps are forbidden in the assignment
+   sequence (gaps indicate state-file corruption and trigger gate
+   FAIL).
+
+**State file format.** `scripts/testing/.atm_ticket_state.json` is a
+JSON-lines file with one record per allocated ID:
+
+```
+{"atm_id": "ATM-001", "heading_hash": "<sha256 of normalized heading>",
+ "type": "Bug|Feature|Task", "current_location": "Issues|Fixed",
+ "current_status": "<lifecycle value>", "reopens_count": <int>,
+ "created_at": "<ISO 8601 UTC>", "last_modified": "<ISO 8601 UTC>"}
+```
+
+The `heading_hash` is the canonical binding key — when the helper
+scans Issues.md / Fixed.md, it computes the normalized hash of each
+heading and looks up an existing ATM-NNN before allocating a new
+one. This protects against accidental renumbering on heading
+reflows / wording edits (the hash MUST stay stable; if the heading
+text changes substantially, the state file's `heading_hash` field
+is updated in place via an explicit migration command, NOT auto-
+rebound).
+
+**Summary-table column.** `docs/Issues_Summary.md` and
+`docs/Fixed_Summary.md` MUST carry a leftmost `ATM ID` column
+showing the identifier. Generators (`generate_issues_summary.sh`,
+`generate_fixed_summary.sh`) MUST emit this column as the first
+data column so operators / agents can sort + filter on it.
+
+**Composition:**
+
+- §11.4.15 (Status), §11.4.16 (Type), §11.4.19 (column-alignment
+  Issues↔Fixed), §11.4.33 (type-aware closure terminal values).
+  All four pre-existing mandates compose with §11.4.54 — the
+  ATM-NNN is the new universal join key.
+- §11.4.12 + §11.4.53 (Issues_Summary + Fixed_Summary regen on
+  source changes) — the helper MUST be invoked from
+  `sync_issues_docs.sh` so newly added items receive ATM-NNN
+  identifiers before summary regeneration.
+- §11.4.55 (Reopens-history per-item docs) — the per-item Reopens.md
+  lives at `docs/issues/<ATM-NNN>/Reopens.md`.
+- §11.4.57 (README.md doc-link section) — every Issues / Fixed item
+  may be linked by ATM-NNN in external references.
+- §11.4.44 (revision header) — applies to the state file's audit
+  log if one is maintained.
+
+**Pre-build gates:**
+
+- `CM-ATM-TICKET-IDS-COMPLETE` — every workable-item heading in
+  Issues.md AND Fixed.md MUST carry an `[ATM-NNN]` token matching
+  `\[ATM-[0-9]{3,}\]`. Headings without one FAIL the gate.
+- `CM-ATM-TICKET-IDS-UNIQUE` — no two items share an ATM-NNN. The
+  state file's record count MUST equal the union of Issues.md +
+  Fixed.md `[ATM-NNN]` occurrences (no orphan IDs, no duplicates).
+- `CM-ATM-TICKET-IDS-MONOTONIC` — the maximum ATM-NNN in the state
+  file MUST equal `record_count` (no gaps).
+- `CM-COVENANT-114-54-PROPAGATION` — anchor literal `§11.4.54`
+  present across canonical files (`constitution/Constitution.md`,
+  `constitution/CLAUDE.md`, `constitution/AGENTS.md`, parent
+  consumer's `CLAUDE.md` + `AGENTS.md`).
+
+**Paired mutations (per §1.1):**
+
+- Remove `[ATM-NNN]` from one Issues.md heading →
+  `CM-ATM-TICKET-IDS-COMPLETE` FAILs.
+- Duplicate an ATM-NNN in the state file →
+  `CM-ATM-TICKET-IDS-UNIQUE` FAILs.
+- Delete ATM-NNN=2 from a 5-record state file →
+  `CM-ATM-TICKET-IDS-MONOTONIC` FAILs (gap at 2).
+- Strip `§11.4.54` literal from `constitution/CLAUDE.md` →
+  `CM-COVENANT-114-54-PROPAGATION` FAILs.
+
+**No escape hatch.** No `--skip-atm-assignment`, `--renumber`, or
+`--no-atm-id-required` flag exists. The discipline exists because
+unstable item identity is the exact failure mode that produces
+"the test was passing last week, what changed?" sessions where the
+operator cannot tell whether a given item is the same one tracked
+before or a coincidentally similarly-named successor.
+
+**Classification:** universal (per §11.4.17). Applies to every
+project consuming the constitution submodule that maintains an
+Issues / Fixed split (cf. §11.4.53 scoping). Projects that do not
+maintain such a split are NOT_APPLICABLE.
+
+---
+
+### §11.4.55 — Reopens-history tracking + per-item Reopens.md doc (User mandate, 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19):**
+
+> "Add a Reopens-count column to Issues / Issues_Summary / Fixed /
+> Fixed_Summary. For any item whose reopens-count > 0, create
+> docs/issues/ATM-NNN/Reopens.md (+ HTML + PDF) with comprehensive
+> reopen history + Fixed cycles. Each reopen MUST include By
+> (AI / User), On (date), Reason, Evidence, and each Fixed-marking
+> with its reasoning chain."
+
+**Why this anchor exists.** §11.4.34 mandated that Reopened status
+carry a `**Reopened-Details:**` block — but that block lives in
+the **current** Issues.md heading and is overwritten on the next
+state change. A complete reopen / fix-cycle audit trail across the
+lifetime of an item was not previously canonical. §11.4.55 makes
+the full history first-class: every item that has been reopened
+at least once gets a dedicated `Reopens.md` companion doc capturing
+the entire chronological timeline — every reopen, every closure,
+every reasoning chain — so an operator / agent investigating "why
+was this reopened five times" has a single, authoritative source
+to read.
+
+**Operative rule.** Every workable item with `reopens_count > 0`
+MUST have a companion document at `docs/issues/ATM-NNN/Reopens.md`
+(plus its HTML + PDF exports per §11.4.44 + §11.4.53 sync
+discipline). The document MUST contain:
+
+1. **Revision header** per §11.4.44 (`Revision` integer +
+   `Last modified` ISO 8601 UTC).
+2. **Item identification** — `ATM ID`, `Title`, `Type`, `Current
+   Status`, `Current Location` (Issues.md / Fixed.md), link back
+   to the live heading.
+3. **Cycle counters** — `Total reopens`, `Total fixed cycles`
+   (items can reopen multiple times, each followed by a re-closure).
+4. **Chronological timeline** — one entry per state-change event,
+   each entry capturing:
+   - **By:** `AI` or `User` (per §11.4.34 source attribution).
+   - **On:** ISO date.
+   - **Event:** `Opened` | `Reopened` | `Fixed` | `Implemented` |
+     `Completed`.
+   - **Reason:** the closed-vocabulary value from §11.4.34
+     (`test-failed` / `manual-testing-detected` /
+     `captured-evidence-contradicts` / `end-user-report` /
+     `cycle-re-discovered` / `design-reconsidered`) for reopens;
+     captured-evidence summary for closures.
+   - **Evidence:** path to or short description of captured
+     artefact (test log path, recording path, sink-probe report,
+     operator quote).
+   - **Outcome:** what the next state transition was.
+5. **Reasoning chain for each closure** — for every `Fixed` /
+   `Implemented` / `Completed` event, the reasoning chain that
+   justified marking it closed (root-cause analysis link,
+   captured-evidence under same-conditions per §11.4.7, gate /
+   mutation pair that defends against regression).
+6. **Most-recent state-change pointer** — explicit cross-reference
+   to the current Issues.md / Fixed.md heading.
+
+**Summary-table column.** Issues_Summary.md and Fixed_Summary.md
+MUST carry a `Reopens` column showing the integer count. When the
+count > 0 the cell MUST be a hyperlink to
+`docs/issues/<ATM-NNN>/Reopens.md`. Generators emit the column;
+the colorizer (§11.4.23) MAY apply a visual cue when reopens > 2
+(repeated-reopen signal — investigate before closing again).
+
+**Composition:**
+
+- §11.4.34 (Reopened-Details on current heading) is the
+  **per-event** capture; §11.4.55 is the **per-item history**
+  aggregation. Both layers MUST be in sync — the state-machine
+  helper updates Reopens.md on every Reopened-Details parse.
+- §11.4.54 (ATM-NNN) provides the stable identifier so the per-
+  item doc has a permanent path even after Issues→Fixed migration.
+- §11.4.44 (revision header) applies to every Reopens.md.
+- §11.4.45 (Status.md per-integration) — the per-item Reopens.md
+  is the item-scoped analogue of the integration-scoped Status.md.
+- §11.4.53 (Fixed_Summary parity) — Reopens column appears on
+  BOTH summary tables symmetrically.
+
+**Pre-build gates:**
+
+- `CM-REOPENS-DOC-EXISTS-WHEN-COUNT-GT-ZERO` — for every state-file
+  record with `reopens_count > 0`, `docs/issues/<ATM-NNN>/
+  Reopens.md` MUST exist (+ HTML + PDF). Missing doc FAILs.
+- `CM-REOPENS-DOC-REVISION-HEADER` — every Reopens.md carries the
+  §11.4.44 revision header.
+- `CM-REOPENS-COL-IN-SUMMARIES` — both Issues_Summary.md and
+  Fixed_Summary.md carry a `Reopens` column.
+- `CM-COVENANT-114-55-PROPAGATION` — anchor literal `§11.4.55`
+  across canonical files.
+
+**Paired mutations (per §1.1):**
+
+- Delete `docs/issues/ATM-NNN/Reopens.md` for an item with
+  `reopens_count=2` → `CM-REOPENS-DOC-EXISTS-WHEN-COUNT-GT-ZERO`
+  FAILs.
+- Strip revision header from a Reopens.md →
+  `CM-REOPENS-DOC-REVISION-HEADER` FAILs.
+- Remove `Reopens` column from Issues_Summary.md table header →
+  `CM-REOPENS-COL-IN-SUMMARIES` FAILs.
+- Strip `§11.4.55` literal from `constitution/CLAUDE.md` →
+  `CM-COVENANT-114-55-PROPAGATION` FAILs.
+
+**No escape hatch.** No `--skip-reopens-doc`, `--collapse-history`,
+`--reopens-not-applicable` flag. The discipline exists because
+loss of reopen history is the exact failure mode that produces
+"why does this keep happening" sessions with no auditable answer.
+
+**Classification:** universal (per §11.4.17). Applies wherever
+§11.4.34 applies (every project tracking Reopened status).
+
+---
+
+### §11.4.56 — Status_Summary parity + two-audience format (User mandate, 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19):**
+
+> "Every Status.md doc gets a Status_Summary parity companion
+> ALWAYS in sync, exported to HTML + PDF. Two-page format: page 1
+> = non-developer audience (team-specific: audio team for audio
+> Status, video team for video Status, etc.), page 2 = software
+> engineer summary. Auto-generated after every main Status update."
+
+**Why this anchor exists.** §11.4.45 established `Status.md` per
+integration domain — but Status.md targets engineers (cites
+gate names, §-letter references, commit hashes, captured-evidence
+file paths). Non-developer stakeholders (audio team, video team,
+QA leads, product reviewers) need a plain-language version of the
+same content, **always derived** from the engineering Status.md
+so the two views can never diverge. §11.4.56 introduces the
+symmetric companion doc with a two-audience layout.
+
+**Operative rule.** For every `docs/<domain>/<integration>/
+Status.md` that satisfies §11.4.45, a companion
+`docs/<domain>/<integration>/Status_Summary.md` MUST exist with:
+
+1. **Revision header** per §11.4.44.
+2. **Page 1 — For the `<team>`** (audience-specific heading; the
+   team name is derived from the integration domain — audio team
+   for `docs/dolby/*`, video team for `docs/video/*`, etc.). Page
+   1 contains:
+   - Plain-language summary of current state (1-3 paragraphs).
+   - **What works** (1-3 bullets, end-user-visible behaviour).
+   - **What's broken or pending** (1-3 bullets).
+   - **Operator / team actions** if any.
+   - NO code references, NO §-letter jargon, NO captured-evidence
+     file paths, NO gate / mutation names.
+3. **Page 2 — For software engineers** — same content density as
+   Status.md but condensed:
+   - §-letter references, gate names, commit hashes, captured-
+     evidence file paths.
+   - Cross-references to Issues.md / Fixed.md items by ATM-NNN
+     (§11.4.54).
+4. **HTML + PDF exports** travel with the markdown (identical
+   mtimes within sync wrapper granularity).
+5. **Auto-generation** — the canonical helper
+   `scripts/testing/generate_status_summary.sh <Status.md path>`
+   produces both pages. The generator MUST be invoked from a sync
+   wrapper (e.g. `scripts/testing/sync_integration_status.sh` per
+   §11.4.45) every time the source Status.md is updated.
+
+**Page-1 audience derivation.** The generator maps domain →
+audience name via a project-controlled mapping table (e.g.
+`audio` → `Audio team`, `video` → `Video team`, `network` →
+`Network team`, `drm` → `DRM / streaming team`). Unmapped domains
+default to `Project team`. The mapping table lives in the project's
+generator config, NOT in the Constitution (project-specific data
+per §11.4.17).
+
+**Composition:**
+
+- §11.4.45 (Status.md per integration) — Status_Summary.md
+  COMPLEMENTS, never replaces. Both files exist together.
+- §11.4.12 + §11.4.53 (parity discipline) — Status_Summary follows
+  the same regeneration / HTML+PDF / mtime-alignment pattern.
+- §11.4.44 (revision header) — applies to Status_Summary.md.
+- §11.4.23 (colorizer) — Status_Summary.html receives the same
+  type/status visual cues if it embeds tracked-item references.
+- §12.10 (CONTINUATION.md) — non-developer stakeholders read
+  Status_Summary; engineers read Status.md + CONTINUATION.md +
+  Issues.md.
+
+**Pre-build gates:**
+
+- `CM-STATUS-SUMMARY-EXISTS-FOR-EVERY-STATUS` — for every
+  `docs/**/Status.md`, the sibling `Status_Summary.md` MUST exist
+  (+ HTML + PDF) with mtime ≥ Status.md mtime − tolerance.
+- `CM-STATUS-SUMMARY-TWO-AUDIENCE` — every Status_Summary.md
+  contains BOTH the `Page 1 — For the <team>` heading AND the
+  `Page 2 — For software engineers` heading. Missing either FAILs.
+- `CM-STATUS-SUMMARY-REVISION-HEADER` — §11.4.44 header present.
+- `CM-COVENANT-114-56-PROPAGATION` — anchor literal across files.
+
+**Paired mutations (per §1.1):**
+
+- Delete a Status_Summary.md →
+  `CM-STATUS-SUMMARY-EXISTS-FOR-EVERY-STATUS` FAILs.
+- Remove `Page 1` heading from a Status_Summary.md →
+  `CM-STATUS-SUMMARY-TWO-AUDIENCE` FAILs.
+- Strip `§11.4.56` literal from `constitution/CLAUDE.md` →
+  `CM-COVENANT-114-56-PROPAGATION` FAILs.
+
+**No escape hatch.** No `--skip-status-summary`, `--engineer-only`,
+`--no-audience-split` flag. Plain-language stakeholder access is
+not negotiable — the project ships to humans, not just to
+engineers.
+
+**Classification:** universal (per §11.4.17). Applies wherever
+§11.4.45 applies (every project that maintains domain-scoped
+Status.md docs).
+
+---
+
+### §11.4.57 — README.md doc-link section + revision metadata (User mandate, 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19):**
+
+> "Add a doc-link section to README.md — links to Issues +
+> Issues_Summary + Fixed + Fixed_Summary + CONTINUATION + ALL
+> Status docs + their exports. Each link shows revision +
+> last-modified."
+
+**Why this anchor exists.** Operators, AI agents, and external
+reviewers arriving at the project repo for the first time need a
+single discoverable entry point listing every canonical tracked-
+items + status document, along with each document's freshness
+(revision + last-modified). Without this surface, agents resort to
+`find docs -name '*.md'` which returns hundreds of files unranked.
+§11.4.57 makes the README.md the canonical index.
+
+**Operative rule.** Every project's top-level `README.md` MUST
+contain a section titled `Tracked-Items + Status Documents` (or
+the project's localized equivalent — the section heading MUST
+contain the literal `Tracked-Items` for gate detection). The
+section MUST be a markdown table with columns: `Document` (human-
+readable name), `Last modified` (ISO 8601 UTC from the doc's
+§11.4.44 revision header), `Revision` (integer from same header),
+`Markdown` (relative link to `.md`), `HTML` (relative link to
+`.html`), `PDF` (relative link to `.pdf`).
+
+The section MUST link to:
+
+1. `Issues.md`, `Issues_Summary.md` (§11.4.12, §11.4.15, §11.4.16).
+2. `Fixed.md`, `Fixed_Summary.md` (§11.4.19, §11.4.53).
+3. `CONTINUATION.md` (§12.10).
+4. **Every** `docs/**/Status.md` and its `Status_Summary.md` pair
+   (§11.4.45, §11.4.56). Status docs are auto-discovered by the
+   generator via `find docs -name 'Status.md'`.
+
+**Generator.** `scripts/testing/update_readme_doc_links.sh` is the
+canonical helper. It:
+
+1. Scans the canonical doc paths.
+2. Extracts each doc's `Revision` + `Last modified` fields from
+   its §11.4.44 header.
+3. Renders the markdown table with current values.
+4. Replaces the section between explicit markers
+   (`<!-- doc-link-section:begin -->` and
+   `<!-- doc-link-section:end -->`) in README.md.
+
+The wrapper MUST be invoked from `sync_issues_docs.sh` (so every
+Issues.md / Fixed.md update refreshes the README freshness data)
+AND from `sync_integration_status.sh` (so every Status.md update
+likewise refreshes README).
+
+**Composition:**
+
+- §11.4.12 + §11.4.19 + §11.4.53 (Issues / Issues_Summary / Fixed
+  / Fixed_Summary parity) — README links to all four.
+- §11.4.44 (revision header) — README pulls Revision +
+  Last modified from each doc's header.
+- §11.4.45 (Status.md) + §11.4.56 (Status_Summary.md) — README
+  enumerates every Status pair.
+- §12.10 (CONTINUATION.md) — explicitly linked from README so
+  operators discover it on arrival.
+
+**Pre-build gates:**
+
+- `CM-README-DOC-LINK-SECTION-PRESENT` — README.md contains the
+  literal `Tracked-Items` heading AND both section markers
+  (`<!-- doc-link-section:begin -->`, `<!-- doc-link-section:end -->`).
+- `CM-README-DOC-LINK-ROWS-COMPLETE` — every canonical doc
+  (Issues, Issues_Summary, Fixed, Fixed_Summary, CONTINUATION,
+  every Status.md + Status_Summary.md found under `docs/`)
+  appears as a row inside the section.
+- `CM-README-DOC-LINK-FRESHNESS` — the `Last modified` value in
+  each row matches the corresponding doc's §11.4.44 header within
+  sync-wrapper granularity (no row staler than the source doc by
+  more than the sync wrapper's tolerance).
+- `CM-COVENANT-114-57-PROPAGATION` — anchor literal across files.
+
+**Paired mutations (per §1.1):**
+
+- Strip the section markers from README.md →
+  `CM-README-DOC-LINK-SECTION-PRESENT` FAILs.
+- Remove the CONTINUATION.md row from the section →
+  `CM-README-DOC-LINK-ROWS-COMPLETE` FAILs.
+- Backdate a `Last modified` value in a row →
+  `CM-README-DOC-LINK-FRESHNESS` FAILs.
+- Strip `§11.4.57` literal from `constitution/CLAUDE.md` →
+  `CM-COVENANT-114-57-PROPAGATION` FAILs.
+
+**No escape hatch.** No `--skip-readme-doc-links`,
+`--collapse-status-rows`, `--no-freshness-check` flag. The
+discipline exists because invisible docs are non-existent docs
+from a discoverability standpoint, and the §11.4 covenant
+specifically prohibits surfaces where claims (here: doc
+freshness) can drift unnoticed.
+
+**Classification:** universal (per §11.4.17). Applies to every
+project that maintains an Issues / Fixed split or Status.md docs
+(i.e., to every project consuming this Constitution that has any
+of §11.4.15 / §11.4.45 / §11.4.53 in scope).
+
+---
+
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN
 
 Every script, test, helper, and AI agent governed by this
