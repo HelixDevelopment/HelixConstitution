@@ -1762,6 +1762,82 @@ escape hatch — no `--skip-readme-doc-links`,
 
 Non-compliance is a release blocker regardless of context.
 
+**§11.4.58 — Parallel-development methodology (User mandate, 2026-05-19)**
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-19T~05:00Z MSK):**
+
+> "We MUST DO one comprehensive research and planning in the background in
+> parallel with current mainstream work: our current methodolgy of the
+> development is very slow. … We MUST CREATE adjusted improoved version of
+> working methodology where multiple workable items could be done in
+> parallel, all come into the central (main) branch as they are done, then
+> we at particular moment rebuild and reflash the System and in background
+> full testing with validation and verification is done. Each parallel work
+> on one workable (or more) item(s) must use parallel agents as much as
+> possible! … Writing in depth tests (all supported types of the tests)
+> with Challenges and full HelixQA use is MANDATORY! Every test we execute
+> besides executed with success MUST RESULT in proof that actual
+> functionality being tested REALLY DOES WORK with NO BLUFF of any kind!
+> Heavt enforcement of no-bluff / anti-bluff policy IS MANDATORY!"
+
+Project work proceeds through the **Parallel Work Unit (PWU) pipeline**
+rather than sequential phase-chain. Each PWU is a self-contained workable
+item with mandatory components: ATM-NNN identifier per §11.4.54, Issues.md
+entry per §11.4.15+§11.4.16, file-scope manifest, §11.4.43 RED test,
+source patch, pre-build gate per §11.4.4(b) layer 1, post-flash test per
+§11.4.4(b) layer 3, paired §1.1 meta-test mutation, §11.4.4(b) layer 4
+HelixQA Challenge bank entry, captured-evidence directory per
+§11.4.5+§11.4.52.
+
+**5-stage pipeline:** (Stage 1 DEVELOP — parallel PWU agents in isolated
+worktrees) → (Stage 2 MERGE — serial conductor via `commit_all.sh` flock
++ §11.4.41 4-step merge-first) → (Stage 3 REBUILD+FLASH — parallel where
+hardware allows) → (Stage 4 VALIDATE — parallel on D3+D4+meta-test+
+coverage) → (Stage 5 SWEEP — parallel HelixQA Challenges + Fixed.md
+migration + README refresh). Stage 1 of round N+1 overlaps with Stages 4-5
+of round N — the throughput multiplier.
+
+**Synchronization mechanism:** 4-layer lock hierarchy (L1 parent flock /
+L2 per-submodule git ops / L3 contention-path advisory locks for the 10
+forbidden cross-PWU paths / L4 per-PWU git worktree). Disjoint-scope PWUs
+run fully parallel. Conflict detection at Stage 2: `git fetch --all
+--prune --tags` + scope-overlap check → overlap detected rejects PWU back
+to Stage 1.
+
+**Anti-bluff enforcement at merge time (all four required):** C1 §11.4.43
+RED-test captured-evidence (proves test catches regression), C2 §1.1
+paired meta-test mutation (proves gate is not bluff), C3 §11.4.50
+deterministic-consistency (3 or 10 iterations identical), C4 §11.4.5
+captured-evidence (audio WAV / video screen recording / UI uiautomator
+dump / HelixQA `result.json`). Metadata-only / configuration-only /
+absence-of-error / grep-without-runtime PASS all REJECTED.
+
+**HelixQA mandatory.** Every user-visible PWU MUST add a Challenge entry
+in `tools/helixqa/banks/atmosphere.yaml` referencing the PWU's ATM-NNN +
+dispatching to its on-device test + scoring PASS only on positive
+captured evidence per §11.4.5.
+
+Pre-build gates `CM-PWU-LOCK-HIERARCHY` + `CM-PWU-ANTI-BLUFF-COVERAGE` +
+`CM-PWU-MERGE-QUEUE-DISCIPLINE` + `CM-PWU-PARALLEL-AGENT-LIMIT` +
+`CM-COVENANT-114-58-PROPAGATION` (anchor literal across 42 consumer
+files). Paired mutations strip the lock helpers / forge a READY marker
+without evidence / bypass the merge queue / spawn a 7th concurrent agent
+/ strip the anchor literal — every mutation FAILs its gate.
+
+No escape hatch — no `--skip-merge-queue`, `--allow-bypass`,
+`--no-anti-bluff-check`, `--unlimited-agents`, `--sequential-phase-chain-
+mode` flag. Composes with §11.4.4, §11.4.5, §11.4.6, §11.4.9, §11.4.15,
+§11.4.16, §11.4.19, §11.4.33, §11.4.41, §11.4.42, §11.4.43, §11.4.45,
+§11.4.49, §11.4.50, §11.4.52, §11.4.54, §11.4.57, §12.6, §12.7, §12.8,
+§12.10, §9.2.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](Constitution.md) §11.4.58. Project-specific
+implementation reference in consumer-side
+`docs/guides/PARALLEL_DEVELOPMENT_METHODOLOGY.md`.
+
+Non-compliance is a release blocker regardless of context.
+
 ## MANDATORY HOST-SESSION SAFETY (Constitution §12)
 
 Every script, test, helper, and AI agent MUST respect host-session

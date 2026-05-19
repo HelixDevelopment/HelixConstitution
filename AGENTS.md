@@ -1156,6 +1156,56 @@ escape hatch.
 Classification: universal (§11.4.17). See Constitution §11.4.57 for
 the full mandate.
 
+### Parallel-development methodology (§11.4.58, User mandate 2026-05-19)
+
+**Forensic anchor — verbatim user mandate (2026-05-19T~05:00Z MSK):**
+
+> "We MUST CREATE adjusted improoved version of working methodology
+> where multiple workable items could be done in parallel, all come
+> into the central (main) branch as they are done, then we at
+> particular moment rebuild and reflash the System and in background
+> full testing with validation and verification is done. Each parallel
+> work on one workable (or more) item(s) must use parallel agents as
+> much as possible! … Writing in depth tests (all supported types of
+> the tests) with Challenges and full HelixQA use is MANDATORY! Every
+> test we execute besides executed with success MUST RESULT in proof
+> that actual functionality being tested REALLY DOES WORK with NO
+> BLUFF of any kind!"
+
+Project work proceeds through the **Parallel Work Unit (PWU)
+pipeline**. Each PWU is a self-contained workable item with: ATM-NNN
+identifier per §11.4.54, Issues.md entry per §11.4.15+§11.4.16, file-
+scope manifest, §11.4.43 RED test, source patch, pre-build gate,
+post-flash test, paired meta-test mutation per §1.1, HelixQA Challenge
+bank entry, captured-evidence directory per §11.4.5+§11.4.52.
+
+**5-stage pipeline:** Stage 1 DEVELOP (parallel PWU agents in isolated
+worktrees) → Stage 2 MERGE (serial via `commit_all.sh` flock + §11.4.41
+4-step merge-first) → Stage 3 REBUILD+FLASH (parallel where hardware
+allows) → Stage 4 VALIDATE (parallel D3+D4+meta-test+coverage) →
+Stage 5 SWEEP (parallel HelixQA + Fixed.md migration + README refresh).
+Stage 1 of round N+1 overlaps with Stages 4-5 of round N — throughput
+multiplier.
+
+**Synchronization:** 4-layer lock hierarchy (parent flock / per-
+submodule git / contention-path advisory locks / per-PWU worktree).
+Disjoint-scope PWUs fully parallel.
+
+**Anti-bluff merge-time enforcement (mandatory, all four):** RED-test
+captured (§11.4.43), paired meta-test mutation (§1.1), 3-iter
+deterministic-consistency (§11.4.50), captured-evidence per §11.4.5.
+Metadata-only / configuration-only / absence-of-error PASS REJECTED.
+HelixQA Challenge MANDATORY for every user-visible PWU.
+
+Pre-build gates `CM-PWU-LOCK-HIERARCHY` + `CM-PWU-ANTI-BLUFF-COVERAGE`
++ `CM-PWU-MERGE-QUEUE-DISCIPLINE` + `CM-PWU-PARALLEL-AGENT-LIMIT` +
+`CM-COVENANT-114-58-PROPAGATION`. Paired mutations cover each gate.
+No escape hatch.
+
+Classification: universal (§11.4.17). See Constitution §11.4.58 for
+the full mandate. Project-specific implementation reference in
+consumer-side `docs/guides/PARALLEL_DEVELOPMENT_METHODOLOGY.md`.
+
 ### Credentials-handling (§11.4.10)
 
 **Forensic anchor — verbatim user mandate (2026-05-12):**
