@@ -6474,6 +6474,98 @@ source- code roots).</p>
 href="Constitution.md"><code>Constitution.md</code></a> §11.4.65.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <hr />
+<h3
+id="11466--blocker-resolution-interactive-clarification-mandate-user-mandate-2026-05-19">§11.4.66
+— Blocker-resolution interactive-clarification mandate (User mandate,
+2026-05-19)</h3>
+<p><strong>Forensic anchor — direct user mandate (verbatim,
+2026-05-19):</strong></p>
+<blockquote>
+<p>"If any blockers which can be resolved with interactive response ever
+happen again, perform in depth research on options doable by your side
+and how much inputs from us you really need, then create options and
+present them to us. After we answer, preferrably you will be unblocked
+and be able to continue work on blocked items. Let us make this main
+approach when such situations (blockers) do happen!"</p>
+</blockquote>
+<p>When any task is blocked (waiting on operator decision, hardware
+access, external-service authorization, ambiguous scope, or any input
+the agent cannot mechanically derive), the agent MUST follow this
+five-step discipline before idling or asking free-form questions:</p>
+<ol type="1">
+<li><p><strong>In-depth research on agent-side options.</strong>
+Identify the maximum scope that can land unilaterally without operator
+input — research the codebase, upstream documentation, existing tooling,
+the current state, what files/components are involved, what tests/gates
+already exist. Surface every agent-actionable path even if it requires a
+small operator confirmation.</p></li>
+<li><p><strong>Calculate minimum-viable operator input.</strong> Reduce
+the question set to the smallest closed set of operator-only decisions
+(preference, authorization, scope-bounding, hardware availability,
+schedule). Anything that can be researched MUST NOT be asked.</p></li>
+<li><p><strong>Construct 2–4 mutually-exclusive options.</strong> Each
+option carries (a) a short label, (b) a one-line trade-off description,
+(c) an explicit statement of what the agent will do <em>after that
+answer</em>. One option marked "Recommended" with rationale. Options
+MUST genuinely differ — restating one option as three close variants is
+itself a §11.4.66 violation.</p></li>
+<li><p><strong>Present via the platform's interactive question
+mechanism.</strong> On Claude Code that is <code>AskUserQuestion</code>
+(max 4 questions, each with 2–4 options; supports multi-select for
+non-mutually-exclusive sets). Other platforms (Copilot CLI, Codex,
+Gemini CLI) use their equivalents. NEVER inline free-text "what would
+you like?" when interactive options would do — that wastes operator
+attention.</p></li>
+<li><p><strong>After the operator answers, resume work without
+additional round-trips.</strong> Every option's promised action MUST be
+sufficient to unblock — if a follow-up clarifying question is needed,
+the prior options were insufficiently researched and that's itself a
+§11.4.66 violation. The contract is: ask once, unblock,
+continue.</p></li>
+</ol>
+<p><strong>Composes with:</strong></p>
+<ul>
+<li>§11.4.6 (no-guessing — interactive options replace agent guessing
+about operator preference)</li>
+<li>§11.4.7 (demotion-evidence — operator preference is captured-
+evidence for direction changes)</li>
+<li>§11.4.40 (full-suite retest — uninterrupted work post-answer means
+the test cycle resumes cleanly without context drift)</li>
+<li>§11.4.41 (merge-first — when operators make conflicting choices
+across sessions, the merge-first discipline preserves both)</li>
+<li>§11.4.42 (iteration-discipline — interactive-question loop is built
+into the per-cycle methodology)</li>
+<li>§11.4.52 (autonomous-validation — most blockers can be researched to
+autonomous-path level, leaving only true operator preference to
+interactive-ask)</li>
+</ul>
+<p><strong>Mandatory protections:</strong></p>
+<ul>
+<li><strong>No silent waiting.</strong> If blocked, ask. If genuinely no
+operator input is needed, do not ask — proceed.</li>
+<li><strong>No bulk-text questions when interactive options would
+do.</strong> Free-text prompts are reserved for truly open-ended
+ideation, never for closed-set decisions.</li>
+<li><strong>Each interactive question minimizes operator cost</strong> —
+the operator should be able to answer all questions in under 30 seconds
+total.</li>
+<li><strong>Recommended option is highlighted explicitly</strong> — the
+operator should know what the agent would default to if no answer
+comes.</li>
+<li><strong>Out-of-band channels (slack, voice, email) NEVER
+substitute</strong> — the interactive mechanism creates an audit trail
+that free-text channels do not.</li>
+</ul>
+<p>Pre-build gate <code>CM-COVENANT-114-66-PROPAGATION</code> enforces
+the anchor literal is present across the 42-file consumer fleet (parent
+CLAUDE.md / AGENTS.md + 10 owned-submodule pairs + HelixQA-owned pairs).
+Paired meta-test mutation strips the literal → gate FAILs. No escape
+hatch — no <code>--skip-ask</code>, <code>--silent-wait</code>,
+<code>--free-form-only</code> flag is permitted.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.66.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<hr />
 <h2
 id="12-host-session-safety--directly-or-indirectly-signing-the-user-out-is-forbidden">§12.
 Host-session safety — directly OR indirectly signing the user out is

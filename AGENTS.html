@@ -1615,5 +1615,27 @@ no <code>--skip-md-exports</code>, <code>--no-pdf-only</code>,
 href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.65.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
+<p><strong>§11.4.66 — Blocker-resolution interactive-clarification
+mandate (User mandate, 2026-05-19)</strong></p>
+<p>When any task is blocked (operator decision, hardware access,
+external authorization, ambiguous scope), the agent MUST: (1) research
+what's doable from the agent side without operator input; (2) calculate
+minimum-viable operator input; (3) construct 2–4 mutually-exclusive
+options with one marked "Recommended" and each stating what the agent
+does after that answer; (4) present via the platform's interactive
+question mechanism (<code>AskUserQuestion</code> on Claude Code) — NEVER
+free-text "what would you like?" for closed- set decisions; (5) after
+the answer, resume work without follow-up round-trips. Composes with
+§11.4.6 / §11.4.7 / §11.4.40 / §11.4.41 / §11.4.42 / §11.4.52. No silent
+waiting; no bulk-text questions when interactive options would do.</p>
+<p>Pre-build gate <code>CM-COVENANT-114-66-PROPAGATION</code> enforces
+the anchor literal across the 42-file consumer fleet. Paired meta- test
+mutation strips the literal → gate FAILs. No escape hatch — no
+<code>--skip-ask</code>, <code>--silent-wait</code>,
+<code>--free-form-only</code> flag.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.66.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
 </body>
 </html>
