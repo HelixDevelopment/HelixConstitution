@@ -2178,3 +2178,126 @@ flag.
 [`Constitution.md`](constitution/Constitution.md) §11.4.67.
 
 Non-compliance is a release blocker regardless of context.
+
+**§11.4.68 — Positive sink-side / downstream evidence mandate (User mandate, 2026-05-20)**
+
+A test asserting audio or video routing PASS MUST capture and verify
+positive sink-side or downstream evidence — never config-only, never
+metadata-only, never PCM-open-state-only. Closed enumeration of
+acceptable evidence: (1) sink-side codec-state showing non-empty
+codec matching the expected regex during playback (Arvus / Sonos /
+Yamaha REST API); (2) PCM `hw_ptr` delta strictly positive across
+the playback window; (3) ALSA ELD demonstrating negotiated channel
+count + format; (4) ffprobe-on-captured-mp4 with non-zero frames
+matching expected codec; (5) recording-analyzer matched event per
+§11.4.2 / §11.4.5 timeline; (6) tinycap RMS amplitude above floor.
+
+Failure modes specifically forbidden: `arvus_probe_present`
+returning 1 silently dropping the test to SKIP; empty codec-state
+treated as evidence; `dumpsys media.audio_flinger` policy-side
+device field used as proof PCM actually opened; config-XML-only PASS
+without runtime evidence. All four are the §11.4 PASS-bluff pattern
+materialised on D3 2026-05-20 when the test suite reported audio-
+routing PASS while the user heard nothing and Arvus Codec-In-Use was
+empty.
+
+Mandatory protections: (1) sink-side library helpers expose
+`*_require_reachable` returning exit code 2 (OPERATOR-BLOCKED) when
+sink unreachable; (2) test harness propagates 2 to summary as
+OPERATOR-BLOCKED, release tags blocked while OPERATOR-BLOCKED exists;
+(3) audio-routing tests rewritten to capture ≥1 positive sink/downstream
+evidence per the enumeration above; (4) anti-stickiness post-stop —
+test re-probes sink and asserts codec-state transitioned to N.E. /
+0-frames-delta. No escape hatch — no `--skip-sink-evidence`,
+`--allow-empty-codec`, `--sink-unreachable-is-pass`,
+`--metadata-only-suffices` flag.
+
+Composes with §11.4.2 / §11.4.5 / §11.4.13 / §11.4.14 / §11.4.46 /
+§11.4.49 / §11.4.50 / §11.4.52. Pre-build gates
+`CM-COVENANT-114-68-PROPAGATION` + `CM-POSITIVE-SINK-EVIDENCE-PER-AUDIO-TEST`
+with paired meta-test mutations per §1.1.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](constitution/Constitution.md) §11.4.68.
+
+Non-compliance is a release blocker regardless of context.
+
+**§11.4.69 — Universal sink-side positive-evidence taxonomy + mechanical enforcement (User mandate, 2026-05-20)**
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-20):**
+
+> "THIS MUST HAPPEN NEVER AGAIN!!! We MUST HAVE this all working!
+> Not just for audio but for every single piece of the System!!!
+> Proper full automation when executed with success MUST MEAN that
+> manual testing will be as much positive at least regarding the
+> success results! ... Solution MUST BE universal, generic that
+> solves working flows for all System components and for all
+> future and all existing projects! ... Everything we do MUST BE
+> validated and verified with rock-solid proofs and anti-bluff
+> policy enforcement and fulfillment!"
+
+Universal generalisation of §11.4.68 (audio-specific) across every
+user-visible feature class. Closes the PASS-bluff pattern where
+tests reported green while end users hit broken features
+(2026-05-19→20 D3 audio "82/84 PASS" + empty Arvus Codec-In-Use).
+
+**The mandate.** Every user-visible feature MUST map to one entry
+in the closed-set §11.4.69 sink-side evidence taxonomy (audio_output,
+audio_input, video_display, network_throughput, network_connectivity,
+bluetooth_a2dp, bluetooth_pair, touch_input, sensor, gpu_render,
+storage_read, storage_write, mediacodec_decode, mediacodec_encode,
+miracast, cast, boot_service, package_install, permission_grant,
+wifi_link, wifi_throughput, ethernet_link, display_topology,
+drm_playback, subtitle_render — open to additions). Every PASS for
+a feature in the taxonomy MUST cite a captured-evidence artefact
+path matching the required evidence shape.
+
+**Helper contracts (additive during grace; mandatory after
+2026-06-19):**
+
+- `ab_pass_with_evidence <description> <evidence_path>` — the new
+  canonical PASS helper. Verifies path exists AND non-empty;
+  emits `PASS: <description> [evidence: <path>]`.
+- `ab_skip_with_reason <description> <closed-set-reason>` — reasons:
+  `geo_restricted`, `operator_attended`, `hardware_not_present`,
+  `topology_unsupported`, `network_unreachable_external`,
+  `feature_disabled_by_config`. Forbids
+  `network_unreachable_external` for any taxonomy feature with a
+  sink-side probe.
+- Bare `ab_pass` deprecated — WARN pre-grace, FAIL post-grace
+  (2026-06-19).
+
+**Mechanical enforcement.** Three pre-build gates +
+three paired §1.1 meta-test mutations:
+
+- `CM-SINK-EVIDENCE-PER-FEATURE` — walks tests for
+  `# §11.4.69 FEATURE: <class>` annotation + verifies
+  taxonomy probe + `ab_pass_with_evidence` use.
+- `CM-NO-FAIL-OPEN-SKIP` — audits sink-side probe helpers;
+  FAILs if any code path converts empty/unreachable response to
+  PASS-counting SKIP for a feature class with a sink-side probe.
+- `CM-AB-PASS-WITH-EVIDENCE-EVERYWHERE` — pre-grace WARN, post-
+  grace FAIL on bare `ab_pass` calls.
+
+**Composes with** §11.4.1 (FAIL-bluffs forbidden), §11.4.2
+(recorded-evidence), §11.4.5 (audio + video 5-layer quality),
+§11.4.6 (no-guessing), §11.4.13 (sink-side captured-evidence),
+§11.4.27 (no-fakes-beyond-unit), §11.4.50 (deterministic
+consistency), §11.4.52 (autonomous-validation), §11.4.68
+(audio-specific sink-side — §11.4.69 is the universal
+generalisation).
+
+**No escape hatch** — no `--skip-evidence`, `--config-only-pass`,
+`--allow-fail-open-skip`, `--legacy-ab-pass-permitted` flag. The
+discipline exists because the 2026-05-20 forensic incident
+demonstrated the failure: tests reported audio-routing PASS while
+the user heard nothing and the Arvus Codec-In-Use field was empty.
+
+Propagation gate `CM-COVENANT-114-69-PROPAGATION` enforces this
+anchor literal across the ~44-file consumer fleet. Paired mutation
+strips the literal → gate FAILs.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](constitution/Constitution.md) §11.4.69.
+
+Non-compliance is a release blocker regardless of context.
