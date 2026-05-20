@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>AGENTS</title>
+  <title>Helix Constitution — Universal AGENTS.md</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -91,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -154,7 +155,6 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -238,7 +238,7 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">AGENTS</h1>
+<h1 class="title">Helix Constitution — Universal AGENTS.md</h1>
 </header>
 <h1 id="helix-constitution--universal-agentsmd">Helix Constitution —
 Universal AGENTS.md</h1>
@@ -252,7 +252,7 @@ Universal AGENTS.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>1</td>
+<td>2</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -260,7 +260,7 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-05-19</td>
+<td>2026-05-20</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -268,7 +268,10 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>—</td>
+<td>Mirrored Constitution.md §11.4.73 (main-spec versioning + revision
+discipline) and §11.4.74 (submodule-catalogue-first discovery) into this
+AGENTS.md per the new mandates' cross-document propagation
+requirement.</td>
 </tr>
 <tr>
 <td>Issues</td>
@@ -280,11 +283,11 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Fixed</td>
-<td>none</td>
+<td>§11.4.73 + §11.4.74 mirrors</td>
 </tr>
 <tr>
 <td>Fixed summary</td>
-<td>—</td>
+<td>landed in lockstep with the Constitution.md additions.</td>
 </tr>
 <tr>
 <td>Continuation</td>
@@ -2009,5 +2012,148 @@ strips the literal → gate FAILs.</p>
 href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.69.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
+<p><strong>§11.4.70 — Subagent-driven execution is the default (User
+mandate, 2026-05-20)</strong></p>
+<p><strong>Forensic anchor — direct user mandate (verbatim,
+2026-05-20):</strong></p>
+<blockquote>
+<p>"Always do if possible Subagent-driven! Add this into our root
+(constitution Submodule) Constitution.md, CLAUDE.md and AGENTS.md. This
+should be the default choice ALWAYS!"</p>
+</blockquote>
+<p>When executing implementation plans authored via
+<code>superpowers:writing-plans</code> (or any equivalent
+task-decomposed execution flow), the <strong>default execution model is
+subagent-driven</strong> per
+<code>superpowers:subagent-driven-development</code>. Inline execution
+via <code>superpowers:executing-plans</code> is permitted ONLY when (a)
+the task is trivial AND fits in a single sub-300-line edit, OR (b) the
+operator explicitly requests inline execution at brainstorm-handoff
+time.</p>
+<p>Subagents bring an isolated context window per task (no conductor
+context bloat), a structurally separated review seam (conductor reviews
+subagent output, eliminating self-review blind spots), parallel-PWU
+compatibility (§11.4.58 — subagents ARE the parallel work units), and
+resumability across operator absence (subagents resume from on-disk plan
++ spec inputs).</p>
+<p>Composes with §11.4.4 (four-layer coverage), §11.4.6 (no-guessing —
+subagent's captured output IS the evidence), §11.4.42 (iteration
+discipline), §11.4.43 (TDD-fix), §11.4.50 (deterministic consistency),
+§11.4.51 (LIVE_ADB_FIRST), §11.4.58 (parallel- development PWU).</p>
+<p>No escape hatch — <code>--inline-execution-required</code>,
+<code>--no-subagents</code>, <code>--monolithic-execution</code> are NOT
+permitted flags. Skipping subagent-driven for non-trivial work without
+recorded operator authorisation is itself a §11.4 PASS-bluff. Pre-build
+gate <code>CM-COVENANT-114-70-SUBAGENT-DEFAULT-PROPAGATION</code>
+enforces this anchor literal across the ~44-file consumer fleet. Paired
+meta-test mutation strips the literal → gate FAILs.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.70.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<p><strong>§11.4.71 — Pre-Push Fetch + Investigate + Integrate Mandate
+(User mandate, 2026-05-20)</strong></p>
+<p>Everyday-push variant of §11.4.41 (force-push merge-first). Before
+pushing to any upstream for any repository (main repo or submodule), the
+agent MUST follow the 5-step pre-push cycle: (1)
+<code>git fetch --all --prune --tags</code>, (2)
+<code>git pull --no-rebase &lt;remote&gt; &lt;branch&gt;</code> for each
+remote whose tip differs from local, (3) investigate the diff vs OUR
+previous HEAD by reading every foreign commit's body (what changed, why,
+how it affects OUR project), (4) integrate mandatory changes with full
+§11.4.4(b) four-layer anti-bluff test coverage producing REAL
+captured-evidence proofs, (5) THEN push to every configured remote in
+cascade order.</p>
+<p>Composes with §11.4.41 (force-push case) + §11.4.26 / §11.4.32 /
+§11.4.37 / §11.4.40 / §11.4.42 / §11.4.43 / §11.4.4(b) / §11.4.5 /
+§11.4.6.</p>
+<p>Applies to parent repo + constitution submodule + every owned
+submodule + every nested submodule + every HelixQA dependency.
+Audit-trail per push reconstructable from
+<code>docs/changelogs/&lt;tag&gt;.md</code> + per-repo
+<code>git log</code> evidence.</p>
+<p>No escape hatch — no <code>--skip-fetch</code>,
+<code>--no-investigate</code>, <code>--fast-push</code>,
+<code>--trust-upstream</code> flag. Pre-build gate
+<code>CM-COVENANT-114-71-PROPAGATION</code> + paired mutation.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.71.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<p><strong>§11.4.72 — Audio Top-Priority Mandate (User mandate,
+2026-05-20)</strong></p>
+<p>Direct user mandate (verbatim): "Make sure all fixes for audio are
+always top priority in main working stream!" The conductor (main working
+stream — Claude Code session, AI agent, or human operator) MUST treat
+audio fixes as the highest-priority class on the serial dispatch queue.
+Audio scope includes §EU HDMI rejection, §EM multichannel HDMI, §ET
+Arvus integration, §EV/§EW/§EX D3 audio defects, HiFi (Fix #74, #76),
+AC3 (Fix #106), ES8388 (Fix #103/§104/#105), multichannel LPCM (Fix
+#112), and every future audio-stack improvement.</p>
+<p>Composes with §11.4.42 (iteration-discipline — audio sits at apex of
+priority order) + §11.4.58 (parallel-development PWU — background
+research subagents run concurrently but do NOT preempt audio on the
+main-stream serial dispatch queue).</p>
+<p><strong>Operative rule:</strong> any time the conductor faces a
+choice between dispatching an audio task vs a non-audio task on the SAME
+serial resource, the audio task wins. No escape hatch — no "but this
+non-audio task is faster" or "but this research is more interesting"
+override. Audio-stack regressions are user-perceptible and high-impact
+(D3 silent post-flash is a release blocker), while research and
+refactors can wait.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.72.</p>
+<p>Non-compliance is a process violation regardless of context.</p>
+<p><strong>§11.4.73 — Main-specification document versioning + revision
+discipline (User mandate, 2026-05-20)</strong></p>
+<p>Direct user mandate (verbatim): "Make sure everything we add now in
+previous and upcoming requests IS ALWAYS applied to the main
+specification — if we have one. Since all these are not major changes we
+could increase Specification version per change for secondary version
+instead of the primary. Primary version MUST BE increased for much
+bigger levels of changes! Document MUST BE updated ALWAYS to follow the
+versioning rules we are applying here + revision and other properties we
+have!"</p>
+<p>Applies only when a project recognises a main specification document.
+Two-axis versioning: <strong>primary</strong> (V1/V2/V3/…) bumps for
+major rewrites (old primary archived); <strong>secondary</strong>
+(<code>Revision</code>) bumps for additive operator requirements
+(matches the §11.4.61 metadata-table <code>Revision</code> integer).
+Every operator-mandated requirement MUST land in the spec as part of the
+work that implements it. Cross-doc propagation copies MUST reference the
+active spec file, not a stale archived version. Composes with §11.4.44,
+§11.4.61, §11.4.59, §11.4.65.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.73.</p>
+<p>Non-compliance is a release blocker.</p>
+<p><strong>§11.4.74 — Submodule-catalogue-first discovery +
+extend-don't-reimplement (User mandate, 2026-05-20)</strong></p>
+<p>Direct user mandate (verbatim): "We MUST ALWAYS check which already
+developed features / functionalities do exist as a part of our
+comprehensive Submodules catalogue located in <code>vasic-digital</code>
+and <code>HelixDevelopment</code> organizations on GitHub and GitLab
+both! Project MUST BE aware of all its existence so we do not implement
+same things multiple times. For any missing features we MUST IMPLEMENT
+them properly and extend those Submodules further!"</p>
+<p>Before scaffolding any new module / package / helper / utility, the
+agent MUST: (1) survey <code>vasic-digital</code> +
+<code>HelixDevelopment</code> orgs on GitHub + GitLab; (2) reuse an
+existing Submodule when it covers ≥ 80% of the functionality; (3) extend
+in-place via upstream PR when 80%+ matches but features are missing —
+never duplicate; (4) document the survey result in the relevant tracker
+row with
+<code>Catalogue-Check: reuse|extend|no-match &lt;org/repo&gt;@&lt;sha&gt;</code>.</p>
+<p>Every Submodule in the catalogue is subject to the same
+development-cycle rules (§11.4 anti-bluff, §1.1 paired mutations,
+§11.4.10 credentials, §11.4.61 metadata + ToC, §11.4.65 universal
+export, §11.4.73 spec versioning, §2.1 multi-mirror push, §3 propagation
+order).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.74.</p>
+<p>Non-compliance is a process violation; severe cases (duplicate
+implementation landed without catalogue check) are release blockers.</p>
 </body>
 </html>

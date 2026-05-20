@@ -2,16 +2,16 @@
 
 | Field | Value |
 |---|---|
-| Revision | 2 |
+| Revision | 3 |
 | Created | 2026-05-14 |
-| Last modified | 2026-05-19 |
+| Last modified | 2026-05-20 |
 | Status | active |
-| Status summary | §11.4.66 ToC entry added per §11.4.61 hygiene |
+| Status summary | Two new mandates landed: §11.4.73 Main-specification document versioning + revision discipline (Revision + primary V<n> two-axis bumping), §11.4.74 Submodule-catalogue-first discovery (`vasic-digital` + `HelixDevelopment` survey before scaffolding; extend-don't-reimplement). Both carry forensic anchors (verbatim operator mandates 2026-05-20), gate plans, paired-mutation tests, classification = universal. |
 | Issues | none |
-| Issues summary | — |
-| Fixed | none |
-| Fixed summary | — |
-| Continuation | — |
+| Issues summary | ToC is currently stale (missing entries for §11.4.71/.72/.73/.74) — separate clean-up commit needed per §11.4.61. |
+| Fixed | §11.4.73, §11.4.74 |
+| Fixed summary | Operator-mandated additions 2026-05-20 propagated into Constitution.md (this commit); CLAUDE.md + AGENTS.md mirrors land in the same commit per §11.4.73's cross-document propagation clause. |
+| Continuation | ToC regeneration commit (cover §11.4.71..§11.4.74). |
 
 ## Table of contents
 
@@ -6798,6 +6798,75 @@ The conductor (main working stream — whether a Claude Code session, an AI agen
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.72.
 
 Non-compliance is a process violation regardless of context.
+
+### §11.4.73 — Main-specification document versioning + revision discipline (User mandate, 2026-05-20)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-20):**
+
+> "Make sure everything we add now in previous and upcoming requests IS ALWAYS applied to the main specification — if we have one. Since all these are not major changes we could increase Specification version per change for secondary version instead of the primary. Primary version MUST BE increased for much bigger levels of changes! Add this into root (constitution Submodule) Constitution.md, CLAUDE.md and AGENTS.md as mandatory rule / constraint applicable ONLY IF we have something like the main specification document or we do recognize something like the main specification document. Document MUST BE updated ALWAYS to follow the versioning rules we are appling here + revision and other properties we have!"
+
+**Scope condition.** This clause applies **only when a project recognises a main specification document** — i.e. a project-level Markdown file (or set of files) that constitutes the canonical "what this system does" reference, typically at `docs/specs/**/specification*.md` or a comparable path. Projects with no main specification (small libraries, internal tooling) are exempt. Projects that operate per-feature spec files (e.g. ADRs only) are exempt unless they elect to adopt the main-spec pattern.
+
+**The mandate.** When a project DOES have a main specification document:
+
+1. **Every additive operator requirement, refinement, or accepted recommendation MUST be applied to the spec** before, or as part of, the work that implements it. The spec is the source of truth; downstream code and tracking docs reference it.
+2. **Spec versioning has two axes** — *primary* and *secondary* (where "secondary" maps to the existing §11.4.61 metadata-table `Revision` row):
+   - **Primary (V1 / V2 / V3 / …)** bumps for major rewrites — substantial architecture changes, foundational scope shifts, deprecating large sections, replacing the technology stack. Triggered explicitly by operator decision; old primary versions move to `archive/` per §11.4.61.
+   - **Secondary (`Revision`)** bumps for every other change — section additions, mandate landings, structural reorganisation, polish, type-contract refinements. The metadata table's `Revision` integer is the secondary version (matches §11.4.44 monotonic-integer rule).
+3. **The metadata table on the spec MUST stay current** — `Revision` bumps in lockstep with the change; `Last modified` updates to the change date; `Status summary` describes the bump's content; `Fixed` and `Fixed summary` reference the relevant work IDs.
+4. **Cross-document propagation** — when a project has propagated copies of the spec-change rule (Herald uses CLAUDE.md, AGENTS.md, HERALD_CONSTITUTION.md per its §106), those copies MUST also reference the active spec file (`specification.V<primary>.md`) and not a stale archived version.
+5. **Archive semantics** — when the primary version bumps, the old `specification.V<n>.md` moves to `<spec-dir>/archive/specification.V<n>.md` and gains `Status: superseded` with a `Continuation` pointer to the new active file. Per the §11.4.65 universal-export mandate the archived `.html` and `.pdf` siblings travel with it.
+
+**Anti-bluff captured-evidence gate (planned).** `CM-SPEC-VERSION-DISCIPLINE`:
+- If the project advertises a main spec (operator marks via `[project].main_spec_path = "docs/specs/.../specification.V<n>.md"` in a canonical config file), the gate asserts:
+  - The file at `main_spec_path` exists.
+  - Its metadata table's `Revision` row is ≥ the highest `Revision` referenced anywhere else in the repo (Issues.md, Fixed.md, CLAUDE.md, AGENTS.md).
+  - If commits exist that touch the spec since the last `Revision` bump, the gate FAILs (operator forgot to bump).
+
+**Paired §1.1 mutation.** Backdate the `Last modified` row to a prior date while leaving real-content edits in place → gate FAILs.
+
+**Composition.** Composes with §11.4.44 (revision header — `Revision` is the secondary version here), §11.4.61 (metadata table + ToC), §11.4.59 (README always-sync — if README cites the spec, the citation MUST point at the current primary version), §11.4.65 (universal export — archived versions stay exported).
+
+**Classification:** universal (per §11.4.17), applicable conditionally per the scope condition above.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.73.
+
+Non-compliance (forgetting to bump, or letting the spec drift behind operator-mandated requirements) is a release blocker.
+
+### §11.4.74 — Submodule-catalogue-first discovery + extend-don't-reimplement (User mandate, 2026-05-20)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-20):**
+
+> "We MUST ALWAYS check which already developed features / functionalities do exist as a part of our comprehensive Submodules catalogue located in vasic-digital and HelixDevelopment organizations on GitHub and GitLab both! Project MUST BE aware of all its existence so we do not implement same things multiple times if they are already done as some of existing universal, reusable general development purpose Submodules! For any missing features that some Submodules we incorporate may be missing we MUST IMPLEMENT the properly and extend those Submodules furter! We do control all of the and we CAN and MUST maintain and extend the regularly! All development cycle rules we have MUST BE applied to them and fully respected!"
+
+**The mandate.** Before scaffolding ANY new module, package, helper, or utility, the contributor (human or AI agent) MUST:
+
+1. **Survey the canonical Submodule catalogue.** Two organisations are authoritative:
+   - `vasic-digital` on GitHub (`https://github.com/vasic-digital`) AND GitLab (`https://gitlab.com/vasic-digital`).
+   - `HelixDevelopment` on GitHub (`https://github.com/HelixDevelopment`) AND GitLab (`https://gitlab.com/HelixDevelopment`).
+   Both organisations mirror across all four supported hosts per §2.1 — surveying one mirror MUST yield the full catalogue.
+2. **Inventory existing Submodules.** A repo INDEX (planned: `tools/submodule-catalogue/INDEX.md` in the constitution submodule, listing every Submodule with one-line scope description) is the canonical reference. Until that lands, contributors MUST clone and inspect both orgs' repository lists.
+3. **Reuse before reimplement.** If a Submodule already provides the functionality (or 80%+ of it), the consuming project MUST add the existing Submodule as a Git submodule, not write the functionality fresh.
+4. **Extend in-place when 80%+ matches but features are missing.** When an existing Submodule is close-but-not-complete, the missing features MUST be added TO THAT SUBMODULE (PR upstream + bump consuming project's submodule pointer) — never as a separate consuming-project helper that duplicates the 80% already in the Submodule.
+5. **Same development-cycle rules apply.** Every Submodule under the two orgs is subject to: §11.4 anti-bluff covenant, §1.1 paired-mutation tests, §11.4.10 credentials handling, §11.4.61 metadata table + ToC, §11.4.65 universal Markdown export, §11.4.73 spec versioning (if the Submodule has its own spec), §2.1 multi-mirror push, §3 propagation order. Maintenance + extension of those Submodules MUST follow these rules without exception.
+6. **Document the survey result.** Each new feature's tracker entry (Issues.md row, ADR, PR description, or equivalent) MUST contain a `Catalogue-Check:` field with one of three values:
+   - `Catalogue-Check: reuse <org/repo>@<sha>` — the existing Submodule covers this.
+   - `Catalogue-Check: extend <org/repo>@<sha>` — extending an existing Submodule; reference the upstream PR.
+   - `Catalogue-Check: no-match <date>` — surveyed both orgs on the named date; no existing Submodule covers this functionality; the new code is justified to live in-project. Operators reviewing the PR re-validate this claim.
+
+**Anti-bluff captured-evidence gate (planned).** `CM-SUBMODULE-CATALOGUE-CHECK`:
+- For every new module / package introduced in a non-trivial PR (heuristic: ≥ 200 LOC of new non-test code), the gate scans the PR description and any linked tracker row for a `Catalogue-Check:` line. Absence is a FAIL.
+- The gate's paired mutation strips the line from a PR and asserts the gate FAILs.
+
+**Composition.** Composes with §3 (submodule commits propagate first), §4 (every tag on the main repo MUST be mirrored on every owned submodule), §11.4.36 (mandatory `install_upstreams` on clone/add), §11.4.31 (Submodule-Dependency-Manifest), §11.4.32 (post-pull validation), §11.4.28 (Submodules-As-Equal-Codebase).
+
+**Why this matters.** Without the catalogue-check, consuming projects re-implement UUIDv7 helpers, RLS-tenant-context wrappers, Pandoc-multi-format exporters, install_upstreams shell scripts, Markdown ToC generators, fnv1a32 hash wrappers, etc. — fragmenting the catalogue and forcing the next project to choose between three subtly-different implementations of the same thing. The mandate makes the catalogue load-bearing.
+
+**Classification:** universal (per §11.4.17). Applies to every project that consumes this Constitution.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.74.
+
+Non-compliance is a process violation; severe cases (duplicate implementation landed without catalogue check) are release blockers.
 
 ---
 

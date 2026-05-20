@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
+| Revision | 2 |
 | Created | 2026-05-14 |
-| Last modified | 2026-05-19 |
+| Last modified | 2026-05-20 |
 | Status | active |
-| Status summary | — |
+| Status summary | Mirrored Constitution.md §11.4.73 (main-spec versioning + revision discipline) and §11.4.74 (submodule-catalogue-first discovery) into this CLAUDE.md per the new mandates' cross-document propagation requirement. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | none |
-| Fixed summary | — |
+| Fixed | §11.4.73 + §11.4.74 mirrors |
+| Fixed summary | landed in lockstep with the Constitution.md additions. |
 | Continuation | — |
 
 ## Table of contents
@@ -2389,3 +2389,25 @@ Composes with §11.4.42 (iteration-discipline — audio sits at apex of priority
 [`Constitution.md`](constitution/Constitution.md) §11.4.72.
 
 Non-compliance is a process violation regardless of context.
+
+**§11.4.73 — Main-specification document versioning + revision discipline (User mandate, 2026-05-20)**
+
+Direct user mandate (verbatim): "Make sure everything we add now in previous and upcoming requests IS ALWAYS applied to the main specification — if we have one. Since all these are not major changes we could increase Specification version per change for secondary version instead of the primary. Primary version MUST BE increased for much bigger levels of changes! Document MUST BE updated ALWAYS to follow the versioning rules we are applying here + revision and other properties we have!"
+
+Applies only when a project recognises a main specification document (e.g. `docs/specs/**/specification.V<n>.md`). Two-axis versioning: **primary** (V1/V2/V3/…) bumps for major rewrites (old primary archived to `<spec-dir>/archive/`); **secondary** (`Revision`) bumps for additive operator requirements, refinements, polish (matches the §11.4.61 metadata-table `Revision` integer). Every operator-mandated requirement MUST land in the spec as part of the work that implements it. Cross-doc propagation copies MUST reference the active spec file, not a stale archived version. Composes with §11.4.44, §11.4.61, §11.4.59, §11.4.65.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](constitution/Constitution.md) §11.4.73.
+
+Non-compliance is a release blocker.
+
+**§11.4.74 — Submodule-catalogue-first discovery + extend-don't-reimplement (User mandate, 2026-05-20)**
+
+Direct user mandate (verbatim): "We MUST ALWAYS check which already developed features / functionalities do exist as a part of our comprehensive Submodules catalogue located in `vasic-digital` and `HelixDevelopment` organizations on GitHub and GitLab both! Project MUST BE aware of all its existence so we do not implement same things multiple times. For any missing features we MUST IMPLEMENT them properly and extend those Submodules further!"
+
+Before scaffolding any new module / package / helper / utility, the contributor (human or AI agent) MUST: (1) survey the `vasic-digital` + `HelixDevelopment` orgs on GitHub + GitLab; (2) reuse an existing Submodule when it covers ≥ 80% of the functionality; (3) extend in-place via upstream PR when 80%+ matches but features are missing — never duplicate the 80% in-project; (4) document the survey result in the relevant tracker row with a `Catalogue-Check: reuse|extend|no-match <org/repo>@<sha>` line.
+
+Every Submodule in the catalogue is subject to the same development-cycle rules (§11.4 anti-bluff, §1.1 paired mutations, §11.4.10 credentials, §11.4.61 metadata + ToC, §11.4.65 universal export, §11.4.73 spec versioning, §2.1 multi-mirror push, §3 propagation order).
+
+**Canonical authority:** constitution submodule [`Constitution.md`](constitution/Constitution.md) §11.4.74.
+
+Non-compliance is a process violation; severe cases (duplicate implementation landed without catalogue check) are release blockers.
