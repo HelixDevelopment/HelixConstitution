@@ -6917,9 +6917,19 @@ layer does not bypass the discipline. The five layers are:
    just-committed manifest, auto-generates siblings via pandoc +
    weasyprint, creates a `chore(§11.4.75): auto-export ...` follow-up
    commit. Idempotent + recursion-guarded.
-5. **CI/CD workflow** (`.github/workflows/constitution-compliance.yml`)
-   — final defence at remote level. Runs propagation-gate subset on
-   every push to main + every PR; auto-fails on violations.
+5. **Local-only equivalent** (Phase 39.GF, User mandate 2026-05-20).
+   Remote CI surfaces (GitHub Actions, GitLab pipelines, Jenkins,
+   CircleCI, etc.) are DISABLED per User mandate
+   2026-05-20 — the workflow file is preserved at
+   `.github/workflows/constitution-compliance.yml.disabled-local-only`
+   so its contents survive for re-enable but GitHub Actions does NOT
+   execute it (only `.yml` / `.yaml` files under `.github/workflows/`
+   are honoured). Layer 5 enforcement migrated to the LOCAL pre-build-
+   verification + meta-test run that the operator MUST execute before
+   tagging: `bash device/rockchip/rk3588/tests/pre_build_verification.sh`
+   + `bash scripts/testing/meta_test_false_positive_proof.sh`. Layers
+   1-4 remain authoritative; Layer 5 is now the operator's local final-
+   gate ritual. A future re-enable PWU may re-establish remote CI.
 
 **Helper contracts (mandatory):**
 
@@ -6938,12 +6948,15 @@ layer does not bypass the discipline. The five layers are:
 — that is the design. Bypassing ALL FIVE simultaneously is
 mechanically impossible because:
 
-- Layers 1 + 3 can be bypassed by `--no-verify`. Layer 5 (CI)
-  re-runs the same check at remote.
+- Layers 1 + 3 can be bypassed by `--no-verify`. Layer 5 (now local
+  pre-tag ritual after Phase 39.GF) re-runs the same check before
+  tag creation; tags are NEVER created without it per §11.4.40.
 - Layer 2 can be bypassed by direct `git commit`. Layer 1 catches that.
 - Layer 4 cannot be bypassed by `--no-verify` (runs after commit lands).
-- Layer 5 can be bypassed by force-push to main. Branch protection
-  prevents that; §11.4.41 audit trail records every attempt.
+- Layer 5 is now local-only (Phase 39.GF — User mandate 2026-05-20).
+  The operator runs `pre_build_verification.sh` + meta-test before
+  every tag per §11.4.40 full-suite-retest mandate. Skipping the
+  local Layer 5 ritual blocks tag creation.
 
 **Legitimate bypasses MUST be audited.** When `--no-verify` is
 detected via touch-file marker `.git/ATMO_LAST_BYPASS_ATTEMPT`, the
