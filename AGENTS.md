@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 4 |
+| Revision | 5 |
 | Created | 2026-05-14 |
 | Last modified | 2026-05-20 |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.76 (containers-submodule mandate) into this AGENTS.md. §11.4.73 + §11.4.74 + §11.4.75 mirrors continue from earlier Revisions. |
+| Status summary | Mirrored Constitution.md §11.4.78 (CodeGraph code-intelligence mandate) into this AGENTS.md. §11.4.73–§11.4.77 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | §11.4.73 + §11.4.74 + §11.4.75 + §11.4.76 mirrors |
-| Fixed summary | §11.4.76 lands in lockstep with the Constitution.md addition + QWEN.md creation. |
+| Fixed | §11.4.78 mirror |
+| Fixed summary | §11.4.78 lands in lockstep with the Constitution.md §11.4.78 addition. |
 | Continuation | — |
 
 ## Table of contents
@@ -1756,3 +1756,15 @@ Composes with §11.4.6 (no-guessing — verify mechanism on sandbox), §11.4.65 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.77.
 
 Non-compliance is a release blocker regardless of context.
+
+**§11.4.78 — CodeGraph code-intelligence mandate (User mandate, 2026-05-20)**
+
+Direct user mandate (verbatim): "Make codegraph MANDATORY CHOICE for this purpose for all of our project ... All project which do not have configured and installed codegraph yet MUST DO IT and MUST USE IT!"
+
+Every consuming project worked on by AI coding agents MUST install, initialize, and use **CodeGraph** (`https://github.com/colbymchenry/codegraph`, npm `@colbymchenry/codegraph`) — a local SQLite semantic code-knowledge-graph exposed to agents over MCP (100% local, no cloud). (1) Install globally via npm — no `sudo` (npm prefix MUST be user-writable). (2) `codegraph init` + `codegraph index`: `.codegraph/config.json` tracked, `.codegraph/codegraph.db` gitignored with `codegraph index` as its §11.4.77 regeneration mechanism; the `exclude` list MUST exclude other-owned submodules AND every §11.4.10 credential/secret path. (3) Wire the `codegraph serve --mcp` server into every CLI agent the developers use — project-scoped + committed where supported (Claude Code `.mcp.json`, OpenCode `opencode.json`, Qwen Code `.qwen/settings.json`, Crush `.crush.json`), host-local otherwise (Kimi CLI `~/.kimi/mcp.json`); configs reference the bare `codegraph` command on `PATH`. (4) Cover the integration with an anti-bluff verification suite whose per-agent end-to-end layer uses an unforgeable challenge (a fact obtainable only by calling a CodeGraph MCP tool); un-runnable agents are documented SKIP gaps per §11.4.3, never faked PASSes. (5) Document everything in `docs/CODEGRAPH.md`. CodeGraph is consumed as the npm package (§11.4.74) — not a git submodule, adds no Git remote.
+
+Composes with §11.4.3, §11.4.10, §11.4.12, §11.4.65, §11.4.30, §11.4.74, §11.4.77, §11.4, §1.1. Planned gate `CM-CODEGRAPH-WIRED` + paired mutation.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.78.
+
+Non-compliance is a process violation; a project worked on by AI agents without CodeGraph installed, wired, and anti-bluff-verified is in breach of this mandate.

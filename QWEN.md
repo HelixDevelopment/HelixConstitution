@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
+| Revision | 2 |
 | Created | 2026-05-20 |
 | Last modified | 2026-05-20 |
 | Status | active |
-| Status summary | Initial QWEN.md created per user mandate 2026-05-20. Mirrors the AGENTS.md / CLAUDE.md inheritance contract for the Qwen Code CLI agent. Carries the same anti-bluff covenant + the new §11.4.76 containers-submodule mandate verbatim (renumbered from drafted §11.4.75 after concurrent `0a70083` landing of §11.4.75 Mechanical Enforcement). |
+| Status summary | Mirrored Constitution.md §11.4.78 (CodeGraph code-intelligence mandate) into this QWEN.md. Revision 1 created the file per user mandate 2026-05-20 carrying the §11.4.76 + §11.4.77 mirrors. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | initial creation |
-| Fixed summary | created alongside the constitution-wide §11.4.76 propagation. |
+| Fixed | §11.4.78 mirror |
+| Fixed summary | §11.4.78 lands in lockstep with the Constitution.md §11.4.78 addition. |
 | Continuation | — |
 
 ## Table of contents
@@ -137,6 +137,18 @@ Composes with §11.4.6, §11.4.65, §11.4.66, §11.4.71, §11.4.74, §11.4.75, �
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.77.
 
 Non-compliance is a release blocker regardless of context.
+
+### §11.4.78 — CodeGraph code-intelligence mandate
+
+Direct user mandate (verbatim, 2026-05-20): "Make codegraph MANDATORY CHOICE for this purpose for all of our project ... All project which do not have configured and installed codegraph yet MUST DO IT and MUST USE IT!"
+
+Every consuming project worked on by AI coding agents — Qwen Code included — MUST install, initialize, and use **CodeGraph** (`https://github.com/colbymchenry/codegraph`, npm `@colbymchenry/codegraph`): a local SQLite semantic code-knowledge-graph exposed to agents over MCP, 100% local. Install globally via npm (no `sudo`). `codegraph init` + `codegraph index`: `.codegraph/config.json` is tracked, `.codegraph/codegraph.db` is gitignored with `codegraph index` as its §11.4.77 regeneration mechanism; the `exclude` list MUST exclude other-owned submodules and every §11.4.10 credential/secret path. Wire the `codegraph serve --mcp` server into every CLI agent the developers use — for Qwen Code via `.qwen/settings.json` (`qwen mcp add codegraph codegraph serve --mcp --scope project --transport stdio`). Cover the integration with an anti-bluff verification suite using an unforgeable per-agent challenge (a fact obtainable only by calling a CodeGraph MCP tool); un-runnable agents are documented SKIP gaps, never faked PASSes. Document in `docs/CODEGRAPH.md`. CodeGraph is consumed as the npm package (§11.4.74), not a git submodule.
+
+Composes with §11.4.3, §11.4.10, §11.4.12, §11.4.65, §11.4.30, §11.4.74, §11.4.77, §11.4, §1.1.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.78.
+
+Non-compliance is a process violation; a project worked on by AI agents without CodeGraph installed, wired, and anti-bluff-verified is in breach.
 
 ## Companion documents
 

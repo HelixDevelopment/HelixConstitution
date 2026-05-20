@@ -91,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -154,7 +155,6 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -8582,6 +8582,123 @@ vendor-provenance reasons.</p>
 <p><strong>Canonical authority:</strong> constitution submodule <a
 href="Constitution.md"><code>Constitution.md</code></a> §11.4.77.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
+<hr />
+<h3
+id="codegraph-code-intelligence-mandate-user-mandate-2026-05-20">§11.4.78
+— CodeGraph code-intelligence mandate (User mandate, 2026-05-20)</h3>
+<p><strong>Forensic anchor — direct user mandate (verbatim,
+2026-05-20):</strong></p>
+<blockquote>
+<p>“All gathered knowledge and steps MUST BE added as future reusable
+experience into our constitution Submodule on setting up / configuring
+and using codegraph with all supported CLI agents we may use for our
+codebase! Make codegraph MANDATORY CHOICE for this purpose for all of
+our project and add proper comprehensive details about everything
+codegraph related into our root constitution (constitution Submodule)
+Constitution.md, AGENTS.md, CLAUDE.md, QWEN.md and other constitution
+Submodule relevant files! All project which do not have configured and
+installed codegraph yet MUST DO IT and MUST USE IT!”</p>
+</blockquote>
+<p><strong>The mandate.</strong> Every consuming project under this
+Constitution MUST install, initialize, and use
+<strong>CodeGraph</strong>
+(<code>https://github.com/colbymchenry/codegraph</code>, npm package
+<code>@colbymchenry/codegraph</code>) as its code-intelligence layer for
+AI coding agents. CodeGraph builds a local SQLite semantic knowledge
+graph of a codebase and exposes it to agents over the Model Context
+Protocol (MCP) — 100% local, no cloud, no external API (compatible with
+the Local-Only CI/CD posture). A project worked on by AI coding agents
+that has not yet installed and wired CodeGraph MUST do so; using it is
+not optional.</p>
+<ol type="1">
+<li><p><strong>Install.</strong>
+<code>npm install -g @colbymchenry/codegraph</code> (Node.js 18+). The
+npm global prefix MUST be user-writable — installation MUST NOT require
+<code>sudo</code> / <code>su</code> (§9 / §12 host-safety + the
+no-privilege-escalation posture). Native modules
+(<code>better-sqlite3</code>, <code>tree-sitter</code>) compile on
+install with a WASM fallback.</p></li>
+<li><p><strong>Initialize + index.</strong> <code>codegraph init</code>
+at the project root creates <code>.codegraph/config.json</code>
+(tracked) and <code>.codegraph/codegraph.db</code> (a regenerable build
+artifact — gitignored per §11.4.30 / §11.4.77, with
+<code>codegraph index</code> as its declared regeneration mechanism).
+The <code>config.json</code> <code>exclude</code> list MUST exclude (a)
+other-owned submodules and vendored trees — index the consuming
+project’s own domain code — and (b), non-negotiably, every
+credential/secret path (<code>.env*</code>, keystores, signing keys,
+service-account JSON) per §11.4.10. A secret reaching the index is a
+§11.4.10 violation. <code>codegraph index</code> builds the graph;
+<code>codegraph sync</code> keeps it fresh.</p></li>
+<li><p><strong>Wire every supported CLI agent.</strong> The CodeGraph
+MCP server (<code>codegraph serve --mcp</code>, stdio transport) MUST be
+registered with every AI coding CLI agent the project’s developers use.
+Registration is project-scoped and committed where the agent supports it
+(e.g. Claude Code <code>.mcp.json</code>, OpenCode
+<code>opencode.json</code>, Qwen Code <code>.qwen/settings.json</code>,
+Crush <code>.crush.json</code>); host-local where the agent stores MCP
+config outside the repository (e.g. Kimi CLI
+<code>~/.kimi/mcp.json</code>). Every MCP config MUST reference the bare
+<code>codegraph</code> command resolved on <code>PATH</code> — never a
+hardcoded host path (the no-hardcoding posture). Claude Code is the
+canonical primary agent; the others MUST work too.</p></li>
+<li><p><strong>Anti-bluff verification is mandatory.</strong> CodeGraph
+integration MUST be covered by an anti-bluff verification suite (the
+canonical reference implementation is Lava’s
+<code>scripts/verify-codegraph.sh</code> +
+<code>tests/codegraph/</code>, six layers): index reality, query
+correctness, MCP-protocol JSON-RPC, per-agent connectivity, per-agent
+end-to-end LLM drive, and a falsifiability rehearsal that mechanically
+proves the suite FAILs when the index is deliberately broken. The
+per-agent end-to-end layer MUST use an <strong>unforgeable
+challenge</strong> — a fact obtainable only by calling a CodeGraph MCP
+tool (e.g. the index node count via <code>codegraph_status</code>) — so
+an agent answering from its own file-reading tools cannot produce a
+false PASS. An agent that genuinely cannot be driven end-to-end in the
+test environment (missing credentials, exhausted quota, environment
+incompatibility) is recorded as a documented SKIP gap per §11.4.3 —
+never a faked PASS.</p></li>
+<li><p><strong>Comprehensive documentation.</strong> Every project MUST
+carry a <code>docs/CODEGRAPH.md</code> (or canonical equivalent)
+describing install, initialization, indexing, per-agent wiring, the
+verification suite, and troubleshooting — kept in sync per §11.4.12 /
+§11.4.65.</p></li>
+<li><p><strong>Catalogue-first.</strong> CodeGraph is a third-party
+developer tool, not an owned submodule — it does NOT enter the project
+as a <code>git submodule</code> (per §11.4.74 it is consumed as the
+published npm package) and it does NOT add a Git remote.</p></li>
+</ol>
+<p><strong>Anti-bluff captured-evidence gate (planned).</strong>
+<code>CM-CODEGRAPH-WIRED</code>: for every consuming project, the gate
+verifies <code>.codegraph/config.json</code> exists with the §11.4.10
+secret-exclusions present, every developer-used agent carries a
+CodeGraph MCP registration, and the verification suite exists and is
+executable. The paired §1.1 mutation removes a secret-exclusion from
+<code>config.json</code> and asserts the gate FAILs.</p>
+<p><strong>Composition.</strong> Composes with §11.4.3
+(per-environment-topology SKIP for un-runnable agents), §11.4.10
+(credentials never indexed), §11.4.12 + §11.4.65 (CODEGRAPH.md kept in
+sync + exported), §11.4.30 / §11.4.77 (the
+<code>.codegraph/codegraph.db</code> artifact is gitignored with
+<code>codegraph index</code> as its regeneration mechanism), §11.4.74
+(catalogue-first — CodeGraph is consumed, not reimplemented), §11.4 (the
+verification suite is anti-bluff by construction — CI green is
+necessary, never sufficient), §1.1 (paired-mutation gate).</p>
+<p><strong>Why this matters.</strong> AI coding agents that explore a
+codebase by repeated file scanning consume tokens and tool calls
+wastefully and build a shallow, drift-prone mental model. A pre-indexed
+semantic graph gives every agent instant, consistent symbol / caller /
+callee / impact resolution. Standardising on one tool — CodeGraph —
+across every Helix project means the capability is wired once, verified
+anti-bluff once, and reused everywhere, instead of each project
+hand-rolling ad-hoc context tooling.</p>
+<p><strong>Classification:</strong> universal (per §11.4.17). Applies to
+every project that is worked on by AI coding CLI agents.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.78.</p>
+<p>Non-compliance is a process violation; a project worked on by AI
+agents without CodeGraph installed, wired, and anti-bluff-verified is in
+breach of this mandate.</p>
 <hr />
 <h2
 id="host-session-safety-directly-or-indirectly-signing-the-user-out-is-forbidden">§12.

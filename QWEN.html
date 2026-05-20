@@ -91,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -154,7 +155,6 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -253,7 +253,7 @@ Universal QWEN.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>1</td>
+<td>2</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -269,12 +269,9 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Initial QWEN.md created per user mandate 2026-05-20. Mirrors the
-AGENTS.md / CLAUDE.md inheritance contract for the Qwen Code CLI agent.
-Carries the same anti-bluff covenant + the new §11.4.76
-containers-submodule mandate verbatim (renumbered from drafted §11.4.75
-after concurrent <code>0a70083</code> landing of §11.4.75 Mechanical
-Enforcement).</td>
+<td>Mirrored Constitution.md §11.4.78 (CodeGraph code-intelligence
+mandate) into this QWEN.md. Revision 1 created the file per user mandate
+2026-05-20 carrying the §11.4.76 + §11.4.77 mirrors.</td>
 </tr>
 <tr>
 <td>Issues</td>
@@ -286,11 +283,12 @@ Enforcement).</td>
 </tr>
 <tr>
 <td>Fixed</td>
-<td>initial creation</td>
+<td>§11.4.78 mirror</td>
 </tr>
 <tr>
 <td>Fixed summary</td>
-<td>created alongside the constitution-wide §11.4.76 propagation.</td>
+<td>§11.4.78 lands in lockstep with the Constitution.md §11.4.78
+addition.</td>
 </tr>
 <tr>
 <td>Continuation</td>
@@ -552,6 +550,38 @@ required YAML key → gate FAILs.</p>
 <p><strong>Canonical authority:</strong> <a
 href="Constitution.md"><code>Constitution.md</code></a> §11.4.77.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
+<h3 id="codegraph-code-intelligence-mandate">§11.4.78 — CodeGraph
+code-intelligence mandate</h3>
+<p>Direct user mandate (verbatim, 2026-05-20): “Make codegraph MANDATORY
+CHOICE for this purpose for all of our project … All project which do
+not have configured and installed codegraph yet MUST DO IT and MUST USE
+IT!”</p>
+<p>Every consuming project worked on by AI coding agents — Qwen Code
+included — MUST install, initialize, and use <strong>CodeGraph</strong>
+(<code>https://github.com/colbymchenry/codegraph</code>, npm
+<code>@colbymchenry/codegraph</code>): a local SQLite semantic
+code-knowledge-graph exposed to agents over MCP, 100% local. Install
+globally via npm (no <code>sudo</code>). <code>codegraph init</code> +
+<code>codegraph index</code>: <code>.codegraph/config.json</code> is
+tracked, <code>.codegraph/codegraph.db</code> is gitignored with
+<code>codegraph index</code> as its §11.4.77 regeneration mechanism; the
+<code>exclude</code> list MUST exclude other-owned submodules and every
+§11.4.10 credential/secret path. Wire the
+<code>codegraph serve --mcp</code> server into every CLI agent the
+developers use — for Qwen Code via <code>.qwen/settings.json</code>
+(<code>qwen mcp add codegraph codegraph serve --mcp --scope project --transport stdio</code>).
+Cover the integration with an anti-bluff verification suite using an
+unforgeable per-agent challenge (a fact obtainable only by calling a
+CodeGraph MCP tool); un-runnable agents are documented SKIP gaps, never
+faked PASSes. Document in <code>docs/CODEGRAPH.md</code>. CodeGraph is
+consumed as the npm package (§11.4.74), not a git submodule.</p>
+<p>Composes with §11.4.3, §11.4.10, §11.4.12, §11.4.65, §11.4.30,
+§11.4.74, §11.4.77, §11.4, §1.1.</p>
+<p><strong>Canonical authority:</strong> <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.78.</p>
+<p>Non-compliance is a process violation; a project worked on by AI
+agents without CodeGraph installed, wired, and anti-bluff-verified is in
+breach.</p>
 <h2 id="companion-documents">Companion documents</h2>
 <ul>
 <li><a href="Constitution.md"><code>Constitution.md</code></a> —

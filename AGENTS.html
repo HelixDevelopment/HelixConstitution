@@ -91,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -154,7 +155,6 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -253,7 +253,7 @@ Universal AGENTS.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>4</td>
+<td>5</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -269,9 +269,9 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Mirrored Constitution.md §11.4.76 (containers-submodule mandate)
-into this AGENTS.md. §11.4.73 + §11.4.74 + §11.4.75 mirrors continue
-from earlier Revisions.</td>
+<td>Mirrored Constitution.md §11.4.78 (CodeGraph code-intelligence
+mandate) into this AGENTS.md. §11.4.73–§11.4.77 mirrors continue from
+earlier Revisions.</td>
 </tr>
 <tr>
 <td>Issues</td>
@@ -283,12 +283,12 @@ from earlier Revisions.</td>
 </tr>
 <tr>
 <td>Fixed</td>
-<td>§11.4.73 + §11.4.74 + §11.4.75 + §11.4.76 mirrors</td>
+<td>§11.4.78 mirror</td>
 </tr>
 <tr>
 <td>Fixed summary</td>
-<td>§11.4.76 lands in lockstep with the Constitution.md addition +
-QWEN.md creation.</td>
+<td>§11.4.78 lands in lockstep with the Constitution.md §11.4.78
+addition.</td>
 </tr>
 <tr>
 <td>Continuation</td>
@@ -2314,5 +2314,43 @@ sandbox), §3 (consuming submodules inherit).</p>
 <p><strong>Canonical authority:</strong> constitution submodule <a
 href="Constitution.md"><code>Constitution.md</code></a> §11.4.77.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
+<p><strong>§11.4.78 — CodeGraph code-intelligence mandate (User mandate,
+2026-05-20)</strong></p>
+<p>Direct user mandate (verbatim): “Make codegraph MANDATORY CHOICE for
+this purpose for all of our project … All project which do not have
+configured and installed codegraph yet MUST DO IT and MUST USE IT!”</p>
+<p>Every consuming project worked on by AI coding agents MUST install,
+initialize, and use <strong>CodeGraph</strong>
+(<code>https://github.com/colbymchenry/codegraph</code>, npm
+<code>@colbymchenry/codegraph</code>) — a local SQLite semantic
+code-knowledge-graph exposed to agents over MCP (100% local, no cloud).
+(1) Install globally via npm — no <code>sudo</code> (npm prefix MUST be
+user-writable). (2) <code>codegraph init</code> +
+<code>codegraph index</code>: <code>.codegraph/config.json</code>
+tracked, <code>.codegraph/codegraph.db</code> gitignored with
+<code>codegraph index</code> as its §11.4.77 regeneration mechanism; the
+<code>exclude</code> list MUST exclude other-owned submodules AND every
+§11.4.10 credential/secret path. (3) Wire the
+<code>codegraph serve --mcp</code> server into every CLI agent the
+developers use — project-scoped + committed where supported (Claude Code
+<code>.mcp.json</code>, OpenCode <code>opencode.json</code>, Qwen Code
+<code>.qwen/settings.json</code>, Crush <code>.crush.json</code>),
+host-local otherwise (Kimi CLI <code>~/.kimi/mcp.json</code>); configs
+reference the bare <code>codegraph</code> command on <code>PATH</code>.
+(4) Cover the integration with an anti-bluff verification suite whose
+per-agent end-to-end layer uses an unforgeable challenge (a fact
+obtainable only by calling a CodeGraph MCP tool); un-runnable agents are
+documented SKIP gaps per §11.4.3, never faked PASSes. (5) Document
+everything in <code>docs/CODEGRAPH.md</code>. CodeGraph is consumed as
+the npm package (§11.4.74) — not a git submodule, adds no Git
+remote.</p>
+<p>Composes with §11.4.3, §11.4.10, §11.4.12, §11.4.65, §11.4.30,
+§11.4.74, §11.4.77, §11.4, §1.1. Planned gate
+<code>CM-CODEGRAPH-WIRED</code> + paired mutation.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.78.</p>
+<p>Non-compliance is a process violation; a project worked on by AI
+agents without CodeGraph installed, wired, and anti-bluff-verified is in
+breach of this mandate.</p>
 </body>
 </html>
