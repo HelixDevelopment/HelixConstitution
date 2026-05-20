@@ -2319,3 +2319,45 @@ strips the literal → gate FAILs.
 [`Constitution.md`](constitution/Constitution.md) §11.4.69.
 
 Non-compliance is a release blocker regardless of context.
+
+**§11.4.70 — Subagent-driven execution is the default (User mandate, 2026-05-20)**
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-20):**
+
+> "Always do if possible Subagent-driven! Add this into our root
+> (constitution Submodule) Constitution.md, CLAUDE.md and AGENTS.md.
+> This should be the default choice ALWAYS!"
+
+When executing implementation plans authored via
+`superpowers:writing-plans` (or any equivalent task-decomposed
+execution flow), the **default execution model is subagent-driven**
+per `superpowers:subagent-driven-development`. Inline execution via
+`superpowers:executing-plans` is permitted ONLY when (a) the task is
+trivial AND fits in a single sub-300-line edit, OR (b) the operator
+explicitly requests inline execution at brainstorm-handoff time.
+
+Subagents bring an isolated context window per task (no conductor
+context bloat), a structurally separated review seam (conductor
+reviews subagent output, eliminating self-review blind spots),
+parallel-PWU compatibility (§11.4.58 — subagents ARE the parallel
+work units), and resumability across operator absence (subagents
+resume from on-disk plan + spec inputs).
+
+Composes with §11.4.4 (four-layer coverage), §11.4.6 (no-guessing —
+subagent's captured output IS the evidence), §11.4.42 (iteration
+discipline), §11.4.43 (TDD-fix), §11.4.50 (deterministic
+consistency), §11.4.51 (LIVE_ADB_FIRST), §11.4.58 (parallel-
+development PWU).
+
+No escape hatch — `--inline-execution-required`, `--no-subagents`,
+`--monolithic-execution` are NOT permitted flags. Skipping
+subagent-driven for non-trivial work without recorded operator
+authorisation is itself a §11.4 PASS-bluff. Pre-build gate
+`CM-COVENANT-114-70-SUBAGENT-DEFAULT-PROPAGATION` enforces this
+anchor literal across the ~44-file consumer fleet. Paired meta-test
+mutation strips the literal → gate FAILs.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](constitution/Constitution.md) §11.4.70.
+
+Non-compliance is a release blocker regardless of context.
