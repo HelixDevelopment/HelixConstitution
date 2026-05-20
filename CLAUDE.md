@@ -2376,3 +2376,16 @@ No escape hatch — no `--skip-fetch`, `--no-investigate`, `--fast-push`, `--tru
 [`Constitution.md`](constitution/Constitution.md) §11.4.71.
 
 Non-compliance is a release blocker regardless of context.
+
+**§11.4.72 — Audio Top-Priority Mandate (User mandate, 2026-05-20)**
+
+Direct user mandate (verbatim): "Make sure all fixes for audio are always top priority in main working stream!" The conductor (main working stream — Claude Code session, AI agent, or human operator) MUST treat audio fixes as the highest-priority class on the serial dispatch queue. Audio scope includes §EU HDMI rejection, §EM multichannel HDMI, §ET Arvus integration, §EV/§EW/§EX D3 audio defects, HiFi (Fix #74, #76), AC3 (Fix #106), ES8388 (Fix #103/§104/#105), multichannel LPCM (Fix #112), and every future audio-stack improvement.
+
+Composes with §11.4.42 (iteration-discipline — audio sits at apex of priority order) + §11.4.58 (parallel-development PWU — background research subagents run concurrently but do NOT preempt audio on the main-stream serial dispatch queue).
+
+**Operative rule:** any time the conductor faces a choice between dispatching an audio task vs a non-audio task on the SAME serial resource, the audio task wins. No escape hatch — no "but this non-audio task is faster" or "but this research is more interesting" override. Audio-stack regressions are user-perceptible and high-impact (D3 silent post-flash is a release blocker), while research and refactors can wait.
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](constitution/Constitution.md) §11.4.72.
+
+Non-compliance is a process violation regardless of context.
