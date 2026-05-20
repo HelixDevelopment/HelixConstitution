@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Helix Constitution — Universal QWEN.md</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Helix Constitution — Universal QWEN.md</h1>
+</header>
+<h1 id="helix-constitution--universal-qwenmd">Helix Constitution —
+Universal QWEN.md</h1>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-05-20</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-05-20</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Status summary</td>
+<td>Initial QWEN.md created per user mandate 2026-05-20. Mirrors the
+AGENTS.md / CLAUDE.md inheritance contract for the Qwen Code CLI agent.
+Carries the same anti-bluff covenant + the new §11.4.76
+containers-submodule mandate verbatim (renumbered from drafted §11.4.75
+after concurrent <code>0a70083</code> landing of §11.4.75 Mechanical
+Enforcement).</td>
+</tr>
+<tr>
+<td>Issues</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Issues summary</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Fixed</td>
+<td>initial creation</td>
+</tr>
+<tr>
+<td>Fixed summary</td>
+<td>created alongside the constitution-wide §11.4.76 propagation.</td>
+</tr>
+<tr>
+<td>Continuation</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li><a href="#how-inheritance-works">How inheritance works</a></li>
+<li><a href="#identity-posture">Identity &amp; posture</a></li>
+<li><a href="#top-level-invariants-for-every-agent">Top-level invariants
+for every agent</a></li>
+<li><a
+href="#critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don't honour @imports)</a>
+<ul>
+<li><a href="#114-anti-bluff-covenant-end-user-quality-guarantee">§11.4
+— Anti-bluff covenant — END-USER QUALITY GUARANTEE</a></li>
+<li><a href="#11-mutation-paired-gates">§1.1 — Mutation-paired
+gates</a></li>
+<li><a href="#11410-credentials-handling-mandate">§11.4.10 —
+Credentials-handling mandate</a></li>
+<li><a href="#11417-universal-vs-project-classification">§11.4.17 —
+Universal-vs-project classification</a></li>
+<li><a href="#11420-subagent-driven-by-default">§11.4.20 —
+Subagent-driven-by-default</a></li>
+<li><a
+href="#11473-main-specification-document-versioning-revision-discipline">§11.4.73
+— Main-specification document versioning + revision discipline</a></li>
+<li><a
+href="#11474-submodule-catalogue-first-discovery-extend-dont-reimplement">§11.4.74
+— Submodule-catalogue-first discovery +
+extend-don't-reimplement</a></li>
+<li><a href="#11475-containers-submodule-mandate">§11.4.76 —
+Containers-submodule mandate</a></li>
+</ul></li>
+<li><a href="#companion-documents">Companion documents</a></li>
+</ul>
+<h2 id="how-inheritance-works">How inheritance works</h2>
+<p>This <code>QWEN.md</code> is for the <strong>Qwen Code CLI
+agent</strong> (<code>qwen-code</code>). It documents the universal
+Helix Constitution from the Qwen agent's perspective — the same content
+seen by Claude Code via <code>CLAUDE.md</code> and by OpenCode / Cursor
+/ generic AI tooling via <code>AGENTS.md</code>.</p>
+<p>The <strong>authoritative source</strong> is
+<code>Constitution.md</code> in this repository. When this file diverges
+from <code>Constitution.md</code>, the latter wins. This file exists
+because:</p>
+<ol type="1">
+<li>Qwen Code does not always honor <code>@import</code> directives
+across files; restating the critical rules inline ensures the agent
+reads them on every session.</li>
+<li>Cross-agent parity: Claude Code (CLAUDE.md), OpenCode/Cursor
+(AGENTS.md), Qwen Code (QWEN.md) all start from the same constitutional
+baseline.</li>
+</ol>
+<p>Discover this file via the canonical parent-walk pattern documented
+in every consuming project's <code>CLAUDE.md</code> /
+<code>AGENTS.md</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">find_constitution_root()</span> <span class="kw">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">local</span> <span class="va">cur</span><span class="op">=</span><span class="st">&quot;</span><span class="va">${1</span><span class="op">:-</span><span class="va">$PWD}</span><span class="st">&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="va">${cur}</span><span class="st">&quot;</span> <span class="ot">!=</span> <span class="st">&quot;/&quot;</span> <span class="kw">]];</span> <span class="cf">do</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">[[</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">${cur}</span><span class="st">/constitution/Constitution.md&quot;</span> <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="bu">echo</span> <span class="st">&quot;</span><span class="va">${cur}</span><span class="st">/constitution&quot;</span><span class="kw">;</span> <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">fi</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">cur</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$(</span><span class="fu">dirname</span> <span class="st">&quot;</span><span class="va">${cur}</span><span class="st">&quot;</span><span class="va">)</span><span class="st">&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div>
+<h2 id="identity--posture">Identity &amp; posture</h2>
+<p>When the Qwen Code agent loads this file as part of session
+bootstrap, it operates under the Helix Constitution with the same
+identity, anti-bluff posture, and end-user quality covenant as any other
+CLI agent in the catalogue. There is no "Qwen-lite" interpretation —
+Qwen Code is held to the full §11.4 covenant.</p>
+<h2 id="top-level-invariants-for-every-agent">Top-level invariants for
+every agent</h2>
+<ol type="1">
+<li><strong>Read order on a cold start.</strong> <code>CLAUDE.md</code>
+/ <code>AGENTS.md</code> / <code>QWEN.md</code> (this file) for the
+AI-agent posture; <code>Constitution.md</code> for the canonical
+universal rules; then the consuming project's <code>CLAUDE.md</code> for
+project-specific extensions.</li>
+<li><strong>Multi-mirror push.</strong> Every commit on this submodule
+MUST land on all four canonical mirrors (GitHub + GitLab + GitFlic +
+GitVerse) per §2.1.</li>
+<li><strong>Anti-bluff is non-negotiable.</strong> Passing tests MUST
+imply working features. Bluffing PASSes (and FAILs that hide root cause)
+is a release blocker (§11.4 + §11.4.1).</li>
+<li><strong>Submodule-catalogue-first.</strong> Before scaffolding
+anything, survey the <code>vasic-digital</code> +
+<code>HelixDevelopment</code> orgs for an existing Submodule (§11.4.74).
+Reuse → extend → no-match in that order.</li>
+<li><strong>Containers-submodule for ALL container workloads.</strong>
+Use <code>vasic-digital/containers</code> (§11.4.76) — never reinvent
+compose/boot orchestration in-project.</li>
+</ol>
+<h2
+id="critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don't honour @imports)</h2>
+<h3 id="114--anti-bluff-covenant--end-user-quality-guarantee">§11.4 —
+Anti-bluff covenant — END-USER QUALITY GUARANTEE</h3>
+<p>Captured tests MUST exercise the behavior they claim to verify.
+PASS-without-execution paths, mock-only tests that don't round-trip, and
+skip-by-default integration tests that mask real failures are forbidden.
+Each test failure in CI MUST imply a real broken feature; each PASS MUST
+imply the feature actually works for the end user.</p>
+<h3 id="11--mutation-paired-gates">§1.1 — Mutation-paired gates</h3>
+<p>Every captured-evidence gate MUST ship with a paired mutation test
+that mutates the gate's anchor + runs the gate + asserts the gate now
+FAILs. Absence of the paired mutation is itself a bluff.</p>
+<h3 id="11410--credentials-handling-mandate">§11.4.10 —
+Credentials-handling mandate</h3>
+<p>Credentials are NEVER committed to git, NEVER logged, NEVER printed
+to stdout/stderr. <code>.env</code> files are <code>.gitignore</code>d;
+committed siblings are <code>.env.example</code> placeholders only.
+Pre-store leak audit (§11.4.10.A) scans every PR for credential patterns
+before merge.</p>
+<h3 id="11417--universal-vs-project-classification">§11.4.17 —
+Universal-vs-project classification</h3>
+<p>Every new rule MUST declare itself <strong>universal</strong>
+(applies to every project consuming this Constitution) or
+<strong>project</strong> (applies only to one specific project).
+Misclassification (universal rule landing in a project's local CLAUDE.md
+instead of the constitution submodule) is a release blocker.</p>
+<h3 id="11420--subagent-driven-by-default">§11.4.20 —
+Subagent-driven-by-default</h3>
+<p>When a CLI agent (Qwen Code included) has a subagent / Task tool
+available, the default mode of operation is to dispatch subagents for
+discrete units of work rather than perform them inline. This protects
+context, enables parallel work, and matches the §11.4.27
+no-fakes-beyond-unit-tests posture (each subagent runs real tools).</p>
+<h3
+id="11473--main-specification-document-versioning--revision-discipline">§11.4.73
+— Main-specification document versioning + revision discipline</h3>
+<p>Projects with a main specification
+(<code>docs/specs/.../specification.V&lt;N&gt;.md</code>-shaped)
+maintain TWO version axes:</p>
+<ul>
+<li><strong>Primary</strong> (V1 / V2 / V3 …) bumps for major rewrites
+only.</li>
+<li><strong>Secondary</strong> (<code>Revision N</code> in the metadata
+table) bumps for additive changes within a primary version.</li>
+</ul>
+<p>Spec edits trigger mandatory comprehensive planning and
+implementation in the consuming project — they are not isolated doc
+tweaks (the "spec ripple" rule).</p>
+<h3
+id="11474--submodule-catalogue-first-discovery--extend-dont-reimplement">§11.4.74
+— Submodule-catalogue-first discovery + extend-don't-reimplement</h3>
+<p>Direct user mandate (verbatim, 2026-05-20): "We MUST ALWAYS check
+which already developed features / functionalities do exist as a part of
+our comprehensive Submodules catalogue located in
+<code>vasic-digital</code> and <code>HelixDevelopment</code>
+organizations on GitHub and GitLab both! Project MUST BE aware of all
+its existence so we do not implement same things multiple times. For any
+missing features we MUST IMPLEMENT them properly and extend those
+Submodules further!"</p>
+<p>Before scaffolding any new module / package / helper / utility, the
+Qwen Code agent MUST: (1) survey <code>vasic-digital</code> +
+<code>HelixDevelopment</code> on GitHub + GitLab; (2) reuse an existing
+Submodule when it covers ≥ 80%; (3) extend in-place via upstream PR when
+80%+ matches; (4) document the survey result via
+<code>Catalogue-Check: reuse|extend|no-match &lt;org/repo&gt;@&lt;sha&gt;</code>
+in the tracker row.</p>
+<p>Every Submodule in the catalogue is subject to the same
+development-cycle rules (§11.4 anti-bluff, §1.1 paired mutations,
+§11.4.10 credentials, §11.4.61 metadata + ToC, §11.4.65 universal
+export, §11.4.73 spec versioning, §2.1 multi-mirror push, §3 propagation
+order).</p>
+<h3 id="11476--containers-submodule-mandate">§11.4.76 —
+Containers-submodule mandate</h3>
+<p>Direct user mandate (verbatim, 2026-05-20): "For any work or
+requirements of running services or codebase inside the Containers
+(Docker / Podman / Qemy / Emulators, and so on) we MUST USE /
+INCORPORATE the Containers Submodule properly:
+<code>https://github.com/vasic-digital/containers</code>
+(<code>git@github.com:vasic-digital/containers.git</code>). Containers
+Submodule contains all means for us to Containerize our code and
+services! If any feature or Containing System is missing or not
+supported we MUST EXTEND IT properly like we do all of our projects! No
+bluff work is allowed of any kind!"</p>
+<p>For ANY containerized workload (Docker / Podman / Qemu / Kubernetes /
+container-backed emulators), the Qwen Code agent MUST: (1) install
+<code>vasic-digital/containers</code>
+(<code>digital.vasic.containers</code>) as a Git submodule when
+scaffolding the consuming project; (2) consume via <code>replace</code>
+directive during development + pinned commit SHAs in production; (3)
+boot infra on-demand via the Submodule's <code>pkg/boot</code> +
+<code>pkg/compose</code> + <code>pkg/health</code> APIs so the operator
+is never required to start <code>podman machine</code> /
+<code>docker compose up</code> manually — the boot is part of the test
+entry point (<strong>on-demand-infra invariant</strong>); (4) extend the
+Submodule via upstream PR when a runtime / lifecycle primitive is
+missing — never reimplement in-project (per §11.4.74); (5) anti-bluff:
+integration tests claiming to exercise containerized components MUST
+actually boot them via the Submodule. Short-circuit fakes that bypass
+boot are a §11.4 violation. A passing test MUST imply the infra was
+up.</p>
+<p>Tracker rows touching containerization MUST record
+<code>Catalogue-Check: extend vasic-digital/containers@&lt;sha&gt;</code>
+(or <code>reuse</code>); <code>no-match</code> requires demonstrating
+the Submodule cannot model the workload.</p>
+<p>Planned anti-bluff gate <code>CM-CONTAINERS-USED</code> scans
+container-touching PRs for <code>digital.vasic.containers/...</code>
+imports. Paired mutation strips the import + asserts FAIL.</p>
+<p><strong>Canonical authority:</strong> <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.76.</p>
+<p>Non-compliance: reinventing compose orchestration in-project is a
+release blocker.</p>
+<h2 id="companion-documents">Companion documents</h2>
+<ul>
+<li><a href="Constitution.md"><code>Constitution.md</code></a> —
+authoritative universal Constitution. ALWAYS the tie-breaker.</li>
+<li><a href="CLAUDE.md"><code>CLAUDE.md</code></a> — Claude Code agent's
+view of the universal constitution.</li>
+<li><a href="AGENTS.md"><code>AGENTS.md</code></a> — OpenCode / Cursor /
+generic-tooling view.</li>
+<li><a href="README.md"><code>README.md</code></a> — high-level overview
++ multi-mirror contract.</li>
+</ul>
+<p>When operating in a consuming project, ALSO read the project's local
+<code>QWEN.md</code> / <code>CLAUDE.md</code> / <code>AGENTS.md</code>
+for project-specific extensions; these MUST NOT weaken any universal
+rule but MAY add stricter project-specific constraints.</p>
+</body>
+</html>

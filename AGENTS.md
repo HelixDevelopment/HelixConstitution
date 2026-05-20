@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 2 |
+| Revision | 4 |
 | Created | 2026-05-14 |
 | Last modified | 2026-05-20 |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.73 (main-spec versioning + revision discipline) and §11.4.74 (submodule-catalogue-first discovery) into this AGENTS.md per the new mandates' cross-document propagation requirement. |
+| Status summary | Mirrored Constitution.md §11.4.76 (containers-submodule mandate) into this AGENTS.md. §11.4.73 + §11.4.74 + §11.4.75 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | §11.4.73 + §11.4.74 mirrors |
-| Fixed summary | landed in lockstep with the Constitution.md additions. |
+| Fixed | §11.4.73 + §11.4.74 + §11.4.75 + §11.4.76 mirrors |
+| Fixed summary | §11.4.76 lands in lockstep with the Constitution.md addition + QWEN.md creation. |
 | Continuation | — |
 
 ## Table of contents
@@ -1718,3 +1718,21 @@ No escape hatch — no `--skip-hooks`, `--bypass-enforcement`, `--allow-orphan-m
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.75.
 
 Non-compliance is a release blocker regardless of context.
+
+**§11.4.76 — Containers-submodule mandate (User mandate, 2026-05-20)**
+
+Direct user mandate (verbatim): "For any work or requirements of running services or codebase inside the Containers (Docker / Podman / Qemy / Emulators, and so on) we MUST USE / INCORPORATE the Containers Submodule properly: `https://github.com/vasic-digital/containers` (`git@github.com:vasic-digital/containers.git`). Containers Submodule contains all means for us to Containerize our code and services! If any feature or Containing System is missing or not supported we MUST EXTEND IT properly like we do all of our projects! No bluff work is allowed of any kind!"
+
+**§-slot history note.** Originally drafted as §11.4.75, renumbered to §11.4.76 per §11.4.71 fetch-before-push after the concurrent `0a70083` landing of §11.4.75 (Mechanical Enforcement).
+
+For ANY containerized workload (Docker / Podman / Qemu / Kubernetes / container-backed emulators), the agent MUST: (1) install `vasic-digital/containers` (`digital.vasic.containers`) as a Git submodule when scaffolding the consuming project; (2) consume via `replace` directive during development + pinned commit SHAs in production; (3) boot infra on-demand via the Submodule's `pkg/boot` + `pkg/compose` + `pkg/health` APIs so the operator is never required to start `podman machine` / `docker compose up` manually — the boot is part of the test entry point (**on-demand-infra invariant**); (4) extend the Submodule via upstream PR when a runtime / lifecycle primitive is missing — never reimplement in-project (per §11.4.74); (5) anti-bluff: integration tests claiming to exercise containerized components MUST actually boot them via the Submodule. Short-circuit fakes that bypass boot are a §11.4 violation. A passing test MUST imply the infra was up.
+
+Tracker rows touching containerization MUST record `Catalogue-Check: extend vasic-digital/containers@<sha>` (or `reuse`); `no-match` requires demonstrating the Submodule cannot model the workload.
+
+Planned anti-bluff gate `CM-CONTAINERS-USED` scans container-touching PRs for `digital.vasic.containers/...` imports. Paired mutation strips the import + asserts FAIL.
+
+Composes with §11.4.74 (catalogue-first), §11.4.75 (mechanical enforcement), §3 (propagation), §11.4.31 (Submodule-Dependency-Manifest), §11.4.36 (`install_upstreams` on clone), §11.4.28 (Submodules-As-Equal-Codebase), §1.1 (paired-mutation gates).
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.76.
+
+Non-compliance: reinventing compose orchestration in-project is a release blocker.
