@@ -1736,3 +1736,23 @@ Composes with §11.4.74 (catalogue-first), §11.4.75 (mechanical enforcement), �
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.76.
 
 Non-compliance: reinventing compose orchestration in-project is a release blocker.
+
+**§11.4.77 — Regeneration-mechanism-required mandate (User mandate, 2026-05-20)**
+
+Direct user mandate (verbatim): "We must be sure that after excluding anything from Git versioning we still have the mechanism which will out of the box obtain or re-generate missing content!"
+
+**Forensic anchor.** 2026-05-20T15:00Z: ATMOSphere parent's audio Tier 1 `commit_all.sh` stalled 4 h on `git add -A` scanning 274 GiB `.git-backup-*` + 159 GiB `RKTools/linux/` + 167 GiB `qa-results/` — all untracked but un-gitignored. Bare `.gitignore` fix would orphan every fresh clone (missing RKTools, missing test infra, missing build outputs).
+
+Every `.gitignore` entry excluding (a) >~100 MiB OR (b) any artefact essential to building / running / testing the project MUST carry a documented + automated mechanism to either **re-obtain** (vendor tarball, SDK installer, package registry, git submodule, object store) OR **re-generate** (build pipeline, code-gen, asset render, captured-evidence replay, container build).
+
+Required artefacts per qualifying `.gitignore` entry: (1) `.gitignore-meta/<entry-slug>.yaml` declaring pattern + mechanism-type + script-path + expected-disk-usage + vendor-url-or-source + integrity hash + requires-network + requires-credentials; (2) post-clone bootstrap entry (`scripts/setup.sh` or canonical equivalent) running the mechanism non-interactively; (3) pre-build gate verifying regenerated content present OR stamp `.gitignore-meta/.regenerated/<slug>.ok` recent; (4) README + `docs/guides/*.md` describing the mechanism + manual fallback + time/disk budget + per-§11.4.10 credentials.
+
+No escape hatch: bare `.gitignore` additions without the mechanism are §11.4 PASS-bluff variants — codebase appears complete but fresh clone cannot build / run. No `--skip-regen-mechanism`, `--gitignore-is-enough`, `--operator-already-has-content` flag.
+
+Planned anti-bluff gate `CM-GITIGNORE-REGEN-MECHANISM` scans every `.gitignore` addition for matching `.gitignore-meta/` sibling. Paired §1.1 mutation strips a required YAML key → gate FAILs.
+
+Composes with §11.4.6 (no-guessing — verify mechanism on sandbox), §11.4.65 (HTML/PDF siblings are a `re-generate` instance), §11.4.66 (interactive clarification if mechanism unknown), §11.4.71 (re-validate vendor integrity before push), §11.4.74 (extend a reusable downloader Submodule), §11.4.75 (pre-commit + CI replay refuse bare additions), §11.4.76 (container images regenerated via `vasic-digital/containers`), §9 / §9.2 (pre-test mechanism in sandbox), §3 (consuming submodules inherit).
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.77.
+
+Non-compliance is a release blocker regardless of context.
