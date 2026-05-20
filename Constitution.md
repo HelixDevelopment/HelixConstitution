@@ -831,6 +831,29 @@ Discovered drift is fixed by **moving** files to their canonical
 location and updating every caller — never by adding redirect shims
 or by leaving the misplaced copy "for backwards compatibility".
 
+**Carve-out (User mandate 2026-05-20).** The 5 canonical tracker
+documents — `docs/Issues.md`, `docs/Issues_Summary.md`,
+`docs/Fixed.md`, `docs/Fixed_Summary.md`, `docs/CONTINUATION.md`
+— sit at `docs/` root by design. They are architectural constants
+of the project layout, analogous to AOSP's `Makefile`, `Android.bp`,
+`OWNERS` files at repo root. Their location is encoded as literal
+path strings in §11.4.12 + §11.4.15 + §11.4.16 + §11.4.19 +
+§11.4.44 + §11.4.53 propagation gates plus the helper-script
+constellation that regenerates them (`generate_issues_summary.sh`,
+`generate_fixed_summary.sh`, `sync_issues_docs.sh`,
+`commit_docs.sh`, `colorize_progress_html.py`, `export_progress_docs.sh`).
+Moving them would require coordinated amendment of those 6 sister
+anchors plus 5 pre-build gates plus ~20 helper scripts plus 42
+consumer files (parent + 10 owned submodules + nested + HelixQA
+dependencies) in a single PWU. Per §11.4.66, that scope is
+operator-blocked until explicitly authorised. Audit-snapshot files
+(`docs/audit/anti_bluff_audit.md`,
+`docs/audit/PRE_SONOS_TAG_READINESS.md`,
+`docs/audit/D1_WIFI_FAIL_CLASSIFICATION.md`, plus any future audit
+snapshots) DO move under `docs/audit/` per the §11.4.11 general
+principle — they are not part of the tracker constellation and
+carry no propagation-gate path-string burden.
+
 ### §11.4.12 — Auto-generated docs sync mandate
 
 Every auto-generated document (Issues_Summary, API reference,
@@ -1411,7 +1434,7 @@ stages, commits, and pushes **only** the status-tracking doc set:
    HTML + PDF exports.
 5. The cross-session continuation document (`docs/CONTINUATION.md`,
    per §12.10) and its HTML + PDF exports.
-6. Any auto-generated audit artifact (`docs/anti_bluff_audit.md` or
+6. Any auto-generated audit artifact (`docs/audit/anti_bluff_audit.md` or
    equivalent) that pairs with the above.
 
 The lightweight wrapper MUST:

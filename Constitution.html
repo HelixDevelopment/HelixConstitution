@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Helix Universal Constitution</title>
+  <title>Constitution</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -91,7 +91,6 @@
       color: #606060;
     }
     code {
-      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -155,6 +154,7 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
+    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -238,7 +238,7 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">Helix Universal Constitution</h1>
+<h1 class="title">Constitution</h1>
 </header>
 <h1 id="helix-universal-constitution">Helix Universal Constitution</h1>
 <table>
@@ -1336,6 +1336,31 @@ evidence-replay.</p>
 canonical location and updating every caller — never by adding redirect
 shims or by leaving the misplaced copy "for backwards
 compatibility".</p>
+<p><strong>Carve-out (User mandate 2026-05-20).</strong> The 5 canonical
+tracker documents — <code>docs/Issues.md</code>,
+<code>docs/Issues_Summary.md</code>, <code>docs/Fixed.md</code>,
+<code>docs/Fixed_Summary.md</code>, <code>docs/CONTINUATION.md</code> —
+sit at <code>docs/</code> root by design. They are architectural
+constants of the project layout, analogous to AOSP's
+<code>Makefile</code>, <code>Android.bp</code>, <code>OWNERS</code>
+files at repo root. Their location is encoded as literal path strings in
+§11.4.12 + §11.4.15 + §11.4.16 + §11.4.19 + §11.4.44 + §11.4.53
+propagation gates plus the helper-script constellation that regenerates
+them (<code>generate_issues_summary.sh</code>,
+<code>generate_fixed_summary.sh</code>,
+<code>sync_issues_docs.sh</code>, <code>commit_docs.sh</code>,
+<code>colorize_progress_html.py</code>,
+<code>export_progress_docs.sh</code>). Moving them would require
+coordinated amendment of those 6 sister anchors plus 5 pre-build gates
+plus ~20 helper scripts plus 42 consumer files (parent + 10 owned
+submodules + nested + HelixQA dependencies) in a single PWU. Per
+§11.4.66, that scope is operator-blocked until explicitly authorised.
+Audit-snapshot files (<code>docs/audit/anti_bluff_audit.md</code>,
+<code>docs/audit/PRE_SONOS_TAG_READINESS.md</code>,
+<code>docs/audit/D1_WIFI_FAIL_CLASSIFICATION.md</code>, plus any future
+audit snapshots) DO move under <code>docs/audit/</code> per the §11.4.11
+general principle — they are not part of the tracker constellation and
+carry no propagation-gate path-string burden.</p>
 <h3 id="11412--auto-generated-docs-sync-mandate">§11.4.12 —
 Auto-generated docs sync mandate</h3>
 <p>Every auto-generated document (Issues_Summary, API reference, build
@@ -2055,8 +2080,8 @@ PDF exports.</li>
 (<code>docs/CONTINUATION.md</code>, per §12.10) and its HTML + PDF
 exports.</li>
 <li>Any auto-generated audit artifact
-(<code>docs/anti_bluff_audit.md</code> or equivalent) that pairs with
-the above.</li>
+(<code>docs/audit/anti_bluff_audit.md</code> or equivalent) that pairs
+with the above.</li>
 </ol>
 <p>The lightweight wrapper MUST:</p>
 <ol type="1">
@@ -7086,6 +7111,705 @@ hatch — no <code>--skip-ask</code>, <code>--silent-wait</code>,
 <code>--free-form-only</code> flag is permitted.</p>
 <p><strong>Canonical authority:</strong> constitution submodule <a
 href="Constitution.md"><code>Constitution.md</code></a> §11.4.66.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<hr />
+<h3
+id="11467--shell-script-target-shell-parseability-mandate-user-mandate-2026-05-19">§11.4.67
+— Shell-script target-shell-parseability mandate (User mandate,
+2026-05-19)</h3>
+<p><strong>Forensic anchor — direct user mandate (verbatim,
+2026-05-19):</strong></p>
+<blockquote>
+<p>"any issue we spot must be fixed, bash scripts as well if they are
+broken!" "Make sure that this is mandatory rule!"</p>
+</blockquote>
+<p><strong>Forensic incident — Phase 39.FJ.67 D3 post-flash cycle
+block:</strong>
+<code>device/rockchip/rk3588/tests/test_all_fixes.sh:114</code> invoked
+on Android via <code>sh script.sh</code> used bash-only process
+substitution <code>exec &gt; &gt;(tee -a "$file") 2&gt;&amp;1</code>.
+Android's <code>/system/bin/sh</code> is mksh, which parses the
+<em>entire</em> script BEFORE executing it — so the runtime guard
+<code>if [ -n "${BASH_VERSION:-}" ]</code> could not save the script:
+mksh rejected <code>&gt;(...)</code> at parse time and the test cycle
+failed to launch on D3. The runtime guard correctly tried to gate the
+unsafe path, but mksh's compile-time parser made the guard useless.
+Fixed by wrapping the offending <code>exec</code> in <code>eval</code>
+so the parser sees only a string and the parse step defers to runtime
+where the guard can take effect.</p>
+<p>This is the canonical class of script-bug FAIL-bluff: a test cycle
+PASSes on the developer host (bash) and FAILS at parse time on the
+target (mksh), producing a FAIL-bluff that masks every product defect
+the cycle would have caught. §11.4.1 already forbids script-bug FAILs.
+§11.4.67 mechanically prevents this specific sub-class.</p>
+<p><strong>The mandate.</strong> Every shell script that may be invoked
+under a target shell other than the one in its shebang MUST parse
+cleanly under that target shell. Specifically:</p>
+<ol type="1">
+<li><strong>Closed-set scope.</strong> Every tracked <code>.sh</code>
+file under <code>device/rockchip/rk3588/tests/</code>,
+<code>scripts/</code>, and <code>scripts/testing/</code> (and equivalent
+paths in owned submodules) is in scope. Explicitly OUT of scope:
+<code>external/</code>, <code>prebuilts/</code>,
+<code>packages/modules/</code>, <code>kernel-5.10/</code>,
+<code>out/</code>, <code>build/</code>, <code>scripts/legacy/</code>
+(legacy quarantine), and any third-party vendored shell directory the
+project does not maintain.</li>
+<li><strong>Mandatory parseability invariant.</strong> Every in-scope
+script MUST parse under POSIX <code>sh -n</code> on the developer host.
+POSIX <code>sh</code> is the closest portable parser to Android mksh —
+passing <code>sh -n</code> on the host gives high confidence the script
+parses on mksh.</li>
+<li><strong>Bash-only syntax requires deferral.</strong> Process
+substitution <code>&gt;(...)</code> / <code>&lt;(...)</code>,
+<code>[[ ]]</code>, <code>&lt;&lt;&lt;</code> here-strings, indexed
+arrays <code>arr=()</code>, associative arrays <code>declare -A</code>,
+<code>${var^^}</code> / <code>${var,,}</code> case-fold expansions,
+<code>${var/pattern/replacement}</code> with bash-only operators,
+<code>coproc</code>, <code>function name { ... }</code> (vs POSIX
+<code>name() { ... }</code>), and any other bash-only construct MUST
+EITHER be wrapped in <code>eval '...bash-only string...'</code> so the
+parser sees only a string OR be guarded by sourcing the file only on
+bash- detected hosts (<code>[ -n "${BASH_VERSION:-}" ]</code> BEFORE the
+script loads — runtime guards inside a single mksh-parsed script do not
+work).</li>
+<li><strong>Honest shebangs.</strong> A script that contains bash-only
+constructs without <code>eval</code>-deferral MUST declare
+<code>#!/bin/bash</code> (or equivalent) AND its callers MUST invoke it
+as <code>bash script.sh</code> rather than <code>sh script.sh</code>. A
+script with <code>#!/system/bin/sh</code> or <code>#!/bin/sh</code>
+shebang MUST be POSIX-clean — no bash-only syntax, no <code>local</code>
+keyword without an mksh fallback, no <code>read -p</code>, no
+<code>echo -e</code> without portable equivalent.</li>
+<li><strong><code>eval</code>-deferral is the safe pattern.</strong>
+When a bash-only construct is genuinely needed inside a script that may
+be parsed by mksh (e.g. <code>sh script.sh</code> from a callsite
+outside our control), wrap the construct in single-quoted
+<code>eval</code>:
+<code>eval 'exec &gt; &gt;(tee -a "$f") 2&gt;&amp;1'</code>. The parser
+sees a string; the runtime guard around the <code>eval</code> decides
+whether to execute.</li>
+</ol>
+<p><strong>Captured-evidence enforcement.</strong> Pre-build gate
+<code>CM-SCRIPT-TARGET-SHELL-PARSEABLE</code> walks every
+<code>.sh</code> file under the in-scope directories, runs
+<code>sh -n</code> on each with a 30-second per-file timeout, and FAILs
+if any script fails to parse. The gate's diagnostic output cites the
+failing file + the <code>sh -n</code> error message so the fix location
+is unambiguous.</p>
+<p><strong>Propagation gate.</strong>
+<code>CM-COVENANT-114-67-PROPAGATION</code> verifies the §11.4.67 anchor
+literal is present across the 44-file consumer fleet (parent CLAUDE.md /
+AGENTS.md + Containers + 10 owned atmosphere submodules + nested
+SmartTube SharedModules / MediaServiceCore / MSC-SharedModules + 7
+HelixQA submodules). Constitution submodule files
+(constitution/{Constitution,CLAUDE,AGENTS}.md) are canonical authority —
+they carry §11.4.67 by definition.</p>
+<p><strong>Paired meta-test mutations.</strong> (a) Inject a bash-only
+construct (<code>exec &gt; &gt;(/bin/cat)</code>) outside
+<code>eval</code> into a fresh location inside a test script and assert
+<code>CM-SCRIPT-TARGET-SHELL-PARSEABLE</code> FAILs. (b) Strip
+<code>11.4.67</code> literal from one consumer file and assert
+<code>CM-COVENANT-114-67-PROPAGATION</code> FAILs.</p>
+<p><strong>Composes with:</strong></p>
+<ul>
+<li>§11.4.1 (FAIL-bluffs equally forbidden — script-bug FAILs that mask
+product defects are the exact failure mode §11.4.67 mechanically
+closes)</li>
+<li>§11.4.4 (test-interrupt-on-discovery — a parse FAIL at cycle start
+IS the discovery event; cycle stops, fix lands, retest)</li>
+<li>§11.4.6 (no-guessing — <code>sh -n</code> produces fact, not
+opinion)</li>
+<li>§11.4.50 (deterministic consistency — a script that parses on one
+shell and not another fails the N-iteration identical-result
+requirement)</li>
+<li>§11.4.51 (live-ADB-first — shell-script fixes are LIVE_ADB_TESTABLE:
+push the fix, re-run on device, capture evidence before commit)</li>
+</ul>
+<p><strong>Mandatory protections (no escape hatch):</strong></p>
+<ul>
+<li><strong>No <code>--skip-parseability-check</code> flag.</strong> A
+script that does not parse under the target shell is broken regardless
+of intent.</li>
+<li><strong>No "this script only runs on bash" exception.</strong> If a
+script may be invoked via <code>sh script.sh</code> (and almost all of
+them can — Android's default <code>sh</code> is mksh), it MUST parse
+under mksh.</li>
+<li><strong>No "the runtime guard catches it" exception.</strong>
+Runtime guards inside a mksh-parsed script cannot prevent mksh
+parse-time rejection. Use <code>eval</code>-deferral or
+shebang-controlled invocation.</li>
+<li><strong>Fix at source, not in callsites.</strong> A broken script is
+fixed in the script itself (per §11.4.1), not by individual callsites
+defensively detecting parse failures.</li>
+</ul>
+<p>Pre-build gate <code>CM-SCRIPT-TARGET-SHELL-PARSEABLE</code> + paired
+mutation. Propagation gate <code>CM-COVENANT-114-67-PROPAGATION</code> +
+paired mutation.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.67.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<h3
+id="11468--positive-sink-side--downstream-evidence-mandate-user-mandate-2026-05-20">§11.4.68
+— Positive sink-side / downstream evidence mandate (User mandate,
+2026-05-20)</h3>
+<p><strong>Forensic anchor — direct user mandate (verbatim,
+2026-05-20):</strong></p>
+<blockquote>
+<p>"We still do not hear any audio played from D3 device! Arvus Web
+Dashboard when we play music from D3 shows nothing for Codec In Use!
+This MUST BE investigated and fixed! How come we passed the tests with
+Arvus validation? What were values for the Codec In Use field? Empty
+means nothing! This is not working! It MUST BE FIXED, TESTED AND
+VERIFIED WITH FULL AUTOMATION TESTING ASAP!!!"</p>
+</blockquote>
+<p>§11.4.13 already mandates consuming the Arvus sink-side report when
+available. §11.4.68 extends this with a stricter contract: <strong>a
+test that asserts audio or video routing PASS MUST capture and verify
+positive sink-side or downstream evidence — never config-only, never
+metadata-only, never PCM-open-state-only.</strong> The §11.4.13 path
+described what SHOULD be captured; §11.4.68 fixes the failure mode where
+tests "PASSed" because the helpers silently SKIPped the very evidence
+the assertion depended on.</p>
+<p><strong>Positive sink-side / downstream evidence — closed
+enumeration</strong> (at least one MUST be captured for every
+audio/video routing PASS; none alone is sufficient if the canonical
+sink/downstream is reachable):</p>
+<ol type="1">
+<li><strong>Sink-side codec-state</strong> (Arvus / Sonos / Yamaha /
+Denon / Marantz / WiSA REST API) showing a <strong>non-empty
+Codec-In-Use</strong> value matching the test's expected codec regex
+during the playback window. Empty / <code>&lt;unreachable&gt;</code> /
+<code>&lt;N.E.&gt;</code> / <code>&lt;None&gt;</code> placeholders are
+NOT positive evidence.</li>
+<li><strong>PCM frames-written delta</strong> from
+<code>/proc/asound/cardN/pcmMp/sub0/ status hw_ptr</code> — the delta
+over the playback window MUST be strictly positive AND consistent with
+the expected sample-rate × channel-count × duration. Zero or negative
+delta is FAIL.</li>
+<li><strong>ALSA ELD / EDID-Like-Data</strong> from
+<code>/proc/asound/cardN/eld#X.Y</code> demonstrating the sink
+negotiated the expected channel count + format. Empty ELD is NOT
+evidence the sink received audio — it only proves the cable /
+EDID-channel is up.</li>
+<li><strong>ffprobe-on-captured-mp4</strong> for video routing —
+non-zero frame count, expected codec, expected resolution, expected fps.
+0-byte capture (Bug #24 pattern) is FAIL.</li>
+<li><strong>Recording-analyzer event match</strong> per §11.4.2 /
+§11.4.5 timeline — at least one matched event in the analyzer
+findings.</li>
+<li><strong>Tinycap RMS amplitude</strong> for ALSA-loopback audio
+recordings — non-trivial RMS in the captured WAV (&gt;= -60 dBFS for
+line-level playback).</li>
+</ol>
+<p><strong>Failure-mode taxonomy — what §11.4.68 specifically
+forbids:</strong></p>
+<ul>
+<li><code>arvus_probe_present</code> returns 1 → test reports SKIP →
+suite reports all-green. <strong>FORBIDDEN.</strong> When the sink-side
+evidence is REQUIRED by the assertion, missing sink is
+<code>OPERATOR-BLOCKED</code> (an explicit release-blocker, NOT a SKIP,
+NOT a PASS).</li>
+<li><code>arvus_probe_codec_state</code> returns empty string → test
+logs "codec_state: " (blank) → assertion proceeds on HAL-side metadata.
+<strong>FORBIDDEN.</strong> Empty codec-state IS a defect signal —
+either the audio is not arriving at the sink (genuine product defect per
+current User mandate) OR the sink is unreachable (operator-blocked).
+Either way, the test cannot PASS.</li>
+<li>Test reads HAL <code>dumpsys media.audio_flinger</code>
+output-thread device field showing
+<code>0x400 (AUDIO_DEVICE_OUT_HDMI)</code> → reports "HDMI routing
+PASS". <strong>FORBIDDEN.</strong> That field reflects what the audio
+POLICY chose, NOT what the audio HAL physically opened. The HDMI ALSA
+card may still be closed (PCM open failure swallowed by the HAL's
+<code>ALOGW</code> fallback) — silent silence at the user's ear.
+Sink-side codec-state or PCM <code>hw_ptr</code> delta is the ONLY proof
+audio actually arrived.</li>
+<li>Test asserts <code>/vendor/etc/audio_policy_configuration.xml</code>
+contains the <code>deep_buffer</code> route to <code>HDMI Out</code>.
+<strong>FORBIDDEN as the only evidence.</strong> Config-only PASS is the
+canonical §11.4 PASS-bluff — config can be perfect AND audio still
+inaudible (e.g., the HAL may still misroute). MUST be paired with at
+least one runtime positive evidence from the enumeration above.</li>
+</ul>
+<p><strong>Mandatory protections (all four):</strong></p>
+<ol type="1">
+<li><strong>Library contract.</strong> Sink-side helper libraries
+(<code>arvus_probe.sh</code>, <code>sonos_probe.sh</code>, etc.) MUST
+expose a <code>*_require_reachable</code> function that returns exit
+code 2 (OPERATOR-BLOCKED) when the sink cannot be probed. Tests
+asserting sink-side codec-state MUST call this function at probe entry.
+Silent skip via <code>*_probe_present</code> is permitted ONLY for
+topology-dispatch fan-out logic that already has an alternative on-SoC +
+downstream-amplitude probe path.</li>
+<li><strong>Exit-code propagation.</strong>
+<code>arvus_require_reachable</code> / equivalent helpers return 2; the
+test harness MUST propagate 2 to the suite summary (counted separately
+from FAIL/SKIP) as <code>OPERATOR-BLOCKED</code>.
+<code>test_all_fixes.sh</code> orchestrator MUST exit non-zero when any
+test reported <code>OPERATOR-BLOCKED</code> AND release tags MUST NOT be
+cut while any <code>OPERATOR-BLOCKED</code> test exists.</li>
+<li><strong>Test rewrite.</strong> Every test currently asserting
+<code>audio output routing PASS</code> via metadata-only checks (e.g.,
+the historical <code>test_audio_output_routing.sh</code> config-only
+invariants) MUST be rewritten to capture at least one positive
+sink/downstream evidence per the enumeration above. The §11.4 PASS-bluff
+pattern <code>tinymix says route is on → PASS</code> is the failure mode
+this anchor closes.</li>
+<li><strong>Anti-stickiness post-stop.</strong> After the test stops the
+playback, it MUST re-probe the sink/downstream and assert the
+codec-state transitioned to N.E. / N/A / 0-frames-delta. A persistent
+codec- state across test boundaries indicates orphan playback (§11.4.14
+violation) AND would falsely PASS the next test.</li>
+</ol>
+<p>Pre-build gate <code>CM-COVENANT-114-68-PROPAGATION</code> enforces
+this anchor literal across canonical files + per-consumer propagation.
+Paired mutation strips the anchor literal → gate FAILs. Pre-build gate
+<code>CM-POSITIVE-SINK-EVIDENCE-PER-AUDIO-TEST</code> walks every
+audio-routing on-device test asserting PASS and verifies it cites at
+least one positive evidence call (one of
+<code>arvus_require_reachable</code> /
+<code>arvus_assert_codec_format</code> /
+<code>pcm_hw_ptr_delta_positive</code> /
+<code>tinycap_rms_above_floor</code> /
+<code>ffprobe_frames_nonzero</code>). Paired mutation strips one such
+call → gate FAILs.</p>
+<p>Composes with §11.4.2 (recorded-evidence — sink-side is the
+captured-evidence channel), §11.4.5 (audio + video quality analysis
+comprehensiveness — codec / channel-count / RMS), §11.4.13 (sink-side
+captured-evidence mandate — §11.4.68 closes its silent-skip gap),
+§11.4.14 (test cleanup — anti-stickiness post-stop), §11.4.46
+(recent-work validation — sink-side evidence required at validation
+entry), §11.4.49 (dual-approach testing — both UI + Intent variants need
+sink-side evidence), §11.4.50 (deterministic consistency — sink-side
+evidence must be consistent across N iterations), §11.4.52
+(autonomous-validation — sink probe IS the canonical autonomous path for
+HDMI audio).</p>
+<p>No escape hatch — no <code>--skip-sink-evidence</code>,
+<code>--allow-empty-codec</code>,
+<code>--sink-unreachable-is-pass</code>,
+<code>--metadata-only-suffices</code> flag exists anywhere. The
+discipline exists because the operator/end-user forensic on 2026-05-20
+demonstrated the exact failure this anchor forbids: tests reported
+audio-routing PASS while the user heard nothing and Arvus Codec-In-Use
+was empty.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.68.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<hr />
+<h3
+id="11469--universal-sink-side-positive-evidence-taxonomy--mechanical-enforcement-user-mandate-2026-05-20">§11.4.69
+— Universal Sink-Side Positive-Evidence Taxonomy + Mechanical
+Enforcement (User mandate, 2026-05-20)</h3>
+<p><strong>Forensic anchor — direct user mandate (verbatim,
+2026-05-20):</strong></p>
+<blockquote>
+<p>"THIS MUST HAPPEN NEVER AGAIN!!! We MUST HAVE this all working! Not
+just for audio but for every single piece of the System!!! Proper full
+automation when executed with success MUST MEAN that manual testing will
+be as much positive at least regarding the success results! Dive deep
+into the root causes and how this had happened! The root causes of such
+omission MUST BE TRACKED, and proper solution applied! Solution MUST BE
+universal, generic that solves working flows for all System components
+and for all future and all existing projects! Make sure everything is
+added we change as mandatory rules we must follow and critical
+constraints into ours root (constitution Submodule) Constitution.md,
+CLAUDE.md and AGENTS.md!!! Everything we do MUST BE validated and
+verified with rock-solid proofs and anti-bluff policy enforcement and
+fulfillment! THIS IS MOST CRITICAL POINT WE HAVE NOW with all audio
+issues!"</p>
+</blockquote>
+<p>Escalation from the same operator session (2026-05-20, hours
+earlier):</p>
+<blockquote>
+<p>"We still do not hear any audio played from D3 device! Arvus Web
+Dashboard when we play music from D3 shows nothing for Codec In Use! ...
+How come we passed the tests with Arvus validation? What were values for
+the Codec In Use field? Empty means nothing! This is not working!"</p>
+</blockquote>
+<p><strong>Forensic incident — 2026-05-19→20 D3 audio-routing PASS-bluff
+generalised.</strong> §11.4.68 closed the audio-specific failure path
+where Arvus reported an empty Codec-In-Use field and the test PASSed
+anyway. The same shape of bug had previously shown up intermittently
+across multiple subsystems (display routing on D1 secondary HDMI, BT
+A2DP codec advertisements, WiFi connection quality, video playback
+frame-count, touch-input event delivery). The audio incident was the
+canonical trigger because the operator hears silence at the soundbar
+even while the cycle reports green. §11.4.69 is the universal
+generalisation — closing the bluff class for every user-visible feature,
+not only audio.</p>
+<p><strong>Root-cause analysis — why existing anchors §11.4.2 / §11.4.5
+/ §11.4.13 / §11.4.27 / §11.4.52 / §11.4.68 did NOT mechanically catch
+the failure across the System:</strong></p>
+<ol type="1">
+<li><strong>Aspirational text without a pre-build gate.</strong> §11.4.2
+(recorded-evidence) required captured visual/audio evidence per PASS but
+had no gate walking the test corpus to enforce a per-PASS evidence file.
+Tests called <code>ab_pass "description"</code> and the evidence
+requirement was honour-system.</li>
+<li><strong>SKIP-fail-open hiding missing evidence.</strong> §11.4.13
+(Arvus sink-side) had a silent-skip escape when the sink returned an
+empty / unreachable response — the empty response was the very defect
+signal but it was classified as "sink unreachable, SKIP the assertion."
+§11.4.68 closed this for audio; §11.4.69 closes it universally across
+every feature class with a downstream sink.</li>
+<li><strong>PASS-by-default vs FAIL-by-default helper contract.</strong>
+The bare <code>ab_pass</code> helper accepted a free-text description
+and incremented the PASS counter — no evidence path required, no shape
+enforced. The default failure mode was therefore PASS- bluff. The
+correct default is FAIL-by-default — a PASS must prove itself with a
+captured-evidence artefact path.</li>
+<li><strong>Missing closed-set taxonomy.</strong> Individual test
+authors made one-off decisions about what evidence shape was acceptable.
+Without a single canonical table mapping every user-visible feature
+class to its required sink-side probe, aggregate enforcement across the
+System was mechanically impossible.</li>
+<li><strong>Helper functions that mapped a multi-step probe to one
+bool.</strong> <code>arvus_probe_present</code> collapsed
+reachable-but-empty into the same value as unreachable. The §11.4.68 fix
+added <code>arvus_require_reachable</code> for audio; §11.4.69 codifies
+the equivalent for every sink (Sonos, Yamaha, Denon, video display
+analyzer, WiFi sink, BT peer, etc.).</li>
+<li><strong>No per-feature evidence ledger.</strong> §11.4.52 supplied
+an autonomous-validation classification
+(<code>AUTONOMOUS_VERIFIED</code> etc.) but did not require each test to
+cite a captured-evidence artefact path matching the §11.4.69
+taxonomy.</li>
+</ol>
+<p><strong>The §11.4.69 mandate — universal, generic, applies to every
+System component, every owned project, every consumer subscribing via
+the constitution submodule:</strong></p>
+<p><strong>Element 1: Closed-set sink-side / downstream evidence
+taxonomy.</strong> Every user-visible feature class in every consuming
+project MUST map to exactly one entry in the following table. The
+taxonomy is the canonical authority on the required evidence shape per
+feature class. Tests annotate themselves with
+<code># §11.4.69 FEATURE: &lt;class&gt;</code> so the pre-build gate can
+match expected evidence shape.</p>
+<table>
+<thead>
+<tr>
+<th>Feature class</th>
+<th>Required probe</th>
+<th>Required evidence shape</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>audio_output</code></td>
+<td>sink-side codec/channel REST probe (Arvus / Sonos / Yamaha / Denon /
+Marantz / WiSA) + on-device <code>tinycap</code> capture + ffprobe
+channel assertion</td>
+<td>non-empty <code>codec_in_use</code> matching expected codec AND
+captured WAV with RMS &gt; -60 dBFS AND ffprobe <code>channels</code>
+matches claim</td>
+</tr>
+<tr>
+<td><code>audio_input</code></td>
+<td>tinycap capture from intended device + ffprobe RMS</td>
+<td>captured WAV with RMS &gt; -60 dBFS AND
+<code>audio_devices_for_attr</code> shows the claimed source device</td>
+</tr>
+<tr>
+<td><code>video_display</code></td>
+<td><code>screenrecord</code> on intended display +
+<code>ffprobe -count_frames</code> + analyzer event-match</td>
+<td>non-zero mp4 size AND <code>nb_read_frames &gt; 0</code> AND
+analyzer reports a matched event for the claimed display</td>
+</tr>
+<tr>
+<td><code>network_throughput</code></td>
+<td><code>iperf3</code> / <code>curl --speed</code> / <code>dd</code>
+over network</td>
+<td>throughput ≥ per-link-type floor AND TCP buffer / congestion-control
+matches claim</td>
+</tr>
+<tr>
+<td><code>network_connectivity</code></td>
+<td>ping + DNS resolve + TCP connect probe</td>
+<td>captured ping reply AND DNS answer AND TCP handshake to known
+port</td>
+</tr>
+<tr>
+<td><code>bluetooth_a2dp</code></td>
+<td>codec query + sink peer state + A2DP TX queue depth</td>
+<td><code>dumpsys bluetooth_manager</code> reports
+<code>CONNECTED+A2DP_PLAYING</code> AND codec field non-empty AND queue
+depth &lt; overflow threshold</td>
+</tr>
+<tr>
+<td><code>bluetooth_pair</code></td>
+<td><code>dumpsys bluetooth_manager</code> +
+<code>BluetoothDevice.getBondState()</code></td>
+<td>bond state = <code>BOND_BONDED</code> AND device MAC matches
+expected</td>
+</tr>
+<tr>
+<td><code>touch_input</code></td>
+<td><code>getevent -lt</code> capture during scripted
+<code>input tap</code></td>
+<td>≥1 <code>EV_ABS ABS_MT_*</code> event per scripted tap AND
+<code>dumpsys input</code> shows the touch device active</td>
+</tr>
+<tr>
+<td><code>sensor</code></td>
+<td><code>dumpsys sensorservice</code> + <code>getevent</code> on sensor
+device</td>
+<td>event count &gt; 0 between BEFORE and AFTER snapshots for the
+claimed sensor</td>
+</tr>
+<tr>
+<td><code>gpu_render</code></td>
+<td>SurfaceFlinger frame-rate dump +
+<code>dumpsys gfxinfo &lt;pkg&gt;</code></td>
+<td><code>Janky frames</code> &lt; threshold AND
+<code>Total frames rendered &gt; 0</code> during test window</td>
+</tr>
+<tr>
+<td><code>storage_read</code></td>
+<td><code>dd if=&lt;path&gt; of=/dev/null</code> +
+<code>/proc/diskstats</code> delta</td>
+<td>throughput ≥ floor AND <code>read_sectors</code> delta confirms IO
+landed on intended device</td>
+</tr>
+<tr>
+<td><code>storage_write</code></td>
+<td><code>dd of=&lt;path&gt;</code> + sync +
+<code>/proc/diskstats</code> delta</td>
+<td>throughput ≥ floor AND <code>write_sectors</code> delta confirms IO
+landed on intended device</td>
+</tr>
+<tr>
+<td><code>mediacodec_decode</code></td>
+<td><code>media.metrics</code> dump +
+<code>dumpsys media.codec</code></td>
+<td>decoder lifecycle events present (<code>configure</code>,
+<code>start</code>, ≥1 output buffer) AND codec name matches claim</td>
+</tr>
+<tr>
+<td><code>mediacodec_encode</code></td>
+<td><code>media.metrics</code> dump + non-zero output file</td>
+<td>encoder lifecycle events present AND output file non-zero AND
+ffprobe confirms codec matches claim</td>
+</tr>
+<tr>
+<td><code>miracast</code> / <code>cast</code></td>
+<td>sink-side WFD / Cast announce + session state</td>
+<td>sink dashboard reports active session AND session ID present in
+<code>dumpsys media_session</code></td>
+</tr>
+<tr>
+<td><code>boot_service</code></td>
+<td><code>getprop init.svc.&lt;name&gt;</code> + log capture</td>
+<td>service state = <code>running</code> AND log shows expected
+boot-time output literal</td>
+</tr>
+<tr>
+<td><code>package_install</code></td>
+<td><code>pm path &lt;pkg&gt;</code> + signature match</td>
+<td>non-empty pm path AND APK signature matches expected platform
+key</td>
+</tr>
+<tr>
+<td><code>permission_grant</code></td>
+<td><code>dumpsys package &lt;pkg&gt;</code> permission state</td>
+<td>permission state = <code>granted: true</code> for the claimed
+permission</td>
+</tr>
+<tr>
+<td><code>wifi_link</code></td>
+<td><code>iw dev wlan0 link</code> + RSSI + frequency</td>
+<td>captured BSSID AND RSSI within range AND frequency matches
+claim</td>
+</tr>
+<tr>
+<td><code>wifi_throughput</code></td>
+<td><code>iperf3</code> to LAN server</td>
+<td>throughput ≥ floor for the negotiated PHY rate</td>
+</tr>
+<tr>
+<td><code>ethernet_link</code></td>
+<td><code>ip link show</code> + carrier state + throughput probe</td>
+<td><code>carrier=1</code> AND <code>speed</code> matches claim AND
+throughput probe succeeds</td>
+</tr>
+<tr>
+<td><code>display_topology</code></td>
+<td>DRM connector dump + display ID enumeration</td>
+<td>connector status <code>connected</code> for claimed connector AND
+display ID present in <code>dumpsys SurfaceFlinger</code></td>
+</tr>
+<tr>
+<td><code>drm_playback</code></td>
+<td>Widevine session + decoded-frame count</td>
+<td>active DRM session AND decoded-frame count &gt; 0</td>
+</tr>
+<tr>
+<td><code>subtitle_render</code></td>
+<td>analyzer + Tesseract OCR on captured frames</td>
+<td>OCR matches expected subtitle text on the claimed display</td>
+</tr>
+</tbody>
+</table>
+<p>The taxonomy is <strong>open to additions</strong> via
+constitution-submodule commits + propagation. Removal of a feature class
+is forbidden without a tracked work item explaining the supersession.
+Consumer projects MAY extend the taxonomy with project-specific feature
+classes (e.g., HelixCode-specific build-pipeline classes) but MUST NOT
+contract it.</p>
+<p><strong>Element 2: New helper contracts (additive during grace
+period; mandatory after grace-period end-date 2026-06-19).</strong></p>
+<p>The project anti-bluff helper library (<code>anti_bluff.sh</code> in
+ATMOSphere; functionally equivalent helper in every consuming project)
+MUST provide three new helpers:</p>
+<ol type="1">
+<li><strong><code>ab_pass_with_evidence &lt;description&gt; &lt;evidence_path&gt;</code></strong>
+— the new canonical PASS helper:
+<ul>
+<li>REQUIRES a non-empty <code>evidence_path</code> argument</li>
+<li>Verifies the path exists AND is non-empty
+(<code>[ -s "$path" ]</code>)</li>
+<li>If the path is missing or empty, the helper EXITs the test as FAILed
+with a diagnostic citing the missing evidence path</li>
+<li>On success, increments the PASS counter AND emits a result line
+<code>PASS: &lt;description&gt; [evidence: &lt;path&gt;]</code></li>
+<li>Composes with <code>ab_send_action</code> — a single test issues
+many <code>ab_send_action</code> calls and one terminal
+<code>ab_pass_with_evidence</code></li>
+</ul></li>
+<li><strong><code>ab_skip_with_reason &lt;description&gt; &lt;reason_code&gt;</code></strong>
+— the new canonical SKIP helper:
+<ul>
+<li>REQUIRES <code>reason_code</code> from a CLOSED set:
+<code>geo_restricted</code>, <code>operator_attended</code>,
+<code>hardware_not_present</code>, <code>topology_unsupported</code>,
+<code>network_unreachable_external</code>,
+<code>feature_disabled_by_config</code></li>
+<li>REJECTs ad-hoc reasons — any string not in the closed set fails the
+helper at call time</li>
+<li>FORBIDs <code>network_unreachable_external</code> for any feature
+class in the §11.4.69 taxonomy that lists a sink-side probe — that
+escape was the §11.4.13 fail-open path §11.4.68 closed for audio, and
+§11.4.69 closes universally</li>
+<li>SKIP remains mechanically distinct from PASS in cycle math (per
+§11.4.1)</li>
+</ul></li>
+<li><strong>Bare <code>ab_pass</code> deprecation wrapper.</strong> The
+legacy <code>ab_pass</code> helper MUST emit a WARNING line on every
+call AND emit a deprecation event to a tracked log file
+(<code>/data/local/tmp/ab_pass_deprecations.log</code>). After the grace
+period (defined in Element 4) the wrapper MUST FAIL the test outright,
+forcing all callers to migrate.</li>
+</ol>
+<p><strong>Element 3: Mechanical enforcement via three pre-build gates +
+three paired meta-test mutations (per §1.1).</strong></p>
+<ol type="1">
+<li><strong><code>CM-SINK-EVIDENCE-PER-FEATURE</code></strong> — walks
+every <code>.sh</code> test in
+<code>device/rockchip/rk3588/tests/</code> (and equivalent project
+paths), parses for <code># §11.4.69 FEATURE: &lt;class&gt;</code>
+annotation comments, verifies the test invokes the corresponding
+sink-side probe from the taxonomy AND uses
+<code>ab_pass_with_evidence</code> (or <code>ab_skip_with_reason</code>
+with a permitted reason). Pre-grace: tests lacking the annotation WARN.
+Post-grace: they FAIL.</li>
+<li><strong><code>CM-NO-FAIL-OPEN-SKIP</code></strong> — audits
+sink-side probe helpers (<code>arvus_probe.sh</code>,
+<code>sonos_probe.sh</code>, equivalents) for any code path that
+converts an empty / unreachable sink response into a PASS-counting SKIP
+for a feature class with a sink-side probe in the taxonomy. The gate
+FAILs if any such path exists. Remediation: escalate to FAIL (the empty
+response IS the defect) or to OPERATOR-BLOCKED per §11.4.68.</li>
+<li><strong><code>CM-AB-PASS-WITH-EVIDENCE-EVERYWHERE</code></strong> —
+pre-grace WARNs on every bare <code>ab_pass</code> call in in-scope
+tests; post-grace (2026-06-19) FAILs the gate. Tests that legitimately
+have no evidence-capable PASS path MUST migrate to
+<code>ab_skip_with_reason operator_attended</code> and add a tracked
+work item per §11.4.52's <code>OPERATOR_ATTENDED_ONLY</code>
+classification.</li>
+</ol>
+<p>Paired mutations (per §1.1):</p>
+<ul>
+<li><strong>Mutation 1:</strong> strip the literal
+<code>ab_pass_with_evidence</code> from the project anti-bluff library →
+assert <code>CM-AB-PASS-WITH-EVIDENCE-EVERYWHERE</code> FAILs.</li>
+<li><strong>Mutation 2:</strong> inject a fresh test that calls bare
+<code>ab_pass</code> without the <code># §11.4.69 FEATURE:</code>
+annotation → assert <code>CM-SINK-EVIDENCE-PER-FEATURE</code> FAILs
+post-grace, WARNs pre-grace.</li>
+<li><strong>Mutation 3:</strong> inject a fresh test that calls
+<code>ab_skip</code> (no <code>_with_reason</code> suffix) OR
+<code>ab_skip_with_reason network_unreachable_external</code> for an
+<code>audio_output</code> feature → assert
+<code>CM-NO-FAIL-OPEN-SKIP</code> FAILs.</li>
+</ul>
+<p><strong>Element 4: Grace period mechanics — additive, not
+destructive.</strong></p>
+<ul>
+<li><strong>Grace period:</strong> 30 days from anchor land date —
+2026-05-20 through 2026-06-19 inclusive. The end date is hardcoded in
+the helper library and in this anchor; no environment variable, no
+command-line flag, no operator override can extend or shorten it.</li>
+<li><strong>Pre-grace behaviour:</strong> new helpers exist and are
+usable; the three gates emit WARN for legacy patterns; cycle math counts
+WARNs separately from PASS / FAIL / SKIP.</li>
+<li><strong>Post-grace behaviour:</strong> WARN promotion to FAIL is
+automatic via a date check
+(<code>[ "$(date -u +%Y%m%d)" -ge 20260619 ]</code>) inside each gate's
+enforcement logic.</li>
+</ul>
+<p><strong>Element 5: Inheritance via HelixConstitution.</strong> This
+anchor lives in the constitution submodule and applies to every
+consuming project that subscribes — including HelixCode, Catalogizer,
+Yole, HelixPlay, HelixTranslate, HelixFlow, MeTube,
+ATMOSphere-Android-15, and every future consumer. Each consumer MUST
+implement its own equivalent helper library + pre-build gates; the
+taxonomy in Element 1 is the canonical authority across all consumers.
+Consumer-specific extensions are allowed only as additions to the
+taxonomy.</p>
+<p><strong>Composes with:</strong></p>
+<ul>
+<li>§11.4.1 (FAIL-bluffs equally forbidden —
+<code>ab_skip_with_reason</code> closed-set prevents script-bug FAILs
+hiding real defects)</li>
+<li>§11.4.2 (recorded-evidence requirement — Element 2 helper contracts
+make captured evidence mechanically required per PASS)</li>
+<li>§11.4.5 (audio + video quality 5-layer — §11.4.69 enforces that the
+layers are exercised before PASS via the taxonomy probe)</li>
+<li>§11.4.6 (no-guessing — sink-side evidence eliminates "we think audio
+is routing" guessing; the codec field reads concretely)</li>
+<li>§11.4.13 (Arvus sink-side evidence — §11.4.69 mechanically closes
+the SKIP-fail-open escape §11.4.13 left open)</li>
+<li>§11.4.27 (no-fakes-beyond-unit — §11.4.69 adds the runtime hook
+§11.4.27 lacked)</li>
+<li>§11.4.50 (deterministic consistency — sink-side evidence is what
+<code>ab_run_n_times</code> hashes for divergence detection)</li>
+<li>§11.4.52 (autonomous-validation — §11.4.69 supplies the
+evidence-shape contract per feature class; §11.4.52 supplies the
+classification ledger)</li>
+<li>§11.4.68 (positive sink-side / downstream evidence for audio + video
+— §11.4.69 is the universal generalisation across all feature
+classes)</li>
+</ul>
+<p><strong>No escape hatch:</strong></p>
+<ul>
+<li>No <code>--skip-evidence</code> flag.</li>
+<li>No <code>--config-only-pass</code> flag (configuration-only PASS is
+the exact bluff pattern this anchor closes).</li>
+<li>No <code>--allow-fail-open-skip</code> flag.</li>
+<li>No <code>--legacy-ab-pass-permitted</code> flag post-grace.</li>
+<li>No taxonomy-bypass shortcut — every feature class in scope MUST have
+its evidence shape enforced.</li>
+</ul>
+<p><strong>Propagation gate.</strong>
+<code>CM-COVENANT-114-69-PROPAGATION</code> verifies the §11.4.69 anchor
+literal is present across the ~44-file consumer fleet (parent CLAUDE.md
+/ AGENTS.md + Containers + 10 owned atmosphere submodules including the
+smarttube-player nested set + 7 HelixQA submodules). Constitution
+submodule files (constitution/{Constitution,CLAUDE,AGENTS}.md) are
+canonical authority — they carry §11.4.69 by definition.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.69.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <hr />
 <h2

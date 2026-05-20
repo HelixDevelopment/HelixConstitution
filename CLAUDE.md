@@ -1420,6 +1420,24 @@ on-device test framework at `device/rockchip/rk3588/tests/ui_driven/`
 Layer 4 orchestrator `scripts/testing/run_ui_driven_video_suite.sh` +
 paired meta-test mutations.
 
+**Carve-out (User mandate 2026-05-20).** The 5 canonical tracker
+documents — `docs/Issues.md`, `docs/Issues_Summary.md`,
+`docs/Fixed.md`, `docs/Fixed_Summary.md`, `docs/CONTINUATION.md`
+— sit at `docs/` root by design. They are architectural constants
+of the project layout, analogous to AOSP's `Makefile`, `Android.bp`,
+`OWNERS` files at repo root. Their location is encoded as literal
+path strings in §11.4.12 + §11.4.15 + §11.4.16 + §11.4.19 +
+§11.4.44 + §11.4.53 propagation gates plus the helper-script
+constellation that regenerates them. Moving them would require
+coordinated amendment of those 6 sister anchors plus 5 pre-build
+gates plus ~20 helper scripts plus 42 consumer files in a single
+PWU. Per §11.4.66, that scope is operator-blocked until explicitly
+authorised. Audit-snapshot files (`docs/audit/anti_bluff_audit.md`,
+`docs/audit/PRE_SONOS_TAG_READINESS.md`,
+`docs/audit/D1_WIFI_FAIL_CLASSIFICATION.md`, plus any future audit
+snapshots) DO move under `docs/audit/` per the §11.4.11 general
+principle.
+
 **Canonical authority:** constitution submodule
 [`Constitution.md`](Constitution.md) §11.4.48.
 

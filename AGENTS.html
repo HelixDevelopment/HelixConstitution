@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Helix Constitution — Universal AGENTS.md</title>
+  <title>AGENTS</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -91,7 +91,6 @@
       color: #606060;
     }
     code {
-      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -155,6 +154,7 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
+    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -238,7 +238,7 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">Helix Constitution — Universal AGENTS.md</h1>
+<h1 class="title">AGENTS</h1>
 </header>
 <h1 id="helix-constitution--universal-agentsmd">Helix Constitution —
 Universal AGENTS.md</h1>
@@ -1856,6 +1856,158 @@ mutation strips the literal → gate FAILs. No escape hatch — no
 <p><strong>Canonical authority:</strong> constitution submodule <a
 href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.66.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<p><strong>§11.4.67 — Shell-script target-shell-parseability mandate
+(User mandate, 2026-05-19)</strong></p>
+<p><strong>Forensic anchor — direct user mandate (verbatim,
+2026-05-19):</strong> "any issue we spot must be fixed, bash scripts as
+well if they are broken!"</p>
+<ul>
+<li>"Make sure that this is mandatory rule!"</li>
+</ul>
+<p>Every shell script that may be invoked under a target shell other
+than the one in its shebang MUST parse cleanly under that target shell.
+Forensic incident:
+<code>device/rockchip/rk3588/tests/test_all_fixes.sh:114</code> used
+bash-only <code>exec &gt; &gt;(tee -a "$f") 2&gt;&amp;1</code> on a
+<code>sh script.sh</code> callsite — Android mksh parses the whole
+script BEFORE executing, so the runtime
+<code>[ -n "${BASH_VERSION:-}" ]</code> guard could not save it. Fixed
+by wrapping in <code>eval 'exec &gt; &gt;(tee …) 2&gt;&amp;1'</code> so
+the parser sees only a string.</p>
+<p>Closed-set scope: every tracked <code>.sh</code> under
+<code>device/rockchip/rk3588/tests/</code>, <code>scripts/</code>,
+<code>scripts/testing/</code> (and equivalent paths in owned
+submodules). OUT of scope: <code>external/</code>,
+<code>prebuilts/</code>, <code>packages/modules/</code>,
+<code>kernel-5.10/</code>, <code>out/</code>, <code>build/</code>,
+<code>scripts/legacy/</code>. Mandatory invariants: (1) every in-scope
+script parses under <code>sh -n</code>; (2) bash-only constructs
+(<code>&gt;(...)</code>, <code>&lt;(...)</code>, <code>[[ ]]</code>,
+<code>&lt;&lt;&lt;</code>, arrays, <code>${var^^}</code>, etc.) MUST be
+wrapped in <code>eval</code> OR guarded by bash-only loading; (3)
+shebangs honest — <code>#!/bin/bash</code> only if bash actually
+expected; (4) fix at source per §11.4.1, never at callsites. Composes
+with §11.4.1 / §11.4.4 / §11.4.6 / §11.4.50 / §11.4.51.</p>
+<p>Pre-build gate <code>CM-SCRIPT-TARGET-SHELL-PARSEABLE</code> runs
+<code>sh -n</code> on every in-scope script. Propagation gate
+<code>CM-COVENANT-114-67-PROPAGATION</code> enforces the anchor literal
+across the 44-file consumer fleet. Paired mutations: inject bash-only
+outside <code>eval</code> → parse gate FAILs; strip <code>11.4.67</code>
+literal → propagation gate FAILs. No escape hatch — no
+<code>--skip-parseability-check</code>, <code>--bash-only-script</code>,
+<code>--runtime-guard-suffices</code> flag.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.67.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<p><strong>§11.4.68 — Positive sink-side / downstream evidence mandate
+(User mandate, 2026-05-20)</strong></p>
+<p>A test asserting audio or video routing PASS MUST capture and verify
+positive sink-side or downstream evidence — never config-only, never
+metadata-only, never PCM-open-state-only. Closed enumeration of
+acceptable evidence: (1) sink-side codec-state showing non-empty codec
+matching the expected regex during playback; (2) PCM <code>hw_ptr</code>
+delta strictly positive across the playback window; (3) ALSA ELD
+demonstrating negotiated channel count + format; (4) ffprobe non-zero
+frames matching expected codec for video; (5) recording-analyzer matched
+event per §11.4.2 / §11.4.5 timeline; (6) tinycap RMS amplitude above
+floor.</p>
+<p>Failure modes specifically forbidden: silent SKIP on sink
+unreachable, empty codec-state treated as evidence, policy-side device
+field used as proof PCM opened, config-XML-only PASS. All produce the
+§11.4 PASS-bluff failure mode anchored at D3 forensic 2026-05-20.</p>
+<p>Mandatory protections: sink-side libraries expose
+<code>*_require_reachable</code> returning exit code 2
+(OPERATOR-BLOCKED); harness propagates 2; audio/video-routing tests
+capture ≥1 positive evidence per enumeration; anti-stickiness post-stop
+re-probe. No escape hatch.</p>
+<p>Composes with §11.4.2 / §11.4.5 / §11.4.13 / §11.4.14 / §11.4.46 /
+§11.4.49 / §11.4.50 / §11.4.52. Pre-build gates
+<code>CM-COVENANT-114-68-PROPAGATION</code> +
+<code>CM-POSITIVE-SINK-EVIDENCE-PER-AUDIO-TEST</code></p>
+<ul>
+<li>paired meta-test mutations per §1.1.</li>
+</ul>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.68.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
+<p><strong>§11.4.69 — Universal sink-side positive-evidence taxonomy +
+mechanical enforcement (User mandate, 2026-05-20)</strong></p>
+<p><strong>Forensic anchor — direct user mandate (verbatim,
+2026-05-20):</strong></p>
+<blockquote>
+<p>"THIS MUST HAPPEN NEVER AGAIN!!! We MUST HAVE this all working! Not
+just for audio but for every single piece of the System!!! Proper full
+automation when executed with success MUST MEAN that manual testing will
+be as much positive at least regarding the success results! ... Solution
+MUST BE universal, generic that solves working flows for all System
+components and for all future and all existing projects! ... Everything
+we do MUST BE validated and verified with rock-solid proofs and
+anti-bluff policy enforcement and fulfillment!"</p>
+</blockquote>
+<p>Universal generalisation of §11.4.68 (audio-specific) across every
+user-visible feature class. Closes the PASS-bluff pattern where tests
+reported green while end users hit broken features (2026-05-19→20 D3
+audio "82/84 PASS" + empty Arvus Codec-In-Use).</p>
+<p><strong>The mandate.</strong> Every user-visible feature MUST map to
+one entry in the closed-set §11.4.69 sink-side evidence taxonomy
+(audio_output, audio_input, video_display, network_throughput,
+network_connectivity, bluetooth_a2dp, bluetooth_pair, touch_input,
+sensor, gpu_render, storage_read, storage_write, mediacodec_decode,
+mediacodec_encode, miracast, cast, boot_service, package_install,
+permission_grant, wifi_link, wifi_throughput, ethernet_link,
+display_topology, drm_playback, subtitle_render — open to additions).
+Every PASS for a feature in the taxonomy MUST cite a captured-evidence
+artefact path matching the required evidence shape.</p>
+<p><strong>Helper contracts (additive during grace; mandatory after
+2026-06-19):</strong></p>
+<ul>
+<li><code>ab_pass_with_evidence &lt;description&gt; &lt;evidence_path&gt;</code>
+— the new canonical PASS helper. Verifies path exists AND non-empty;
+emits
+<code>PASS: &lt;description&gt; [evidence: &lt;path&gt;]</code>.</li>
+<li><code>ab_skip_with_reason &lt;description&gt; &lt;closed-set-reason&gt;</code>
+— reasons: <code>geo_restricted</code>, <code>operator_attended</code>,
+<code>hardware_not_present</code>, <code>topology_unsupported</code>,
+<code>network_unreachable_external</code>,
+<code>feature_disabled_by_config</code>. Forbids
+<code>network_unreachable_external</code> for any taxonomy feature with
+a sink-side probe.</li>
+<li>Bare <code>ab_pass</code> deprecated — WARN pre-grace, FAIL
+post-grace (2026-06-19).</li>
+</ul>
+<p><strong>Mechanical enforcement.</strong> Three pre-build gates +
+three paired §1.1 meta-test mutations:</p>
+<ul>
+<li><code>CM-SINK-EVIDENCE-PER-FEATURE</code> — walks tests for
+<code># §11.4.69 FEATURE: &lt;class&gt;</code> annotation + verifies
+taxonomy probe + <code>ab_pass_with_evidence</code> use.</li>
+<li><code>CM-NO-FAIL-OPEN-SKIP</code> — audits sink-side probe helpers;
+FAILs if any code path converts empty/unreachable response to
+PASS-counting SKIP for a feature class with a sink-side probe.</li>
+<li><code>CM-AB-PASS-WITH-EVIDENCE-EVERYWHERE</code> — pre-grace WARN,
+post- grace FAIL on bare <code>ab_pass</code> calls.</li>
+</ul>
+<p><strong>Composes with</strong> §11.4.1 (FAIL-bluffs forbidden),
+§11.4.2 (recorded-evidence), §11.4.5 (audio + video 5-layer quality),
+§11.4.6 (no-guessing), §11.4.13 (sink-side captured-evidence), §11.4.27
+(no-fakes-beyond-unit), §11.4.50 (deterministic consistency), §11.4.52
+(autonomous-validation), §11.4.68 (audio-specific sink-side — §11.4.69
+is the universal generalisation).</p>
+<p><strong>No escape hatch</strong> — no <code>--skip-evidence</code>,
+<code>--config-only-pass</code>, <code>--allow-fail-open-skip</code>,
+<code>--legacy-ab-pass-permitted</code> flag. The discipline exists
+because the 2026-05-20 forensic incident demonstrated the failure: tests
+reported audio-routing PASS while the user heard nothing and the Arvus
+Codec-In-Use field was empty.</p>
+<p>Propagation gate <code>CM-COVENANT-114-69-PROPAGATION</code> enforces
+this anchor literal across the ~44-file consumer fleet. Paired mutation
+strips the literal → gate FAILs.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.69.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 </body>
 </html>
