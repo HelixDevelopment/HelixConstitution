@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>README</title>
+  <title>Helix Constitution</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -91,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -154,7 +155,6 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -238,7 +238,7 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">README</h1>
+<h1 class="title">Helix Constitution</h1>
 </header>
 <h1 id="helix-constitution">Helix Constitution</h1>
 <table>
@@ -251,7 +251,7 @@
 <tbody>
 <tr>
 <td>Revision</td>
-<td>1</td>
+<td>2</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -259,7 +259,7 @@
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-05-19</td>
+<td>2026-05-20</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -267,7 +267,13 @@
 </tr>
 <tr>
 <td>Status summary</td>
-<td>—</td>
+<td>Universal engineering constitution shared by every project that
+includes this repository as a Git submodule. Recent additions
+(2026-05-20): §11.4.73–78 (spec-versioning, submodule-catalogue-first,
+containers mandate, mechanical enforcement, regeneration mandate,
+CodeGraph mandate); new QWEN.md for the Qwen Code CLI agent; new
+<code>submodules-catalogue.md</code> enumerating all 142 owned-by-us
+repositories.</td>
 </tr>
 <tr>
 <td>Issues</td>
@@ -279,7 +285,8 @@
 </tr>
 <tr>
 <td>Fixed</td>
-<td>none</td>
+<td>initial creation (R1, 2026-05-14); README overhaul +
+recent-additions refresh (R2, 2026-05-20).</td>
 </tr>
 <tr>
 <td>Fixed summary</td>
@@ -301,22 +308,24 @@ project-agnostic</strong> rules, constraints, and conventions that every
 Helix project (and any other project that opts in) inherits
 automatically. Project-specific rules live in the consuming project's
 own <code>Constitution.md</code> / <code>CLAUDE.md</code> /
-<code>AGENTS.md</code> and <strong>extend</strong> what is in here.</p>
+<code>AGENTS.md</code> / <code>QWEN.md</code> and
+<strong>extend</strong> what is in here.</p>
 <p>The model is three-layer (top-to-bottom evaluation, project overrides
 universal when conflicts are explicit):</p>
 <ol type="1">
 <li><strong>Base layer (this submodule)</strong> — universal rules:
-anti-bluff covenant, data safety, host safety, test coverage,
-commit/push discipline, credentials handling, documentation
-discipline.</li>
+anti-bluff covenant (§11.4), data safety, host safety, test coverage,
+commit/ push discipline, credentials handling (§11.4.10), documentation
+discipline (§11.4.65), submodule-catalogue-first discovery (§11.4.74),
+containers-submodule mandate (§11.4.76).</li>
 <li><strong>Project layer</strong> — project root
 <code>Constitution.md</code> / <code>CLAUDE.md</code> /
-<code>AGENTS.md</code>: domain-specific rules, hardware-specific
-constraints, service-specific configuration.</li>
+<code>AGENTS.md</code> / <code>QWEN.md</code>: domain-specific rules,
+hardware-specific constraints, service-specific configuration.</li>
 <li><strong>Subdirectory layer (optional)</strong> —
 <code>&lt;subdir&gt;/CLAUDE.md</code> for module-local overrides. CLI
-agents (Claude Code et al.) merge these by walking up from the working
-directory.</li>
+agents (Claude Code, Codex, Cursor, OpenCode, Qwen Code, Kimi CLI,
+Crush) merge these by walking up from the working directory.</li>
 </ol>
 <h2 id="how-to-consume">How to consume</h2>
 <h3 id="1-add-the-submodule">1. Add the submodule</h3>
@@ -346,7 +355,8 @@ class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb3-1"><
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>extend them.</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>@constitution/CLAUDE.md</span></code></pre></div>
-<p>Same for <code>AGENTS.md</code>:</p>
+<p>Same for <code>AGENTS.md</code> (any AI-agent tooling) and (since
+2026-05-20) <code>QWEN.md</code> for Qwen Code:</p>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Base agent rules: </span><span class="in">`constitution/AGENTS.md`</span><span class="at"> — READ IT FIRST.</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; The base file is authoritative for any topic not covered here.</span></span></code></pre></div>
@@ -375,10 +385,21 @@ same <code>Upstreams/</code> directory.</p>
 inheritance with an automated test</h3>
 <p>Every consuming project should ship a test that verifies the
 constitution submodule is present, at the expected pinned revision, and
-that the project's CLAUDE.md / AGENTS.md / Constitution all reference
-the submodule. See the ATMOSphere project's
-<code>test_constitution_inheritance.sh</code> for a reference
-implementation.</p>
+that the project's CLAUDE.md / AGENTS.md / QWEN.md / Constitution all
+reference the submodule. See:</p>
+<ul>
+<li>The ATMOSphere project's
+<code>test_constitution_inheritance.sh</code> for the reference
+implementation pattern.</li>
+<li>The Herald project's
+<code>tests/test_constitution_inheritance.sh</code> + paired
+<code>tests/test_i6_refinement_meta.sh</code> for an example with
+refined I6 invariant (allows non-constitution submodules) per the
+original pattern.</li>
+<li>The Herald <code>scripts/audit_antibluff.sh</code> for the canonical
+anti-bluff audit pattern (3 invariants: §11.4 anchor across submodules +
+default test suite green + paired §1.1 meta-test green).</li>
+</ul>
 <h2 id="contents">Contents</h2>
 <table>
 <thead>
@@ -401,7 +422,18 @@ are project-agnostic.</td>
 <tr>
 <td><code>AGENTS.md</code></td>
 <td>Universal AGENTS.md for every other CLI agent (Codex, Cursor, Aider,
-etc.).</td>
+OpenCode, Crush, Kimi CLI).</td>
+</tr>
+<tr>
+<td><code>QWEN.md</code></td>
+<td>Universal QWEN.md for the Qwen Code CLI agent. Created 2026-05-20
+per the §11.4.76 propagation set.</td>
+</tr>
+<tr>
+<td><code>submodules-catalogue.md</code></td>
+<td>Canonical inventory of every owned-by-us repository under
+<code>vasic-digital</code> + <code>HelixDevelopment</code> (142 repos at
+landing time). Created 2026-05-20 per §11.4.74 follow-up mandate.</td>
 </tr>
 <tr>
 <td><code>LICENSE</code></td>
@@ -426,11 +458,64 @@ a deletion of the §11.4 anchor.</td>
 </tr>
 <tr>
 <td><code>templates/</code></td>
-<td>Templates for project-specific Constitution / CLAUDE / AGENTS
+<td>Templates for project-specific Constitution / CLAUDE / AGENTS / QWEN
 files.</td>
 </tr>
 </tbody>
 </table>
+<h2 id="recent-additions-2026-05-20">Recent additions (2026-05-20)</h2>
+<p>The following clauses + companion files landed this session in
+response to operator mandates. Each entry includes the verbatim user
+mandate in its forensic-anchor block within
+<code>Constitution.md</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Clause</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>§11.4.73</td>
+<td>Main-specification document versioning + Revision discipline
+(V1/V2/V3 primary + Revision secondary axes).</td>
+</tr>
+<tr>
+<td>§11.4.74</td>
+<td>Submodule-catalogue-first discovery + extend-don't-reimplement. See
+<code>submodules-catalogue.md</code>.</td>
+</tr>
+<tr>
+<td>§11.4.75</td>
+<td>Mechanical enforcement without exception (5-layer git-hook
+discipline).</td>
+</tr>
+<tr>
+<td>§11.4.76</td>
+<td>Containers-submodule mandate — use
+<code>vasic-digital/containers</code> for ALL containerised
+workloads.</td>
+</tr>
+<tr>
+<td>§11.4.77</td>
+<td>Regeneration-mechanism-required mandate.</td>
+</tr>
+<tr>
+<td>§11.4.78</td>
+<td>CodeGraph code-intelligence mandate (npm
+<code>@colbymchenry/codegraph</code>).</td>
+</tr>
+</tbody>
+</table>
+<p>New companion file: <code>submodules-catalogue.md</code> — 142 repos
+categorised into 10 capability groups (Container + lifecycle, AI/LLM +
+agent, Messaging + observability + storage, Auth + security +
+middleware, Cross-platform KMP, TypeScript/React + Web, Testing + QA,
+Apps/tools, Misc/scaffolds).</p>
+<p>New file: <code>QWEN.md</code> — Qwen Code CLI agent's view of the
+universal constitution, structured analogously to <code>AGENTS.md</code>
+but tailored to Qwen Code's expectations.</p>
 <h2 id="multi-upstream-topology">Multi-upstream topology</h2>
 <p>This repository is hosted on four providers, with GitHub as the
 primary:</p>
@@ -476,6 +561,11 @@ helper without knowing their own depth.</p>
 Consuming projects pin to a specific tag and upgrade deliberately. Major
 version bumps mean breaking changes to the universal rules; minor bumps
 mean additions; patches mean clarifications.</p>
+<p>Per the new §11.4.73 spec-versioning discipline (added 2026-05-20),
+consuming projects that maintain a main specification document follow
+the <strong>two-axis</strong> rule: primary V<N> for major rewrites,
+secondary <code>Revision N</code> (in metadata table) for additive
+changes within a primary version.</p>
 <h2 id="contributing">Contributing</h2>
 <p>Universal status has to be <strong>earned</strong>, not assumed.
 Project-specific content does NOT belong here. When in doubt, classify a

@@ -2,14 +2,14 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
+| Revision | 2 |
 | Created | 2026-05-14 |
-| Last modified | 2026-05-19 |
+| Last modified | 2026-05-20 |
 | Status | active |
-| Status summary | — |
+| Status summary | Universal engineering constitution shared by every project that includes this repository as a Git submodule. Recent additions (2026-05-20): §11.4.73–78 (spec-versioning, submodule-catalogue-first, containers mandate, mechanical enforcement, regeneration mandate, CodeGraph mandate); new QWEN.md for the Qwen Code CLI agent; new `submodules-catalogue.md` enumerating all 142 owned-by-us repositories. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | none |
+| Fixed | initial creation (R1, 2026-05-14); README overhaul + recent-additions refresh (R2, 2026-05-20). |
 | Fixed summary | — |
 | Continuation | — |
 
@@ -22,20 +22,23 @@ This repository contains the **universal, project-agnostic** rules,
 constraints, and conventions that every Helix project (and any other
 project that opts in) inherits automatically. Project-specific rules
 live in the consuming project's own `Constitution.md` / `CLAUDE.md` /
-`AGENTS.md` and **extend** what is in here.
+`AGENTS.md` / `QWEN.md` and **extend** what is in here.
 
 The model is three-layer (top-to-bottom evaluation, project overrides
 universal when conflicts are explicit):
 
 1. **Base layer (this submodule)** — universal rules: anti-bluff
-   covenant, data safety, host safety, test coverage, commit/push
-   discipline, credentials handling, documentation discipline.
+   covenant (§11.4), data safety, host safety, test coverage, commit/
+   push discipline, credentials handling (§11.4.10), documentation
+   discipline (§11.4.65), submodule-catalogue-first discovery
+   (§11.4.74), containers-submodule mandate (§11.4.76).
 2. **Project layer** — project root `Constitution.md` / `CLAUDE.md` /
-   `AGENTS.md`: domain-specific rules, hardware-specific constraints,
-   service-specific configuration.
+   `AGENTS.md` / `QWEN.md`: domain-specific rules, hardware-specific
+   constraints, service-specific configuration.
 3. **Subdirectory layer (optional)** — `<subdir>/CLAUDE.md` for
-   module-local overrides. CLI agents (Claude Code et al.) merge
-   these by walking up from the working directory.
+   module-local overrides. CLI agents (Claude Code, Codex, Cursor,
+   OpenCode, Qwen Code, Kimi CLI, Crush) merge these by walking up
+   from the working directory.
 
 ## How to consume
 
@@ -77,7 +80,8 @@ extend them.
 @constitution/CLAUDE.md
 ```
 
-Same for `AGENTS.md`:
+Same for `AGENTS.md` (any AI-agent tooling) and (since 2026-05-20)
+`QWEN.md` for Qwen Code:
 
 ```markdown
 > Base agent rules: `constitution/AGENTS.md` — READ IT FIRST.
@@ -114,9 +118,18 @@ can invoke that instead — it reads the same `Upstreams/` directory.
 
 Every consuming project should ship a test that verifies the
 constitution submodule is present, at the expected pinned revision,
-and that the project's CLAUDE.md / AGENTS.md / Constitution all
-reference the submodule. See the ATMOSphere project's
-`test_constitution_inheritance.sh` for a reference implementation.
+and that the project's CLAUDE.md / AGENTS.md / QWEN.md / Constitution
+all reference the submodule. See:
+
+- The ATMOSphere project's `test_constitution_inheritance.sh` for the
+  reference implementation pattern.
+- The Herald project's `tests/test_constitution_inheritance.sh` + paired
+  `tests/test_i6_refinement_meta.sh` for an example with refined I6
+  invariant (allows non-constitution submodules) per the original
+  pattern.
+- The Herald `scripts/audit_antibluff.sh` for the canonical anti-bluff
+  audit pattern (3 invariants: §11.4 anchor across submodules + default
+  test suite green + paired §1.1 meta-test green).
 
 ## Contents
 
@@ -124,13 +137,40 @@ reference the submodule. See the ATMOSphere project's
 |---|---|
 | `Constitution.md` | **The canonical universal constitution.** All clauses are project-agnostic. |
 | `CLAUDE.md` | Universal CLAUDE.md for Claude Code agents. Imports `Constitution.md` by reference. |
-| `AGENTS.md` | Universal AGENTS.md for every other CLI agent (Codex, Cursor, Aider, etc.). |
+| `AGENTS.md` | Universal AGENTS.md for every other CLI agent (Codex, Cursor, Aider, OpenCode, Crush, Kimi CLI). |
+| `QWEN.md` | Universal QWEN.md for the Qwen Code CLI agent. Created 2026-05-20 per the §11.4.76 propagation set. |
+| `submodules-catalogue.md` | Canonical inventory of every owned-by-us repository under `vasic-digital` + `HelixDevelopment` (142 repos at landing time). Created 2026-05-20 per §11.4.74 follow-up mandate. |
 | `LICENSE` | License governing the constitution text itself. |
 | `Upstreams/` | One `.sh` declaration file per upstream Git remote. |
 | `install_upstreams.sh` | Configures every declared upstream as a local git remote. |
 | `find_constitution.sh` | Helper that locates this submodule from arbitrary nested depth. |
 | `meta_test_inheritance.sh` | Sentinel-based meta-test that verifies the inheritance gate catches a deletion of the §11.4 anchor. |
-| `templates/` | Templates for project-specific Constitution / CLAUDE / AGENTS files. |
+| `templates/` | Templates for project-specific Constitution / CLAUDE / AGENTS / QWEN files. |
+
+## Recent additions (2026-05-20)
+
+The following clauses + companion files landed this session in response
+to operator mandates. Each entry includes the verbatim user mandate in
+its forensic-anchor block within `Constitution.md`:
+
+| Clause | Topic |
+|---|---|
+| §11.4.73 | Main-specification document versioning + Revision discipline (V1/V2/V3 primary + Revision secondary axes). |
+| §11.4.74 | Submodule-catalogue-first discovery + extend-don't-reimplement. See `submodules-catalogue.md`. |
+| §11.4.75 | Mechanical enforcement without exception (5-layer git-hook discipline). |
+| §11.4.76 | Containers-submodule mandate — use `vasic-digital/containers` for ALL containerised workloads. |
+| §11.4.77 | Regeneration-mechanism-required mandate. |
+| §11.4.78 | CodeGraph code-intelligence mandate (npm `@colbymchenry/codegraph`). |
+
+New companion file: `submodules-catalogue.md` — 142 repos categorised
+into 10 capability groups (Container + lifecycle, AI/LLM + agent,
+Messaging + observability + storage, Auth + security + middleware,
+Cross-platform KMP, TypeScript/React + Web, Testing + QA, Apps/tools,
+Misc/scaffolds).
+
+New file: `QWEN.md` — Qwen Code CLI agent's view of the universal
+constitution, structured analogously to `AGENTS.md` but tailored to
+Qwen Code's expectations.
 
 ## Multi-upstream topology
 
@@ -164,6 +204,12 @@ upgrade deliberately. Major version bumps mean breaking changes to
 the universal rules; minor bumps mean additions; patches mean
 clarifications.
 
+Per the new §11.4.73 spec-versioning discipline (added 2026-05-20),
+consuming projects that maintain a main specification document follow
+the **two-axis** rule: primary V<N> for major rewrites, secondary
+`Revision N` (in metadata table) for additive changes within a
+primary version.
+
 ## Contributing
 
 Universal status has to be **earned**, not assumed. Project-specific
@@ -172,6 +218,7 @@ project-specific and keep it in the consuming project's own
 Constitution.
 
 A rule is **universal** only if ALL are true:
+
 1. It would be true for at least 3 unrelated projects across
    different domains.
 2. It does not reference a specific service / schema / port / topic /
@@ -181,6 +228,7 @@ A rule is **universal** only if ALL are true:
    removing it from any other.
 
 A rule is **project-specific** if any are true:
+
 - Mentions a specific service, package, topic, table, ML model,
   protocol version, hardware, or vendor.
 - Encodes a numeric threshold tuned for one codebase (coverage %,
