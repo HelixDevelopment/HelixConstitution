@@ -69,7 +69,13 @@ When the Qwen Code agent loads this file as part of session bootstrap, it operat
 
 ### §11.4 — Anti-bluff covenant — END-USER QUALITY GUARANTEE
 
-Captured tests MUST exercise the behavior they claim to verify. PASS-without-execution paths, mock-only tests that don't round-trip, and skip-by-default integration tests that mask real failures are forbidden. Each test failure in CI MUST imply a real broken feature; each PASS MUST imply the feature actually works for the end user.
+**Forensic anchor — verbatim user mandate (2026-04-28, reasserted 2026-05-21):**
+
+> "We had been in position that all tests do execute with success and all Challenges as well, but in reality the most of the features does not work and can't be used! This MUST NOT be the case and execution of tests and Challenges MUST guarantee the quality, the completion and full usability by end users of the product!"
+
+**Operative rule.** Captured tests MUST exercise the behavior they claim to verify. PASS-without-execution paths, mock-only tests that don't round-trip, skip-by-default integration tests that mask real failures, metadata-only PASS, configuration-only PASS, "absence-of-error" PASS, and grep-without-runtime PASS are all critical defects regardless of how green the summary line looks. Each test failure in CI MUST imply a real broken feature; each PASS MUST imply the feature actually works for the end user. Tests and HelixQA Challenges are bound EQUALLY.
+
+The verbatim covenant MUST be present in every consumer governance file (project Constitution.md, CLAUDE.md, AGENTS.md, QWEN.md) and in every owned submodule's equivalent. Tools that don't expand `@imports` still read the literal text.
 
 ### §1.1 — Mutation-paired gates
 
@@ -175,6 +181,20 @@ Composes with §11.4.78, §11.4.79, §11.4.10, §11.4.45, §11.4.65, §107, §1.
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.80.
 
 Non-compliance is a process violation; severe cases (>2 weeks since last update + open AI-agent work) are release blockers.
+
+### §11.4.81 — Cross-platform-parity mandate (User mandate, 2026-05-21)
+
+Direct user mandate (verbatim, 2026-05-21): "Any Linux-only blocker / issue we have MUST BE created macOS and other supported platforms equivalent! So, depending on platform proper implementation will be used for particular OS! EVERYTHING MUST BE PROPERLY EXTENDED AND UPDATED!"
+
+Every consuming project whose supported-platforms manifest lists more than one OS MUST ship per-OS-equivalent implementations + tests for every feature/gate/challenge/mutation that depends on platform-specific primitives. Runtime dispatch via `uname -s` (or equivalent platform detection). Three sub-mandates: **(A)** Per-OS implementation REQUIRED — cgroup/systemd/`/proc` primitives have documented equivalents (POSIX `setrlimit`/`ulimit`, launchd, `rctl`, Job Object). **(B)** Per-OS tests REQUIRED — every gate test has `case "$(uname -s)" in` branches with positive captured evidence per §11.4.2 + §11.4.5 in each branch; SKIP-with-reason only when the platform genuinely cannot enforce. **(C)** Honest kernel-gap citation + adjacent equivalent test REQUIRED where no equivalent exists (canonical: XNU does NOT enforce `RLIMIT_AS` for unprivileged processes → SKIP with exact reproducer + adjacent test of what IS enforced, e.g. `RLIMIT_CPU`+`SIGXCPU`). The adjacent test is itself anti-bluff per §11.4 with a paired §1.1 mutation.
+
+Per-OS equivalence catalogue (canonical): `systemd-run --user --scope` ↔ POSIX `ulimit -t -u` / launchd; cgroup `MemoryMax` ↔ XNU gap (use `RLIMIT_CPU` adjacent) / `rctl` / Job Object; cgroup `TasksMax` ↔ `RLIMIT_NPROC`; `/proc/<pid>/oom_score_adj` ↔ no Darwin/BSD equivalent.
+
+Composes with §11.4.1 / §11.4.2 / §11.4.3 (strictened — SKIP only when kernel cannot) / §11.4.4 / §11.4.5 / §11.4.6 / §11.4.20 / §11.4.27 / §11.4.69 / §11.4.70 / §107. Pre-build gate `CM-CROSS-PLATFORM-PARITY` + paired §1.1 mutation. No escape hatch.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.81.
+
+Non-compliance is a release blocker on multi-platform projects.
 
 ## Companion documents
 

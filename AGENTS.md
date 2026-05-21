@@ -1794,3 +1794,17 @@ Composes with §11.4.78, §11.4.79, §11.4.10, §11.4.45, §11.4.65, §107, §1.
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.80.
 
 Non-compliance is a process violation; severe cases (>2 weeks since last update + open AI-agent work) are release blockers.
+
+**§11.4.81 — Cross-platform-parity mandate (User mandate, 2026-05-21)**
+
+Direct user mandate (verbatim, 2026-05-21): "Any Linux-only blocker / issue we have MUST BE created macOS and other supported platforms equivalent! So, depending on platform proper implementation will be used for particular OS! EVERYTHING MUST BE PROPERLY EXTENDED AND UPDATED!"
+
+Every consuming project whose supported-platforms manifest lists more than one OS MUST ship per-OS-equivalent implementations + tests for every feature/gate/challenge/mutation that depends on platform-specific primitives. Runtime dispatch via `uname -s` (or equivalent). Three sub-mandates: **(A)** Per-OS implementation REQUIRED — cgroup/systemd/`/proc` primitives have documented equivalents (POSIX `setrlimit`/`ulimit`, launchd, `rctl`, Job Object). **(B)** Per-OS tests REQUIRED — every gate test has `case "$(uname -s)" in` branches with positive captured evidence per §11.4.2 + §11.4.5 in each branch; SKIP-with-reason only when the platform genuinely cannot enforce. **(C)** Honest kernel-gap citation + adjacent equivalent test REQUIRED where no equivalent exists (canonical: XNU does NOT enforce `RLIMIT_AS` for unprivileged processes → SKIP with exact reproducer + adjacent test of what IS enforced, e.g. `RLIMIT_CPU`+`SIGXCPU`). The adjacent test is itself anti-bluff per §11.4 with a paired §1.1 mutation.
+
+Per-OS equivalence catalogue (canonical): `systemd-run --user --scope` ↔ POSIX `ulimit -t -u` / launchd; cgroup `MemoryMax` ↔ XNU gap (use `RLIMIT_CPU` adjacent) / `rctl` / Job Object; cgroup `TasksMax` ↔ `RLIMIT_NPROC`; `/proc/<pid>/oom_score_adj` ↔ no Darwin/BSD equivalent.
+
+Composes with §11.4.1 / §11.4.2 / §11.4.3 (strictened — SKIP only when kernel cannot) / §11.4.4 / §11.4.5 / §11.4.6 / §11.4.20 / §11.4.27 / §11.4.69 / §11.4.70 / §107. Pre-build gate `CM-CROSS-PLATFORM-PARITY` + paired §1.1 mutation. No escape hatch.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.81.
+
+Non-compliance is a release blocker on multi-platform projects.
