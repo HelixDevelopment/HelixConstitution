@@ -40,3 +40,45 @@ The scripts append entries below automatically; manual entries are also acceptab
 - decision: pin codegraph to 0.6.8 until Node 25 V8 issue is resolved upstream OR operator installs Node 22 LTS alongside
 - §107 trail: `codegraph_update.sh` correctly caught the failed upgrade via the post-update version check — script working as designed
 - follow-up HRD: ENV-CODEGRAPH-NODE25 to track when 0.7+/0.8+ becomes safe again
+
+## 2026-05-21T12:41:31Z — codegraph update FAILED (§107 bluff caught)
+
+- before: `0.6.8`
+- target: `0.8.0`
+- after:  `unknown` (mismatch — npm exit 0 was bluffing)
+
+## 2026-05-21T12:49:03Z — codegraph version check
+
+- current: `0.8.0`
+- latest:  `0.8.0`
+- action:  **no-op** (already at latest)
+
+## 2026-05-21T12:51:16Z — codegraph version check
+
+- current: `0.8.0`
+- latest:  `0.8.0`
+- action:  **no-op** (already at latest)
+
+## 2026-05-21T14:31:35Z — codegraph version check
+
+- current: `0.8.0`
+- latest:  `0.8.0`
+- action:  **no-op** (already at latest)
+
+## 2026-05-21T15:17:07Z — codegraph version check
+
+- current: `0.8.0`
+- latest:  `0.8.0`
+- action:  **no-op** (already at latest)
+
+## 2026-05-21T15:21:55Z — codegraph version check
+
+- current: `0.8.0`
+- latest:  `0.8.0`
+- action:  **no-op** (already at latest)
+
+## 2026-05-21T15:26:34Z — codegraph version check
+
+- current: `0.8.0`
+- latest:  `0.8.0`
+- action:  **no-op** (already at latest)
