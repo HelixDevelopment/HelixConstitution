@@ -7129,6 +7129,91 @@ Non-compliance is a release blocker regardless of context.
 
 Non-compliance is a process violation; a project worked on by AI agents without CodeGraph installed, wired, and anti-bluff-verified is in breach of this mandate.
 
+### §11.4.79 — Own-org submodules MUST be included in the CodeGraph index (User mandate, 2026-05-21)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-21):**
+
+> "All Submodules we use in the project and that are part of organizations to which we have the full access via GitHub, GitLab and other CLIs MUST BE included into the codegraph database and initialized / scanned / synced!"
+
+**The mandate.** This extends §11.4.78 step 2's exclude-list refinement with a per-submodule-ownership split. Every consuming project's `.codegraph/config.json` MUST distinguish:
+
+| Submodule class | Treatment in CodeGraph index |
+|---|---|
+| **Own-org** — full write access via the project's CLIs (canonical orgs: `vasic-digital` on GitHub/GitLab/GitFlic/GitVerse + `HelixDevelopment` on GitHub) | **MUST be INCLUDED.** Per-submodule sources MUST be indexed so AI coding agents resolve symbols, callers, and impact across the whole repo graph — not just the consuming project's domain code. |
+| **Third-party** — no write access, vendored only (the §11.4.74 `no-match → vendor` path, e.g. an external SDK like `gopkg.in/telebot.v3`) | **MUST be EXCLUDED.** Indexing third-party code wastes the local index budget and creates symbol-noise the project's contributors cannot fix. |
+
+This refines, NOT contradicts, §11.4.78 step 2 (which spoke of "other-owned submodules" generically). The classifier is **write-access via the project's own CLIs**, not "internal vs external" subjectively — own-org submodules are the project's own code under another path; third-party submodules are upstream code Herald extends without owning.
+
+**Operational steps for every consuming project**:
+
+1. **Fetch + pull latest of every submodule** before re-indexing — `git submodule update --remote --merge` from the project root, then verify the project still builds. Third-party submodule pins (e.g. `gopkg.in/telebot.v3` pinned at `v3.3.8` to keep the Go import path stable) MUST be respected and rolled back if a `--remote` advances past the load-bearing pin.
+
+2. **Adjust `.codegraph/config.json` `exclude` to keep own-org submodules in scope.** Third-party submodule paths MUST be explicitly listed in `exclude` (per §11.4.78 step 2's per-credential exclusion principle); own-org submodule paths MUST NOT appear in `exclude`.
+
+3. **Re-index.** Run the project's canonical CodeGraph initialiser (e.g. `scripts/codegraph_setup.sh`) so `codegraph index` (or `codegraph sync`) rebuilds the index with the corrected exclude list.
+
+4. **Verify symbols across own-org submodules.** The project's `scripts/codegraph_validate.sh` (per §11.4.78 anti-bluff verification) MUST probe at least one symbol that lives ONLY inside an own-org submodule (e.g. `bg.TaskQueue` from `submodules/background/interfaces.go`). A successful query proves the include path actually reached the submodule's sources — not a §107 PASS-bluff where validate runs against a stale index.
+
+5. **Paired §1.1 mutation**: temporarily add the own-org submodule path to `exclude`, re-index, run validate — it MUST FAIL on the cross-submodule probe. Restore. This mutation proves the validate is not bluffing about the include reach.
+
+**Composition.** Composes with:
+- §11.4.74 (catalogue-first): the `own-org` classifier matches the `reuse/extend` catalogue-check disposition; `third-party` matches `no-match → vendor`.
+- §11.4.78 (CodeGraph mandate): this §11.4.79 refines step 2's exclude-list contract without weakening any other step.
+- §11.4.10 (credentials never tracked): the exclude list MUST still cover every `.env*`, keystore, signing key, service-account JSON regardless of submodule ownership.
+- §1.1 (paired mutation): every validate probe added per step 5 above MUST land with a mutation pair.
+- §107 (end-user usability): an indexed graph that lies about which symbols are reachable is a §107 PASS-bluff against the AI coding agents that consume it.
+
+**Why this matters.** When AI coding agents work across a project that vendors own-org capability modules (e.g. `commons_constitution` consuming the Helix-stack 9-module surface under `submodules/`), excluding those modules from the index forces the agents back into shallow file-scan exploration of half the codebase — exactly the failure mode §11.4.78 exists to prevent. The agents lose call-graph resolution across the seam between domain code and own-org infra code. Including own-org submodules is the difference between agents seeing the project as a unified graph and agents tripping over an invisible boundary at the submodule directory.
+
+**Classification:** universal (per §11.4.17). Applies to every project under this Constitution that has CodeGraph configured and own-org submodules vendored.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.79.
+
+Non-compliance is a process violation; an AI-agent-worked project whose own-org submodules are excluded from CodeGraph (when they could be included) is in breach of this mandate. Severe cases (own-org submodules silently excluded WITHOUT an audit trail in `.codegraph/config.json` comments) are release blockers.
+
+### §11.4.80 — CodeGraph regular-update + sync automation mandate (User mandate, 2026-05-21)
+
+**Forensic anchor — direct user mandate (verbatim, 2026-05-21):**
+
+> "We MUST regularly check for the updates and execute codegraph npm updates so the latest version of it is always installed on the host machine! After update executes with success use the following commands (and validate and verify them using codegraph help) to sync all: [list of codegraph commands]. Make sure we have proper full automation bash scripts which will run regularly and that these are part of the constitution Submodule since they MUST BE available to all projects which do respect and follow our constitution rules and mandatory constraints! Make sure all updates, sync processes we do and important codegraph related events are all documented under docs/codegraph in Status and Status_Summary documents (another area / context to regularly update and sync) and regularly export them like all other Status docs into the PDF and HTML!"
+
+**The mandate.** Every consuming project under this Constitution MUST regularly check for CodeGraph npm-package updates, install the latest stable version, and re-sync its local index. The automation lives in the constitution submodule itself so every consuming project gets it via the inherited tree without reimplementation. Three deliverables:
+
+1. **`<constitution>/scripts/codegraph_update.sh`** — checks the installed `@colbymchenry/codegraph` version against npm's latest, runs `npm update -g @colbymchenry/codegraph` (or `npm install -g @colbymchenry/codegraph@latest`) if a newer version exists, captures the old + new version + timestamp into the constitution's `docs/codegraph/Status.md` audit trail, then exits 0 only when `codegraph --version` produces the expected post-update output. Idempotent: re-runs on the same day are no-ops. Anti-bluff (§107): the "update succeeded" PASS MUST observe the new version, not just `npm update` exit code.
+
+2. **`<constitution>/scripts/codegraph_sync.sh`** — after a successful update, runs the canonical sync sequence inside the consuming project (passed as an argument or auto-resolved via `find_constitution.sh` parent walk): `codegraph status` (baseline) → `codegraph sync .` (incremental update) → `codegraph status` (post-sync) → `scripts/codegraph_validate.sh` (the project's anti-bluff verifier, per §11.4.78 step 4). Each step's output is appended to the project's `docs/codegraph/Status.md` ledger. The sync MUST consult `codegraph help` BEFORE invoking any command to verify the subcommand still exists with the same shape (tools evolve). The canonical sync sequence covered by `codegraph help`:
+
+   ```
+   codegraph                         # Run interactive installer
+   codegraph install                 # Run installer (explicit)
+   codegraph init [path]             # Initialize in a project (--index to also index)
+   codegraph uninit [path]           # Remove CodeGraph from a project (--force to skip prompt)
+   codegraph index [path]            # Full index (--force to re-index, --quiet for less output)
+   codegraph sync [path]             # Incremental update
+   codegraph status [path]           # Show statistics
+   codegraph query <search>          # Search symbols (--kind, --limit, --json)
+   codegraph files [path]            # Show file structure (--format, --filter, --max-depth, --json)
+   codegraph context <task>          # Build context for AI (--format, --max-nodes)
+   codegraph affected [files...]     # Find test files affected by changes
+   codegraph serve --mcp             # Start MCP server
+   ```
+
+3. **`<constitution>/docs/codegraph/Status.md` + `docs/codegraph/Status_Summary.md`** — append-only ledgers tracking every CodeGraph-related event across the consuming project: install events, npm-update events, sync runs, index regenerations, validate runs (with PASS/FAIL counts), HRDs opened/closed against CodeGraph. Both ledgers MUST be exported to `.html` and `.pdf` siblings on every edit (per §11.4.65 multi-format export mandate). The `Status_Summary.md` is the operator-readable derived index (per §11.4.53 fixed-summary backfill convention).
+
+**Operational cadence.** The automation MUST run at least weekly (per §11.4.45 status-digest cadence). Consuming projects MAY wire it more frequently (e.g. daily via cron or per-CI-run) but never less. Cadence is not contractually fixed because environments differ (development workstation vs CI vs production-locked host); the floor is "weekly" because slower than that risks accumulated drift.
+
+**Scripts are inherited by reference.** Per §3 submodule inheritance, consuming projects do NOT copy `codegraph_update.sh` / `codegraph_sync.sh` into their own `scripts/` directory. They invoke the constitution submodule's scripts directly (e.g. `bash ${CONST_DIR}/scripts/codegraph_update.sh && bash ${CONST_DIR}/scripts/codegraph_sync.sh .`). This is the single-source-of-truth pattern — when the constitution updates the scripts, every consuming project picks up the change on its next submodule update.
+
+**Composition.** Composes with §11.4.78 (CodeGraph parent mandate), §11.4.79 (own-org submodule inclusion), §11.4.10 (credential exclusions stay applied), §11.4.45 (status-digest cadence), §11.4.53 (Fixed_Summary backfill), §11.4.65 (multi-format export), §107 (each sync run's "ok" MUST carry observed-version evidence, not just exit code), §1.1 (paired mutation: temporarily downgrade installed codegraph version → script MUST detect drift and self-correct → restore).
+
+**Why this matters.** A CodeGraph index built against an older version of the indexer may miss symbols that newer versions resolve correctly. Stale indexes silently lie to AI agents about what symbols exist and how they connect. Regular automated updates + sync close the loop: tooling stays current, the index reflects current source, AI agents see the truth. Manual "run codegraph index when I remember" is exactly the failure mode this mandate forbids.
+
+**Classification:** universal (per §11.4.17). Applies to every project under this Constitution that has CodeGraph configured per §11.4.78.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.80.
+
+Non-compliance is a process violation; severe cases (consuming project has not run `codegraph_update.sh` in >2 weeks AND has open AI-agent work) are release blockers — the agents' index reflects a stale tool version and may produce silently wrong reasoning.
+
 ---
 
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN

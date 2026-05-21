@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Helix Constitution — Universal QWEN.md</title>
+  <title>Helix Constitution — QWEN</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -238,11 +238,81 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">Helix Constitution — Universal QWEN.md</h1>
+<h1 class="title">Helix Constitution — QWEN</h1>
 </header>
-<h1 id="helix-constitution--universal-qwenmd">Helix Constitution —
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#helix-constitution-universal-qwen.md"
+id="toc-helix-constitution-universal-qwen.md">Helix Constitution —
+Universal QWEN.md</a>
+<ul>
+<li><a href="#table-of-contents" id="toc-table-of-contents">Table of
+contents</a></li>
+<li><a href="#how-inheritance-works" id="toc-how-inheritance-works">How
+inheritance works</a></li>
+<li><a href="#identity-posture" id="toc-identity-posture">Identity &amp;
+posture</a></li>
+<li><a href="#top-level-invariants-for-every-agent"
+id="toc-top-level-invariants-for-every-agent">Top-level invariants for
+every agent</a></li>
+<li><a
+href="#critical-base-rules-restated-for-agents-that-dont-honour-imports"
+id="toc-critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don’t honour <span class="citation"
+data-cites="imports">@imports</span>)</a>
+<ul>
+<li><a href="#anti-bluff-covenant-end-user-quality-guarantee"
+id="toc-anti-bluff-covenant-end-user-quality-guarantee">§11.4 —
+Anti-bluff covenant — END-USER QUALITY GUARANTEE</a></li>
+<li><a href="#mutation-paired-gates" id="toc-mutation-paired-gates">§1.1
+— Mutation-paired gates</a></li>
+<li><a href="#credentials-handling-mandate"
+id="toc-credentials-handling-mandate">§11.4.10 — Credentials-handling
+mandate</a></li>
+<li><a href="#universal-vs-project-classification"
+id="toc-universal-vs-project-classification">§11.4.17 —
+Universal-vs-project classification</a></li>
+<li><a href="#subagent-driven-by-default"
+id="toc-subagent-driven-by-default">§11.4.20 —
+Subagent-driven-by-default</a></li>
+<li><a
+href="#main-specification-document-versioning-revision-discipline"
+id="toc-main-specification-document-versioning-revision-discipline">§11.4.73
+— Main-specification document versioning + revision discipline</a></li>
+<li><a
+href="#submodule-catalogue-first-discovery-extend-dont-reimplement"
+id="toc-submodule-catalogue-first-discovery-extend-dont-reimplement">§11.4.74
+— Submodule-catalogue-first discovery +
+extend-don’t-reimplement</a></li>
+<li><a href="#containers-submodule-mandate"
+id="toc-containers-submodule-mandate">§11.4.76 — Containers-submodule
+mandate</a></li>
+<li><a href="#regeneration-mechanism-required-mandate"
+id="toc-regeneration-mechanism-required-mandate">§11.4.77 —
+Regeneration-mechanism-required mandate</a></li>
+<li><a href="#codegraph-code-intelligence-mandate"
+id="toc-codegraph-code-intelligence-mandate">§11.4.78 — CodeGraph
+code-intelligence mandate</a></li>
+<li><a
+href="#own-org-submodules-must-be-included-in-the-codegraph-index"
+id="toc-own-org-submodules-must-be-included-in-the-codegraph-index">§11.4.79
+— Own-org submodules MUST be included in the CodeGraph index</a></li>
+<li><a href="#codegraph-regular-update-sync-automation-mandate"
+id="toc-codegraph-regular-update-sync-automation-mandate">§11.4.80 —
+CodeGraph regular-update + sync automation mandate</a></li>
+</ul></li>
+<li><a href="#companion-documents"
+id="toc-companion-documents">Companion documents</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="helix-constitution-universal-qwen.md">Helix Constitution —
 Universal QWEN.md</h1>
 <table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
 <tr>
 <th>Field</th>
@@ -303,7 +373,8 @@ addition.</td>
 for every agent</a></li>
 <li><a
 href="#critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
-base rules restated (for agents that don't honour @imports)</a>
+base rules restated (for agents that don’t honour <span class="citation"
+data-cites="imports">@imports</span>)</a>
 <ul>
 <li><a href="#114-anti-bluff-covenant-end-user-quality-guarantee">§11.4
 — Anti-bluff covenant — END-USER QUALITY GUARANTEE</a></li>
@@ -321,7 +392,7 @@ href="#11473-main-specification-document-versioning-revision-discipline">§11.4.
 <li><a
 href="#11474-submodule-catalogue-first-discovery-extend-dont-reimplement">§11.4.74
 — Submodule-catalogue-first discovery +
-extend-don't-reimplement</a></li>
+extend-don’t-reimplement</a></li>
 <li><a href="#11475-containers-submodule-mandate">§11.4.76 —
 Containers-submodule mandate</a></li>
 </ul></li>
@@ -330,7 +401,7 @@ Containers-submodule mandate</a></li>
 <h2 id="how-inheritance-works">How inheritance works</h2>
 <p>This <code>QWEN.md</code> is for the <strong>Qwen Code CLI
 agent</strong> (<code>qwen-code</code>). It documents the universal
-Helix Constitution from the Qwen agent's perspective — the same content
+Helix Constitution from the Qwen agent’s perspective — the same content
 seen by Claude Code via <code>CLAUDE.md</code> and by OpenCode / Cursor
 / generic AI tooling via <code>AGENTS.md</code>.</p>
 <p>The <strong>authoritative source</strong> is
@@ -346,7 +417,7 @@ reads them on every session.</li>
 baseline.</li>
 </ol>
 <p>Discover this file via the canonical parent-walk pattern documented
-in every consuming project's <code>CLAUDE.md</code> /
+in every consuming project’s <code>CLAUDE.md</code> /
 <code>AGENTS.md</code>:</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">find_constitution_root()</span> <span class="kw">{</span></span>
@@ -359,11 +430,11 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div>
-<h2 id="identity--posture">Identity &amp; posture</h2>
+<h2 id="identity-posture">Identity &amp; posture</h2>
 <p>When the Qwen Code agent loads this file as part of session
 bootstrap, it operates under the Helix Constitution with the same
 identity, anti-bluff posture, and end-user quality covenant as any other
-CLI agent in the catalogue. There is no "Qwen-lite" interpretation —
+CLI agent in the catalogue. There is no “Qwen-lite” interpretation —
 Qwen Code is held to the full §11.4 covenant.</p>
 <h2 id="top-level-invariants-for-every-agent">Top-level invariants for
 every agent</h2>
@@ -371,7 +442,7 @@ every agent</h2>
 <li><strong>Read order on a cold start.</strong> <code>CLAUDE.md</code>
 / <code>AGENTS.md</code> / <code>QWEN.md</code> (this file) for the
 AI-agent posture; <code>Constitution.md</code> for the canonical
-universal rules; then the consuming project's <code>CLAUDE.md</code> for
+universal rules; then the consuming project’s <code>CLAUDE.md</code> for
 project-specific extensions.</li>
 <li><strong>Multi-mirror push.</strong> Every commit on this submodule
 MUST land on all four canonical mirrors (GitHub + GitLab + GitFlic +
@@ -389,33 +460,34 @@ compose/boot orchestration in-project.</li>
 </ol>
 <h2
 id="critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
-base rules restated (for agents that don't honour @imports)</h2>
-<h3 id="114--anti-bluff-covenant--end-user-quality-guarantee">§11.4 —
+base rules restated (for agents that don’t honour <span class="citation"
+data-cites="imports">@imports</span>)</h2>
+<h3 id="anti-bluff-covenant-end-user-quality-guarantee">§11.4 —
 Anti-bluff covenant — END-USER QUALITY GUARANTEE</h3>
 <p>Captured tests MUST exercise the behavior they claim to verify.
-PASS-without-execution paths, mock-only tests that don't round-trip, and
+PASS-without-execution paths, mock-only tests that don’t round-trip, and
 skip-by-default integration tests that mask real failures are forbidden.
 Each test failure in CI MUST imply a real broken feature; each PASS MUST
 imply the feature actually works for the end user.</p>
-<h3 id="11--mutation-paired-gates">§1.1 — Mutation-paired gates</h3>
+<h3 id="mutation-paired-gates">§1.1 — Mutation-paired gates</h3>
 <p>Every captured-evidence gate MUST ship with a paired mutation test
-that mutates the gate's anchor + runs the gate + asserts the gate now
+that mutates the gate’s anchor + runs the gate + asserts the gate now
 FAILs. Absence of the paired mutation is itself a bluff.</p>
-<h3 id="11410--credentials-handling-mandate">§11.4.10 —
-Credentials-handling mandate</h3>
+<h3 id="credentials-handling-mandate">§11.4.10 — Credentials-handling
+mandate</h3>
 <p>Credentials are NEVER committed to git, NEVER logged, NEVER printed
 to stdout/stderr. <code>.env</code> files are <code>.gitignore</code>d;
 committed siblings are <code>.env.example</code> placeholders only.
 Pre-store leak audit (§11.4.10.A) scans every PR for credential patterns
 before merge.</p>
-<h3 id="11417--universal-vs-project-classification">§11.4.17 —
+<h3 id="universal-vs-project-classification">§11.4.17 —
 Universal-vs-project classification</h3>
 <p>Every new rule MUST declare itself <strong>universal</strong>
 (applies to every project consuming this Constitution) or
 <strong>project</strong> (applies only to one specific project).
-Misclassification (universal rule landing in a project's local CLAUDE.md
+Misclassification (universal rule landing in a project’s local CLAUDE.md
 instead of the constitution submodule) is a release blocker.</p>
-<h3 id="11420--subagent-driven-by-default">§11.4.20 —
+<h3 id="subagent-driven-by-default">§11.4.20 —
 Subagent-driven-by-default</h3>
 <p>When a CLI agent (Qwen Code included) has a subagent / Task tool
 available, the default mode of operation is to dispatch subagents for
@@ -423,7 +495,7 @@ discrete units of work rather than perform them inline. This protects
 context, enables parallel work, and matches the §11.4.27
 no-fakes-beyond-unit-tests posture (each subagent runs real tools).</p>
 <h3
-id="11473--main-specification-document-versioning--revision-discipline">§11.4.73
+id="main-specification-document-versioning-revision-discipline">§11.4.73
 — Main-specification document versioning + revision discipline</h3>
 <p>Projects with a main specification
 (<code>docs/specs/.../specification.V&lt;N&gt;.md</code>-shaped)
@@ -436,18 +508,18 @@ table) bumps for additive changes within a primary version.</li>
 </ul>
 <p>Spec edits trigger mandatory comprehensive planning and
 implementation in the consuming project — they are not isolated doc
-tweaks (the "spec ripple" rule).</p>
+tweaks (the “spec ripple” rule).</p>
 <h3
-id="11474--submodule-catalogue-first-discovery--extend-dont-reimplement">§11.4.74
-— Submodule-catalogue-first discovery + extend-don't-reimplement</h3>
-<p>Direct user mandate (verbatim, 2026-05-20): "We MUST ALWAYS check
+id="submodule-catalogue-first-discovery-extend-dont-reimplement">§11.4.74
+— Submodule-catalogue-first discovery + extend-don’t-reimplement</h3>
+<p>Direct user mandate (verbatim, 2026-05-20): “We MUST ALWAYS check
 which already developed features / functionalities do exist as a part of
 our comprehensive Submodules catalogue located in
 <code>vasic-digital</code> and <code>HelixDevelopment</code>
 organizations on GitHub and GitLab both! Project MUST BE aware of all
 its existence so we do not implement same things multiple times. For any
 missing features we MUST IMPLEMENT them properly and extend those
-Submodules further!"</p>
+Submodules further!”</p>
 <p>Before scaffolding any new module / package / helper / utility, the
 Qwen Code agent MUST: (1) survey <code>vasic-digital</code> +
 <code>HelixDevelopment</code> on GitHub + GitLab — the canonical
@@ -463,9 +535,9 @@ development-cycle rules (§11.4 anti-bluff, §1.1 paired mutations,
 §11.4.10 credentials, §11.4.61 metadata + ToC, §11.4.65 universal
 export, §11.4.73 spec versioning, §2.1 multi-mirror push, §3 propagation
 order).</p>
-<h3 id="11476--containers-submodule-mandate">§11.4.76 —
-Containers-submodule mandate</h3>
-<p>Direct user mandate (verbatim, 2026-05-20): "For any work or
+<h3 id="containers-submodule-mandate">§11.4.76 — Containers-submodule
+mandate</h3>
+<p>Direct user mandate (verbatim, 2026-05-20): “For any work or
 requirements of running services or codebase inside the Containers
 (Docker / Podman / Qemy / Emulators, and so on) we MUST USE /
 INCORPORATE the Containers Submodule properly:
@@ -474,14 +546,14 @@ INCORPORATE the Containers Submodule properly:
 Submodule contains all means for us to Containerize our code and
 services! If any feature or Containing System is missing or not
 supported we MUST EXTEND IT properly like we do all of our projects! No
-bluff work is allowed of any kind!"</p>
+bluff work is allowed of any kind!”</p>
 <p>For ANY containerized workload (Docker / Podman / Qemu / Kubernetes /
 container-backed emulators), the Qwen Code agent MUST: (1) install
 <code>vasic-digital/containers</code>
 (<code>digital.vasic.containers</code>) as a Git submodule when
 scaffolding the consuming project; (2) consume via <code>replace</code>
 directive during development + pinned commit SHAs in production; (3)
-boot infra on-demand via the Submodule's <code>pkg/boot</code> +
+boot infra on-demand via the Submodule’s <code>pkg/boot</code> +
 <code>pkg/compose</code> + <code>pkg/health</code> APIs so the operator
 is never required to start <code>podman machine</code> /
 <code>docker compose up</code> manually — the boot is part of the test
@@ -503,16 +575,16 @@ imports. Paired mutation strips the import + asserts FAIL.</p>
 href="Constitution.md"><code>Constitution.md</code></a> §11.4.76.</p>
 <p>Non-compliance: reinventing compose orchestration in-project is a
 release blocker.</p>
-<h3 id="11477--regeneration-mechanism-required-mandate">§11.4.77 —
+<h3 id="regeneration-mechanism-required-mandate">§11.4.77 —
 Regeneration-mechanism-required mandate</h3>
-<p>Direct user mandate (verbatim, 2026-05-20): "We must be sure that
+<p>Direct user mandate (verbatim, 2026-05-20): “We must be sure that
 after excluding anything from Git versioning we still have the mechanism
 which will out of the box obtain or re-generate missing content! Add
 this mandatory safety rule / constraint into ours root (constitution
 Submodule) Constitution.md, CLAUDE.md, AGENTS.md, QWEN.md or any other
-required document / file from the constitution Submodule!"</p>
+required document / file from the constitution Submodule!”</p>
 <p><strong>Forensic anchor.</strong> 2026-05-20T15:00Z: ATMOSphere
-parent's audio Tier 1 <code>commit_all.sh</code> stalled 4 h on
+parent’s audio Tier 1 <code>commit_all.sh</code> stalled 4 h on
 <code>git add -A</code> scanning 274 GiB <code>.git-backup-*</code> +
 159 GiB <code>RKTools/linux/</code> + 167 GiB <code>qa-results/</code> —
 all untracked but un-gitignored. Bare <code>.gitignore</code> fix would
@@ -550,12 +622,12 @@ required YAML key → gate FAILs.</p>
 <p><strong>Canonical authority:</strong> <a
 href="Constitution.md"><code>Constitution.md</code></a> §11.4.77.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
-<h3 id="11478--codegraph-code-intelligence-mandate">§11.4.78 — CodeGraph
+<h3 id="codegraph-code-intelligence-mandate">§11.4.78 — CodeGraph
 code-intelligence mandate</h3>
-<p>Direct user mandate (verbatim, 2026-05-20): "Make codegraph MANDATORY
-CHOICE for this purpose for all of our project ... All project which do
+<p>Direct user mandate (verbatim, 2026-05-20): “Make codegraph MANDATORY
+CHOICE for this purpose for all of our project … All project which do
 not have configured and installed codegraph yet MUST DO IT and MUST USE
-IT!"</p>
+IT!”</p>
 <p>Every consuming project worked on by AI coding agents — Qwen Code
 included — MUST install, initialize, and use <strong>CodeGraph</strong>
 (<code>https://github.com/colbymchenry/codegraph</code>, npm
@@ -582,18 +654,74 @@ href="Constitution.md"><code>Constitution.md</code></a> §11.4.78.</p>
 <p>Non-compliance is a process violation; a project worked on by AI
 agents without CodeGraph installed, wired, and anti-bluff-verified is in
 breach.</p>
+<h3
+id="own-org-submodules-must-be-included-in-the-codegraph-index">§11.4.79
+— Own-org submodules MUST be included in the CodeGraph index</h3>
+<p>Direct user mandate (verbatim, 2026-05-21): “All Submodules we use in
+the project and that are part of organizations to which we have the full
+access via GitHub, GitLab and other CLIs MUST BE included into the
+codegraph database and initialized / scanned / synced!”</p>
+<p>Refines §11.4.78 step 2 with a per-submodule-ownership split.
+<strong>Own-org submodules</strong> — full write access via the
+project’s CLIs (canonical orgs: <code>vasic-digital</code> +
+<code>HelixDevelopment</code>) — MUST be INCLUDED in the index so Qwen
+Code (and every other AI agent) sees a unified call-graph across the
+project’s domain + own-org infra code. <strong>Third-party
+submodules</strong> (the §11.4.74 <code>no-match → vendor</code> path)
+MUST be EXCLUDED. Operational steps: (1)
+<code>git submodule update --remote --merge</code> to pull latest before
+re-indexing — respect load-bearing third-party pins. (2) Adjust
+<code>.codegraph/config.json</code> exclude list. (3) Re-index via
+<code>scripts/codegraph_setup.sh</code>. (4) Validate via
+<code>scripts/codegraph_validate.sh</code> probe resolving a symbol that
+lives ONLY inside an own-org submodule. (5) Paired §1.1 mutation:
+temporarily add own-org path to exclude → validate FAILs → restore.</p>
+<p>Composes with §11.4.74, §11.4.78, §11.4.10, §1.1, §107.</p>
+<p><strong>Canonical authority:</strong> <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.79.</p>
+<p>Non-compliance is a process violation; severe cases (own-org
+submodules silently excluded without an audit trail in
+<code>.codegraph/config.json</code>) are release blockers.</p>
+<h3 id="codegraph-regular-update-sync-automation-mandate">§11.4.80 —
+CodeGraph regular-update + sync automation mandate</h3>
+<p>Direct user mandate (verbatim, 2026-05-21): “We MUST regularly check
+for the updates and execute codegraph npm updates so the latest version
+of it is always installed […] Make sure we have proper full automation
+bash scripts which will run regularly and that these are part of the
+constitution Submodule […] Make sure all updates, sync processes we do
+and important codegraph related events are all documented under
+docs/codegraph in Status and Status_Summary documents […]”</p>
+<p>Three deliverables in this constitution submodule: (1)
+<code>scripts/codegraph_update.sh</code> — npm-installs latest; §107
+anti-bluff verifies <code>codegraph --version</code> reflects the new
+version. (2) <code>scripts/codegraph_sync.sh</code> — runs
+<code>status</code> → <code>sync</code> → <code>status</code> →
+project’s validate; appends to both project’s + constitution’s
+<code>docs/codegraph/Status.md</code>. (3)
+<code>docs/codegraph/Status.md</code> + <code>Status_Summary.md</code>
+ledgers, exported per §11.4.65 to <code>.html</code> +
+<code>.pdf</code>.</p>
+<p>Cadence: weekly floor (§11.4.45). Scripts inherited by reference (§3)
+— Qwen Code consuming projects invoke them at
+<code>${CONST_DIR}/scripts/codegraph_*.sh</code>, never copy.</p>
+<p>Composes with §11.4.78, §11.4.79, §11.4.10, §11.4.45, §11.4.65, §107,
+§1.1.</p>
+<p><strong>Canonical authority:</strong> <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.80.</p>
+<p>Non-compliance is a process violation; severe cases (&gt;2 weeks
+since last update + open AI-agent work) are release blockers.</p>
 <h2 id="companion-documents">Companion documents</h2>
 <ul>
 <li><a href="Constitution.md"><code>Constitution.md</code></a> —
 authoritative universal Constitution. ALWAYS the tie-breaker.</li>
-<li><a href="CLAUDE.md"><code>CLAUDE.md</code></a> — Claude Code agent's
+<li><a href="CLAUDE.md"><code>CLAUDE.md</code></a> — Claude Code agent’s
 view of the universal constitution.</li>
 <li><a href="AGENTS.md"><code>AGENTS.md</code></a> — OpenCode / Cursor /
 generic-tooling view.</li>
 <li><a href="README.md"><code>README.md</code></a> — high-level overview
 + multi-mirror contract.</li>
 </ul>
-<p>When operating in a consuming project, ALSO read the project's local
+<p>When operating in a consuming project, ALSO read the project’s local
 <code>QWEN.md</code> / <code>CLAUDE.md</code> / <code>AGENTS.md</code>
 for project-specific extensions; these MUST NOT weaken any universal
 rule but MAY add stricter project-specific constraints.</p>

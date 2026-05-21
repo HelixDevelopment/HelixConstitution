@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>AGENTS</title>
+  <title>Helix Constitution — AGENTS</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -91,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -154,7 +155,6 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
@@ -237,6 +237,227 @@
   </style>
 </head>
 <body>
+<header id="title-block-header">
+<h1 class="title">Helix Constitution — AGENTS</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#helix-constitution-universal-agents.md"
+id="toc-helix-constitution-universal-agents.md">Helix Constitution —
+Universal AGENTS.md</a>
+<ul>
+<li><a href="#table-of-contents" id="toc-table-of-contents">Table of
+contents</a></li>
+<li><a href="#how-inheritance-works" id="toc-how-inheritance-works">How
+inheritance works</a></li>
+<li><a href="#identity-posture" id="toc-identity-posture">Identity &amp;
+posture</a></li>
+<li><a href="#top-level-invariants-for-every-agent"
+id="toc-top-level-invariants-for-every-agent">Top-level invariants for
+every agent</a></li>
+<li><a
+href="#critical-base-rules-restated-for-agents-that-dont-honour-imports"
+id="toc-critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don’t honour <span class="citation"
+data-cites="imports">@imports</span>)</a>
+<ul>
+<li><a href="#anti-bluff-covenant-end-user-quality-guarantee-11.4"
+id="toc-anti-bluff-covenant-end-user-quality-guarantee-11.4">Anti-bluff
+covenant — END-USER QUALITY GUARANTEE (§11.4)</a></li>
+<li><a href="#mutation-paired-gates-1.1"
+id="toc-mutation-paired-gates-1.1">Mutation-paired gates (§1.1)</a></li>
+<li><a href="#recorded-evidence-requirement-11.4.2"
+id="toc-recorded-evidence-requirement-11.4.2">Recorded-evidence
+requirement (§11.4.2)</a></li>
+<li><a href="#test-interrupt-on-discovery-11.4.4"
+id="toc-test-interrupt-on-discovery-11.4.4">Test-interrupt-on-discovery
+(§11.4.4)</a></li>
+<li><a href="#no-guessing-mandate-11.4.6"
+id="toc-no-guessing-mandate-11.4.6">No-guessing mandate
+(§11.4.6)</a></li>
+<li><a href="#item-type-tracking-11.4.16"
+id="toc-item-type-tracking-11.4.16">Item-type tracking
+(§11.4.16)</a></li>
+<li><a
+href="#universal-vs-project-classification-11.4.17-user-mandate-2026-05-14"
+id="toc-universal-vs-project-classification-11.4.17-user-mandate-2026-05-14">Universal-vs-project
+classification (§11.4.17, User mandate 2026-05-14)</a></li>
+<li><a
+href="#subagent-driven-by-default-11.4.20-user-mandate-2026-05-14"
+id="toc-subagent-driven-by-default-11.4.20-user-mandate-2026-05-14">Subagent-driven-by-default
+(§11.4.20, User mandate 2026-05-14)</a></li>
+<li><a
+href="#script-documentation-mandate-11.4.18-user-mandate-2026-05-14"
+id="toc-script-documentation-mandate-11.4.18-user-mandate-2026-05-14">Script
+documentation mandate (§11.4.18, User mandate 2026-05-14)</a></li>
+<li><a
+href="#fixed-document-column-alignment-11.4.19-user-mandate-2026-05-14"
+id="toc-fixed-document-column-alignment-11.4.19-user-mandate-2026-05-14">Fixed-document
+column-alignment (§11.4.19, User mandate 2026-05-14)</a></li>
+<li><a
+href="#operator-blocked-status-self-resolution-exhaustion-11.4.21-user-mandate-2026-05-14"
+id="toc-operator-blocked-status-self-resolution-exhaustion-11.4.21-user-mandate-2026-05-14">Operator-blocked
+status + self-resolution exhaustion (§11.4.21, User mandate
+2026-05-14)</a></li>
+<li><a
+href="#document-sync-commit-discipline-11.4.22-user-mandate-2026-05-14"
+id="toc-document-sync-commit-discipline-11.4.22-user-mandate-2026-05-14">Document-sync
+commit discipline (§11.4.22, User mandate 2026-05-14)</a></li>
+<li><a
+href="#build-resource-stats-tracking-11.4.24-user-mandate-2026-05-14"
+id="toc-build-resource-stats-tracking-11.4.24-user-mandate-2026-05-14">Build-resource
+stats tracking (§11.4.24, User mandate 2026-05-14)</a></li>
+<li><a href="#full-automation-coverage-11.4.25-user-mandate-2026-05-15"
+id="toc-full-automation-coverage-11.4.25-user-mandate-2026-05-15">Full-Automation-Coverage
+(§11.4.25, User mandate 2026-05-15)</a></li>
+<li><a
+href="#constitution-submodule-update-workflow-11.4.26-user-mandate-2026-05-15"
+id="toc-constitution-submodule-update-workflow-11.4.26-user-mandate-2026-05-15">Constitution-Submodule
+Update Workflow (§11.4.26, User mandate 2026-05-15)</a></li>
+<li><a
+href="#submodule-dependency-manifest-11.4.31-user-mandate-2026-05-15"
+id="toc-submodule-dependency-manifest-11.4.31-user-mandate-2026-05-15">Submodule-dependency-manifest
+(§11.4.31, User mandate 2026-05-15)</a></li>
+<li><a
+href="#post-constitution-pull-validation-11.4.32-user-mandate-2026-05-15"
+id="toc-post-constitution-pull-validation-11.4.32-user-mandate-2026-05-15">Post-constitution-pull
+validation (§11.4.32, User mandate 2026-05-15)</a></li>
+<li><a
+href="#gitignore-no-versioned-build-artifacts-11.4.30-user-mandate-2026-05-15"
+id="toc-gitignore-no-versioned-build-artifacts-11.4.30-user-mandate-2026-05-15">.gitignore
++ no-versioned-build-artifacts (§11.4.30, User mandate
+2026-05-15)</a></li>
+<li><a
+href="#lowercase-snake_case-naming-11.4.29-user-mandate-2026-05-15"
+id="toc-lowercase-snake_case-naming-11.4.29-user-mandate-2026-05-15">Lowercase-snake_case-naming
+(§11.4.29, User mandate 2026-05-15)</a></li>
+<li><a
+href="#submodules-as-equal-codebase-decoupling-dependency-layout-11.4.28-user-mandate-2026-05-15"
+id="toc-submodules-as-equal-codebase-decoupling-dependency-layout-11.4.28-user-mandate-2026-05-15">Submodules-as-equal-codebase
++ decoupling + dependency-layout (§11.4.28, User mandate
+2026-05-15)</a></li>
+<li><a
+href="#no-fakes-beyond-unit-tests-100-test-type-coverage-11.4.27-user-mandate-2026-05-15"
+id="toc-no-fakes-beyond-unit-tests-100-test-type-coverage-11.4.27-user-mandate-2026-05-15">No-fakes-beyond-unit-tests
++ 100%-test-type-coverage (§11.4.27, User mandate 2026-05-15)</a></li>
+<li><a
+href="#type-aware-closure-status-vocabulary-11.4.33-user-mandate-2026-05-15"
+id="toc-type-aware-closure-status-vocabulary-11.4.33-user-mandate-2026-05-15">Type-aware
+closure-status vocabulary (§11.4.33, User mandate 2026-05-15)</a></li>
+<li><a
+href="#reopened-source-attribution-11.4.34-user-mandate-2026-05-15"
+id="toc-reopened-source-attribution-11.4.34-user-mandate-2026-05-15">Reopened-source
+attribution (§11.4.34, User mandate 2026-05-15)</a></li>
+<li><a
+href="#canonical-root-inheritance-clarity-11.4.35-user-mandate-2026-05-15"
+id="toc-canonical-root-inheritance-clarity-11.4.35-user-mandate-2026-05-15">Canonical-root
+inheritance clarity (§11.4.35, User mandate 2026-05-15)</a></li>
+<li><a
+href="#mandatory-install_upstreams-on-cloneadd-11.4.36-user-mandate-2026-05-15"
+id="toc-mandatory-install_upstreams-on-cloneadd-11.4.36-user-mandate-2026-05-15">Mandatory
+install_upstreams on clone/add (§11.4.36, User mandate
+2026-05-15)</a></li>
+<li><a href="#fetch-before-edit-11.4.37-user-mandate-2026-05-15"
+id="toc-fetch-before-edit-11.4.37-user-mandate-2026-05-15">Fetch-before-edit
+(§11.4.37, User mandate 2026-05-15)</a></li>
+<li><a
+href="#installable-asset-evidence-11.4.38-user-mandate-2026-05-17"
+id="toc-installable-asset-evidence-11.4.38-user-mandate-2026-05-17">Installable-asset
+evidence (§11.4.38, User mandate 2026-05-17)</a></li>
+<li><a
+href="#full-suite-retest-before-release-tag-11.4.40-user-mandate-2026-05-17"
+id="toc-full-suite-retest-before-release-tag-11.4.40-user-mandate-2026-05-17">Full-suite
+retest before release tag (§11.4.40, User mandate 2026-05-17)</a></li>
+<li><a
+href="#pre-force-push-merge-first-11.4.41-user-mandate-2026-05-17"
+id="toc-pre-force-push-merge-first-11.4.41-user-mandate-2026-05-17">Pre-force-push
+merge-first (§11.4.41, User mandate 2026-05-17)</a></li>
+<li><a href="#tdd-fix-discipline-11.4.43-user-mandate-2026-05-18"
+id="toc-tdd-fix-discipline-11.4.43-user-mandate-2026-05-18">TDD-Fix-Discipline
+(§11.4.43, User mandate 2026-05-18)</a></li>
+<li><a href="#document-revision-header-11.4.44-user-mandate-2026-05-18"
+id="toc-document-revision-header-11.4.44-user-mandate-2026-05-18">Document
+revision header (§11.4.44, User mandate 2026-05-18)</a></li>
+<li><a
+href="#integration-status-doc-maintenance-11.4.45-user-mandate-2026-05-18"
+id="toc-integration-status-doc-maintenance-11.4.45-user-mandate-2026-05-18">Integration-status-doc
+maintenance (§11.4.45, User mandate 2026-05-18)</a></li>
+<li><a
+href="#validate-recent-work-before-post-flash-tests-11.4.46-user-mandate-2026-05-18"
+id="toc-validate-recent-work-before-post-flash-tests-11.4.46-user-mandate-2026-05-18">Validate-recent-work-before-post-flash-tests
+(§11.4.46, User mandate 2026-05-18)</a></li>
+<li><a href="#firebase-data-review-11.4.47-user-mandate-2026-05-18"
+id="toc-firebase-data-review-11.4.47-user-mandate-2026-05-18">Firebase
+data review (§11.4.47, User mandate 2026-05-18)</a></li>
+<li><a href="#ui-driven-video-testing-11.4.48-user-mandate-2026-05-18"
+id="toc-ui-driven-video-testing-11.4.48-user-mandate-2026-05-18">UI-driven
+video testing (§11.4.48, User mandate 2026-05-18)</a></li>
+<li><a href="#dual-approach-testing-11.4.49-user-mandate-2026-05-18"
+id="toc-dual-approach-testing-11.4.49-user-mandate-2026-05-18">Dual-approach
+testing (§11.4.49, User mandate 2026-05-18)</a></li>
+<li><a href="#deterministic-consistency-11.4.50-user-mandate-2026-05-18"
+id="toc-deterministic-consistency-11.4.50-user-mandate-2026-05-18">Deterministic
+consistency (§11.4.50, User mandate 2026-05-18)</a></li>
+<li><a
+href="#live-adb-first-maximization-11.4.51-user-mandate-2026-05-18"
+id="toc-live-adb-first-maximization-11.4.51-user-mandate-2026-05-18">Live-ADB-First
+maximization (§11.4.51, User mandate 2026-05-18)</a></li>
+<li><a href="#autonomous-validation-11.4.52-user-mandate-2026-05-18"
+id="toc-autonomous-validation-11.4.52-user-mandate-2026-05-18">Autonomous-Validation
+(§11.4.52, User mandate 2026-05-18)</a></li>
+<li><a href="#fixed_summary-parity-11.4.53-user-mandate-2026-05-18"
+id="toc-fixed_summary-parity-11.4.53-user-mandate-2026-05-18">Fixed_Summary
+parity (§11.4.53, User mandate 2026-05-18)</a></li>
+<li><a href="#atm-nnn-ticket-identifier-11.4.54-user-mandate-2026-05-19"
+id="toc-atm-nnn-ticket-identifier-11.4.54-user-mandate-2026-05-19">ATM-NNN
+ticket identifier (§11.4.54, User mandate 2026-05-19)</a></li>
+<li><a
+href="#reopens-history-tracking-per-item-reopens.md-11.4.55-user-mandate-2026-05-19"
+id="toc-reopens-history-tracking-per-item-reopens.md-11.4.55-user-mandate-2026-05-19">Reopens-history
+tracking + per-item Reopens.md (§11.4.55, User mandate
+2026-05-19)</a></li>
+<li><a
+href="#status_summary-parity-two-audience-format-11.4.56-user-mandate-2026-05-19"
+id="toc-status_summary-parity-two-audience-format-11.4.56-user-mandate-2026-05-19">Status_Summary
+parity + two-audience format (§11.4.56, User mandate
+2026-05-19)</a></li>
+<li><a
+href="#readme.md-doc-link-section-revision-metadata-11.4.57-user-mandate-2026-05-19"
+id="toc-readme.md-doc-link-section-revision-metadata-11.4.57-user-mandate-2026-05-19">README.md
+doc-link section + revision metadata (§11.4.57, User mandate
+2026-05-19)</a></li>
+<li><a
+href="#parallel-development-methodology-11.4.58-user-mandate-2026-05-19"
+id="toc-parallel-development-methodology-11.4.58-user-mandate-2026-05-19">Parallel-development
+methodology (§11.4.58, User mandate 2026-05-19)</a></li>
+<li><a href="#readme-always-sync-11.4.59-user-mandate-2026-05-19"
+id="toc-readme-always-sync-11.4.59-user-mandate-2026-05-19">README
+always-sync (§11.4.59, User mandate 2026-05-19)</a></li>
+<li><a
+href="#documentation-always-sync-composite-covenant-11.4.60-user-mandate-2026-05-19"
+id="toc-documentation-always-sync-composite-covenant-11.4.60-user-mandate-2026-05-19">Documentation
+always-sync composite covenant (§11.4.60, User mandate
+2026-05-19)</a></li>
+<li><a href="#credentials-handling-11.4.10"
+id="toc-credentials-handling-11.4.10">Credentials-handling
+(§11.4.10)</a></li>
+<li><a href="#host-session-safety-12"
+id="toc-host-session-safety-12">Host-session safety (§12)</a></li>
+<li><a href="#continuation-document-12.10"
+id="toc-continuation-document-12.10">Continuation document
+(§12.10)</a></li>
+<li><a href="#data-safety-9" id="toc-data-safety-9">Data safety
+(§9)</a></li>
+</ul></li>
+<li><a href="#cli-workflow-expectations"
+id="toc-cli-workflow-expectations">CLI workflow expectations</a></li>
+<li><a href="#hierarchy-of-project-authority"
+id="toc-hierarchy-of-project-authority">Hierarchy of project
+authority</a></li>
+<li><a href="#when-stuck" id="toc-when-stuck">When stuck</a></li>
+</ul></li>
+</ul>
+</nav>
 <h1 id="helix-constitution-universal-agents.md">Helix Constitution —
 Universal AGENTS.md</h1>
 <table>
@@ -2360,5 +2581,62 @@ href="Constitution.md"><code>Constitution.md</code></a> §11.4.78.</p>
 <p>Non-compliance is a process violation; a project worked on by AI
 agents without CodeGraph installed, wired, and anti-bluff-verified is in
 breach of this mandate.</p>
+<p><strong>§11.4.79 — Own-org submodules MUST be included in the
+CodeGraph index (User mandate, 2026-05-21)</strong></p>
+<p>Direct user mandate (verbatim, 2026-05-21): “All Submodules we use in
+the project and that are part of organizations to which we have the full
+access via GitHub, GitLab and other CLIs MUST BE included into the
+codegraph database and initialized / scanned / synced!”</p>
+<p>Refines §11.4.78 step 2’s exclude-list with a per-submodule-ownership
+split: <strong>own-org</strong> (full write access via project’s CLIs —
+canonical orgs <code>vasic-digital</code> +
+<code>HelixDevelopment</code>) MUST be INCLUDED;
+<strong>third-party</strong> (§11.4.74 no-match → vendor;
+e.g. <code>gopkg.in/telebot.v3</code>) MUST be EXCLUDED. Operational
+steps: (1) <code>git submodule update --remote --merge</code> before
+re-indexing — respect load-bearing third-party pins (roll back if
+<code>--remote</code> breaks a load-bearing import-path pin). (2) Adjust
+<code>.codegraph/config.json</code> exclude list. (3) Re-index. (4)
+Validate via probe resolving a symbol living ONLY inside an own-org
+submodule. (5) Paired §1.1 mutation: temporarily add own-org path to
+exclude → validate FAILs → restore.</p>
+<p>Composes with §11.4.74 (ownership classifier), §11.4.78 (CodeGraph
+parent), §11.4.10 (credentials still excluded), §1.1 (paired mutation),
+§107 (a lying index is a PASS-bluff).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.79.</p>
+<p>Non-compliance is a process violation; severe cases (own-org
+submodules silently excluded without an audit trail in
+<code>.codegraph/config.json</code>) are release blockers.</p>
+<p><strong>§11.4.80 — CodeGraph regular-update + sync automation mandate
+(User mandate, 2026-05-21)</strong></p>
+<p>Direct user mandate (verbatim, 2026-05-21): “We MUST regularly check
+for the updates and execute codegraph npm updates so the latest version
+of it is always installed on the host machine! […] Make sure we have
+proper full automation bash scripts which will run regularly and that
+these are part of the constitution Submodule since they MUST BE
+available to all projects […]. Make sure all updates, sync processes we
+do and important codegraph related events are all documented under
+docs/codegraph in Status and Status_Summary documents […]”</p>
+<p>Three deliverables in this constitution submodule: (1)
+<code>scripts/codegraph_update.sh</code> — npm-installs latest; §107
+anti-bluff verifies <code>codegraph --version</code> reflects new
+version (npm exit 0 ≠ working binary). (2)
+<code>scripts/codegraph_sync.sh</code> — runs
+<code>codegraph status</code> → <code>sync .</code> →
+<code>status</code> → project’s validate; appends to both project’s +
+constitution’s <code>docs/codegraph/Status.md</code>. (3)
+<code>docs/codegraph/Status.md</code> + <code>Status_Summary.md</code>
+ledgers, exported to <code>.html</code> + <code>.pdf</code> per
+§11.4.65.</p>
+<p>Cadence: weekly floor. Scripts inherited by reference (§3 submodule
+inheritance) — invoke at
+<code>${CONST_DIR}/scripts/codegraph_*.sh</code>, never copy.</p>
+<p>Composes with §11.4.78, §11.4.79, §11.4.10, §11.4.45, §11.4.65, §107,
+§1.1.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.80.</p>
+<p>Non-compliance is a process violation; severe cases (&gt;2 weeks
+since last update + open AI-agent work) are release blockers.</p>
 </body>
 </html>
