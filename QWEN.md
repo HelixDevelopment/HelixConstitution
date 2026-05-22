@@ -220,6 +220,36 @@ Composes with §11.4.4 / §11.4.6 / §11.4.9 / §11.4.20 / §11.4.24 / §11.4.42
 
 Non-compliance is a release blocker.
 
+### §11.4.83 — docs/qa/ end-user evidence mandate (User mandate, 2026-05-22)
+
+Direct user mandate (verbatim, 2026-05-22): "every feature that ships MUST carry a recorded e2e communication transcript + any attached materials under `docs/qa/<run-id>/` (per-feature subdirectories). A feature with no QA transcript is itself a §107 PASS-bluff — it claims to work but has no auditable runtime evidence. Bot-driven automation MUST preserve full bidirectional communication threads as proof."
+
+Every feature that ships MUST carry a recorded end-to-end communication transcript plus attached materials committed under `docs/qa/<run-id>/`. Transcripts MUST be full bidirectional. Attached materials live in-repo (no external-only links — §11.4.13 sink-side violation). Bot-driven / agent-driven QA MUST preserve the full conversation thread as the proof artefact. CI release gates MUST refuse to tag a version whose feature-shipping commit lacks its `docs/qa/<run-id>/`.
+
+Composes with §11.4.2, §11.4.5, §11.4.13, §11.4.65, §11.4.69, §107, §1.1.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.83.
+
+Non-compliance is a release blocker.
+
+### §11.4.84 — Working-tree quiescence rule for subagent commits (User mandate, 2026-05-22)
+
+**Short tag:** `working-tree quiescence`.
+
+Direct user mandate (verbatim, 2026-05-22): "no subagent commit may proceed while any concurrent mutation gate is in flight in the same checkout. Before `git add`, the committing agent MUST `grep` its own working tree for mutation markers (`MUTATED for paired`, `// always pass`, `return json.Marshal` shortcut paths, etc.). Any unexplained file in the staging area triggers ABORT."
+
+No subagent commit may proceed while any concurrent mutation gate is in flight in the same checkout. Pre-`git add`: grep for mutation markers (`MUTATED for paired`, `// always pass`, `return json.Marshal` shortcuts, `// MUTATION` annotations, `_mutated_*` filenames). Cross-check `git status --porcelain` against declared scope → unaccounted entries ABORT.
+
+Lesson (forensic). A consuming project's logo-fix subagent (Herald commit `72e81ab`, 2026-05-21) swept a `// always pass` JWT-bypass mutation residue into an unrelated commit, pushed to all four mirrors before being caught. Fix `d5bd360` landed within the hour, but the security-defect window is real and the lesson is constitutional.
+
+Operative rule. (1) Pre-`git add` grep + scope-match → unaccounted ABORT. (2) Active mutation gates MUST be serialised before unrelated commits. (3) Concurrent subagents in same checkout MUST use lockfile (`.git/MUTATION_IN_PROGRESS`) or `git worktree add`. (4) Pre-push `mutation-residue-scanner` BLOCKS pushes containing mutation markers.
+
+Composes with §1.1, §11.4.20, §11.4.70, §11.4.27, §11.4.10, §11.4.71, §107.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.84.
+
+Non-compliance is a release blocker.
+
 ## Companion documents
 
 - [`Constitution.md`](Constitution.md) — authoritative universal Constitution. ALWAYS the tie-breaker.

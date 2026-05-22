@@ -7320,6 +7320,65 @@ Non-compliance is a release blocker. No escape hatch — no `--skip-phase1-foren
 
 ---
 
+### §11.4.83 — docs/qa/ end-user evidence mandate (User mandate, 2026-05-22)
+
+**The mandate.** Every feature that ships MUST carry a recorded end-to-end communication transcript plus any attached materials (screenshots, request/response payloads, audio, file uploads) committed under `docs/qa/<run-id>/` — one directory per feature run. A feature with no QA transcript is itself a §11.4 / §107 PASS-bluff: it claims to work but carries no auditable runtime evidence that an end user actually exercised it through the same interface they will use in production.
+
+**Forensic anchor (verbatim user mandate, 2026-05-22):**
+
+> "every feature that ships MUST carry a recorded e2e communication transcript + any attached materials under `docs/qa/<run-id>/` (per-feature subdirectories). A feature with no QA transcript is itself a §107 PASS-bluff — it claims to work but has no auditable runtime evidence. Bot-driven automation MUST preserve full bidirectional communication threads as proof."
+
+**Operative rule.**
+
+1. Every consuming project MUST maintain a `docs/qa/` tree (no exception, no escape hatch). Each new feature run lands under `docs/qa/<run-id>/` where `<run-id>` is monotonic + greppable (timestamp, HRD-NNN, ATM-NNN, or other workable-item identifier — see §11.4.54).
+2. The transcript MUST be full bidirectional — every prompt/command sent + every response received + every error message + every state change observed. One-sided ("we sent X") is not a transcript; both halves are required.
+3. Attached materials MUST be committed alongside (screenshots in `.png`, payloads in `.json`/`.toon`/`.txt`, audio in `.wav`/`.mp3`, etc.). External-only links (Slack URL, Drive URL) are §11.4.13 sink-side violations — the evidence MUST live in-repo.
+4. Bot-driven / agent-driven automation (a consuming project's QA bot, e.g. Herald's planned `qaherald`, or analogous binaries in other projects) MUST preserve the full conversation thread as the proof artefact. A bot that runs the round-trip but stores only the final PASS/FAIL line is itself a §107 bluff at the QA-automation layer.
+5. CI / release gates MUST refuse to tag a version that has any feature-shipping commit without its matching `docs/qa/<run-id>/` directory present and non-empty. The `release` script in the consuming project enforces this; the constitution submodule's `scripts/qa_coverage_audit.sh` (when implemented) gives the universal scanner.
+
+**Composes with** §11.4.2 (recorded-evidence requirement — `docs/qa/` is the canonical capture location for end-user-facing features), §11.4.5 (captured-evidence quality analysis applies per-transcript), §11.4.13 (sink-side evidence stays in-repo, not behind external links), §11.4.65 (multi-format export — transcripts may be exported to PDF/HTML siblings when operator-readable), §11.4.69 (universal sink-side positive-evidence taxonomy — `docs/qa/` is the "user-facing-channel" branch), §107 (an end-user feature without an end-user-channel transcript is a §107 PASS-bluff), §1.1 (paired mutation: delete a `docs/qa/<run-id>/` → release gate FAILs).
+
+**Classification:** universal (per §11.4.17). Every project under this Constitution carries this rule. Single-feature pre-implementation projects are exempt until their first user-visible feature lands.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.83.
+
+Non-compliance is a release blocker. No `--qa-evidence-optional`, `--qa-transcript-later`, `--qa-bot-summary-suffices` flag exists.
+
+---
+
+### §11.4.84 — Working-tree quiescence rule for subagent commits (User mandate, 2026-05-22)
+
+**Short tag:** `working-tree quiescence`.
+
+**The mandate.** No subagent commit may proceed while any concurrent mutation gate, paired-mutation experiment, or other in-flight mutation is live in the same checkout. Before `git add`, the committing agent MUST grep its own working tree for mutation markers (`MUTATED for paired`, `// always pass`, `return json.Marshal` shortcut paths, `// MUTATION` / `# MUTATION` annotations, `_mutated_*` filename suffixes, etc.) and explicitly account for every modified file in the staging area. Any unexplained file in the staging area triggers ABORT.
+
+**Forensic anchor (verbatim user mandate, 2026-05-22):**
+
+> "no subagent commit may proceed while any concurrent mutation gate is in flight in the same checkout. Before `git add`, the committing agent MUST `grep` its own working tree for mutation markers (`MUTATED for paired`, `// always pass`, `return json.Marshal` shortcut paths, etc.). Any unexplained file in the staging area triggers ABORT."
+
+**Lesson (forensic case study).** A consuming project's logo-fix subagent (Herald commit `72e81ab`, 2026-05-21) ran in a checkout where a paired §1.1 mutation gate had temporarily introduced an `// always pass` shortcut into `commons_auth/middleware.go` (JWT-bypass mutation, intended to be reverted by the same gate). The subagent's `git add` + `git commit` swept the mutation residue into the same commit as the unrelated logo fix, and the resulting commit was pushed to all four mirrors before any other agent caught it. The fix (Herald `d5bd360`, "SECURITY FIX: restore commons_auth/middleware.go JWT verify") landed within the hour, but the window during which production-equivalent binaries shipped with a bypassed JWT verify is a real security-defect window — small but non-zero — and is the canonical example of why this rule exists.
+
+**Operative rule.**
+
+1. Subagent (and main-thread) commit flows MUST run a pre-`git add` quiescence check that:
+   - Greps the working tree for mutation markers (canonical list above; the consuming project MAY extend with project-specific markers).
+   - Lists every modified / untracked / staged file and matches each one against the subagent's declared scope. Any file outside the declared scope → ABORT.
+   - Cross-checks `git status --porcelain` against the subagent's task description; unaccounted entries → ABORT.
+2. Any active mutation gate (paired-mutation experiment in progress, AVR/AVI mutation cycle, manual `// always pass` patch, etc.) MUST be serialised — the gate runs to completion (mutate → assert FAIL → restore → assert PASS) and the working tree is verifiably clean BEFORE any unrelated commit may proceed in the same checkout.
+3. Concurrent subagents working in the SAME checkout (single working tree, no `git worktree add`) MUST coordinate through a lockfile or marker file (e.g. `.git/MUTATION_IN_PROGRESS`) so a logo-fix subagent cannot race a JWT-mutation subagent. The constitution submodule's `scripts/quiescence_check.sh` (when implemented) is the universal lock helper.
+4. When parallel work is necessary, the §11.4.20 / §11.4.70 subagent-driven mandate SHOULD be combined with `git worktree add` to give each subagent an isolated working tree — eliminates the cross-mutation race by construction.
+5. Post-commit, an automated `mutation-residue-scanner` (consuming project's `scripts/mutation_residue_audit.sh`) MUST run before push. Any commit containing a mutation marker → push BLOCKED, commit MUST be reverted or amended before mirrors are updated.
+
+**Composes with** §1.1 (mutation-paired gates — quiescence rule protects the mutation cycle from concurrent contamination), §11.4.20 / §11.4.70 (subagent-driven-by-default — quiescence rule is what makes parallel subagent dispatch safe), §11.4.27 (no-fakes-beyond-unit — a mutation residue swept into a commit IS a fake-pass surface in production), §11.4.10 (credentials handling — same class of "do not let unrelated content leak into a commit"), §107 (a security-bypass mutation that ships to production is the gravest §107 PASS-bluff: tests pass against the mutated codebase, but the end user loses an entire security property), §11.4.71 (pre-push fetch + investigate — quiescence check is the pre-push companion).
+
+**Classification:** universal (per §11.4.17). Every project under this Constitution carries this rule.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.84.
+
+Non-compliance is a release blocker. No `--allow-residue`, `--skip-quiescence`, `--mutation-cleanup-later` flag exists. A mutation marker that lands in a tagged commit is a critical defect regardless of how briefly it persisted.
+
+---
+
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN
 
 Every script, test, helper, and AI agent governed by this
