@@ -82,3 +82,9 @@ The scripts append entries below automatically; manual entries are also acceptab
 - current: `0.8.0`
 - latest:  `0.8.0`
 - action:  **no-op** (already at latest)
+
+## 2026-05-22T08:44:36Z — codegraph version check
+
+- current: `0.9.2`
+- latest:  `0.9.2`
+- action:  **no-op** (already at latest)
