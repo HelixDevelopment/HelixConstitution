@@ -1808,3 +1808,25 @@ Composes with §11.4.1 / §11.4.2 / §11.4.3 (strictened — SKIP only when kern
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.81.
 
 Non-compliance is a release blocker on multi-platform projects.
+
+**§11.4.82 — Iteration-speedup discipline mandate (User mandate, 2026-05-22)**
+
+Direct user mandate (verbatim, 2026-05-22): "How can we speed-up this whole development and fixing process? ... all speed optimizations critical rules and mandatory constraints MUST BE all added into our root (constitution Submodule) Constitution.md, CLAUDE.md, AGENTS.md and QWEN.md!"
+
+Iteration cycle time bounds the project's defect-discovery rate. Slow cycles ship fewer validated features per unit of operator time. Every consuming project's build / test / commit / debug pipeline MUST adopt 9 speedup disciplines AS MANDATORY:
+
+- **(A) Phase 1 forensic before any speculative source patch** — Phase 1 of `superpowers:systematic-debugging` is mandatory before any non-trivial source patch. Speculative patches violate §11.4.6 + §11.4.82.
+- **(B) Live-ADB-First before rebuild** — §11.4.51 strengthened to release-blocker. Skipping live-probe for LIVE_ADB_TESTABLE changes = §11.4.82 violation.
+- **(C) Pre-flight before rebuild orchestrators** — 30-sec pre-flight: device reachable, sinks reachable, memory budget, no stale locks, no orphan processes.
+- **(D) Persistent build caches outside containers** — `ccache` + Soong / sccache / Gradle daemon state bind-mounted to host. Saves 25-32 min/cycle from cycle #2.
+- **(E) Module-only rebuild for `CONFIG_*=m` driver patches** — `make modules` over single driver dir (~2-5 min vs ~25 min full kernel).
+- **(F) Parallel multi-device testing** — every owned validation device runs autonomous cycle concurrently with separate output dirs.
+- **(G) Subagent scope ≤30 min + worktree isolation + single-responsibility** — empirical pattern: 8-task subagents stall, 2-3-task subagents complete.
+- **(H) Lock-file + stale-process hygiene** — clean `.git/index.lock` / `.lock` / orphan git/build processes on session start. Disable auto git-`gc` in concurrent multi-agent repos.
+- **(I) Cycle telemetry per §11.4.24** — log commit hash, per-phase wall-clock, speedup flag set, outcome. Weekly aggregation surfaces empirical ROI per discipline.
+
+Composes with §11.4.4 / §11.4.6 / §11.4.9 / §11.4.20 / §11.4.24 / §11.4.42 / §11.4.43 / §11.4.50 / §11.4.51 / §11.4.52 / §11.4.58 / §11.4.70 / §12.7 / §107. Pre-build gate `CM-ITERATION-SPEEDUP-DISCIPLINE` (when implemented) + paired §1.1 mutation. No escape hatch — no `--skip-phase1`, `--no-pre-flight`, `--rebuild-everything`, `--unlimited-subagent-scope`, `--ignore-locks`, `--no-telemetry` flag exists.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.82.
+
+Non-compliance is a release blocker.
