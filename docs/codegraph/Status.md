@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
+| Revision | 2 |
 | Created | 2026-05-21 |
-| Last modified | 2026-05-21 |
+| Last modified | 2026-05-22 |
 | Status | active |
-| Status summary | Append-only ledger of every CodeGraph-related event across the constitution submodule's consuming projects: npm updates, sync runs, index regenerations, validate runs, HRDs opened/closed against CodeGraph. Per Universal §11.4.80 + §11.4.65 (multi-format export). Both `scripts/codegraph_update.sh` and `scripts/codegraph_sync.sh` append here automatically. |
+| Status summary | Append-only ledger of every CodeGraph-related event across the constitution submodule's consuming projects: npm updates, sync runs, index regenerations, validate runs, HRDs opened/closed against CodeGraph. Per Universal §11.4.80 + §11.4.65 (multi-format export). Both `scripts/codegraph_update.sh` and `scripts/codegraph_sync.sh` append here automatically. R2 (2026-05-22): replaced project-specific `§107` anchor references with the universal `§11.4` covenant anchor to keep this submodule fully decoupled per §11.4.28. |
 | Issues | none |
 | Issues summary | — |
 | Fixed | (n/a — ledger doc) |
@@ -27,7 +27,7 @@ The scripts append entries below automatically; manual entries are also acceptab
 
 (events appended below by the automation; newest at the bottom)
 
-## 2026-05-21T05:38:53Z — codegraph update FAILED (§107 bluff caught)
+## 2026-05-21T05:38:53Z — codegraph update FAILED (§11.4 bluff caught)
 
 - before: `0.6.8`
 - target: `0.8.0`
@@ -38,10 +38,10 @@ The scripts append entries below automatically; manual entries are also acceptab
 - before: `0.8.0` (installed but non-functional on Node 25.x — engine range  + V8 WASM JIT bug)
 - after:  `0.6.8` (last known-working on Node 25.x)
 - decision: pin codegraph to 0.6.8 until Node 25 V8 issue is resolved upstream OR operator installs Node 22 LTS alongside
-- §107 trail: `codegraph_update.sh` correctly caught the failed upgrade via the post-update version check — script working as designed
+- §11.4 trail: `codegraph_update.sh` correctly caught the failed upgrade via the post-update version check — script working as designed
 - follow-up HRD: ENV-CODEGRAPH-NODE25 to track when 0.7+/0.8+ becomes safe again
 
-## 2026-05-21T12:41:31Z — codegraph update FAILED (§107 bluff caught)
+## 2026-05-21T12:41:31Z — codegraph update FAILED (§11.4 bluff caught)
 
 - before: `0.6.8`
 - target: `0.8.0`
