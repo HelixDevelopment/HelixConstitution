@@ -1,248 +1,243 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Submodules Catalogue — `vasic-digital` + `HelixDevelopment`</title>
+  <title>submodules-catalogue</title>
   <style>
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
-    html {
-      color: #1a1a1a;
-      background-color: #fdfdfd;
-    }
-    body {
-      margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
-      overflow-wrap: break-word;
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-    @media (max-width: 600px) {
-      body {
-        font-size: 0.9em;
-        padding: 12px;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-    @media print {
-      html {
-        background-color: white;
-      }
-      body {
-        background-color: transparent;
-        color: black;
-        font-size: 12pt;
-      }
-      p, h2, h3 {
-        orphans: 3;
-        widows: 3;
-      }
-      h2, h3, h4 {
-        page-break-after: avoid;
-      }
-    }
-    p {
-      margin: 1em 0;
-    }
-    a {
-      color: #1a1a1a;
-    }
-    a:visited {
-      color: #1a1a1a;
-    }
-    img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.4em;
-    }
-    h5, h6 {
-      font-size: 1em;
-      font-style: italic;
-    }
-    h6 {
-      font-weight: normal;
-    }
-    ol, ul {
-      padding-left: 1.7em;
-      margin-top: 1em;
-    }
-    li > ol, li > ul {
-      margin-top: 0;
-    }
-    blockquote {
-      margin: 1em 0 1em 1.7em;
-      padding-left: 1em;
-      border-left: 2px solid #e6e6e6;
-      color: #606060;
-    }
-    code {
-      white-space: pre-wrap;
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-      font-size: 85%;
-      margin: 0;
-      hyphens: manual;
-    }
-    pre {
-      margin: 1em 0;
-      overflow: auto;
-    }
-    pre code {
-      padding: 0;
-      overflow: visible;
-      overflow-wrap: normal;
-    }
-    .sourceCode {
-     background-color: transparent;
-     overflow: visible;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #1a1a1a;
-      height: 1px;
-      margin: 1em 0;
-    }
-    table {
-      margin: 1em 0;
-      border-collapse: collapse;
-      width: 100%;
-      overflow-x: auto;
-      display: block;
-      font-variant-numeric: lining-nums tabular-nums;
-    }
-    table caption {
-      margin-bottom: 0.75em;
-    }
-    tbody {
-      margin-top: 0.5em;
-      border-top: 1px solid #1a1a1a;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    th {
-      border-top: 1px solid #1a1a1a;
-      padding: 0.25em 0.5em 0.25em 0.5em;
-    }
-    td {
-      padding: 0.125em 0.5em 0.25em 0.5em;
-    }
-    header {
-      margin-bottom: 4em;
-      text-align: center;
-    }
-    #TOC li {
-      list-style: none;
-    }
-    #TOC ul {
-      padding-left: 1.3em;
-    }
-    #TOC > ul {
-      padding-left: 0;
-    }
-    #TOC a:not(:hover) {
-      text-decoration: none;
-    }
-    span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-    code span.at { color: #7d9029; } /* Attribute */
-    code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { color: #008000; } /* BuiltIn */
-    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #4070a0; } /* Char */
-    code span.cn { color: #880000; } /* Constant */
-    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-    code span.dt { color: #902000; } /* DataType */
-    code span.dv { color: #40a070; } /* DecVal */
-    code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #40a070; } /* Float */
-    code span.fu { color: #06287e; } /* Function */
-    code span.im { color: #008000; font-weight: bold; } /* Import */
-    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-    code span.op { color: #666666; } /* Operator */
-    code span.ot { color: #007020; } /* Other */
-    code span.pp { color: #bc7a00; } /* Preprocessor */
-    code span.sc { color: #4070a0; } /* SpecialChar */
-    code span.ss { color: #bb6688; } /* SpecialString */
-    code span.st { color: #4070a0; } /* String */
-    code span.va { color: #19177c; } /* Variable */
-    code span.vs { color: #4070a0; } /* VerbatimString */
-    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
+
+html {
+color: #1a1a1a;
+background-color: #fdfdfd;
+}
+body {
+margin: 0 auto;
+max-width: 36em;
+padding-left: 50px;
+padding-right: 50px;
+padding-top: 50px;
+padding-bottom: 50px;
+hyphens: auto;
+overflow-wrap: break-word;
+text-rendering: optimizeLegibility;
+font-kerning: normal;
+}
+@media (max-width: 600px) {
+body {
+font-size: 0.9em;
+padding: 12px;
+}
+h1 {
+font-size: 1.8em;
+}
+}
+@media print {
+html {
+background-color: white;
+}
+body {
+background-color: transparent;
+color: black;
+font-size: 12pt;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3, h4 {
+page-break-after: avoid;
+}
+}
+p {
+margin: 1em 0;
+}
+a {
+color: #1a1a1a;
+}
+a:visited {
+color: #1a1a1a;
+}
+img {
+max-width: 100%;
+}
+svg {
+height: auto;
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+margin-top: 1.4em;
+}
+h5, h6 {
+font-size: 1em;
+font-style: italic;
+}
+h6 {
+font-weight: normal;
+}
+ol, ul {
+padding-left: 1.7em;
+margin-top: 1em;
+}
+li > ol, li > ul {
+margin-top: 0;
+}
+blockquote {
+margin: 1em 0 1em 1.7em;
+padding-left: 1em;
+border-left: 2px solid #e6e6e6;
+color: #606060;
+}
+code {
+font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+font-size: 85%;
+margin: 0;
+hyphens: manual;
+}
+pre {
+margin: 1em 0;
+overflow: auto;
+}
+pre code {
+padding: 0;
+overflow: visible;
+overflow-wrap: normal;
+}
+.sourceCode {
+background-color: transparent;
+overflow: visible;
+}
+hr {
+border: none;
+border-top: 1px solid #1a1a1a;
+height: 1px;
+margin: 1em 0;
+}
+table {
+margin: 1em 0;
+border-collapse: collapse;
+width: 100%;
+overflow-x: auto;
+display: block;
+font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+margin-bottom: 0.75em;
+}
+tbody {
+margin-top: 0.5em;
+border-top: 1px solid #1a1a1a;
+border-bottom: 1px solid #1a1a1a;
+}
+th {
+border-top: 1px solid #1a1a1a;
+padding: 0.25em 0.5em 0.25em 0.5em;
+}
+td {
+padding: 0.125em 0.5em 0.25em 0.5em;
+}
+header {
+margin-bottom: 4em;
+text-align: center;
+}
+#TOC li {
+list-style: none;
+}
+#TOC ul {
+padding-left: 1.3em;
+}
+#TOC > ul {
+padding-left: 0;
+}
+#TOC a:not(:hover) {
+text-decoration: none;
+}
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">Submodules Catalogue — `vasic-digital` +
-`HelixDevelopment`</h1>
+<h1 class="title">submodules-catalogue</h1>
 </header>
-<h1
-id="submodules-catalogue--vasic-digital--helixdevelopment">Submodules
+<h1 id="submodules-catalogue--vasic-digital--helixdevelopment">Submodules
 Catalogue — <code>vasic-digital</code> +
 <code>HelixDevelopment</code></h1>
 <table>
@@ -274,8 +269,8 @@ Catalogue — <code>vasic-digital</code> +
 <td>Initial catalogue. Enumerates every owned-by-us submodule under the
 two canonical organisations per Universal §11.4.74
 (submodule-catalogue-first discovery). 142 repos total (122 + 20).
-Categorised by capability so consuming projects can locate "is there
-already a Submodule for X?" in one glance. Re-generate via
+Categorised by capability so consuming projects can locate &quot;is there
+already a Submodule for X?&quot; in one glance. Re-generate via
 <code>gh repo list</code> + the script in §3 below.</td>
 </tr>
 <tr>
@@ -314,14 +309,13 @@ HelixDevelopment catalogue (20 repos)</a></li>
 </ul>
 <h2 id="1-why-this-file-exists">§1. Why this file exists</h2>
 <p>Per Universal §11.4.74 (Submodule-catalogue-first discovery +
-extend-don't-reimplement), every consuming project MUST survey these two
+extend-don&#39;t-reimplement), every consuming project MUST survey these two
 organisations BEFORE scaffolding a new module. Without a single
-canonical inventory the survey becomes "open the GitHub page and skim
-142 repos" — slow, easy to miss, error-prone.</p>
+canonical inventory the survey becomes &quot;open the GitHub page and skim
+142 repos&quot; — slow, easy to miss, error-prone.</p>
 <p>This file is that inventory. It is the <strong>first stop</strong>
-for any "do we already have something that does X?" question. The full
-discipline is defined in <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.74; this
+for any &quot;do we already have something that does X?&quot; question. The full
+discipline is defined in <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.74; this
 file is the operational companion.</p>
 <p>Per Universal §11.4.76, the <code>vasic-digital/containers</code>
 Submodule is the canonical container-orchestration substrate — every
@@ -346,13 +340,12 @@ duplicate in-project per §11.4.74).</li>
 the PR description — operator-side validation re-checks the catalogue
 before approval.</li>
 </ol>
-<p>The <code>no-match</code> path is rare — most "I need a small
-utility" needs are already covered by
+<p>The <code>no-match</code> path is rare — most &quot;I need a small
+utility&quot; needs are already covered by
 <code>digital.vasic.commons</code>-shaped modules below.</p>
 <h2 id="3-regeneration">§3. Regeneration</h2>
 <p>Re-generate the lists in §4 / §5 by running:</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> repo list vasic-digital <span class="at">--limit</span> 200 <span class="at">--json</span> name,description,updatedAt <span class="op">&gt;</span> /tmp/v.json</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> repo list vasic-digital <span class="at">--limit</span> 200 <span class="at">--json</span> name,description,updatedAt <span class="op">&gt;</span> /tmp/v.json</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> repo list HelixDevelopment <span class="at">--limit</span> 200 <span class="at">--json</span> name,description,updatedAt <span class="op">&gt;</span> /tmp/h.json</span></code></pre></div>
 <p>then categorise via the python helper kept inline in this commit
 (<code>scripts/build_catalogue.py</code> is the planned canonical tool —
@@ -362,517 +355,374 @@ the metadata table on every regen.</p>
 (122 repos)</h2>
 <h3 id="container--lifecycle">Container + lifecycle</h3>
 <ul>
-<li><strong><a
-href="https://github.com/vasic-digital/AgentWrapper"><code>AgentWrapper</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/AgentWrapper"><code>AgentWrapper</code></a></strong>
 — Wrap AI CLI Coding Agents in Docker containers</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Agentic"><code>Agentic</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Agentic"><code>Agentic</code></a></strong>
 — Graph-based agentic workflow orchestration</li>
-<li><strong><a
-href="https://github.com/vasic-digital/AutoTemp"><code>AutoTemp</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/AutoTemp"><code>AutoTemp</code></a></strong>
 — SCAFFOLD / WIP -- Benchmark-driven temperature auto-tuning
 orchestration</li>
-<li><strong><a
-href="https://github.com/vasic-digital/BackgroundTasks"><code>BackgroundTasks</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/BackgroundTasks"><code>BackgroundTasks</code></a></strong>
 — Background Tasks module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/HelixQA"><code>HelixQA</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/HelixQA"><code>HelixQA</code></a></strong>
 — AI-driven QA orchestration for multi-platform testing</li>
-<li><strong><a
-href="https://github.com/vasic-digital/HyperTune"><code>HyperTune</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/HyperTune"><code>HyperTune</code></a></strong>
 — SCAFFOLD / WIP -- Hyperparameter tuning orchestration</li>
-<li><strong><a
-href="https://github.com/vasic-digital/LLMOrchestrator"><code>LLMOrchestrator</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/LLMOrchestrator"><code>LLMOrchestrator</code></a></strong>
 — Headless CLI agent management for LLM orchestration</li>
-<li><strong><a
-href="https://github.com/vasic-digital/tmux"><code>tmux</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/tmux"><code>tmux</code></a></strong>
 — Optimized + verified containerized tmux build — reproducible across
 hosts, jemalloc-aware, OOM-protected, 8-test verification gate. Reusable
 on any Linux system.</li>
 </ul>
 <h3 id="ai--llm-provider--agent">AI / LLM provider + agent</h3>
 <ul>
-<li><strong><a
-href="https://github.com/vasic-digital/Android-Toolkit"><code>Android-Toolkit</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Android-Toolkit"><code>Android-Toolkit</code></a></strong>
 — Commonly used set of abstractions and implementations.</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Benchmark"><code>Benchmark</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Benchmark"><code>Benchmark</code></a></strong>
 — LLM benchmarking: SWE-bench, HumanEval, MMLU, leaderboard</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Chutes-Toolkit"><code>Chutes-Toolkit</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Chutes-Toolkit"><code>Chutes-Toolkit</code></a></strong>
 — Chutes Toolkit</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Embeddings"><code>Embeddings</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Embeddings"><code>Embeddings</code></a></strong>
 — Generic reusable Go module: digital.vasic.embeddings</li>
-<li><strong><a
-href="https://github.com/vasic-digital/I-LLM"><code>I-LLM</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/I-LLM"><code>I-LLM</code></a></strong>
 — SCAFFOLD / WIP -- Introspection layer for LLM providers</li>
-<li><strong><a
-href="https://github.com/vasic-digital/JVM-Toolkit"><code>JVM-Toolkit</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/JVM-Toolkit"><code>JVM-Toolkit</code></a></strong>
 — Commonly used set of abstractions and implementations.</li>
-<li><strong><a
-href="https://github.com/vasic-digital/LLMGateway"><code>LLMGateway</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/LLMGateway"><code>LLMGateway</code></a></strong>
 — (no description)</li>
-<li><strong><a
-href="https://github.com/vasic-digital/LLMOps"><code>LLMOps</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/LLMOps"><code>LLMOps</code></a></strong>
 — LLM operations: evaluation, experiments, datasets, prompt
 versioning</li>
-<li><strong><a
-href="https://github.com/vasic-digital/LLMProvider"><code>LLMProvider</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/LLMProvider"><code>LLMProvider</code></a></strong>
 — Shared LLM provider interface, 40+ provider adapters, retry, circuit
 breaker, health monitoring</li>
-<li><strong><a
-href="https://github.com/vasic-digital/LLMsVerifier"><code>LLMsVerifier</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/LLMsVerifier"><code>LLMsVerifier</code></a></strong>
 — Benchmark and verify LLMs</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Memory"><code>Memory</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Memory"><code>Memory</code></a></strong>
 — Generic reusable Go module: digital.vasic.memory</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Normalize"><code>Normalize</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Normalize"><code>Normalize</code></a></strong>
 — Adversarial-input canonicalisation library for defensive LLM guardrail
 pipelines</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Open-Rag-Material-Android"><code>Open-Rag-Material-Android</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Open-Rag-Material-Android"><code>Open-Rag-Material-Android</code></a></strong>
 — Material for RAG for Android development</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Optimization"><code>Optimization</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Optimization"><code>Optimization</code></a></strong>
 — Generic reusable Go module: digital.vasic.optimization</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Planning"><code>Planning</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Planning"><code>Planning</code></a></strong>
 — AI planning algorithms: HiPlan, MCTS, Tree of Thoughts</li>
-<li><strong><a
-href="https://github.com/vasic-digital/RAG"><code>RAG</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/RAG"><code>RAG</code></a></strong>
 — Generic reusable Go module: digital.vasic.rag</li>
-<li><strong><a
-href="https://github.com/vasic-digital/RedTeam"><code>RedTeam</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/RedTeam"><code>RedTeam</code></a></strong>
 — YAML-driven adversarial prompt fixture harness for defensive LLM
 guardrail regression testing</li>
-<li><strong><a
-href="https://github.com/vasic-digital/SelfImprove"><code>SelfImprove</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/SelfImprove"><code>SelfImprove</code></a></strong>
 — AI self-improvement: reward modelling, RLHF, optimizer</li>
-<li><strong><a
-href="https://github.com/vasic-digital/SiliconFlow-Toolkit"><code>SiliconFlow-Toolkit</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/SiliconFlow-Toolkit"><code>SiliconFlow-Toolkit</code></a></strong>
 — SiliconFlow Toolkit</li>
-<li><strong><a
-href="https://github.com/vasic-digital/SkillRegistry"><code>SkillRegistry</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/SkillRegistry"><code>SkillRegistry</code></a></strong>
 — CLI agent skill registration and management for AI agent systems</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Storage"><code>Storage</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Storage"><code>Storage</code></a></strong>
 — Generic reusable Go module: digital.vasic.storage</li>
-<li><strong><a
-href="https://github.com/vasic-digital/TOON"><code>TOON</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/TOON"><code>TOON</code></a></strong>
 — Generic reusable Go module: digital.vasic.toon - Token-Oriented Object
 Notation wrapper</li>
-<li><strong><a
-href="https://github.com/vasic-digital/ToolSchema"><code>ToolSchema</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/ToolSchema"><code>ToolSchema</code></a></strong>
 — Generic tool schema definition, validation, and execution for AI agent
 tool systems</li>
-<li><strong><a
-href="https://github.com/vasic-digital/VectorDB"><code>VectorDB</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/VectorDB"><code>VectorDB</code></a></strong>
 — Generic reusable Go module: digital.vasic.vectordb</li>
-<li><strong><a
-href="https://github.com/vasic-digital/VisionEngine"><code>VisionEngine</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/VisionEngine"><code>VisionEngine</code></a></strong>
 — Computer vision and LLM Vision for UI analysis and navigation</li>
-<li><strong><a
-href="https://github.com/vasic-digital/conversation"><code>conversation</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/conversation"><code>conversation</code></a></strong>
 — Conversation context management, infinite context compression, and
 event sourcing for AI agents</li>
 </ul>
 <h3 id="messaging--observability--storage">Messaging + observability +
 storage</h3>
 <ul>
-<li><strong><a
-href="https://github.com/vasic-digital/Document"><code>Document</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Document"><code>Document</code></a></strong>
 — Go document model with format detection and change tracking</li>
-<li><strong><a
-href="https://github.com/vasic-digital/EventBus"><code>EventBus</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/EventBus"><code>EventBus</code></a></strong>
 — Generic reusable Go module: digital.vasic.eventbus</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Filesystem"><code>Filesystem</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Filesystem"><code>Filesystem</code></a></strong>
 — digital.vasic.filesystem - Reusable Go module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Formatters"><code>Formatters</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Formatters"><code>Formatters</code></a></strong>
 — Generic reusable Go module: digital.vasic.formatters</li>
-<li><strong><a
-href="https://github.com/vasic-digital/I18n"><code>I18n</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/I18n"><code>I18n</code></a></strong>
 — digital.vasic.i18n - Generic internationalization Go module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Lazy"><code>Lazy</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Lazy"><code>Lazy</code></a></strong>
 — Generic reusable Go module: digital.vasic.lazy - Lazy loading with
 sync.Once generics</li>
-<li><strong><a
-href="https://github.com/vasic-digital/MCP_Module"><code>MCP_Module</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/MCP_Module"><code>MCP_Module</code></a></strong>
 — Generic reusable Go module: digital.vasic.mcp</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Messaging"><code>Messaging</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Messaging"><code>Messaging</code></a></strong>
 — Generic reusable Go module: digital.vasic.messaging</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Plugins"><code>Plugins</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Plugins"><code>Plugins</code></a></strong>
 — Generic reusable Go module: digital.vasic.plugins</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Streaming"><code>Streaming</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Streaming"><code>Streaming</code></a></strong>
 — Generic reusable Go module: digital.vasic.streaming</li>
-<li><strong><a
-href="https://github.com/vasic-digital/cache"><code>cache</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/cache"><code>cache</code></a></strong>
 — Generic reusable Go module: digital.vasic.cache</li>
-<li><strong><a
-href="https://github.com/vasic-digital/concurrency"><code>concurrency</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/concurrency"><code>concurrency</code></a></strong>
 — Generic reusable Go module: digital.vasic.concurrency</li>
-<li><strong><a
-href="https://github.com/vasic-digital/config"><code>config</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/config"><code>config</code></a></strong>
 — digital.vasic.config - Reusable Go module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/database"><code>database</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/database"><code>database</code></a></strong>
 — Generic reusable Go module: digital.vasic.database</li>
-<li><strong><a
-href="https://github.com/vasic-digital/discovery"><code>discovery</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/discovery"><code>discovery</code></a></strong>
 — digital.vasic.discovery - Reusable Go module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/http3"><code>http3</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/http3"><code>http3</code></a></strong>
 — Generic Go module wrapping quic-go/http3 for net/http.Handler servers
 — drop-in HTTP/3 support</li>
-<li><strong><a
-href="https://github.com/vasic-digital/mdns"><code>mdns</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/mdns"><code>mdns</code></a></strong>
 — Generic Go module for RFC 6762/6763 mDNS service announcement and
 discovery — drop-in LAN service registration</li>
-<li><strong><a
-href="https://github.com/vasic-digital/observability"><code>observability</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/observability"><code>observability</code></a></strong>
 — Generic reusable Go module: digital.vasic.observability</li>
-<li><strong><a
-href="https://github.com/vasic-digital/ratelimiter"><code>ratelimiter</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/ratelimiter"><code>ratelimiter</code></a></strong>
 — digital.vasic.ratelimiter - Reusable Go module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/recovery"><code>recovery</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/recovery"><code>recovery</code></a></strong>
 — Generic reusable Go module: digital.vasic.recovery - Application-level
 fault tolerance</li>
-<li><strong><a
-href="https://github.com/vasic-digital/tracker_sdk"><code>tracker_sdk</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/tracker_sdk"><code>tracker_sdk</code></a></strong>
 — Generic, tracker-agnostic SDK primitives: mirror manager, plugin
-registry, testing harness. Used by the Lava project (<a
-href="https://github.com/milos85vasic/Lava">https://github.com/milos85vasic/Lava</a>)
+registry, testing harness. Used by the Lava project (<a href="https://github.com/milos85vasic/Lava">https://github.com/milos85vasic/Lava</a>)
 to support multiple torrent trackers.</li>
 </ul>
 <h3 id="auth--security--middleware">Auth + security + middleware</h3>
 <ul>
-<li><strong><a
-href="https://github.com/vasic-digital/Claritas"><code>Claritas</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Claritas"><code>Claritas</code></a></strong>
 — SCAFFOLD / WIP -- System-prompt extraction detection</li>
-<li><strong><a
-href="https://github.com/vasic-digital/GandalfSolutions"><code>GandalfSolutions</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/GandalfSolutions"><code>GandalfSolutions</code></a></strong>
 — SCAFFOLD / WIP -- Read-only solutions archive for prompt-leak-defense
 testing</li>
-<li><strong><a
-href="https://github.com/vasic-digital/LeakHub"><code>LeakHub</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/LeakHub"><code>LeakHub</code></a></strong>
 — SCAFFOLD / WIP -- Prompt-leak corpus / defensive-use fixtures
 (red-team training)</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Ouroborous"><code>Ouroborous</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Ouroborous"><code>Ouroborous</code></a></strong>
 — SCAFFOLD / WIP -- Recursive/self-referential safety patterns</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Veritas"><code>Veritas</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Veritas"><code>Veritas</code></a></strong>
 — SCAFFOLD / WIP -- Truth/verification auxiliary</li>
-<li><strong><a
-href="https://github.com/vasic-digital/auth"><code>auth</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/auth"><code>auth</code></a></strong>
 — Generic reusable Go module: digital.vasic.auth</li>
-<li><strong><a
-href="https://github.com/vasic-digital/middleware"><code>middleware</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/middleware"><code>middleware</code></a></strong>
 — digital.vasic.middleware - Reusable Go module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/security"><code>security</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/security"><code>security</code></a></strong>
 — Generic reusable Go module: digital.vasic.security</li>
 </ul>
 <h3 id="cross-platform-kmp-modules">Cross-platform (KMP) modules</h3>
 <ul>
-<li><strong><a
-href="https://github.com/vasic-digital/Auth-KMP"><code>Auth-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Auth-KMP"><code>Auth-KMP</code></a></strong>
 — Kotlin Multiplatform OAuth2 authentication: flows, token management,
 secure storage interface</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Concurrency-KMP"><code>Concurrency-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Concurrency-KMP"><code>Concurrency-KMP</code></a></strong>
 — Kotlin Multiplatform concurrency utilities: lazy loading, platform
 synchronization, flow-based loaders</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Config-KMP"><code>Config-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Config-KMP"><code>Config-KMP</code></a></strong>
 — Kotlin Multiplatform storage configuration types for network
 protocols</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Database-KMP"><code>Database-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Database-KMP"><code>Database-KMP</code></a></strong>
 — digital.vasic.database - KMP network storage database interfaces and
 entity types</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Document-KMP"><code>Document-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Document-KMP"><code>Document-KMP</code></a></strong>
 — Kotlin Multiplatform document model with format detection and change
 tracking</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Formatters-KMP"><code>Formatters-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Formatters-KMP"><code>Formatters-KMP</code></a></strong>
 — Cross-platform KMP text format detection, parsing interfaces, and
 format registry</li>
-<li><strong><a
-href="https://github.com/vasic-digital/RateLimiter-KMP"><code>RateLimiter-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/RateLimiter-KMP"><code>RateLimiter-KMP</code></a></strong>
 — Kotlin Multiplatform rate limiting: semaphore, token bucket, adaptive,
 throttler</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Security-KMP"><code>Security-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Security-KMP"><code>Security-KMP</code></a></strong>
 — Kotlin Multiplatform secure storage: AES encryption, platform
 Keychain/KeyStore integration</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Storage-KMP"><code>Storage-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Storage-KMP"><code>Storage-KMP</code></a></strong>
 — digital.vasic.storage - KMP network storage service interfaces and
 abstractions</li>
-<li><strong><a
-href="https://github.com/vasic-digital/UI-Components-KMP"><code>UI-Components-KMP</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/UI-Components-KMP"><code>UI-Components-KMP</code></a></strong>
 — Kotlin Multiplatform UI components: theme system, animations,
 accessibility utilities for Compose</li>
 </ul>
 <h3 id="typescript--react--web">TypeScript / React + Web</h3>
 <ul>
-<li><strong><a
-href="https://github.com/vasic-digital/API-Client-TS"><code>API-Client-TS</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/API-Client-TS"><code>API-Client-TS</code></a></strong>
 — Generic REST API client for TypeScript</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Auth-Context-React"><code>Auth-Context-React</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Auth-Context-React"><code>Auth-Context-React</code></a></strong>
 — React AuthProvider and useAuth hook for Catalogizer authentication
 with React Query</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Calling-Engine-TS"><code>Calling-Engine-TS</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Calling-Engine-TS"><code>Calling-Engine-TS</code></a></strong>
 — Generic SIP.js + WebRTC calling engine</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Catalogizer-API-Client-TS"><code>Catalogizer-API-Client-TS</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Catalogizer-API-Client-TS"><code>Catalogizer-API-Client-TS</code></a></strong>
 — Type-safe TypeScript client for the Catalogizer API with axios, auth,
 retry, and per-domain services</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Collection-Manager-React"><code>Collection-Manager-React</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Collection-Manager-React"><code>Collection-Manager-React</code></a></strong>
 — React collection management components for Catalogizer</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Dashboard-Analytics-React"><code>Dashboard-Analytics-React</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Dashboard-Analytics-React"><code>Dashboard-Analytics-React</code></a></strong>
 — React dashboard and analytics components for Catalogizer</li>
-<li><strong><a
-href="https://github.com/vasic-digital/I18n-Client-TS"><code>I18n-Client-TS</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/I18n-Client-TS"><code>I18n-Client-TS</code></a></strong>
 — Generic client-side i18n wrapper around i18next</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Media-Browser-React"><code>Media-Browser-React</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Media-Browser-React"><code>Media-Browser-React</code></a></strong>
 — React entity browser components for Catalogizer media browsing</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Media-Player-React"><code>Media-Player-React</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Media-Player-React"><code>Media-Player-React</code></a></strong>
 — React media player component for Catalogizer entity playback</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Media-Types-TS"><code>Media-Types-TS</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Media-Types-TS"><code>Media-Types-TS</code></a></strong>
 — Shared TypeScript type definitions for Catalogizer media entities,
 auth, and API</li>
-<li><strong><a
-href="https://github.com/vasic-digital/State-Management-TS"><code>State-Management-TS</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/State-Management-TS"><code>State-Management-TS</code></a></strong>
 — Generic Redux Toolkit state management utilities</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Testing-Utils-TS"><code>Testing-Utils-TS</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Testing-Utils-TS"><code>Testing-Utils-TS</code></a></strong>
 — Generic React + Redux testing utilities</li>
-<li><strong><a
-href="https://github.com/vasic-digital/UI-Components-React"><code>UI-Components-React</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/UI-Components-React"><code>UI-Components-React</code></a></strong>
 — Reusable TypeScript/React module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/WebSocket-Client-TS"><code>WebSocket-Client-TS</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/WebSocket-Client-TS"><code>WebSocket-Client-TS</code></a></strong>
 — Reusable TypeScript/React module</li>
 </ul>
 <h3 id="testing--qa--benchmarking">Testing + QA + benchmarking</h3>
 <ul>
-<li><strong><a
-href="https://github.com/vasic-digital/Panoptic"><code>Panoptic</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Panoptic"><code>Panoptic</code></a></strong>
 — A comprehensive tool for automated testing, UI recording, and
 screenshot capture across web, desktop, and mobile applications.</li>
-<li><strong><a
-href="https://github.com/vasic-digital/ReplayBuffer"><code>ReplayBuffer</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/ReplayBuffer"><code>ReplayBuffer</code></a></strong>
 — Reusable ReplayBuffer module for visual testing and automation</li>
-<li><strong><a
-href="https://github.com/vasic-digital/ScreenDiff"><code>ScreenDiff</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/ScreenDiff"><code>ScreenDiff</code></a></strong>
 — Reusable ScreenDiff module for visual testing and automation</li>
-<li><strong><a
-href="https://github.com/vasic-digital/TrainingCollector"><code>TrainingCollector</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/TrainingCollector"><code>TrainingCollector</code></a></strong>
 — Reusable TrainingCollector module for visual testing and
 automation</li>
-<li><strong><a
-href="https://github.com/vasic-digital/VisualRegression"><code>VisualRegression</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/VisualRegression"><code>VisualRegression</code></a></strong>
 — Reusable VisualRegression module for visual testing and
 automation</li>
-<li><strong><a
-href="https://github.com/vasic-digital/challenges"><code>challenges</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/challenges"><code>challenges</code></a></strong>
 — (no description)</li>
 </ul>
 <h3 id="apps--tools--experimental">Apps / tools / experimental</h3>
 <ul>
-<li><strong><a
-href="https://github.com/vasic-digital/ATMOSphere-Android-15"><code>ATMOSphere-Android-15</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/ATMOSphere-Android-15"><code>ATMOSphere-Android-15</code></a></strong>
 — (no description)</li>
-<li><strong><a
-href="https://github.com/vasic-digital/ATMOSphere-Android-15-Main"><code>ATMOSphere-Android-15-Main</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/ATMOSphere-Android-15-Main"><code>ATMOSphere-Android-15-Main</code></a></strong>
 — Android 15 AOSP for Orange Pi 5 Max</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Asinka"><code>Asinka</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Asinka"><code>Asinka</code></a></strong>
 — Interprocess Objects Syncrhronization Library: Asinka (Асинка)</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Assets"><code>Assets</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Assets"><code>Assets</code></a></strong>
 — Generic, reusable Go module for lazy asset loading with strategy-based
 resolution</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Catalogizer"><code>Catalogizer</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Catalogizer"><code>Catalogizer</code></a></strong>
 — Advanced Multi-Protocol Media Collection Management System</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Courses-Creator"><code>Courses-Creator</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Courses-Creator"><code>Courses-Creator</code></a></strong>
 — Courses creator toolkit</li>
-<li><strong><a
-href="https://github.com/vasic-digital/DocProcessor"><code>DocProcessor</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/DocProcessor"><code>DocProcessor</code></a></strong>
 — Documentation processing and feature map extraction for QA
 automation</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Entities"><code>Entities</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Entities"><code>Entities</code></a></strong>
 — Generic media entity system: title parsing, media types, hierarchy
 detection, and aggregation primitives for Go</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Games"><code>Games</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Games"><code>Games</code></a></strong>
 — Vasic Digital Games</li>
-<li><strong><a
-href="https://github.com/vasic-digital/GrabTube"><code>GrabTube</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/GrabTube"><code>GrabTube</code></a></strong>
 — Tube services downloader</li>
-<li><strong><a
-href="https://github.com/vasic-digital/HelixAgent"><code>HelixAgent</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/HelixAgent"><code>HelixAgent</code></a></strong>
 — (no description)</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Integrations"><code>Integrations</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Integrations"><code>Integrations</code></a></strong>
 — Integrations</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Media"><code>Media</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Media"><code>Media</code></a></strong>
 — digital.vasic.media - Reusable Go module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Models"><code>Models</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Models"><code>Models</code></a></strong>
 — (no description)</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Network-Binder"><code>Network-Binder</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Network-Binder"><code>Network-Binder</code></a></strong>
 — Bind multiple internet connection endpoints into single one using
 mptcp.</li>
-<li><strong><a
-href="https://github.com/vasic-digital/OOM-Protect"><code>OOM-Protect</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/OOM-Protect"><code>OOM-Protect</code></a></strong>
 — Workstation OOM hardening for systemd Linux</li>
-<li><strong><a
-href="https://github.com/vasic-digital/PliniusCommon"><code>PliniusCommon</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/PliniusCommon"><code>PliniusCommon</code></a></strong>
 — SCAFFOLD / WIP -- Common types/errors library (shared foundation for
 the 8 sibling modules)</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Proxy"><code>Proxy</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Proxy"><code>Proxy</code></a></strong>
 — Proxy server</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Pure_v2_Firmware"><code>Pure_v2_Firmware</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Pure_v2_Firmware"><code>Pure_v2_Firmware</code></a></strong>
 — Firmware for BeagleBone</li>
-<li><strong><a
-href="https://github.com/vasic-digital/SDK"><code>SDK</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/SDK"><code>SDK</code></a></strong>
 — SDK</li>
-<li><strong><a
-href="https://github.com/vasic-digital/ShareConnect"><code>ShareConnect</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/ShareConnect"><code>ShareConnect</code></a></strong>
 — Share the downloadable URLs to remote (or local) processing
 endpoints</li>
-<li><strong><a
-href="https://github.com/vasic-digital/TransmissionConnect"><code>TransmissionConnect</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/TransmissionConnect"><code>TransmissionConnect</code></a></strong>
 — Remote control for Transmission BitTorrent client and integration with
 ShareConnect</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Watcher"><code>Watcher</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Watcher"><code>Watcher</code></a></strong>
 — digital.vasic.watcher - Reusable Go module</li>
-<li><strong><a
-href="https://github.com/vasic-digital/Yole"><code>Yole</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Yole"><code>Yole</code></a></strong>
 — Text editor, Notes &amp; ToDo - Markdown, todo.txt, plaintext, math,
 and much more ...</li>
-<li><strong><a
-href="https://github.com/vasic-digital/ffmpeg-kit"><code>ffmpeg-kit</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/ffmpeg-kit"><code>ffmpeg-kit</code></a></strong>
 — FFmpeg Kit for applications. Supports Android, Flutter, iOS, Linux,
 macOS, React Native and tvOS. Supersedes MobileFFmpeg, flutter_ffmpeg
 and react-native-ffmpeg.</li>
-<li><strong><a
-href="https://github.com/vasic-digital/qBitConnect"><code>qBitConnect</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/qBitConnect"><code>qBitConnect</code></a></strong>
 — Control qBittorrent from any device and integrate with
 ShareConnect</li>
 </ul>
 <h3 id="misc--scaffolds">Misc / scaffolds</h3>
 <ul>
-<li><strong><a
-href="https://github.com/vasic-digital/Herald"><code>Herald</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/Herald"><code>Herald</code></a></strong>
 — Ingesting system events and reliably fanning them out to multiple
 notification channels so every alert reaches the right destination
 without confusion</li>
-<li><strong><a
-href="https://github.com/vasic-digital/containers"><code>containers</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/containers"><code>containers</code></a></strong>
 — (no description)</li>
-<li><strong><a
-href="https://github.com/vasic-digital/vasic-digital.github.io"><code>vasic-digital.github.io</code></a></strong>
+<li><strong><a href="https://github.com/vasic-digital/vasic-digital.github.io"><code>vasic-digital.github.io</code></a></strong>
 — (no description)</li>
 </ul>
 <h2 id="5-helixdevelopment-catalogue-20-repos">§5. HelixDevelopment
 catalogue (20 repos)</h2>
 <ul>
-<li><strong><a
-href="https://github.com/HelixDevelopment/DebateOrchestrator"><code>DebateOrchestrator</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/DebateOrchestrator"><code>DebateOrchestrator</code></a></strong>
 — Multi-agent debate orchestration library — Phase 1 reconstruction (7
 real + 5 stub sub-packages; see RECONSTRUCTION_ROADMAP.md)</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/DocProcessor"><code>DocProcessor</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/DocProcessor"><code>DocProcessor</code></a></strong>
 — Documentation processing and feature map extraction for QA
 automation</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/Helix-Game-1"><code>Helix-Game-1</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/Helix-Game-1"><code>Helix-Game-1</code></a></strong>
 — First Stake game from HelixDevelopment</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/Helix-Game-Demo"><code>Helix-Game-Demo</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/Helix-Game-Demo"><code>Helix-Game-Demo</code></a></strong>
 — (no description)</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixAgent"><code>HelixAgent</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixAgent"><code>HelixAgent</code></a></strong>
 — LLMs Agent</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixBuilder"><code>HelixBuilder</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixBuilder"><code>HelixBuilder</code></a></strong>
 — AI powered application building pipeline</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixCode"><code>HelixCode</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixCode"><code>HelixCode</code></a></strong>
 — AI Coding Agent</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixConstitution"><code>HelixConstitution</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixConstitution"><code>HelixConstitution</code></a></strong>
 — Constitution, AGENTS.MD and CLAUDE.MD universal agent rules and
 constraints</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixGitpx"><code>HelixGitpx</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixGitpx"><code>HelixGitpx</code></a></strong>
 — Helix Git Proxy eXtended</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixLLM"><code>HelixLLM</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixLLM"><code>HelixLLM</code></a></strong>
 — Helix LLM - Local running super model</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixMemory"><code>HelixMemory</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixMemory"><code>HelixMemory</code></a></strong>
 — Super Memory Provider — Unified Cognitive Memory Engine fusing Mem0 +
 Cognee + Letta for HelixAgent</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixPlay"><code>HelixPlay</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixPlay"><code>HelixPlay</code></a></strong>
 — Ultimate gaming experience!</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixSpecifier"><code>HelixSpecifier</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixSpecifier"><code>HelixSpecifier</code></a></strong>
 — Spec-Driven Development Fusion Engine - Unified specification
 intelligence fusing SpecKit + Superpowers + GSD for HelixAgent AI debate
 ensemble</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/HelixTranslate"><code>HelixTranslate</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/HelixTranslate"><code>HelixTranslate</code></a></strong>
 — A high-performance, enterprise-grade universal ebook translation
 toolkit supporting any ebook format and any language pair, featuring
 multiple translation engines, REST API with HTTP/3 support, and
 real-time WebSocket events.</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/LLMOrchestrator"><code>LLMOrchestrator</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/LLMOrchestrator"><code>LLMOrchestrator</code></a></strong>
 — Headless CLI agent management for LLM orchestration</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/LLMProvider"><code>LLMProvider</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/LLMProvider"><code>LLMProvider</code></a></strong>
 — Shared LLM provider interface, 40+ provider adapters</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/Projects"><code>Projects</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/Projects"><code>Projects</code></a></strong>
 — Helix projects</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/Stake-Tetris"><code>Stake-Tetris</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/Stake-Tetris"><code>Stake-Tetris</code></a></strong>
 — Stake Tetris</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/VisionEngine"><code>VisionEngine</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/VisionEngine"><code>VisionEngine</code></a></strong>
 — Computer vision and LLM Vision for UI analysis and navigation</li>
-<li><strong><a
-href="https://github.com/HelixDevelopment/helixqa"><code>helixqa</code></a></strong>
+<li><strong><a href="https://github.com/HelixDevelopment/helixqa"><code>helixqa</code></a></strong>
 — AI-driven QA orchestration for multi-platform testing</li>
 </ul>
 </body>
