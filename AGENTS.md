@@ -1860,3 +1860,23 @@ Composes with §1.1, §11.4.20, §11.4.70, §11.4.27, §11.4.10, §11.4.71, §10
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.84.
 
 Non-compliance is a release blocker. A mutation marker in a tagged commit is a critical defect regardless of how briefly it persisted.
+
+**§11.4.85 — Stress + Chaos Test Mandate (User mandate, 2026-05-24)**
+
+**Short tag:** `stress-chaos-mandate`.
+
+Direct user mandate (verbatim, 2026-05-24): "Every fix or improvement you do MUST BE covered with full automation stress and chaos tests so we are sure nothing can break the functionality and all edge cases are monitored and polished and additionally fixed if that is needed! Everything must produce rock solid proofs and follow fully no-bluff policy!"
+
+Every fix MUST ship with full-automation stress + chaos test suites. Happy-path-only coverage is a §11.4 / §107 PASS-bluff at the resilience layer.
+
+Stress (closed-set): sustained load (N ≥ 100 iters OR ≥ 30 s, p50/p95/p99 recorded) + concurrent contention (N ≥ 10 parallel, no deadlock, no leak) + boundary conditions (empty/max/off-by-one, every boundary produces categorised result).
+
+Chaos (closed-set, per fix-class): process-death injection + network-fault injection + input-corruption injection + resource-exhaustion injection (disk/OOM/FD) + state-corruption injection. Recovery deterministic + categorised per §11.4.69.
+
+Anti-bluff. Every stress + chaos PASS cites a captured-evidence artefact (`latency.json` / `categorised_errors.txt` / `state_delta_snapshot.json` / `recovery_trace.log`) per §11.4.5 + §11.4.69. Helper library `stress_chaos.sh` provides `ab_stress_run` / `ab_stress_concurrent` / `ab_chaos_*` primitives composing with `ab_pass_with_evidence` / `ab_skip_with_reason`. Chaos cleanup MUST run in trap EXIT — failure = §11.4.14 violation.
+
+4-layer per §11.4.4(b): pre-build gate + paired meta-test mutation + on-device test (if LIVE_ADB_TESTABLE) + HelixQA Challenge entry. Composes with §11.4 / §11.4.1 / §11.4.5 / §11.4.6 / §11.4.43 / §11.4.50 / §11.4.52 / §11.4.69 / §11.4.83 / §107.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.85.
+
+Non-compliance is a release blocker regardless of context. No `--skip-stress`, `--no-chaos`, `--happy-path-suffices`, `--stress-test-later` flag exists.

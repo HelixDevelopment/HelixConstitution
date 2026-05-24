@@ -730,6 +730,94 @@ aggregation surfaces empirical ROI per discipline.</li>
 <code>--no-telemetry</code> flag exists.</p>
 <p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.82.</p>
 <p>Non-compliance is a release blocker.</p>
+<h3 id="11483--docsqa-end-user-evidence-mandate-user-mandate-2026-05-22">§11.4.83
+— docs/qa/ end-user evidence mandate (User mandate, 2026-05-22)</h3>
+<p>Direct user mandate (verbatim, 2026-05-22): &quot;every feature that ships
+MUST carry a recorded e2e communication transcript + any attached
+materials under <code>docs/qa/&lt;run-id&gt;/</code> (per-feature
+subdirectories). A feature with no QA transcript is itself a §107
+PASS-bluff — it claims to work but has no auditable runtime evidence.
+Bot-driven automation MUST preserve full bidirectional communication
+threads as proof.&quot;</p>
+<p>Every feature that ships MUST carry a recorded end-to-end
+communication transcript plus attached materials committed under
+<code>docs/qa/&lt;run-id&gt;/</code>. Transcripts MUST be full
+bidirectional. Attached materials live in-repo (no external-only links —
+§11.4.13 sink-side violation). Bot-driven / agent-driven QA MUST
+preserve the full conversation thread as the proof artefact. CI release
+gates MUST refuse to tag a version whose feature-shipping commit lacks
+its <code>docs/qa/&lt;run-id&gt;/</code>.</p>
+<p>Composes with §11.4.2, §11.4.5, §11.4.13, §11.4.65, §11.4.69, §107,
+§1.1.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.83.</p>
+<p>Non-compliance is a release blocker.</p>
+<h3 id="11484--working-tree-quiescence-rule-for-subagent-commits-user-mandate-2026-05-22">§11.4.84
+— Working-tree quiescence rule for subagent commits (User mandate,
+2026-05-22)</h3>
+<p><strong>Short tag:</strong> <code>working-tree quiescence</code>.</p>
+<p>Direct user mandate (verbatim, 2026-05-22): &quot;no subagent commit may
+proceed while any concurrent mutation gate is in flight in the same
+checkout. Before <code>git add</code>, the committing agent MUST
+<code>grep</code> its own working tree for mutation markers
+(<code>MUTATED for paired</code>, <code>// always pass</code>,
+<code>return json.Marshal</code> shortcut paths, etc.). Any unexplained
+file in the staging area triggers ABORT.&quot;</p>
+<p>No subagent commit may proceed while any concurrent mutation gate is
+in flight in the same checkout. Pre-<code>git add</code>: grep for
+mutation markers (<code>MUTATED for paired</code>,
+<code>// always pass</code>, <code>return json.Marshal</code> shortcuts,
+<code>// MUTATION</code> annotations, <code>_mutated_*</code>
+filenames). Cross-check <code>git status --porcelain</code> against
+declared scope → unaccounted entries ABORT.</p>
+<p>Lesson (forensic). A consuming project&#39;s logo-fix subagent (Herald
+commit <code>72e81ab</code>, 2026-05-21) swept a
+<code>// always pass</code> JWT-bypass mutation residue into an
+unrelated commit, pushed to all four mirrors before being caught. Fix
+<code>d5bd360</code> landed within the hour, but the security-defect
+window is real and the lesson is constitutional.</p>
+<p>Operative rule. (1) Pre-<code>git add</code> grep + scope-match →
+unaccounted ABORT. (2) Active mutation gates MUST be serialised before
+unrelated commits. (3) Concurrent subagents in same checkout MUST use
+lockfile (<code>.git/MUTATION_IN_PROGRESS</code>) or
+<code>git worktree add</code>. (4) Pre-push
+<code>mutation-residue-scanner</code> BLOCKS pushes containing mutation
+markers.</p>
+<p>Composes with §1.1, §11.4.20, §11.4.70, §11.4.27, §11.4.10, §11.4.71,
+§107.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.84.</p>
+<p>Non-compliance is a release blocker.</p>
+<h3 id="11485--stress--chaos-test-mandate-user-mandate-2026-05-24">§11.4.85
+— Stress + Chaos Test Mandate (User mandate, 2026-05-24)</h3>
+<p><strong>Short tag:</strong> <code>stress-chaos-mandate</code>.</p>
+<p>Direct user mandate (verbatim, 2026-05-24): &quot;Every fix or improvement
+you do MUST BE covered with full automation stress and chaos tests so we
+are sure nothing can break the functionality and all edge cases are
+monitored and polished and additionally fixed if that is needed!
+Everything must produce rock solid proofs and follow fully no-bluff
+policy!&quot;</p>
+<p>Every fix MUST ship with full-automation stress + chaos test suites.
+Happy-path-only coverage is a §11.4 / §107 PASS-bluff at the resilience
+layer.</p>
+<p><strong>Stress</strong> = sustained load (N ≥ 100 iters OR ≥ 30 s) +
+concurrent contention (N ≥ 10 parallel) + boundary conditions
+(empty/max/off-by-one). <strong>Chaos</strong> = failure-injection per
+§11.4.69 closed-set (process-kill, network-drop, input-corruption, OOM,
+disk-full, state-corruption) + verifiable recovery.</p>
+<p>Anti-bluff: every stress + chaos PASS cites a captured-evidence
+artefact (latency.json / categorised_errors.txt /
+state_delta_snapshot.json) per §11.4.5 + §11.4.69. Helper library
+<code>stress_chaos.sh</code> provides <code>ab_stress_run</code> /
+<code>ab_stress_concurrent</code> / <code>ab_chaos_*</code> primitives.
+Chaos cleanup non-negotiable — corrupt-restore / disk-fill-cleanup /
+process-restart MUST run in trap EXIT.</p>
+<p>4-layer per §11.4.4(b): pre-build gate (test files exist + parse) +
+paired meta-test mutation + on-device test (if LIVE_ADB_TESTABLE) +
+HelixQA Challenge entry. Composes with §11.4 / §11.4.1 / §11.4.5 /
+§11.4.6 / §11.4.43 / §11.4.50 / §11.4.52 / §11.4.69 / §11.4.83.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.85.</p>
+<p>Non-compliance is a release blocker. No <code>--skip-stress</code>,
+<code>--no-chaos</code>, <code>--happy-path-suffices</code> flag
+exists.</p>
 <h2 id="companion-documents">Companion documents</h2>
 <ul>
 <li><a href="Constitution.md"><code>Constitution.md</code></a> —

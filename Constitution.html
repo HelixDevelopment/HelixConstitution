@@ -9259,6 +9259,321 @@ language-/platform-/build-system-agnostic.</p>
 their absence has been forensically demonstrated to cost the operator
 hours per session.</p>
 <hr />
+<h3 id="11483--docsqa-end-user-evidence-mandate-user-mandate-2026-05-22">§11.4.83
+— docs/qa/ end-user evidence mandate (User mandate, 2026-05-22)</h3>
+<p><strong>The mandate.</strong> Every feature that ships MUST carry a
+recorded end-to-end communication transcript plus any attached materials
+(screenshots, request/response payloads, audio, file uploads) committed
+under <code>docs/qa/&lt;run-id&gt;/</code> — one directory per feature
+run. A feature with no QA transcript is itself a §11.4 / §107
+PASS-bluff: it claims to work but carries no auditable runtime evidence
+that an end user actually exercised it through the same interface they
+will use in production.</p>
+<p><strong>Forensic anchor (verbatim user mandate,
+2026-05-22):</strong></p>
+<blockquote>
+<p>&quot;every feature that ships MUST carry a recorded e2e communication
+transcript + any attached materials under
+<code>docs/qa/&lt;run-id&gt;/</code> (per-feature subdirectories). A
+feature with no QA transcript is itself a §107 PASS-bluff — it claims to
+work but has no auditable runtime evidence. Bot-driven automation MUST
+preserve full bidirectional communication threads as proof.&quot;</p>
+</blockquote>
+<p><strong>Operative rule.</strong></p>
+<ol type="1">
+<li>Every consuming project MUST maintain a <code>docs/qa/</code> tree
+(no exception, no escape hatch). Each new feature run lands under
+<code>docs/qa/&lt;run-id&gt;/</code> where <code>&lt;run-id&gt;</code>
+is monotonic + greppable (timestamp, HRD-NNN, ATM-NNN, or other
+workable-item identifier — see §11.4.54).</li>
+<li>The transcript MUST be full bidirectional — every prompt/command
+sent + every response received + every error message + every state
+change observed. One-sided (&quot;we sent X&quot;) is not a transcript; both
+halves are required.</li>
+<li>Attached materials MUST be committed alongside (screenshots in
+<code>.png</code>, payloads in
+<code>.json</code>/<code>.toon</code>/<code>.txt</code>, audio in
+<code>.wav</code>/<code>.mp3</code>, etc.). External-only links (Slack
+URL, Drive URL) are §11.4.13 sink-side violations — the evidence MUST
+live in-repo.</li>
+<li>Bot-driven / agent-driven automation (a consuming project&#39;s QA bot,
+e.g. Herald&#39;s planned <code>qaherald</code>, or analogous binaries in
+other projects) MUST preserve the full conversation thread as the proof
+artefact. A bot that runs the round-trip but stores only the final
+PASS/FAIL line is itself a §107 bluff at the QA-automation layer.</li>
+<li>CI / release gates MUST refuse to tag a version that has any
+feature-shipping commit without its matching
+<code>docs/qa/&lt;run-id&gt;/</code> directory present and non-empty.
+The <code>release</code> script in the consuming project enforces this;
+the constitution submodule&#39;s <code>scripts/qa_coverage_audit.sh</code>
+(when implemented) gives the universal scanner.</li>
+</ol>
+<p><strong>Composes with</strong> §11.4.2 (recorded-evidence requirement
+— <code>docs/qa/</code> is the canonical capture location for
+end-user-facing features), §11.4.5 (captured-evidence quality analysis
+applies per-transcript), §11.4.13 (sink-side evidence stays in-repo, not
+behind external links), §11.4.65 (multi-format export — transcripts may
+be exported to PDF/HTML siblings when operator-readable), §11.4.69
+(universal sink-side positive-evidence taxonomy — <code>docs/qa/</code>
+is the &quot;user-facing-channel&quot; branch), §107 (an end-user feature without
+an end-user-channel transcript is a §107 PASS-bluff), §1.1 (paired
+mutation: delete a <code>docs/qa/&lt;run-id&gt;/</code> → release gate
+FAILs).</p>
+<p><strong>Classification:</strong> universal (per §11.4.17). Every
+project under this Constitution carries this rule. Single-feature
+pre-implementation projects are exempt until their first user-visible
+feature lands.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.83.</p>
+<p>Non-compliance is a release blocker. No
+<code>--qa-evidence-optional</code>, <code>--qa-transcript-later</code>,
+<code>--qa-bot-summary-suffices</code> flag exists.</p>
+<hr />
+<h3 id="11484--working-tree-quiescence-rule-for-subagent-commits-user-mandate-2026-05-22">§11.4.84
+— Working-tree quiescence rule for subagent commits (User mandate,
+2026-05-22)</h3>
+<p><strong>Short tag:</strong> <code>working-tree quiescence</code>.</p>
+<p><strong>The mandate.</strong> No subagent commit may proceed while
+any concurrent mutation gate, paired-mutation experiment, or other
+in-flight mutation is live in the same checkout. Before
+<code>git add</code>, the committing agent MUST grep its own working
+tree for mutation markers (<code>MUTATED for paired</code>,
+<code>// always pass</code>, <code>return json.Marshal</code> shortcut
+paths, <code>// MUTATION</code> / <code># MUTATION</code> annotations,
+<code>_mutated_*</code> filename suffixes, etc.) and explicitly account
+for every modified file in the staging area. Any unexplained file in the
+staging area triggers ABORT.</p>
+<p><strong>Forensic anchor (verbatim user mandate,
+2026-05-22):</strong></p>
+<blockquote>
+<p>&quot;no subagent commit may proceed while any concurrent mutation gate is
+in flight in the same checkout. Before <code>git add</code>, the
+committing agent MUST <code>grep</code> its own working tree for
+mutation markers (<code>MUTATED for paired</code>,
+<code>// always pass</code>, <code>return json.Marshal</code> shortcut
+paths, etc.). Any unexplained file in the staging area triggers
+ABORT.&quot;</p>
+</blockquote>
+<p><strong>Lesson (forensic case study).</strong> A consuming project&#39;s
+logo-fix subagent (Herald commit <code>72e81ab</code>, 2026-05-21) ran
+in a checkout where a paired §1.1 mutation gate had temporarily
+introduced an <code>// always pass</code> shortcut into
+<code>commons_auth/middleware.go</code> (JWT-bypass mutation, intended
+to be reverted by the same gate). The subagent&#39;s <code>git add</code> +
+<code>git commit</code> swept the mutation residue into the same commit
+as the unrelated logo fix, and the resulting commit was pushed to all
+four mirrors before any other agent caught it. The fix (Herald
+<code>d5bd360</code>, &quot;SECURITY FIX: restore commons_auth/middleware.go
+JWT verify&quot;) landed within the hour, but the window during which
+production-equivalent binaries shipped with a bypassed JWT verify is a
+real security-defect window — small but non-zero — and is the canonical
+example of why this rule exists.</p>
+<p><strong>Operative rule.</strong></p>
+<ol type="1">
+<li>Subagent (and main-thread) commit flows MUST run a
+pre-<code>git add</code> quiescence check that:
+<ul>
+<li>Greps the working tree for mutation markers (canonical list above;
+the consuming project MAY extend with project-specific markers).</li>
+<li>Lists every modified / untracked / staged file and matches each one
+against the subagent&#39;s declared scope. Any file outside the declared
+scope → ABORT.</li>
+<li>Cross-checks <code>git status --porcelain</code> against the
+subagent&#39;s task description; unaccounted entries → ABORT.</li>
+</ul></li>
+<li>Any active mutation gate (paired-mutation experiment in progress,
+AVR/AVI mutation cycle, manual <code>// always pass</code> patch, etc.)
+MUST be serialised — the gate runs to completion (mutate → assert FAIL →
+restore → assert PASS) and the working tree is verifiably clean BEFORE
+any unrelated commit may proceed in the same checkout.</li>
+<li>Concurrent subagents working in the SAME checkout (single working
+tree, no <code>git worktree add</code>) MUST coordinate through a
+lockfile or marker file (e.g. <code>.git/MUTATION_IN_PROGRESS</code>) so
+a logo-fix subagent cannot race a JWT-mutation subagent. The
+constitution submodule&#39;s <code>scripts/quiescence_check.sh</code> (when
+implemented) is the universal lock helper.</li>
+<li>When parallel work is necessary, the §11.4.20 / §11.4.70
+subagent-driven mandate SHOULD be combined with
+<code>git worktree add</code> to give each subagent an isolated working
+tree — eliminates the cross-mutation race by construction.</li>
+<li>Post-commit, an automated <code>mutation-residue-scanner</code>
+(consuming project&#39;s <code>scripts/mutation_residue_audit.sh</code>)
+MUST run before push. Any commit containing a mutation marker → push
+BLOCKED, commit MUST be reverted or amended before mirrors are
+updated.</li>
+</ol>
+<p><strong>Composes with</strong> §1.1 (mutation-paired gates —
+quiescence rule protects the mutation cycle from concurrent
+contamination), §11.4.20 / §11.4.70 (subagent-driven-by-default —
+quiescence rule is what makes parallel subagent dispatch safe), §11.4.27
+(no-fakes-beyond-unit — a mutation residue swept into a commit IS a
+fake-pass surface in production), §11.4.10 (credentials handling — same
+class of &quot;do not let unrelated content leak into a commit&quot;), §107 (a
+security-bypass mutation that ships to production is the gravest §107
+PASS-bluff: tests pass against the mutated codebase, but the end user
+loses an entire security property), §11.4.71 (pre-push fetch +
+investigate — quiescence check is the pre-push companion).</p>
+<p><strong>Classification:</strong> universal (per §11.4.17). Every
+project under this Constitution carries this rule.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.84.</p>
+<p>Non-compliance is a release blocker. No <code>--allow-residue</code>,
+<code>--skip-quiescence</code>, <code>--mutation-cleanup-later</code>
+flag exists. A mutation marker that lands in a tagged commit is a
+critical defect regardless of how briefly it persisted.</p>
+<hr />
+<h3 id="11485--stress--chaos-test-mandate-user-mandate-2026-05-24">§11.4.85
+— Stress + Chaos Test Mandate (User mandate, 2026-05-24)</h3>
+<p><strong>Short tag:</strong> <code>stress-chaos-mandate</code>.</p>
+<p><strong>Forensic anchor (verbatim user mandate,
+2026-05-24):</strong></p>
+<blockquote>
+<p>&quot;Every fix or improvement you do MUST BE covered with full automation
+stress and chaos tests so we are sure nothing can break the
+functionality and all edge cases are monitored and polished and
+additionally fixed if that is needed! Everything must produce rock solid
+proofs and follow fully no-bluff policy!&quot;</p>
+</blockquote>
+<p><strong>The mandate.</strong> Every fix or improvement landed in a
+consuming project MUST ship with full-automation <strong>stress</strong>
+AND <strong>chaos</strong> test suites that exercise edge cases,
+sustained load, concurrent contention, and failure-injection. A fix that
+PASSes its happy-path test but has never been exercised under stress or
+under fault-injection is a §11.4 / §107 PASS-bluff at the resilience
+layer: it claims to work but carries no evidence that real-world
+adversarial conditions (sustained throughput, parallel contention,
+partial failure, resource exhaustion, malformed input) leave the fix
+intact and the user-visible behaviour correct.</p>
+<p><strong>Definitions (closed-set, mechanically
+auditable):</strong></p>
+<ol type="1">
+<li><p><strong>Stress test</strong> — exercises the fix-under-test under
+sustained or concurrent load above ordinary usage. At MINIMUM one
+of:</p>
+<ul>
+<li><strong>Sustained load</strong> — N ≥ 100 sequential iterations OR ≥
+30 seconds wall-clock continuous load. Per-iteration latency MUST be
+recorded; percentile distribution (p50/p95/p99) MUST be reported.</li>
+<li><strong>Concurrent contention</strong> — N ≥ 10 parallel
+invocations. All N MUST complete. No deadlock, no resource leak
+(file-descriptor count, process-table count, RSS), no data race in
+shared state.</li>
+<li><strong>Boundary conditions</strong> — minimum input (empty),
+maximum input (provider/codec/protocol-limit-bound), boundary input
+(off-by-one at every size threshold). Each boundary MUST produce a
+categorised result (success, categorised-error, deterministic-skip) —
+NEVER an uncaught exception or silent corruption.</li>
+</ul></li>
+<li><p><strong>Chaos test</strong> — exercises the fix-under-test under
+failure-injection per the §11.4.69 closed-set evidence taxonomy. At
+MINIMUM one chaos category appropriate to the fix-class:</p>
+<ul>
+<li><strong>Process-death injection</strong> — kill the primary process,
+dependency process, or upstream service mid-operation. Recovery path
+MUST be deterministic + categorised (clean error, automatic restart,
+circuit-breaker open).</li>
+<li><strong>Network-fault injection</strong> — drop / delay / reorder
+packets on the relevant interface mid-call. Categorised error per
+§11.4.69 (e.g. <code>category=network</code> /
+<code>category=upstream</code>).</li>
+<li><strong>Input-corruption injection</strong> — corrupt the input file
+/ config / .env mid-test. Test MUST detect + report the corruption —
+NEVER silently consume corrupted input.</li>
+<li><strong>Resource-exhaustion injection</strong> — fill disk to 99 %,
+allocate memory pressure (OOM-injection), exhaust file descriptors,
+exhaust sockets. Fix MUST refuse new work cleanly OR degrade gracefully
+— NEVER crash with uncaught error.</li>
+<li><strong>State-corruption injection</strong> — mid-flight database
+lock loss, mid-flight file-system partial-write error, mid-flight cache
+invalidation. Recovery path MUST restore consistent state.</li>
+</ul></li>
+</ol>
+<p><strong>Anti-bluff (mandatory):</strong></p>
+<ol type="1">
+<li>Every stress + chaos test PASS MUST cite a captured-evidence
+artefact path per §11.4.5 + §11.4.69. Acceptable evidence: per-iteration
+<code>latency.json</code> / <code>throughput.csv</code> /
+<code>categorised_errors.txt</code> /
+<code>state_delta_snapshot.json</code> /
+<code>process_lifecycle.log</code> / <code>recovery_trace.log</code>.
+Metadata-only PASS (&quot;all iterations exited 0&quot;) without per-iteration
+latency / failure / state evidence is itself a §11.4 PASS-bluff at the
+stress-layer.</li>
+<li>Helper library: every consuming project SHOULD ship a
+<code>stress_chaos.sh</code> (or analogous language-binding library)
+exposing reusable primitives — <code>ab_stress_run</code>,
+<code>ab_stress_concurrent</code>,
+<code>ab_chaos_kill_pid_during</code>,
+<code>ab_chaos_drop_network_during</code>,
+<code>ab_chaos_corrupt_file_during</code>,
+<code>ab_chaos_oom_pressure_during</code>,
+<code>ab_chaos_disk_full_during</code>. Each helper composes with
+<code>ab_pass_with_evidence</code> / <code>ab_skip_with_reason</code>
+per §11.4.69.</li>
+<li>Chaos-injection cleanup is non-negotiable. A test that corrupts a
+<code>.env</code> MUST restore it in <code>trap &#39;...&#39; EXIT</code>. A
+test that fills the disk MUST <code>rm</code> the filler in EXIT. A test
+that kills a process MUST verify the process is restarted (or explicitly
+leave it down with operator-visible reason). Cleanup failure = §11.4.14
+(test-playback cleanup) violation.</li>
+</ol>
+<p><strong>4-layer coverage per §11.4.4(b):</strong></p>
+<ul>
+<li><strong>Pre-build gate</strong> — stress + chaos test files exist +
+executable + parseable under sh -n + bash -n per §11.4.67; helper
+library exists + executable; the fix&#39;s pre-build gate cites the stress +
+chaos test file path.</li>
+<li><strong>Paired meta-test mutation</strong> — per §1.1, removing the
+chaos-injection step or stripping the per-iteration evidence-capture →
+the gate FAILs.</li>
+<li><strong>On-device test</strong> (if the fix is LIVE_ADB_TESTABLE per
+§11.4.51) — the stress + chaos test is dispatched against a real device,
+captured-evidence directory under
+<code>qa-results/&lt;run-id&gt;/stress_chaos/</code>.</li>
+<li><strong>HelixQA Challenge entry</strong> (if the fix is a
+user-visible feature per §11.4.4(b) layer 4) — a Challenge bank entry
+references the same stress + chaos test as the validation route.</li>
+</ul>
+<p><strong>Composition with related §11.4 anchors:</strong></p>
+<ul>
+<li><strong>§11.4 / §107</strong> — stress + chaos test PASS is the
+strongest end-user-quality signal: it demonstrates the fix survives
+adversarial conditions the happy-path test cannot reach.</li>
+<li><strong>§11.4.1</strong> — FAIL-bluffs forbidden. A stress test that
+crashes with <code>set -u</code> because the chaos-injection step left a
+variable unset is a FAIL-bluff; fix at source.</li>
+<li><strong>§11.4.5</strong> — captured-evidence content quality applies
+to stress + chaos evidence too (latency distribution recorded, not just
+count; error categories enumerated, not just &quot;some errors&quot;).</li>
+<li><strong>§11.4.6</strong> — no guessing. Categorised errors per
+closed-set. &quot;Probably the network&quot; is forbidden — capture the
+categorisation.</li>
+<li><strong>§11.4.43</strong> — TDD RED-first. The stress + chaos suite
+SHOULD start RED: write the test, observe the failure under load/chaos,
+land the fix, observe the GREEN.</li>
+<li><strong>§11.4.50</strong> — deterministic consistency. The stress
+test&#39;s N iterations MUST produce identical exit codes AND identical
+evidence-hashes (volatile prefixes stripped) per §11.4.50.</li>
+<li><strong>§11.4.52</strong> — autonomous validation. Stress + chaos
+tests MUST run end-to-end without operator presence.</li>
+<li><strong>§11.4.69</strong> — universal sink-side positive-evidence
+taxonomy. Every stress + chaos PASS uses
+<code>ab_pass_with_evidence</code> with a real captured-evidence file
+path.</li>
+<li><strong>§11.4.83</strong> — <code>docs/qa/</code> end-user
+transcript discipline composes with chaos-test evidence (chaos-test
+recovery transcripts ARE end-user-channel proofs).</li>
+</ul>
+<p><strong>Classification:</strong> universal (per §11.4.17). Every
+consuming project carries this rule. Stress + chaos discipline is
+language-/platform-/build-system-agnostic.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.85.</p>
+<p><strong>Non-compliance is a release blocker regardless of
+context.</strong> No escape hatch — no <code>--skip-stress</code>,
+<code>--no-chaos</code>, <code>--happy-path-suffices</code>,
+<code>--stress-test-later</code> flag exists. The discipline exists
+because the User mandate is unambiguous: &quot;Everything must produce rock
+solid proofs and follow fully no-bluff policy!&quot; — and a fix never tested
+under stress + chaos is not a rock-solid proof.</p>
+<hr />
 <h2 id="12-host-session-safety--directly-or-indirectly-signing-the-user-out-is-forbidden">§12.
 Host-session safety — directly OR indirectly signing the user out is
 FORBIDDEN</h2>
