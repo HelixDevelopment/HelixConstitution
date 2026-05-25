@@ -1880,3 +1880,15 @@ Anti-bluff. Every stress + chaos PASS cites a captured-evidence artefact (`laten
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.85.
 
 Non-compliance is a release blocker regardless of context. No `--skip-stress`, `--no-chaos`, `--happy-path-suffices`, `--stress-test-later` flag exists.
+
+**§11.4.86 — Roster/corpus-backed Status-doc auto-sync mandate (User mandate, 2026-05-25)**
+
+Forensic anchor (verbatim): "Make sure that assets and players Status docs are ALWAYS regularly updated and in sync like all others Status docs — any time we add or modify the assets content(s) or we change or add new / remove existing pre-installed video and audio player apps! This MUST WORK OUT OF THE BOX!"
+
+Status docs (§11.4.45) backed by a **tracked roster** (installed apps/components) or **asset corpus** (test/media asset directory) MUST resync **out of the box** the moment a member changes (player added/removed/renamed; asset added/modified/removed) — Status doc + Status_Summary + HTML + PDF, mechanically, not by operator vigilance.
+
+Mechanism (all must hold): (1) drift-proof **fingerprint** = sha256 of sorted member list (NOT mtime), persisted in a sidecar beside the Status doc; (2) **sync helper** regenerates fingerprint + re-exports HTML+PDF (via §11.4.65 exporter), wired so sync is automatic; (3) **pre-build gate** FAILs when live fingerprint ≠ persisted (mirrors §11.4.12 `CM-ISSUES-SUMMARY-SYNC` + §11.4.45 `sync_integration_status`); (4) paired §1.1 mutation corrupts fingerprint → gate FAILs. Composes with §11.4.12 / §11.4.45 / §11.4.53 / §11.4.56 / §11.4.57 / §11.4.59 / §11.4.60 / §11.4.65 / §11.4.6. Classification universal (§11.4.17) — consuming project supplies specific docs/roster/helper/gate per §11.4.35.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.86.
+
+Non-compliance is a release blocker regardless of context. No `--skip-roster-sync`, `--allow-status-drift`, `--roster-sync-not-applicable` flag exists.

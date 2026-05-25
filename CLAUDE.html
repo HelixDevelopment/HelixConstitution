@@ -3375,5 +3375,45 @@ proofs).</p>
 hatch — no <code>--skip-stress</code>, <code>--no-chaos</code>,
 <code>--happy-path-suffices</code>, <code>--stress-test-later</code>
 flag exists.</p>
+<h3 id="11486--rostercorpus-backed-status-doc-auto-sync-mandate-user-mandate-2026-05-25">§11.4.86
+— Roster/corpus-backed Status-doc auto-sync mandate (User mandate,
+2026-05-25)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-25):</strong></p>
+<blockquote>
+<p>&quot;Make sure that assets and players Status docs are ALWAYS regularly
+updated and in sync like all others Status docs — any time we add or
+modify the assets content(s) or we change or add new / remove existing
+pre-installed video and audio player apps! This MUST WORK OUT OF THE
+BOX!&quot;</p>
+</blockquote>
+<p>Some Status docs (§11.4.45) are backed by a <strong>tracked
+roster</strong> (installed apps/components) or a <strong>tracked asset
+corpus</strong> (test/media asset directory) rather than narrative
+alone. Their freshness MUST NOT depend on operator vigilance — the
+moment a roster/corpus member changes (player app added/removed/renamed;
+asset added/modified/removed) the Status doc + Status_Summary + HTML +
+PDF MUST resync <strong>out of the box</strong>, mechanically.</p>
+<p>Mechanism (all must hold): (1) <strong>drift-proof
+fingerprint</strong> — sha256 of the sorted member list (NOT mtime),
+persisted in a sidecar beside the Status doc; (2) <strong>sync
+helper</strong> that regenerates the fingerprint + re-exports HTML+PDF
+(via the §11.4.65 exporter), wired so sync is automatic; (3)
+<strong>pre-build gate</strong> that FAILs when the live fingerprint
+differs from the persisted one (mirrors §11.4.12
+<code>CM-ISSUES-SUMMARY-SYNC</code> + §11.4.45
+<code>sync_integration_status</code>); (4) <strong>paired §1.1
+mutation</strong> that corrupts the fingerprint and asserts the gate
+FAILs.</p>
+<p>Composes with §11.4.12 / §11.4.45 (roster/corpus specialisation) /
+§11.4.53 / §11.4.56 / §11.4.57 / §11.4.59 / §11.4.60 / §11.4.65 /
+§11.4.6. Classification: universal (§11.4.17) — the consuming project
+supplies the specific docs, roster/corpus sources, helper, and gate name
+per §11.4.35.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.86.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--skip-roster-sync</code>,
+<code>--allow-status-drift</code>,
+<code>--roster-sync-not-applicable</code> flag exists.</p>
 </body>
 </html>

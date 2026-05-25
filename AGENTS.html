@@ -2528,5 +2528,34 @@ Composes with §11.4 / §11.4.1 / §11.4.5 / §11.4.6 / §11.4.43 / §11.4.50
 <code>--skip-stress</code>, <code>--no-chaos</code>,
 <code>--happy-path-suffices</code>, <code>--stress-test-later</code>
 flag exists.</p>
+<p><strong>§11.4.86 — Roster/corpus-backed Status-doc auto-sync mandate
+(User mandate, 2026-05-25)</strong></p>
+<p>Forensic anchor (verbatim): &quot;Make sure that assets and players Status
+docs are ALWAYS regularly updated and in sync like all others Status
+docs — any time we add or modify the assets content(s) or we change or
+add new / remove existing pre-installed video and audio player apps!
+This MUST WORK OUT OF THE BOX!&quot;</p>
+<p>Status docs (§11.4.45) backed by a <strong>tracked roster</strong>
+(installed apps/components) or <strong>asset corpus</strong> (test/media
+asset directory) MUST resync <strong>out of the box</strong> the moment
+a member changes (player added/removed/renamed; asset
+added/modified/removed) — Status doc + Status_Summary + HTML + PDF,
+mechanically, not by operator vigilance.</p>
+<p>Mechanism (all must hold): (1) drift-proof
+<strong>fingerprint</strong> = sha256 of sorted member list (NOT mtime),
+persisted in a sidecar beside the Status doc; (2) <strong>sync
+helper</strong> regenerates fingerprint + re-exports HTML+PDF (via
+§11.4.65 exporter), wired so sync is automatic; (3) <strong>pre-build
+gate</strong> FAILs when live fingerprint ≠ persisted (mirrors §11.4.12
+<code>CM-ISSUES-SUMMARY-SYNC</code> + §11.4.45
+<code>sync_integration_status</code>); (4) paired §1.1 mutation corrupts
+fingerprint → gate FAILs. Composes with §11.4.12 / §11.4.45 / §11.4.53 /
+§11.4.56 / §11.4.57 / §11.4.59 / §11.4.60 / §11.4.65 / §11.4.6.
+Classification universal (§11.4.17) — consuming project supplies
+specific docs/roster/helper/gate per §11.4.35.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.86.</p>
+<p>Non-compliance is a release blocker regardless of context. No
+<code>--skip-roster-sync</code>, <code>--allow-status-drift</code>,
+<code>--roster-sync-not-applicable</code> flag exists.</p>
 </body>
 </html>

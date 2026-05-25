@@ -268,6 +268,16 @@ Anti-bluff: every stress + chaos PASS cites a captured-evidence artefact (latenc
 
 Non-compliance is a release blocker. No `--skip-stress`, `--no-chaos`, `--happy-path-suffices` flag exists.
 
+### §11.4.86 — Roster/corpus-backed Status-doc auto-sync mandate (User mandate, 2026-05-25)
+
+Forensic anchor (verbatim): "Make sure that assets and players Status docs are ALWAYS regularly updated and in sync like all others Status docs — any time we add or modify the assets content(s) or we change or add new / remove existing pre-installed video and audio player apps! This MUST WORK OUT OF THE BOX!"
+
+Status docs (§11.4.45) backed by a **tracked roster** (installed apps/components) or **asset corpus** (test/media directory) MUST resync out of the box the moment a member changes — Status doc + Status_Summary + HTML + PDF, mechanically. Mechanism (all must hold): (1) drift-proof **fingerprint** = sha256 of sorted member list (NOT mtime), persisted in a sidecar; (2) **sync helper** regenerates fingerprint + re-exports (via §11.4.65); (3) **pre-build gate** FAILs on fingerprint drift (mirrors §11.4.12 + §11.4.45); (4) paired §1.1 mutation. Composes with §11.4.12 / §11.4.45 / §11.4.53 / §11.4.56 / §11.4.57 / §11.4.59 / §11.4.60 / §11.4.65 / §11.4.6. Universal (§11.4.17) — consuming project supplies the specific docs/roster/helper/gate per §11.4.35.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.86.
+
+Non-compliance is a release blocker. No `--skip-roster-sync`, `--allow-status-drift` flag exists.
+
 ## Companion documents
 
 - [`Constitution.md`](Constitution.md) — authoritative universal Constitution. ALWAYS the tie-breaker.

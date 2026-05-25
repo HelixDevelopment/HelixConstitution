@@ -818,6 +818,30 @@ HelixQA Challenge entry. Composes with §11.4 / §11.4.1 / §11.4.5 /
 <p>Non-compliance is a release blocker. No <code>--skip-stress</code>,
 <code>--no-chaos</code>, <code>--happy-path-suffices</code> flag
 exists.</p>
+<h3 id="11486--rostercorpus-backed-status-doc-auto-sync-mandate-user-mandate-2026-05-25">§11.4.86
+— Roster/corpus-backed Status-doc auto-sync mandate (User mandate,
+2026-05-25)</h3>
+<p>Forensic anchor (verbatim): &quot;Make sure that assets and players Status
+docs are ALWAYS regularly updated and in sync like all others Status
+docs — any time we add or modify the assets content(s) or we change or
+add new / remove existing pre-installed video and audio player apps!
+This MUST WORK OUT OF THE BOX!&quot;</p>
+<p>Status docs (§11.4.45) backed by a <strong>tracked roster</strong>
+(installed apps/components) or <strong>asset corpus</strong> (test/media
+directory) MUST resync out of the box the moment a member changes —
+Status doc + Status_Summary + HTML + PDF, mechanically. Mechanism (all
+must hold): (1) drift-proof <strong>fingerprint</strong> = sha256 of
+sorted member list (NOT mtime), persisted in a sidecar; (2) <strong>sync
+helper</strong> regenerates fingerprint + re-exports (via §11.4.65); (3)
+<strong>pre-build gate</strong> FAILs on fingerprint drift (mirrors
+§11.4.12 + §11.4.45); (4) paired §1.1 mutation. Composes with §11.4.12 /
+§11.4.45 / §11.4.53 / §11.4.56 / §11.4.57 / §11.4.59 / §11.4.60 /
+§11.4.65 / §11.4.6. Universal (§11.4.17) — consuming project supplies
+the specific docs/roster/helper/gate per §11.4.35.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.86.</p>
+<p>Non-compliance is a release blocker. No
+<code>--skip-roster-sync</code>, <code>--allow-status-drift</code> flag
+exists.</p>
 <h2 id="companion-documents">Companion documents</h2>
 <ul>
 <li><a href="Constitution.md"><code>Constitution.md</code></a> —
