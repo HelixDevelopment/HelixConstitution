@@ -842,6 +842,36 @@ the specific docs/roster/helper/gate per §11.4.35.</p>
 <p>Non-compliance is a release blocker. No
 <code>--skip-roster-sync</code>, <code>--allow-status-drift</code> flag
 exists.</p>
+<h3 id="11487--endless-loop-autonomous-work--zero-idle-agent-dispatch--anti-bluff-testing-mandate-user-mandate-2026-05-26">§11.4.87
+— Endless-loop autonomous work + zero-idle agent dispatch + anti-bluff
+testing mandate (User mandate, 2026-05-26)</h3>
+<p>When operator instructs an AI agent to &quot;continue in endless loop
+fully autonomously&quot; (or semantically-equivalent), the agent MUST treat
+as HARD-CONTRACT covenant: (A) continue until
+<code>docs/Issues.md</code> non-terminal Status entries = 0 AND
+<code>docs/CONTINUATION.md</code> §3 Active work empty AND no subagent
+in-flight AND no external dep in-flight; (B) dispatch background
+subagents for parallelisable work — main + subagents concurrent,
+&quot;waiting for results&quot; is the ONLY idle reason; (C) every closure lands
+four-layer test coverage per §11.4.4(b) with captured-evidence &quot;physical
+proofs&quot; (audio/video/network/UI/sysfs) — metadata-only / config-only /
+absence-of-error / grep-without-runtime PASS are critical defects; (D)
+§11.4 anti-bluff covenant family operative end-to-end (tests AND HelixQA
+Challenges bound equally per forensic anchor &quot;tests pass but features
+don&#39;t work&quot;); (E) loop terminates ONLY on all-conditions-met, explicit
+operator STOP, host-safety demand, or scheduled wake on
+known-future-actionable signal.</p>
+<p>Composes with §11.4 / §11.4.1 / §11.4.2 / §11.4.4 / §11.4.5 / §11.4.6
+/ §11.4.7 / §11.4.20 / §11.4.27 / §11.4.42 / §11.4.43 / §11.4.50 /
+§11.4.52 / §11.4.58 / §11.4.68 / §11.4.69 / §11.4.70 / §11.4.83 /
+§11.4.85 / §11.4.86 / §12.10. Pre-build gate
+<code>CM-COVENANT-114-87-PROPAGATION</code> + paired §1.1 mutation.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.87.</p>
+<p>Non-compliance is a release blocker. No <code>--idle-OK</code>,
+<code>--skip-endless-loop</code>,
+<code>--bluff-permitted-for-this-task</code>,
+<code>--metadata-only-test-suffices</code>,
+<code>--no-physical-proof-required</code> flag exists.</p>
 <h2 id="companion-documents">Companion documents</h2>
 <ul>
 <li><a href="Constitution.md"><code>Constitution.md</code></a> —
