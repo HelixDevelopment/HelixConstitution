@@ -887,5 +887,19 @@ generic-tooling view.</li>
 <code>QWEN.md</code> / <code>CLAUDE.md</code> / <code>AGENTS.md</code>
 for project-specific extensions; these MUST NOT weaken any universal
 rule but MAY add stricter project-specific constraints.</p>
+<h3 id="11488--background-push-mandate-commit-lock-release-immediately-after-commit-push-runs-detached-user-mandate-2026-05-26">§11.4.88
+— Background-push mandate: commit-lock release immediately after commit,
+push runs detached (User mandate, 2026-05-26)</h3>
+<p>Forensic anchor: 2026-05-26 commit_all.sh held flock ~5h on
+synchronous post-commit push. Mandate: (A) flock release IMMEDIATELY
+after commit; (B) push detached via nohup + disown; (C) push_all.sh
+per-remote flock — same-remote serializes, different-remote parallel;
+(D) failures → <code>qa-results/push_failures/</code>, autonomous loop
+checks per §11.4.87(A); (E) <code>--sync-push</code> escape for §11.4.41
+force-push only. Composes §2.1 / §9.2 / §11.4.41 / §11.4.42 / §11.4.71 /
+§11.4.87. Gates <code>CM-COVENANT-114-88-PROPAGATION</code> +
+<code>CM-BACKGROUND-PUSH-WIRED</code> + paired §1.1 mutations.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.88.
+Non-compliance is a release blocker.</p>
 </body>
 </html>

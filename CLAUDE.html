@@ -3450,5 +3450,36 @@ hatch — no <code>--idle-OK</code>, <code>--skip-endless-loop</code>,
 <code>--bluff-permitted-for-this-task</code>,
 <code>--metadata-only-test-suffices</code>,
 <code>--no-physical-proof-required</code> flag exists.</p>
+<h3 id="11488--background-push-mandate-commit-lock-release-immediately-after-commit-push-runs-detached-user-mandate-2026-05-26">§11.4.88
+— Background-push mandate: commit-lock release immediately after commit,
+push runs detached (User mandate, 2026-05-26)</h3>
+<p>Forensic anchor: 2026-05-26 a single commit_all.sh held its flock ~5
+hours because do_push ran synchronously after the commit landed — every
+subsequent commit was blocked on a slow mirror push that had nothing to
+do with the local commit&#39;s durability. Implementation seam for
+§11.4.87(B) zero-idle.</p>
+<p>The mandate: (A) <code>.git/.commit_all.lock</code> MUST be released
+IMMEDIATELY after <code>git commit</code> returns 0 — the commit is
+durable on local disk regardless of remote push outcome; (B) push runs
+detached via
+<code>nohup ./push_all.sh ... &gt; &lt;log&gt; 2&gt;&amp;1 &amp;</code>
++ <code>disown</code> — orchestrator&#39;s exit code reports COMMIT success,
+NOT push success; (C) <code>push_all.sh</code> acquires per-remote flock
+<code>.git/.push.&lt;remote&gt;.lock</code> so concurrent invocations
+targeting same remote serialize but different-remote invocations run in
+parallel; (D) backgrounded push failures land in
+<code>qa-results/push_failures/&lt;ts&gt;_&lt;remote&gt;.log</code> —
+next autonomous-loop tick checks per §11.4.87(A) &quot;no external dependency
+in-flight&quot; gate; (E) synchronous-push escape: explicit
+<code>--sync-push</code> CLI flag preserves legacy behaviour for
+§11.4.41 force-push merge-first audit paths.</p>
+<p>Composes with §2.1 / §9.2 / §11.4.41 / §11.4.42 / §11.4.71 /
+§11.4.87. Pre-build gates <code>CM-COVENANT-114-88-PROPAGATION</code> +
+<code>CM-BACKGROUND-PUSH-WIRED</code> + paired §1.1 meta-test
+mutations.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.88.</p>
+<p>Non-compliance is a release blocker. Synchronous push (without
+<code>--sync-push</code>) = §11.4 PASS-bluff at execution layer. No
+escape hatch beyond <code>--sync-push</code> for force-push events.</p>
 </body>
 </html>

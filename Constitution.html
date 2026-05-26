@@ -9769,6 +9769,92 @@ inherited per §11.4.35 by every consuming project&#39;s repo-root CLAUDE.md
 context.</strong> Skipping the loop, idling without a waited-on signal,
 or accepting bluff-evidence PASS is severity-equivalent to a §11.4
 PASS-bluff at the project-execution layer.</p>
+<h3 id="11488--background-push-mandate-commit-lock-release-immediately-after-commit-push-runs-detached-user-mandate-2026-05-26">§11.4.88
+— Background-push mandate: commit-lock release immediately after commit,
+push runs detached (User mandate, 2026-05-26)</h3>
+<p><strong>Forensic anchor — verbatim User mandate
+(2026-05-26):</strong></p>
+<blockquote>
+<p>&quot;Make sure all these pushes are being done ALWAYS in backgroubd in
+parallel with main work stream so we do not loose time waiting.
+Everything is commited anyway? If we can do this add this as mandatory
+rule / constraint that we must respect and follow ALWAYS! ... We MUST
+ensure that main work stream has always something to do, or wait for the
+results only when that is absolutely required! We have enormous amount
+of work in front of us, short deadlines and we MUST DELIVER!&quot;</p>
+</blockquote>
+<p><strong>Forensic incident.</strong> 2026-05-26 between 14:35Z and
+≥19:30Z (~5 hours observed), a single <code>commit_all.sh</code>
+invocation held its <code>.git/.commit_all.lock</code> flock the entire
+time — the COMMIT had succeeded within seconds at
+<code>63d307234ce</code>, but the synchronous <code>do_push</code> call
+kept the flock while <code>git push vasicdigital_gitlab</code> did a
+large initial-mirror upload. <strong>Every subsequent commit_all.sh
+invocation in that window was BLOCKED</strong> — 21 submodule pointer
+bumps + parent §11.4.87 propagation work + §KA Critical audio quality
+matrix artifacts all sat staged in the working tree waiting for the push
+to finish. This is the exact anti-pattern §11.4.87 (zero-idle) prohibits
+at the project-execution layer.</p>
+<p><strong>The mandate.</strong></p>
+<p><strong>(A) Flock release IMMEDIATELY after commit lands.</strong>
+Once <code>git commit</code> returns 0 (commit object recorded in the
+local repo), the <code>.git/.commit_all.lock</code> MUST be released
+BEFORE <code>do_push</code> is invoked. The commit is durable on local
+disk regardless of push outcome — there is no correctness reason to gate
+further local work on a remote-push round-trip.</p>
+<p><strong>(B) Push runs detached.</strong> After flock release, the
+push step is spawned via
+<code>nohup ./push_all.sh ... &gt; &lt;log&gt; 2&gt;&amp;1 &amp;</code>
+then <code>disown</code> so the orchestrator&#39;s exit does not propagate
+SIGTERM. The orchestrator&#39;s exit code reports COMMIT success, NOT push
+success (push success is logged separately and reconciled by §11.4.71
+fetch-before-edit on the next interactive turn).</p>
+<p><strong>(C) Push concurrency control: per-remote serialization,
+multi-remote parallelism.</strong> <code>push_all.sh</code> MUST acquire
+a per-remote flock (<code>.git/.push.&lt;remote&gt;.lock</code>) so two
+concurrent invocations targeting the same remote serialize (avoid
+push-race / non-fast-forward), but invocations targeting DIFFERENT
+remotes run in parallel. This converts the prior 5-hour serial-stall
+pattern into a multi-stream pipeline where the operator&#39;s main work
+stream never blocks on the slowest mirror.</p>
+<p><strong>(D) Failure surface.</strong> Backgrounded push failures land
+in
+<code>qa-results/push_failures/&lt;timestamp&gt;_&lt;remote&gt;.log</code>.
+The next interactive autonomous-loop tick MUST check that directory (per
+§11.4.87(A) &quot;no external dependency is in-flight&quot; check) and surface
+failures — re-push attempted automatically, or operator notified if
+auth/quota issue. Silent push-failure is a §11.4 PASS-bluff at the
+distribution layer.</p>
+<p><strong>(E) Synchronous-push escape.</strong> An explicit
+<code>--sync-push</code> CLI flag on <code>commit_all.sh</code>
+preserves the legacy synchronous behaviour for
+<code>--force-with-lease</code> paths (per §11.4.41 force-push
+merge-first audit) where the push outcome MUST gate the next step. This
+is the ONLY escape — without it, every push is backgrounded.</p>
+<p><strong>Composes with</strong> §2.1 (multi-upstream push norm —
+§11.4.88 makes it non-blocking), §9.2 (data safety — backgrounded push
+still uses hardlinked-backup pre-op), §11.4.41 (force-push merge-first —
+uses <code>--sync-push</code> escape), §11.4.42 (iteration discipline —
+endless-loop ticks no longer waste budget on remote-network latency),
+§11.4.71 (fetch-before-push merge-first — applies before background push
+spawns), §11.4.87 (endless-loop / zero-idle — §11.4.88 is the
+implementation seam that makes §11.4.87(B) genuinely zero-idle for the
+dominant blocker class).</p>
+<p><strong>Pre-build gate</strong>
+<code>CM-COVENANT-114-88-PROPAGATION</code> enforces this anchor literal
+in every CLAUDE.md / AGENTS.md / QWEN.md across the canonical fleet.
+Pre-build gate <code>CM-BACKGROUND-PUSH-WIRED</code> verifies
+<code>commit_all.sh</code> releases flock before <code>do_push</code>
+AND spawns push via <code>nohup ... &amp;</code> AND
+<code>push_all.sh</code> acquires per-remote flock. Paired §1.1
+meta-test mutations strip the load-bearing literals → gates FAIL.</p>
+<p><strong>Canonical authority:</strong> this Constitution.md §11.4.88
+in the HelixConstitution submodule
+(<code>git@github.com:HelixDevelopment/HelixConstitution.git</code>).</p>
+<p><strong>Non-compliance is a release blocker.</strong> Synchronous
+push (without <code>--sync-push</code> flag) is severity-equivalent to a
+§11.4 PASS-bluff at the project-execution layer. No escape hatch beyond
+<code>--sync-push</code> for §11.4.41 force-push events.</p>
 <hr />
 <h2 id="12-host-session-safety--directly-or-indirectly-signing-the-user-out-is-forbidden">§12.
 Host-session safety — directly OR indirectly signing the user out is
