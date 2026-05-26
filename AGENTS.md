@@ -1902,3 +1902,13 @@ Composes with §11.4 / §11.4.1 / §11.4.2 / §11.4.4 / §11.4.5 / §11.4.6 / §
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.87.
 
 Non-compliance is a release blocker regardless of context. No escape hatch — `--idle-OK`, `--skip-endless-loop`, `--bluff-permitted-for-this-task`, `--metadata-only-test-suffices`, `--no-physical-proof-required` are FORBIDDEN flags.
+
+**§11.4.88 — Background-push mandate: commit-lock release immediately after commit, push runs detached (User mandate, 2026-05-26)**
+
+Forensic anchor: 2026-05-26 a single commit_all.sh held its flock ~5 hours because do_push ran synchronously after the commit landed — every subsequent commit was blocked on a slow mirror push that had nothing to do with the local commit's durability. Implementation seam for §11.4.87(B) zero-idle.
+
+Mandate (5 obligations): (A) `.git/.commit_all.lock` released IMMEDIATELY after `git commit` returns 0; (B) push runs detached via `nohup ./push_all.sh ... > <log> 2>&1 &` + `disown`; (C) `push_all.sh` acquires per-remote flock `.git/.push.<remote>.lock` — concurrent same-remote serializes, different-remote parallelises; (D) failures → `qa-results/push_failures/<ts>_<remote>.log`, autonomous loop checks per §11.4.87(A); (E) `--sync-push` flag escape for §11.4.41 force-push merge-first paths only. Composes with §2.1 / §9.2 / §11.4.41 / §11.4.42 / §11.4.71 / §11.4.87. Pre-build gates `CM-COVENANT-114-88-PROPAGATION` + `CM-BACKGROUND-PUSH-WIRED` + paired §1.1 mutations.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.88.
+
+Non-compliance is a release blocker. No escape hatch beyond `--sync-push`.
