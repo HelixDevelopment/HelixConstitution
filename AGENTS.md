@@ -1958,3 +1958,15 @@ Binds §11.4.20+§11.4.42+§11.4.58+§11.4.70+§11.4.72+§11.4.82+§11.4.87+§11
 §11.4.93 amendment: DB at `docs/workable_items.db` is TRACKED, NEVER gitignored. Authoritative source data, NOT build artefact. Every state change → stage+commit+push DB alongside MD regen per §11.4.19+§2.1. WAL-checkpoint before commit. Destructive DB ops require §9.2+authorization. Pre-build gates `CM-COVENANT-114-95-PROPAGATION` + `CM-WORKABLE-ITEMS-DB-TRACKED`.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.95. Non-compliance is a release blocker.
+
+### §11.4.96 — Safe-parallel-work-with-long-build catalogue + mandate (User mandate, 2026-05-27)
+
+Operational catalogue for 5-7h AOSP containerised build:
+
+SAFE: (A) docs/MD work; (B) host-side scripts/; (C) pre-build + meta-test gate authoring; (D) on-device test scripts authoring; (E) constitution edits + push; (F) any submodule commit + push per §11.4.88; (G) read-only live-ADB probes; (H) subagent dispatch per §11.4.20/§11.4.70 + §11.4.84; (I) web research + APIs; (J) workable-items DB ops; (K) pre-build + meta-test execution backgrounded per §11.4.89.
+
+UNSAFE: (α) git checkout/reset on source tree; (β) mass deletes/renames under built source; (γ) submodule pointer updates affecting built APKs; (δ) out/ mutations; (ε) make clean / m clobber; (ζ) container destruction; (η) disk-filling; (θ) §12 host-safety breaches.
+
+Conductor MUST dispatch ≥1 (A)-(K) item per pause point. "Build running, nothing else to do" NEVER true. Pre-build gates `CM-COVENANT-114-96-PROPAGATION` + `CM-PARALLEL-WORK-DURING-BUILD-AUDIT`.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.96. Non-compliance is a release blocker.

@@ -344,3 +344,13 @@ Binds §11.4.20/42/58/70/72/82/87/88/89 — always-on. Idle ONLY: externally blo
 §11.4.93 amendment: `docs/workable_items.db` TRACKED, NEVER gitignored. Authoritative source. Every mutation → stage+commit+push DB + MD. WAL-checkpoint before commit. §11.4.77 does NOT apply. Pre-build gates `CM-COVENANT-114-95-PROPAGATION` + `CM-WORKABLE-ITEMS-DB-TRACKED`.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.95. Release blocker.
+
+### §11.4.96 — Safe-parallel-work-with-long-build (User mandate, 2026-05-27)
+
+SAFE during AOSP build: (A) docs/MD; (B) scripts/; (C) pre-build gates; (D) on-device tests; (E) constitution edits+push; (F) submodule push per §11.4.88; (G) read-only ADB probes; (H) subagent dispatch; (I) web research; (J) workable-items DB ops; (K) pre-build + meta-test execution backgrounded.
+
+UNSAFE: (α) git checkout/reset on source; (β) mass deletes/renames under built source; (γ) APK-built submodule pointer; (δ) out/; (ε) make clean; (ζ) container destruction; (η) disk-fill; (θ) §12 host-safety.
+
+Conductor dispatches ≥1 (A)-(K) per pause. "Build running, nothing else to do" NEVER true.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.96. Release blocker.
