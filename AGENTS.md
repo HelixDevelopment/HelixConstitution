@@ -1912,3 +1912,13 @@ Mandate (5 obligations): (A) `.git/.commit_all.lock` released IMMEDIATELY after 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.88.
 
 Non-compliance is a release blocker. No escape hatch beyond `--sync-push`.
+
+### §11.4.89 — Background test execution mandate (User mandate, 2026-05-27)
+
+**Forensic anchor — verbatim user mandate (2026-05-27):** "Any tests we are executing, especially long test cycles, MUST BE performed in background in parallel with main work stream! This MUST NOT block our capabilities to work on queued workable items."
+
+Symmetric anchor to §11.4.88 at the test-execution layer. Mandate (6 obligations): (A) Long-running tests (>30s) MUST run via `nohup ... > <log> 2>&1 &` + `disown` with log under known dir; (B) Main stream proceeds to §11.4.42 priority queue immediately — "waiting for results" is the only acceptable idle reason per §11.4.87(B); (C) Hard-dependency gating: poll exit-status file or `pgrep` before dependent steps — surface as §11.4.66 options if test still running; (D) Failures land in log files; (E) Foreground only for <30s OR operator authorisation; (F) Per-script flock for same-script serialisation. Composes with §11.4.42 / §11.4.66 / §11.4.82 / §11.4.84 / §11.4.85 / §11.4.87 / §11.4.88. Pre-build gates `CM-COVENANT-114-89-PROPAGATION` + `CM-BACKGROUND-TEST-EXECUTION-WIRED` + paired §1.1 mutations.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.89.
+
+Non-compliance is a release blocker. No escape hatch beyond explicit per-invocation operator authorisation.

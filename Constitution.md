@@ -7527,6 +7527,38 @@ If any of those conditions is FALSE, the agent MUST continue working — by clai
 
 ---
 
+### §11.4.89 — Background test execution mandate (User mandate, 2026-05-27)
+
+**Forensic anchor — verbatim user mandate (2026-05-27):**
+
+> "Any tests we are executing, especially long test cycles, MUST BE performed in background in parallel with main work stream! This MUST NOT block our capabilities to work on queued workable items (and tackle main Issues document(s)). Make sure we strictly follow this starting now! Main work stream can be blocked or sit iddle only if absolutely needed and if it depends hard on results of some background execution."
+
+**Forensic incident.** 2026-05-27 the conductor invoked `bash device/rockchip/rk3588/tests/pre_build_verification.sh` synchronously with a `timeout 360` foreground wrapper — even though the operator had previously mandated §11.4.87 endless-loop zero-idle. The 6-7 minute test run blocked the entire main work stream from progressing on §JV/§JW/§JX/§JY scaffolding + further Issues.md drains. This is the exact anti-pattern §11.4.87(B) prohibits at the test-execution layer (analogous to §11.4.88 at the push-execution layer).
+
+**The mandate.**
+
+**(A) Long-running tests run detached.** Any test cycle expected to exceed ~30 seconds — `pre_build_verification.sh`, `meta_test_false_positive_proof.sh`, `test_all_fixes.sh`, `recent_work_validate.sh`, HelixQA Challenge banks, on-device 4-phase cycles, full-suite retests per §11.4.40, audio_loop_supervisor.sh, dual_display_record.sh harnesses, `verify-all-constitution-rules.sh` — MUST be spawned via `nohup ... > <log> 2>&1 &` + `disown` and `<log>` placed under a known directory (e.g. `qa-results/<test_id>_<timestamp>.log`) for later inspection.
+
+**(B) Main stream proceeds on queued items.** The conductor MUST immediately return to the §11.4.42 priority queue (open Issues.md items, queued PWUs, doc-sync work, audit work, anything not depending hard on the in-flight test's exit code). "Wait for results" is the ONLY acceptable idle reason per §11.4.87(B) — and even then, the conductor checks back on the test result via short polling (`tail` / mtime / exit-status file) rather than blocking on `wait`.
+
+**(C) Hard-dependency gating.** A subsequent step that genuinely requires the test's exit code (e.g. commit_all.sh refuses if meta-test is in flight per §11.4.84; release-tag gate per §11.4.40 step 4) MUST express that dependency explicitly — poll the exit-status file or check `pgrep -af <test-name>` before proceeding. If the test is still running and the next step needs its result, surface that to the operator per §11.4.66 with interactive options.
+
+**(D) Failure surface + cleanup.** Backgrounded test failures land in their `<log>` files. The next autonomous-loop tick MUST check that directory (analogue of §11.4.88(D)). Test-script-level cleanup (per §11.4.14 + §11.4.84 + this anchor's restore discipline) is non-negotiable — `trap '<cleanup>' EXIT INT TERM` in every long-running test that mutates global state (mid-mutation backup files, sysfs nodes, ALSA states, etc.).
+
+**(E) Pre-empt the blocking pattern.** The conductor MUST NOT invoke `bash <long-test>.sh` synchronously when a backgrounded variant suffices. Foreground execution is permitted ONLY when: (a) the test completes in <30 s, OR (b) the operator explicitly requests foreground execution for a specific step. Synchronous execution of a multi-minute test absent operator authorisation is a §11.4.89 violation regardless of how much "context-cache benefit" the foreground path appears to offer.
+
+**(F) Concurrency control.** Multiple backgrounded tests of the SAME script MUST serialise via per-script flock (e.g. `.git/.pre_build.lock`, `.git/.meta_test.lock`). Concurrent invocations of DIFFERENT tests run in parallel.
+
+**Composes with** §11.4.42 (iteration discipline — backgrounding tests recovers the operator's wait-time per §11.4.82(F) parallel multi-device testing), §11.4.66 (interactive clarification — surface hard-dependencies as options instead of blocking), §11.4.82 (iteration-speedup discipline — §11.4.89 is the dominant blocker class at the test layer, analogous to §11.4.88 at the push layer), §11.4.84 (working-tree quiescence — backgrounded mutation tests still need quiescence checks), §11.4.85 (stress + chaos — long stress runs are quintessential §11.4.89 candidates), §11.4.87 (endless-loop zero-idle — §11.4.89 is the implementation seam at the test-execution layer that makes §11.4.87(B) genuinely zero-idle for the test blocker class), §11.4.88 (background-push — §11.4.89 is the symmetric anchor for tests).
+
+**Pre-build gate** `CM-COVENANT-114-89-PROPAGATION` enforces this anchor literal across the canonical fleet. Pre-build gate `CM-BACKGROUND-TEST-EXECUTION-WIRED` verifies that long-running test invocations in helper scripts use `nohup ... &` + `disown` pattern (or equivalent). Paired §1.1 meta-test mutations strip the load-bearing literals → gates FAIL.
+
+**Canonical authority:** this Constitution.md §11.4.89 in the HelixConstitution submodule (`git@github.com:HelixDevelopment/HelixConstitution.git`).
+
+**Non-compliance is a release blocker.** Synchronous long-test execution (without operator authorisation) is severity-equivalent to a §11.4 PASS-bluff at the project-execution layer. No escape hatch beyond explicit per-invocation operator authorisation.
+
+---
+
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN
 
 Every script, test, helper, and AI agent governed by this

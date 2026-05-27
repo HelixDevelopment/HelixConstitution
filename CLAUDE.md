@@ -2645,3 +2645,17 @@ Composes with §2.1 / §9.2 / §11.4.41 / §11.4.42 / §11.4.71 / §11.4.87. Pre
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.88.
 
 Non-compliance is a release blocker. Synchronous push (without `--sync-push`) = §11.4 PASS-bluff at execution layer. No escape hatch beyond `--sync-push` for force-push events.
+
+### §11.4.89 — Background test execution mandate (User mandate, 2026-05-27)
+
+**Forensic anchor — verbatim user mandate (2026-05-27):** "Any tests we are executing, especially long test cycles, MUST BE performed in background in parallel with main work stream! This MUST NOT block our capabilities to work on queued workable items. Main work stream can be blocked or sit iddle only if absolutely needed and if it depends hard on results of some background execution."
+
+Forensic incident: 2026-05-27 conductor invoked `pre_build_verification.sh` synchronously with foreground `timeout 360`, blocking main stream for 6-7 minutes on §JV/§JW/§JX/§JY scaffolding work. Symmetric anchor to §11.4.88 (background push) at the test-execution layer.
+
+Mandate: (A) Long-running tests (>30s expected: pre_build, meta_test, test_all_fixes, recent_work_validate, HelixQA banks, 4-phase cycles, full-suite retests, audio_loop_supervisor, dual_display_record) MUST run via `nohup ... > <log> 2>&1 &` + `disown` with log placed under known dir (`qa-results/<test_id>_<ts>.log`); (B) Main stream proceeds to §11.4.42 priority queue immediately; (C) Hard-dependency gating: poll exit-status file or `pgrep -af <test>` before steps that need exit code — surface as §11.4.66 interactive options if test still running; (D) Failures land in `<log>` files, next loop tick checks; (E) Foreground execution permitted ONLY for <30s tests OR explicit operator authorisation; (F) Per-script flock serialises same-script invocations, different-script invocations parallel.
+
+Composes with §11.4.42 / §11.4.66 / §11.4.82 / §11.4.84 / §11.4.85 / §11.4.87 / §11.4.88. Pre-build gates `CM-COVENANT-114-89-PROPAGATION` + `CM-BACKGROUND-TEST-EXECUTION-WIRED` + paired §1.1 meta-test mutations.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.89.
+
+Non-compliance is a release blocker. No escape hatch beyond explicit per-invocation operator authorisation.

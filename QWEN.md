@@ -302,3 +302,9 @@ When operating in a consuming project, ALSO read the project's local `QWEN.md` /
 Forensic anchor: 2026-05-26 commit_all.sh held flock ~5h on synchronous post-commit push. Mandate: (A) flock release IMMEDIATELY after commit; (B) push detached via nohup + disown; (C) push_all.sh per-remote flock — same-remote serializes, different-remote parallel; (D) failures → `qa-results/push_failures/`, autonomous loop checks per §11.4.87(A); (E) `--sync-push` escape for §11.4.41 force-push only. Composes §2.1 / §9.2 / §11.4.41 / §11.4.42 / §11.4.71 / §11.4.87. Gates `CM-COVENANT-114-88-PROPAGATION` + `CM-BACKGROUND-PUSH-WIRED` + paired §1.1 mutations.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.88. Non-compliance is a release blocker.
+
+### §11.4.89 — Background test execution mandate (User mandate, 2026-05-27)
+
+Forensic anchor 2026-05-27: conductor invoked long pre_build synchronously, blocking main stream 6-7 min on §JV/§JW/§JX/§JY scaffolding. Symmetric to §11.4.88 at test-execution layer. Mandate: (A) long tests (>30s) run via `nohup ... > <log> 2>&1 &` + `disown`; (B) main stream proceeds to §11.4.42 priority queue immediately; (C) hard-dependency gating via poll/pgrep — surface §11.4.66 options if still running; (D) failures land in log files; (E) foreground only <30s OR operator authorisation; (F) per-script flock. Composes §11.4.42 / §11.4.66 / §11.4.82 / §11.4.84 / §11.4.85 / §11.4.87 / §11.4.88. Gates `CM-COVENANT-114-89-PROPAGATION` + `CM-BACKGROUND-TEST-EXECUTION-WIRED` + paired §1.1 mutations.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.89. Non-compliance is a release blocker.
