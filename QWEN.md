@@ -354,3 +354,9 @@ UNSAFE: (α) git checkout/reset on source; (β) mass deletes/renames under built
 Conductor dispatches ≥1 (A)-(K) per pause. "Build running, nothing else to do" NEVER true.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.96. Release blocker.
+
+### §11.4.97 — Max-use-of-idle + progress-update cadence (User mandate, 2026-05-27)
+
+(A) Every minute progressable idle = §11.4.97 violation, dispatch CONTINUOUSLY; (B) 1-line operator updates at commit/subagent/anchor/evidence/migration — no prompt; (C) continuous physical-proof gathering per §11.4.5/6/69; (D) composes with operating-mode anchor family; (E) idle-only-when-blocked closed-set unchanged from §11.4.94(A). Pre-build gates `CM-COVENANT-114-97-PROPAGATION` + `CM-IDLE-TIME-AUDIT`.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.97. Release blocker.

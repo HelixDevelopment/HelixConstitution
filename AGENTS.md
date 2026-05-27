@@ -1970,3 +1970,9 @@ UNSAFE: (α) git checkout/reset on source tree; (β) mass deletes/renames under 
 Conductor MUST dispatch ≥1 (A)-(K) item per pause point. "Build running, nothing else to do" NEVER true. Pre-build gates `CM-COVENANT-114-96-PROPAGATION` + `CM-PARALLEL-WORK-DURING-BUILD-AUDIT`.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.96. Non-compliance is a release blocker.
+
+### §11.4.97 — Maximum-use-of-idle-time + progress-update cadence (User mandate, 2026-05-27)
+
+Operating-mode capstone: (A) every minute of progressable idle time = §11.4.97 violation; dispatch CONTINUOUSLY; (B) emit 1-line operator update at every commit/subagent-return/anchor-landed/evidence-captured/migration-closure — no prompt required; (C) continuous physical-proof gathering per §11.4.5+§11.4.6+§11.4.69; (D) composes with §11.4.5/6/13/20/27/42/50/52/69/70/72/83/85/87/88/89/94/96; (E) idle-only-when-blocked closed-set unchanged. Pre-build gates `CM-COVENANT-114-97-PROPAGATION` + `CM-IDLE-TIME-AUDIT`.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.97. Non-compliance is a release blocker.
