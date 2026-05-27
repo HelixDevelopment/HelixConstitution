@@ -1952,3 +1952,9 @@ Text-based Issues/Fixed/Summary trackers converted to SQLite DB at `docs/.workab
 Binds §11.4.20+§11.4.42+§11.4.58+§11.4.70+§11.4.72+§11.4.82+§11.4.87+§11.4.88+§11.4.89 into single always-on enforcement: idle only when externally blocked / operator STOP / §12 host-safety; before any wake/sleep survey parallel-work feasibility; priority order MANDATORY (audio-first per §11.4.72); subagent-driven default non-trivial; background default >30s; stability-preserving per §11.4.92 + §11.4.84 + §12.6-§12.9; progress updates surfaced at milestones. Anti-pattern: wake without queue survey, "nothing to do" with non-trivial progressable, serial parallelisable work, lower priority over higher. Pre-build gates `CM-COVENANT-114-94-PROPAGATION` + `CM-PARALLEL-WORK-AUDIT`.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.94. Non-compliance is a release blocker.
+
+### §11.4.95 — Workable-items SQLite DB TRACKED in git, NEVER gitignored (User mandate, 2026-05-27)
+
+§11.4.93 amendment: DB at `docs/workable_items.db` is TRACKED, NEVER gitignored. Authoritative source data, NOT build artefact. Every state change → stage+commit+push DB alongside MD regen per §11.4.19+§2.1. WAL-checkpoint before commit. Destructive DB ops require §9.2+authorization. Pre-build gates `CM-COVENANT-114-95-PROPAGATION` + `CM-WORKABLE-ITEMS-DB-TRACKED`.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.95. Non-compliance is a release blocker.

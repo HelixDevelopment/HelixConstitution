@@ -7673,7 +7673,7 @@ The current text-based Issues.md / Fixed.md / Issues_Summary.md / Fixed_Summary.
 
 **Canonical artefacts (all consuming projects MUST adopt):**
 
-1. **Database file** at canonical path `docs/.workable_items.db` (SQLite 3, gitignored per §11.4.30 with §11.4.77 regeneration mechanism via `cmd/workable-items/sync md→db`).
+1. **Database file** at canonical path `docs/workable_items.db` (SQLite 3, **TRACKED in git, NEVER gitignored** per User mandate 2026-05-27 amendment). The DB IS the single source of truth — gitignoring it would defeat the SSoT mandate at the version-control layer. Every commit that mutates workable items MUST stage + push the DB file alongside the Markdown regen output. The DB is an exception to §11.4.30 build-artefact gitignore — it is NOT a build artefact, it IS authoritative source data. SQLite's WAL mode produces a sidecar `*.db-wal` + `*.db-shm` which ARE gitignored (transient WAL files; their state is checkpointed into the main `.db` file by `workable-items sync` or any explicit `PRAGMA wal_checkpoint(TRUNCATE)`).
 
 2. **Schema (mandatory minimum tables):**
    - `items` — primary key `atm_id` per §11.4.54; columns `type` (§11.4.16 closed-set), `status` (§11.4.15 + §11.4.90 closed-set including Obsolete), `severity`, `title`, `description` (≥ 6 words / ≥ 40 chars per §11.4.91), `created_at`, `last_modified`, `current_location` (Issues|Fixed), `forensic_anchor`, `closure_criteria`, `composes_with` (JSON array of refs).
@@ -7765,6 +7765,34 @@ The current text-based Issues.md / Fixed.md / Issues_Summary.md / Fixed_Summary.
 **Canonical authority:** this Constitution.md §11.4.94 in the HelixConstitution submodule.
 
 **Non-compliance is a release blocker.** Conductor idle without exhausting the parallel-work queue is severity-equivalent to a §11.4 PASS-bluff at the project-execution layer — it implies the conductor has progressed the project when it has not. No escape hatch beyond the (A) genuinely-blocked / explicit-STOP / host-safety triad.
+
+---
+
+### §11.4.95 — Workable-items SQLite DB is TRACKED in git, NEVER gitignored (User mandate, 2026-05-27)
+
+**Forensic anchor — verbatim user mandate (2026-05-27):**
+
+> "We shall not Git ignore our workable items SQlite DB since it is our single source of truth for current working items we have and all data related to it! We MUST fix this if DB is Git ignored! ... workable items SQlite DB regularly commited and pushed to all upstreams!"
+
+The §11.4.93 workable-items SQLite database at `docs/workable_items.db` is the **AUTHORITATIVE source of truth** for every workable item in every consuming project. It MUST be:
+
+- **TRACKED in git** at canonical path `docs/workable_items.db`. NEVER gitignored regardless of file-size or "build-artefact-class" heuristics — the DB is NOT a build artefact, it IS authoritative source data.
+- **Committed alongside every workable-item state change.** Every `workable-items sync md-to-db` invocation that mutates DB state MUST stage + commit + push the DB file in the same commit as the corresponding MD changes per §11.4.19 atomic-move discipline.
+- **Pushed to every upstream per §2.1** — every mirror of every consuming project carries the latest DB so a fresh clone from any mirror reconstructs the full workable-items inventory without consulting any other source.
+- **WAL-checkpointed before commit** — SQLite's WAL mode produces transient `*.db-wal` + `*.db-shm` sidecars. Those ARE gitignored (per §11.4.30 transient/cache classification). The `workable-items` Go binary MUST execute `PRAGMA wal_checkpoint(TRUNCATE)` before any commit-stage step so the main `.db` file carries the authoritative state and the sidecars are safely discardable.
+- **NEVER force-rewritten** without §9.2 hardlinked-backup + operator authorization. The DB's commit history IS the workable-items audit trail; rewriting it is data-loss equivalent to force-pushing a tracked Issues.md history.
+
+**§11.4.30 carve-out.** This anchor is an explicit named exception to §11.4.30's build-artefact / data-file gitignore rule. The DB file at `docs/workable_items.db` is **NOT** a build artefact and is **NOT** transient data — it is the project's SSoT registry whose value increases monotonically as work lands. The §11.4.77 regeneration mechanism applies to other gitignored bulk data (`.git-backup-*`, `RKTools/linux/`, etc.) — NOT to this DB.
+
+**§11.4.93 amendment.** §11.4.93's earlier text describing the DB as "gitignored per §11.4.30 with §11.4.77 regeneration mechanism" is hereby **AMENDED**: the DB is TRACKED, not gitignored. The Markdown trackers (Issues.md / Fixed.md / Summaries / Status.md fleet / CONTINUATION.md) remain tracked AND derived; the DB is tracked AND authoritative. Both directions of regeneration (`workable-items sync db-to-md` + `workable-items sync md-to-db`) continue to land per §11.4.93's bidirectional round-trip guarantee.
+
+**Pre-build gates** `CM-COVENANT-114-95-PROPAGATION` (anchor literal across canonical fleet) + `CM-WORKABLE-ITEMS-DB-TRACKED` (`git ls-files docs/workable_items.db` returns non-empty if DB exists on disk + `.gitignore` does NOT exclude it). Paired §1.1 meta-test mutation adds the DB to `.gitignore` → gate FAILs.
+
+**Composes with** §11.4.93 (SQLite-SSoT — §11.4.95 amends its tracking-policy clause), §11.4.30 (.gitignore discipline — explicit carve-out anchored here), §11.4.77 (regeneration mechanism — does NOT apply to the DB; the DB IS the source), §2.1 (multi-upstream push — DB pushed to every mirror), §9.2 (data safety — destructive DB ops require hardlinked-backup + operator authorization), §11.4.41 (force-push merge-first — applies if DB history ever needs rewrite).
+
+**Canonical authority:** this Constitution.md §11.4.95 in the HelixConstitution submodule.
+
+**Non-compliance is a release blocker.** A consuming project that gitignores its workable-items DB is severity-equivalent to a §11.4 PASS-bluff at the source-of-truth layer — it implies SSoT exists when it is in fact ephemeral local-only state.
 
 ---
 

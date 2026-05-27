@@ -338,3 +338,9 @@ Every summary entry's description: self-contained, meaningful, ≥ 6 words / ≥
 Binds §11.4.20/42/58/70/72/82/87/88/89 — always-on. Idle ONLY: externally blocked, operator STOP, §12 host-safety. Before any wake/sleep survey parallel-work queue. Priority MANDATORY (§11.4.72 audio first). Subagent-driven default non-trivial. Background default >30s. Stability per §11.4.92 + §11.4.84 + §12.6-9. Updates at milestones.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.94. Release blocker.
+
+### §11.4.95 — Workable-items DB TRACKED in git (User mandate, 2026-05-27)
+
+§11.4.93 amendment: `docs/workable_items.db` TRACKED, NEVER gitignored. Authoritative source. Every mutation → stage+commit+push DB + MD. WAL-checkpoint before commit. §11.4.77 does NOT apply. Pre-build gates `CM-COVENANT-114-95-PROPAGATION` + `CM-WORKABLE-ITEMS-DB-TRACKED`.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.95. Release blocker.
