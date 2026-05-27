@@ -1934,3 +1934,9 @@ Non-compliance is a release blocker. No escape hatch beyond explicit per-invocat
 Every summary entry MUST contain self-contained meaningful description ≥ 6 words OR ≥ 40 chars naming SUBJECT + PROBLEM/GOAL. Forbidden anti-patterns: section labels (`Composes with`, etc.); bare metadata fragments; §-letter alone. Generators MUST extract from H1/H2 heading line per §11.4.54 ATM-NNN convention. Pre-build gate `CM-SUMMARY-CLARITY-DESCRIPTIONS` + paired §1.1 mutation.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.91. Non-compliance is a release blocker.
+
+### §11.4.92 — Multi-pass change-evaluation discipline (User mandate, 2026-05-27)
+
+Every non-trivial change MUST pass 5-pass evaluation BEFORE commit-ready: (1) Main-task verification, (2) Regression-blast-radius, (3) Cross-feature interaction, (4) Deep-research validation per §11.4.8, (5) Anti-bluff confirmation. Documentation per pass. Only after all 5 passes complete may commit/push/test/release proceed. Composes §11.4.4 / §11.4.5 / §11.4.6 / §11.4.8 / §11.4.20 / §11.4.27 / §11.4.42 / §11.4.43 / §11.4.50 / §11.4.52 / §11.4.69 / §11.4.78 / §11.4.82 / §11.4.83 / §11.4.85 / §11.4.87 / §11.4.89. Pre-build gates `CM-COVENANT-114-92-PROPAGATION` + `CM-MULTI-PASS-EVALUATION-EVIDENCE`.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.92. Non-compliance is a release blocker.

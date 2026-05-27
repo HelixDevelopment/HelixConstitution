@@ -320,3 +320,9 @@ Forensic anchor 2026-05-27: conductor invoked long pre_build synchronously, bloc
 Every summary entry's description: self-contained, meaningful, ≥ 6 words / ≥ 40 chars, SUBJECT + PROBLEM/GOAL. Anti-patterns forbidden: section labels, bare metadata, §-letter alone. Generators extract from H1/H2 heading. Pre-build gate `CM-SUMMARY-CLARITY-DESCRIPTIONS`.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.91. Release blocker.
+
+### §11.4.92 — Multi-pass change-evaluation (User mandate, 2026-05-27)
+
+5-pass evaluation BEFORE commit-ready: (1) Main-task verification; (2) Regression-blast-radius; (3) Cross-feature interaction; (4) Deep-research per §11.4.8; (5) Anti-bluff confirmation. Doc per pass. Trivial exemption: typo/revision/MD-export ONLY if zero source touched.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.92. Release blocker.
