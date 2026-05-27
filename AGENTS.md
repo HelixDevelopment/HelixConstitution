@@ -1940,3 +1940,9 @@ Every summary entry MUST contain self-contained meaningful description ≥ 6 wor
 Every non-trivial change MUST pass 5-pass evaluation BEFORE commit-ready: (1) Main-task verification, (2) Regression-blast-radius, (3) Cross-feature interaction, (4) Deep-research validation per §11.4.8, (5) Anti-bluff confirmation. Documentation per pass. Only after all 5 passes complete may commit/push/test/release proceed. Composes §11.4.4 / §11.4.5 / §11.4.6 / §11.4.8 / §11.4.20 / §11.4.27 / §11.4.42 / §11.4.43 / §11.4.50 / §11.4.52 / §11.4.69 / §11.4.78 / §11.4.82 / §11.4.83 / §11.4.85 / §11.4.87 / §11.4.89. Pre-build gates `CM-COVENANT-114-92-PROPAGATION` + `CM-MULTI-PASS-EVALUATION-EVIDENCE`.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.92. Non-compliance is a release blocker.
+
+### §11.4.93 — SQLite-backed single-source-of-truth for workable items (User mandate, 2026-05-27)
+
+Text-based Issues/Fixed/Summary trackers converted to SQLite DB at `docs/.workable_items.db` (gitignored + §11.4.77 regen mechanism). Schema: items (atm_id PK + Type + Status incl. Obsolete + Severity + title + description ≥40chars + composes_with JSON + current_location); item_history (audit log §11.4.34); obsolete_details (§11.4.90); operator_block_details (§11.4.21); firebase_metadata (§11.4.47); meta. Go binary `cmd/workable-items/`: sync md-to-db / db-to-md / diff / validate / add / close. Bidirectional byte-identical round-trip. commit_all.sh refuses on diff. Pre-build gate runs validate. Anti-bluff: unit + integration + stress + chaos per §11.4.85 + paired §1.1 mutation + HelixQA Challenge CME-WORKABLE-ITEMS-001. 6-phase migration §LA. Go binary in constitution submodule per §11.4.74. Composes §11.4 / §11.4.12-93 covenant family.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.93. Non-compliance is a release blocker.

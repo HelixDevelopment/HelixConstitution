@@ -326,3 +326,9 @@ Every summary entry's description: self-contained, meaningful, ≥ 6 words / ≥
 5-pass evaluation BEFORE commit-ready: (1) Main-task verification; (2) Regression-blast-radius; (3) Cross-feature interaction; (4) Deep-research per §11.4.8; (5) Anti-bluff confirmation. Doc per pass. Trivial exemption: typo/revision/MD-export ONLY if zero source touched.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.92. Release blocker.
+
+### §11.4.93 — SQLite-SSoT for workable items (User mandate, 2026-05-27)
+
+`docs/.workable_items.db` SQLite — DB authoritative, MD derived. Schema: items + item_history + obsolete_details + operator_block_details + firebase_metadata + meta. Go binary `cmd/workable-items/` sync md↔db + diff + validate + add + close. Bidirectional regen byte-identical. Anti-bluff: unit+integration+stress+chaos per §11.4.85. Go binary in constitution submodule per §11.4.74. 6-phase migration §LA.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.93. Release blocker.
