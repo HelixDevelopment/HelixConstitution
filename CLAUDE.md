@@ -2659,3 +2659,19 @@ Composes with §11.4.42 / §11.4.66 / §11.4.82 / §11.4.84 / §11.4.85 / §11.4
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.89.
 
 Non-compliance is a release blocker. No escape hatch beyond explicit per-invocation operator authorisation.
+
+### §11.4.90 — Obsolete status + per-item obsolescence audit (User mandate, 2026-05-27)
+
+Forensic anchor — verbatim user mandate (2026-05-27): "Bug No 6 - Albums cover etc. seems obsolete after latest request for new behavior when audio and video content is being played ... mark obsolete tickets with some light gray background ... text - the description to be strikethrough styled ... review all existing open or resolved workable items if they are obsolete - not valid any more ... There MUST NOT be any mistake! No bluff is allowed of any kind!"
+
+§11.4.15 Status closed-set extended with terminal `Obsolete (→ Fixed.md)` value (orthogonal to Type per §11.4.16). Obsolescence reasons (closed vocabulary): `superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology`. Every Obsolete heading MUST carry `**Obsolete-Details:**` line (Since + Reason + Superseding-item + Triple-check evidence) within 8 non-blank lines. §11.4.23 colorizer adds `cell-status-obsolete` class — light-gray `#E0E0E0` background + strikethrough description. Audit cadence: every release-gate sweep per §11.4.40 + §11.4.42. Triple-check non-negotiable per operator mandate. Composes §11.4.15 / §11.4.16 / §11.4.19 / §11.4.21 / §11.4.23 / §11.4.33 / §11.4.34 / §11.4.40 / §11.4.42 / §11.4.66 / §11.4.71. Pre-build gates `CM-COVENANT-114-90-PROPAGATION` + `CM-ITEM-OBSOLETE-DETAILS` + `CM-OBSOLETE-COLORIZER-WIRED` + paired §1.1 mutations.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.90. Non-compliance is a release blocker.
+
+### §11.4.91 — Summary-doc clarity mandate (User mandate, 2026-05-27)
+
+Forensic anchor — verbatim user mandate (2026-05-27): "Summary docs - Issues_Summary some not clear one line descriptions - like 'Composes with' ... For each workable item we MUST HAVE clearly understandable meaning ... every team member can clearly understand what that particular workable item is exactly about! There cannot be misunderstanding or unclearity of any kind and no bluff allowed!"
+
+Every summary entry (Issues_Summary, Fixed_Summary, README doc-link, Status_Summary page 1+2, all one-liners) MUST contain self-contained meaningful description ≥ 6 words OR ≥ 40 chars naming SUBJECT + PROBLEM/GOAL. Forbidden one-liner anti-patterns: section labels (`Composes with`, `Closure criteria`, `Fix direction`, etc.); bare metadata fragments (`Critical`, `Bug`, `In progress`, etc.); section-marker echoes; §-letter alone. Generators (`generate_issues_summary.sh` / `generate_fixed_summary.sh` / `update_readme_doc_links.sh` / `generate_status_summary.sh`) MUST extract from H1/H2 heading line per §11.4.54 ATM-NNN convention, NEVER from arbitrary downstream text. Generators refuse anti-pattern rows — emit `(MISSING DESCRIPTION — fix source heading)` placeholder with visual highlight. Pre-build gate `CM-SUMMARY-CLARITY-DESCRIPTIONS` scans every summary; anti-pattern match = FAIL. Audit cadence: every §11.4.40 + §11.4.42 sweep. Composes §11.4.12 / §11.4.19 / §11.4.23 / §11.4.44 / §11.4.53 / §11.4.56 / §11.4.57 / §11.4.59 / §11.4.60 / §11.4.65 / §11.4.74.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.91. Non-compliance is a release blocker.

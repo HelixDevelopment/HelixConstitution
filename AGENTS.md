@@ -1922,3 +1922,15 @@ Symmetric anchor to §11.4.88 at the test-execution layer. Mandate (6 obligation
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.89.
 
 Non-compliance is a release blocker. No escape hatch beyond explicit per-invocation operator authorisation.
+
+### §11.4.90 — Obsolete status + per-item obsolescence audit (User mandate, 2026-05-27)
+
+§11.4.15 Status closed-set extended with terminal `Obsolete (→ Fixed.md)` (orthogonal to Type). Reasons (closed): `superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology`. Every Obsolete heading carries `**Obsolete-Details:**` (Since + Reason + Superseding-item + Triple-check evidence). Colorizer `cell-status-obsolete` = `#E0E0E0` background + strikethrough. Audit cadence per §11.4.40 + §11.4.42. Triple-check non-negotiable. Pre-build gates `CM-COVENANT-114-90-PROPAGATION` + `CM-ITEM-OBSOLETE-DETAILS` + `CM-OBSOLETE-COLORIZER-WIRED` + paired §1.1 mutations.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.90. Non-compliance is a release blocker.
+
+### §11.4.91 — Summary-doc clarity mandate (User mandate, 2026-05-27)
+
+Every summary entry MUST contain self-contained meaningful description ≥ 6 words OR ≥ 40 chars naming SUBJECT + PROBLEM/GOAL. Forbidden anti-patterns: section labels (`Composes with`, etc.); bare metadata fragments; §-letter alone. Generators MUST extract from H1/H2 heading line per §11.4.54 ATM-NNN convention. Pre-build gate `CM-SUMMARY-CLARITY-DESCRIPTIONS` + paired §1.1 mutation.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.91. Non-compliance is a release blocker.

@@ -308,3 +308,15 @@ Forensic anchor: 2026-05-26 commit_all.sh held flock ~5h on synchronous post-com
 Forensic anchor 2026-05-27: conductor invoked long pre_build synchronously, blocking main stream 6-7 min on §JV/§JW/§JX/§JY scaffolding. Symmetric to §11.4.88 at test-execution layer. Mandate: (A) long tests (>30s) run via `nohup ... > <log> 2>&1 &` + `disown`; (B) main stream proceeds to §11.4.42 priority queue immediately; (C) hard-dependency gating via poll/pgrep — surface §11.4.66 options if still running; (D) failures land in log files; (E) foreground only <30s OR operator authorisation; (F) per-script flock. Composes §11.4.42 / §11.4.66 / §11.4.82 / §11.4.84 / §11.4.85 / §11.4.87 / §11.4.88. Gates `CM-COVENANT-114-89-PROPAGATION` + `CM-BACKGROUND-TEST-EXECUTION-WIRED` + paired §1.1 mutations.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.89. Non-compliance is a release blocker.
+
+### §11.4.90 — Obsolete status + obsolescence audit (User mandate, 2026-05-27)
+
+§11.4.15 Status closed-set + terminal `Obsolete (→ Fixed.md)`. Reasons: `superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology`. `**Obsolete-Details:**` line mandatory (Since + Reason + Superseding-item + Triple-check evidence). Colorizer `cell-status-obsolete` = light-gray + strikethrough. Audit cadence per §11.4.40 + §11.4.42. Triple-check non-negotiable.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.90. Release blocker.
+
+### §11.4.91 — Summary-doc clarity (User mandate, 2026-05-27)
+
+Every summary entry's description: self-contained, meaningful, ≥ 6 words / ≥ 40 chars, SUBJECT + PROBLEM/GOAL. Anti-patterns forbidden: section labels, bare metadata, §-letter alone. Generators extract from H1/H2 heading. Pre-build gate `CM-SUMMARY-CLARITY-DESCRIPTIONS`.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.91. Release blocker.

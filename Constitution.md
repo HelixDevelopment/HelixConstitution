@@ -7559,6 +7559,74 @@ If any of those conditions is FALSE, the agent MUST continue working — by clai
 
 ---
 
+### §11.4.90 — Obsolete status + per-item obsolescence audit mandate (User mandate, 2026-05-27)
+
+**Forensic anchor — verbatim user mandate (2026-05-27):**
+
+> "Regarding the Critical Bug No 6 - Albums cover etc. - Now it seems obsolete after latest request for new behavior when audio and video content is being played. If we do not have Obsolete as an option / status for the ticket in its resolving, we should intoroduce this now and mark obsolete tickets with some light gray background or somthing that will indicate that item is no longer valid. Maybe text - the description to be strikethrough styled as well! Once all this is done please review all existing open or resolved workable items (fixed as well) if they are obsolete - not valid any more. ... There MUST NOT be any mistake! No bluff is allowed of any kind!"
+
+The §11.4.15 Status closed-set is extended with a 4th terminal value `Obsolete (→ Fixed.md)` matching the existing 3-element §11.4.33 closure-vocabulary table (`Bug → Fixed`, `Feature → Implemented`, `Task → Completed`). The `Obsolete` value applies regardless of Type when the workable item is **no longer valid** because: (a) the underlying behaviour the item described has been superseded by a later operator mandate / design pivot (canonical example: Bug #6 Albums cover, superseded by §JU + the 2026-05-27 secondary-display video-playback redesign), (b) the affected feature was REMOVED from the product, (c) the item was duplicated and the canonical entry resolved it, (d) the item was filed against a hardware/topology variant we no longer support.
+
+**Mandatory obsolescence audit metadata** — every `Obsolete (→ Fixed.md)` heading MUST carry, within 8 non-blank lines of the heading, an `**Obsolete-Details:**` line capturing four sub-facts (mirroring §11.4.21 + §11.4.34 audit-line patterns):
+
+- **Since:** ISO date (`YYYY-MM-DD`).
+- **Reason:** one-line cause from the closed vocabulary `{ superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology }`.
+- **Superseding-item:** §-letter reference or User-mandate verbatim quote anchor citing the work that obsoleted it.
+- **Triple-check evidence:** path to captured evidence (git log, code grep, runtime behaviour) confirming the item is genuinely no longer valid. Per operator mandate "There MUST NOT be any mistake" — bare assertion is forbidden; positive captured evidence per §11.4.6 is mandatory.
+
+**Visual treatment** — the §11.4.23 colorizer MUST style `Obsolete` cells with `cell-status-obsolete` class: light-gray background `#E0E0E0` + strikethrough text on the row's description cell. Operator mandate verbatim: "mark obsolete tickets with some light gray background or somthing that will indicate that item is no longer valid. Maybe text - the description to be strikethrough styled as well".
+
+**Audit cadence** — at every release-gate sweep (per §11.4.40), the conductor MUST re-evaluate every non-terminal Issues.md item AND every Fixed.md item for obsolescence per the closed-set Reason vocabulary above. New obsolescence findings produce `Obsolete (→ Fixed.md)` migrations atomic per §11.4.19. Triple-check is non-negotiable: each obsolescence claim cites (i) the superseding mandate, (ii) code-state grep confirming the obsoleted behaviour is gone, (iii) runtime/test evidence confirming no test still exercises the obsoleted path.
+
+Pre-build gates `CM-COVENANT-114-90-PROPAGATION` (anchor literal across canonical files) + `CM-ITEM-OBSOLETE-DETAILS` (every `Obsolete` heading carries `**Obsolete-Details:**` line within 8 lines) + `CM-OBSOLETE-COLORIZER-WIRED` (§11.4.23 colorizer emits `cell-status-obsolete` class on the right cells + the CSS file defines the class). Paired §1.1 mutations strip the anchor literal / delete an Obsolete-Details line / strip the colorizer class — every mutation FAILs its gate.
+
+**Composes with** §11.4.15 (item-status closed-set extension), §11.4.16 (Type tracking unchanged — Obsolete is orthogonal to Type), §11.4.19 (Fixed-document column-alignment — Obsolete migrates to Fixed.md just like Fixed/Implemented/Completed), §11.4.21 (Operator-blocked details-line pattern — Obsolete-Details mirrors), §11.4.23 (visual cue + grouping — adds `cell-status-obsolete`), §11.4.33 (closure vocabulary — Obsolete is the 4th terminal value), §11.4.34 (Reopened-source pattern — Obsolete uses analogous audit line), §11.4.40 (release-gate sweep — audit cadence trigger), §11.4.42 (iteration discipline — obsolescence audit is a routine cycle step), §11.4.66 (interactive clarification — surface ambiguous obsolescence to operator), §11.4.71 (pre-push fetch — re-check obsolescence post-fetch).
+
+**Canonical authority:** this Constitution.md §11.4.90 in the HelixConstitution submodule.
+
+**Non-compliance is a release blocker.** Marking a still-valid item Obsolete is a §11.4 PASS-bluff at the planning layer. Marking a genuinely-obsolete item with a non-terminal Status is documentation drift. No escape hatch — every obsolescence finding follows the triple-check evidence rule above.
+
+---
+
+### §11.4.91 — Summary-doc clarity mandate (User mandate, 2026-05-27)
+
+**Forensic anchor — verbatim user mandate (2026-05-27):**
+
+> "We see in Summary docs - Issues_Summary some not clear one line descriptions - like for example: 'Composes with'. For each workable item in any variant of documentation - long or short descriptions - we MUST HAVE clearly understandable meaning of particular entry of the document! Re-evaluate all of them, fix the descriptions (especially one liners) and make sure that every team member can clearly understand what that particular or any particular workable item from the list is exactly about! There cannot be misunderstanding or unclearity of any kind and no bluff allowed!"
+
+Every short-form summary entry (Issues_Summary.md, Fixed_Summary.md, README.md doc-link section, Status_Summary.md page 1 + 2, every other one-liner derived from a long-form tracker entry) MUST contain a description that is **self-contained + meaningfully informative** about WHAT the item is, not a fragment of the long-form body. Specifically forbidden one-liner anti-patterns:
+
+- **Section labels** as descriptions: `Composes with`, `Closure criteria`, `Fix direction`, `Forensic anchor`, `Reopened-Details`, `Operator-Block-Details`, `Obsolete-Details`, `Summary`, `Status`, `Type`, `Severity`, etc. — these are section *labels* inside the long-form entry, NEVER appropriate as the one-liner description.
+- **Bare numeric / categorical fragments**: `Critical`, `High`, `Medium`, `Low`, `Bug`, `Feature`, `Task`, `Fixed`, standalone — these are metadata column values, not descriptions.
+- **Generic restatements of Status**: `In progress`, `Queued`, `Reopened`, `Operator-blocked`, `Fixed`, standalone — again metadata column values.
+- **Section-marker echoes**: anything matching `^[A-Z][a-z]+ (with|by|on|in|to|for):?$` patterns where the right-hand side is empty.
+- **§-letter alone**: `§KB`, `§EU`, etc. — the section letter is the identifier, not the description.
+
+**Required one-liner shape** — every summary entry's description column MUST contain a complete clause (≥ 6 words OR ≥ 40 characters, whichever is longer) that names the SUBJECT (component / app / behaviour / defect class) + the PROBLEM or GOAL (what's broken / what's being added / what's being audited). Example transformations:
+
+- Bad: "Composes with"
+- Good: "MPV fork comprehensive secondary-display playback + interaction-pattern + chaos test suite (§KB-2)"
+
+- Bad: "Critical"
+- Good: "HDMI audio total loss with 'command error 1' on D3 post-reflash (Tier 1/2/3 source-side fixes landed, REQUIRES_REBUILD validation pending)"
+
+- Bad: "§JU"
+- Good: "Presenter 2nd-display behaviour simplification + wake-on-play + notification dim toggle (umbrella, REQUIRES_REBUILD pending validation)"
+
+**Generator-level enforcement** — `generate_issues_summary.sh` + `generate_fixed_summary.sh` + `update_readme_doc_links.sh` + `generate_status_summary.sh` MUST extract the one-liner from the **H1/H2 heading line** of the source long-form entry (which already encodes the subject + context per §11.4.15 + §11.4.16 + §11.4.54 ATM-NNN convention), NEVER from arbitrary downstream text. The generators MUST refuse to emit a row whose description matches any of the forbidden anti-patterns above — emitting `(MISSING DESCRIPTION — fix source heading)` placeholder instead, with the offending row visually highlighted.
+
+**Pre-build gate `CM-SUMMARY-CLARITY-DESCRIPTIONS`** scans every `*_Summary.md` for the forbidden anti-patterns above; any match FAILs the gate. Paired §1.1 mutation injects "Composes with" into a Summary cell → gate FAILs.
+
+**Audit cadence** — at every release-gate sweep (§11.4.40 + §11.4.42 step 4), re-evaluate every summary row for clarity. Operator-facing exports (HTML + PDF) MUST never ship with an anti-pattern row.
+
+**Composes with** §11.4.12 (Issues_Summary sync — clarity is a property of the generated row), §11.4.19 (Fixed-document column alignment — clarity applies symmetrically), §11.4.23 (colorizer — anti-pattern rows highlighted), §11.4.44 (revision header — generator updates revision on clarity regeneration), §11.4.53 (Fixed_Summary parity), §11.4.56 (Status_Summary two-audience format — page 1 audience MUST get the clearest descriptions), §11.4.57 (README doc-link rows — same anti-pattern rule), §11.4.59 (README always-sync), §11.4.60 (composite docs always-sync), §11.4.65 (universal MD export), §11.4.74 (mechanical enforcement — pre-commit hook for summary clarity).
+
+**Canonical authority:** this Constitution.md §11.4.91 in the HelixConstitution submodule.
+
+**Non-compliance is a release blocker.** A summary row whose description is an anti-pattern fragment is severity-equivalent to a §11.4 PASS-bluff at the documentation layer — it implies the item is documented when it is not. No escape hatch.
+
+---
+
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN
 
 Every script, test, helper, and AI agent governed by this
