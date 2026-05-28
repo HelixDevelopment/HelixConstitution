@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Revision | 6 |
+| Revision | 7 |
 | Created | 2026-05-20 |
-| Last modified | 2026-05-28T12:00:00Z |
+| Last modified | 2026-05-28T18:00:00Z |
 | Status | active |
 | Status summary | Mirrored Constitution.md §11.4.101 (Autonomous-decision-over-blocking mandate, User mandate 2026-05-28) into this QWEN.md. §11.4.78–§11.4.100 mirrors continue from earlier Revisions. |
 | Issues | none |
@@ -379,17 +379,7 @@ Case study (Herald 2026-05-28): MTProto guide recommended VoIP + omitted `recove
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.99. Release blocker.
 
-### §11.4.100 — Video color + visual-quality fidelity (User mandate, 2026-05-28)
-
-Forensic: "We MUST check for all content being played — all videos ... all colors are fine and proper! ... same approach to colors like to our sound quality! ... Maximally sharp, no glitches ... not rendering colors as pale, or wrongly saturated, or modified from original stream or file! NO degradation ... deep analysis on gathered frames ... colors, aspect ratio, speed, frames per second, any obstacle or interruption ... all streaming apps and pre-installed players by full automation tests ... No false positives or false negatives or bluff(s)!"
-
-§11.4.5 mandates audio quality + baseline video presence; §11.4.100 raises the video bar to **color + visual-quality fidelity parity with the audio bar**. Every user-visible video-playback PASS MUST carry a captured-frame deep-analysis artefact proving rendered output matches source within tolerance. Metadata-only PASS (file exists / frames>0 / codec registered) = §11.4 PASS-bluff at visual-fidelity layer. Discriminator: host `ffmpeg` extracts ground-truth source frame, device capture grabs rendered frame, align+compare (device-only capture can't catch uniform pale/desat/hue shift).
-
-Closed-set checks (ALL): (1) **Color** — ΔE2000 vs source ≤ threshold; RGB+HSV histogram correlation ≥ threshold; no pale/washed-out; no over-saturation; no hue shift; gamma/luma in tolerance (full-vs-limited-range BT.601/709/2020 — #1 pale cause); (2) **Sharpness** — Laplacian-variance/HF-energy rendered ≥ source; (3) **Aspect ratio** — matches source; (4) **FPS/speed** — matches source over window, no drift; (5) **Continuity** — no freeze (SSIM>0.99 ≥1s), no dropped-frame burst, no tearing, no obstruction overlay (§11.4.5 OCR).
-
-Coverage: EVERY pre-installed player + every streaming app, local + streamed, full automation per §11.4.52+48+49. Geo SKIP-with-reason per §11.4.3+69. Anti-bluff: artefact load-bearing per §11.4.5+69 (`video_display`); NO false pos AND NO false neg — harness validated vs known-good golden + known-bad desaturated pairs. Helper `video_fidelity.sh` composes with §11.4.69 `ab_pass_with_evidence`. Gate `CM-VIDEO-COLOR-FIDELITY` + propagation `CM-COVENANT-114-100-PROPAGATION` (literal `11.4.100`) + paired §1.1 mutations (gate-code = separate work item). Composes §11.4.2/5/6/50/52/69/83/85. Classification: universal (§11.4.17).
-
-**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.100. Release blocker. No `--skip-color-fidelity` / `--no-frame-analysis` / `--metadata-video-pass-suffices` / `--source-comparison-optional` escape.
+**§11.4.100 — RETIRED.** Demoted to consumer project (ATMOSphere video-color/visual-quality fidelity) per §11.4.17/§11.4.35 — project-specific (RK3588/MPV/Arvus), not universal. See the consuming project's Constitution/CLAUDE/AGENTS/QWEN.
 
 ### §11.4.101 — Autonomous-decision-over-blocking (User mandate, 2026-05-28)
 
