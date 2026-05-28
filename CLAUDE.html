@@ -249,7 +249,7 @@ Universal CLAUDE.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>5</td>
+<td>9</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -257,7 +257,7 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-05-20</td>
+<td>2026-05-28T12:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -265,9 +265,10 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Mirrored Constitution.md §11.4.78 (CodeGraph code-intelligence
-mandate) into this CLAUDE.md. §11.4.73–§11.4.77 mirrors continue from
-earlier Revisions.</td>
+<td>Mirrored Constitution.md §11.4.101
+(Autonomous-decision-over-blocking mandate, User mandate 2026-05-28)
+into this CLAUDE.md. §11.4.78–§11.4.100 mirrors continue from earlier
+Revisions.</td>
 </tr>
 <tr>
 <td>Issues</td>
@@ -279,11 +280,11 @@ earlier Revisions.</td>
 </tr>
 <tr>
 <td>Fixed</td>
-<td>§11.4.78 mirror</td>
+<td>§11.4.101 mirror</td>
 </tr>
 <tr>
 <td>Fixed summary</td>
-<td>§11.4.78 lands in lockstep with the Constitution.md §11.4.78
+<td>§11.4.101 lands in lockstep with the Constitution.md §11.4.101
 addition.</td>
 </tr>
 <tr>
@@ -3773,5 +3774,235 @@ gates <code>CM-COVENANT-114-97-PROPAGATION</code> +
 <code>CM-IDLE-TIME-AUDIT</code> + paired §1.1 mutations.</p>
 <p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.97.
 Non-compliance is a release blocker.</p>
+<h3 id="11498--full-automation-anti-bluff-mandate--live-tests-must-be-re-runnable-end-to-end-without-manual-intervention-user-mandate-2026-05-28">§11.4.98
+— Full-Automation Anti-Bluff Mandate — Live tests MUST be re-runnable
+end-to-end without manual intervention (User mandate, 2026-05-28)</h3>
+<p>Forensic anchor — verbatim user mandate (2026-05-28): &quot;Make sure we
+have full automation testing of all scenarios with real bot, main group
+and users without any manual intervention or contribution of real user!
+Everything MUST BE fully automatic and autonomous! These tests MUST BE
+able to rerun endless times when needed! ... Make sure there is no false
+positives in testing! Every test and its results MUST obtain real proofs
+of everything working! No bluff is allowed!&quot;</p>
+<p>Composes with §11.4 + §11.4.2 + §11.4.5 + §11.4.50 + §11.4.85 +
+§11.4.87 + §11.4.89 + §11.4.94 — closes the <strong>manual-intervention
+gap</strong> they did not explicitly forbid. A
+live/integration/e2e/Challenge test requiring a human action during
+execution (typing a chat message, clicking a UI, hand-triggering a
+webhook, anything beyond test start + PASS/FAIL report) is <strong>by
+definition a §11.4 PASS-bluff at the automation layer</strong>,
+regardless of how thorough the manual run is — cannot run continuously
+in CI, cannot validate regressions between manual runs, human dependency
+masks drift.</p>
+<p>(A) Binding rule: every test this Constitution governs —
+unit/integration/e2e/Challenge/stress/chaos/live — MUST be fully
+self-driving end-to-end; reports PASS/FAIL/SKIP-with-reason without any
+further human action after startup. (B) Single permissible exception:
+one-time credential bootstrap OUTSIDE test execution (<code>.env</code>
+from vault, shell exports in <code>~/.bashrc</code>, OAuth approval at
+first install, MTProto session activation at first run) — configuration,
+not test driving. (C) Concrete requirements for live
+messenger/channel/agent tests: (1) no &quot;operator MUST type a message&quot;
+prompts — drive programmatically (MTProto for Telegram, real-user-token
+API for Slack, IMAP-test-account for email, webhook fixture, in-process
+loopback — never human keystrokes); (2) no hard-coded session UUIDs that
+collide with active dev session (Herald 2026-05-28 lesson:
+<code>claude --resume &lt;UUID&gt;</code> on same UUID as dev session
+returns silent exit -1); (3) no 60s human-response windows (§11.4.50
+determinism violation); (4) re-runnability proof — PASS at
+<code>-count=3</code> consecutive automated invocations with
+self-cleaning state; (5) §11.4.98 obsolescence audit — every existing
+test classified COMPLIANT vs NON-COMPLIANT; (6) no false-positive PASS —
+silent-skip-reported-as-PASS forbidden, stale-evidence forbidden,
+SKIP-with-reason per §11.4.3 is correct. (D) Composes with §11.4.85 +
+§11.4.89 + §11.4.87 + §11.4.94 — together = continuously-validated,
+fully-automated, non-flake, anti-bluff regime. (E) Inheritance per
+§11.4.35 — every consuming repo&#39;s CLAUDE.md/AGENTS.md/QWEN.md restates
+citing literal anchor <code>11.4.98</code>; pre-build gate
+<code>CM-COVENANT-114-98-PROPAGATION</code> enforces literal presence;
+paired §1.1 mutations strip → gates FAIL. (F) Enforcement: commit adding
+manual-action test BLOCKED at release-gate; manual-dependency test not
+rewritten within 30 days graduates to §11.4.90 Obsolete citing §11.4.98
+as obsolescence reason.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.98.
+Non-compliance is a release blocker.</p>
+<h3 id="11499--latest-source-documentation-cross-reference-mandate--instructionsguidesmanuals-must-be-verified-against-latest-official-online-sources-before-publication-user-mandate-2026-05-28">§11.4.99
+— Latest-Source Documentation Cross-Reference Mandate —
+instructions/guides/manuals MUST be verified against latest official
+online sources BEFORE publication (User mandate, 2026-05-28)</h3>
+<p>Forensic anchor — verbatim user mandate (2026-05-28): &quot;Make sure we
+ALWAYS check against latest versions of services we use web / online
+docs before creating instructions! This situation is illustration of how
+we can misguide ourselves or get banned! ... These are mandatory rules /
+constraints and the result is consistency and safety of created
+instructions, guides and manuals!&quot;</p>
+<p>Case study (Herald 2026-05-28): first-draft Herald MTProto setup
+guide recommended VoIP/Google-Voice/Twilio fallback AND omitted the
+<code>recover@telegram.org</code> pre-login email — both directly
+contradicted Telegram&#39;s official docs + gotd/td maintainer guidance, and
+following the guide could have caused a permanent Telegram account ban.
+Misguidance-by-stale-docs is the same severity class as a §11.4
+PASS-bluff at the documentation layer.</p>
+<p>Composes with §11.4.4 + §11.4.5 + §11.4.8 + §11.4.92 Pass 4 + §107 +
+§11.4.98. Closes the gap §11.4.92 Pass 4 alludes to but does not
+explicitly mandate. (A) Pre-commit cross-reference: every
+operator-facing instruction document MUST (1) fetch the LATEST official
+online docs of the service/library via WebFetch/MCP/direct browsing
+(NEVER training data, memory, or prior committed docs); (2)
+cross-reference each instruction against the source; (3) seek secondary
+authoritative sources when the official docs are sparse/silent (library
+maintainer SUPPORT.md, official changelogs, vetted community FAQs); (4)
+cite source URL + date in a &quot;## Sources verified&quot; footer on the doc; (5)
+cite the cross-reference in the commit-message footer
+(<code>Sources verified &lt;date&gt;: &lt;urls&gt;</code>). (B) Negative
+findings: gaps/silences/contradictions MUST be documented explicitly so
+the next reader doesn&#39;t assume absence-of-contradiction is authoritative
+agreement. (C) Re-verification cadence: documents older than 6 months
+are STALE — re-verify before citing as operator authority, at every
+vN.0.0 release boundary, on service breaking-change announcements, or
+when an operator reports an error following the guide. (D)
+Risk-classified services (Telegram/WhatsApp messengers, cloud APIs,
+payment systems, AI/LLM providers, code-hosting services, package
+managers) — 90-day max staleness; explicit safety warnings cited against
+latest policies. (E) Composes with §11.4.92 Pass 4 but is INDEPENDENT —
+cannot substitute. (F) Inheritance per §11.4.35 — restate literal anchor
+<code>11.4.99</code> in every consumer&#39;s CLAUDE/AGENTS/QWEN; pre-build
+gate <code>CM-COVENANT-114-99-PROPAGATION</code> (when implemented)
+enforces; paired §1.1 mutations strip → gates FAIL. (G) Enforcement:
+commit without &quot;Sources verified <date>&quot; doc-footer AND
+commit-message-footer BLOCKED at release-gate; stale-beyond-grace docs
+graduate to §11.4.90 Obsolete with
+<code>Reason=stale-documentation</code>.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.99.
+Non-compliance is a release blocker.</p>
+<h3 id="114100--video-color--visual-quality-fidelity-mandate-user-mandate-2026-05-28">§11.4.100
+— Video color + visual-quality fidelity mandate (User mandate,
+2026-05-28)</h3>
+<p>Forensic anchor — verbatim user mandate (2026-05-28): &quot;We MUST check
+for all content being played — all videos ... that all colors are fine
+and proper! We MUST HAVE same approach to colors like to our sound
+quality! ... Maximally sharp, no glitches, and all video colors MUST BE
+as expected! We MUST CHECK that we are not rendering colors as pale, or
+wrongly saturated, or modified from original stream or file! There MUST
+BE NO degradation of any kind! ... deep analysis on gathered frames ...
+colors, aspect ratio, speed, frames per second, any obstacle or
+interruption — all this MUST BE validated, verified and confirmed! ...
+all available streaming apps and installed and pre-installed players by
+full automation tests ... No false positives or false negatives or
+bluff(s) of any kind!&quot;</p>
+<p>§11.4.5 mandates audio quality analysis + a baseline video presence
+pass; §11.4.100 raises the video bar to <strong>color + visual-quality
+fidelity parity with the audio bar</strong>. Every user-visible
+video-playback test PASS MUST carry a captured-frame deep-analysis
+artefact proving the rendered output matches the source within
+documented tolerance. Metadata-only PASS (file exists / frames &gt; 0 /
+codec registered / config-only) is a §11.4 / §107 PASS-bluff at the
+visual-fidelity layer.</p>
+<p>The discriminator: extract the ground-truth reference frame from the
+original file/stream <strong>on the host</strong> with
+<code>ffmpeg</code>, capture the corresponding rendered frame from the
+device&#39;s actual output, align, compare. Device-only capture (no source
+comparison) cannot detect a uniform pale/desaturation/hue shift the
+renderer introduces.</p>
+<p>Closed-set of required checks (ALL mandatory): (1) <strong>Color
+fidelity</strong> — per-frame ΔE2000 (CIEDE2000) vs source ≤ threshold;
+RGB+HSV histogram correlation ≥ threshold; no pale/washed-out
+(saturation not collapsed); no over-saturation; no hue shift; gamma/luma
+within tolerance (full-range-vs-limited-range BT.601/709/2020
+negotiation exercised explicitly — the #1 real-world pale-render cause);
+(2) <strong>Sharpness</strong> — Laplacian-variance /
+high-frequency-energy of rendered ≥ source within tolerance; (3)
+<strong>Aspect ratio</strong> — rendered AR matches source (no
+stretch/letterbox-crop error); (4) <strong>Frame rate / speed</strong> —
+presented FPS matches source FPS, no slow/fast drift, measured over a
+window; (5) <strong>Continuity</strong> — no freeze (SSIM &gt; 0.99 for
+≥ 1 s), no dropped-frame burst, no tearing, no glitch, no obstruction
+overlay (§11.4.5 OCR census).</p>
+<p>Coverage: EVERY installed + pre-installed video player AND every
+streaming app, local-file + streamed (HTTP/HLS/DASH/RTMP/DRM), via full
+automation per §11.4.52 + §11.4.48 + §11.4.49. Geo-restricted streams
+SKIP-with-reason per §11.4.3 + §11.4.69 — never PASS-by-default, never
+FAIL-for-geo. Anti-bluff: captured-frame deep-analysis artefact is
+load-bearing per §11.4.5 + §11.4.69 (<code>video_display</code>); NO
+false positives AND NO false negatives — the comparison harness MUST be
+validated against a known-good golden pair AND a known-bad desaturated
+pair. Helper contract <code>video_fidelity.sh</code>
+(<code>vf_assert_delta_e2000</code> /
+<code>vf_assert_histogram_correlation</code> /
+<code>vf_assert_no_pale_no_oversaturation</code> /
+<code>vf_assert_sharpness</code> / <code>vf_assert_aspect_ratio</code> /
+<code>vf_assert_fps_speed</code> /
+<code>vf_assert_continuity_no_freeze</code> /
+<code>vf_obstruction_ocr_census</code>) composing with §11.4.69
+<code>ab_pass_with_evidence</code>.</p>
+<p>Pre-build gate <code>CM-VIDEO-COLOR-FIDELITY</code> + propagation
+gate <code>CM-COVENANT-114-100-PROPAGATION</code> (literal anchor
+<code>11.4.100</code> across the consumer fleet) — each with a paired
+§1.1 meta-test mutation (strip the ΔE2000/histogram/sharpness assertion
+or the source-frame ground-truth extraction → gate FAILs). Gate-code
+implementations land as a separate work item; this anchor defines the
+contract.</p>
+<p>Composes with §11.4.2 / §11.4.5 (strict expansion of §11.4.5&#39;s video
+bar) / §11.4.6 / §11.4.50 / §11.4.52 / §11.4.69 / §11.4.83 / §11.4.85.
+Classification: universal (§11.4.17) — color + visual-quality fidelity
+is reusable for any media-playback project; consumer supplies player
+roster, tolerance thresholds, capture mechanism per §11.4.35.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.100.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-color-fidelity</code>, <code>--no-frame-analysis</code>,
+<code>--metadata-video-pass-suffices</code>,
+<code>--color-check-later</code>,
+<code>--source-comparison-optional</code> flag exists.</p>
+<h3 id="114101--autonomous-decision-over-blocking-mandate-user-mandate-2026-05-28">§11.4.101
+— Autonomous-decision-over-blocking mandate (User mandate,
+2026-05-28)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-05-28):</strong></p>
+<blockquote>
+<p>&quot;when working in endless working loop fully autonomously try to
+decide most properly about points which would block execution and wait
+for us. If we haven&#39;t answered now work would be blocked whole night! If
+possible and if that will not cause any issues make proper and most
+reliable and safe decision so we achieve maximal efficiency and work
+gets fully done!&quot;</p>
+</blockquote>
+<p>When operating in an autonomous / endless-loop mode (per §11.4.87),
+the agent MUST minimize operator-blocking and instead make the safe,
+reliable, reversible decision itself — so work is NOT stalled (e.g.
+overnight) waiting for input. §11.4.87 says keep working; §11.4.101 says
+HOW to clear the decision points that would otherwise force a
+stop-and-wait.</p>
+<p><strong>Decision rule (closed-set — proceed autonomously when ALL
+hold):</strong> (a) the action is reversible OR has a captured pre-op
+backup per §9.2; (b) the agent can determine the safe choice from
+captured evidence per §11.4.6 (no guessing — <code>LIKELY</code> is not
+a determination); (c) a wrong choice&#39;s blast radius is bounded AND
+recoverable; (d) it composes with anti-bluff §11.4, host-safety §12,
+data-safety §9.</p>
+<p><strong>Block-only-when rule (BLOCK via §11.4.66 ONLY when ALL
+hold):</strong> the action is irreversible AND high-blast-radius AND the
+safe choice cannot be determined from evidence — e.g. external-account
+state the agent cannot inspect, hardware it cannot access, destructive
+ops without backup, force-push (also §9.2 + §11.4.41), spending /
+sending to third parties. <code>Operator-blocked</code> per §11.4.21 is
+reached only after this rule fires AND the self-resolution-exhaustion
+audit completes.</p>
+<p><strong>Maximize-progress-while-blocked:</strong> an unavoidable
+block parks one work unit, it does not pause the loop — the agent MUST
+keep progressing every NON-blocked item in parallel per §11.4.87 +
+§11.4.94. Posing the question and going idle is a §11.4.94 + §11.4.97
+violation.</p>
+<p>Composes with §11.4.6 / §11.4.21 / §11.4.40 / §11.4.41 / §11.4.66 /
+§11.4.87 / §11.4.94 / §9.2 / §12. Classification: universal (§11.4.17).
+Propagation gate <code>CM-COVENANT-114-101-PROPAGATION</code> enforces
+the literal anchor <code>11.4.101</code> across the consumer fleet;
+paired §1.1 meta-test mutation strips the literal → gate FAILs
+(gate-code = separate work item). No escape hatch — no
+<code>--always-block-on-decision</code>,
+<code>--never-decide-autonomously</code>,
+<code>--skip-decision-rule</code>,
+<code>--block-without-self-resolution</code> flag exists.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.101.</p>
+<p>Non-compliance is a release blocker regardless of context.</p>
 </body>
 </html>
