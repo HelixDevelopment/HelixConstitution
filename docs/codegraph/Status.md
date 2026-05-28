@@ -88,3 +88,9 @@ The scripts append entries below automatically; manual entries are also acceptab
 - current: `0.9.2`
 - latest:  `0.9.2`
 - action:  **no-op** (already at latest)
+
+## 2026-05-28T10:21:08Z — codegraph updated
+
+- before: `0.9.4`
+- after:  `0.9.6`
+- npm command: `npm install -g @colbymchenry/codegraph@0.9.6`
