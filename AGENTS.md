@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 7 |
+| Revision | 8 |
 | Created | 2026-05-14 |
-| Last modified | 2026-05-20 |
+| Last modified | 2026-05-28T00:00:00Z |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.78 (CodeGraph code-intelligence mandate) into this AGENTS.md. §11.4.73–§11.4.77 mirrors continue from earlier Revisions. |
+| Status summary | Mirrored Constitution.md §11.4.100 (Video color + visual-quality fidelity mandate, User mandate 2026-05-28) into this AGENTS.md. §11.4.78–§11.4.99 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | §11.4.78 mirror |
-| Fixed summary | §11.4.78 lands in lockstep with the Constitution.md §11.4.78 addition. |
+| Fixed | §11.4.100 mirror |
+| Fixed summary | §11.4.100 lands in lockstep with the Constitution.md §11.4.100 addition. |
 | Continuation | — |
 
 ## Table of contents
@@ -1994,3 +1994,21 @@ Case study (Herald 2026-05-28): first-draft MTProto guide recommended VoIP + omi
 (A) Pre-commit cross-reference: agent MUST fetch LATEST official online docs (WebFetch/MCP/direct browsing — NEVER training data) for every operator-facing instruction doc; cross-reference each instruction; seek secondary authoritative sources (maintainer SUPPORT.md, changelogs, vetted FAQs) when official is sparse; cite source URL + date in "## Sources verified" footer; cite in commit-message footer (`Sources verified <date>: <urls>`). (B) Negative findings documented (gaps/silences = no authoritative agreement). (C) Re-verification cadence — STALE after 6 months (90 days for risk-classified services); re-verify before operator-authority citation, at vN.0.0 release boundary, on breaking-change announcements, on operator-error report. (D) Risk-classified services (messengers/cloud/payment/AI/code-hosting/package-managers) — 90-day staleness limit + explicit safety warnings vs latest policies. (E) Composes with §11.4.92 Pass 4 but INDEPENDENT — cannot substitute. (F) Inheritance per §11.4.35 — restate literal `11.4.99` in every consumer; pre-build gate `CM-COVENANT-114-99-PROPAGATION`. (G) Enforcement: missing footer → BLOCKED at release-gate; stale-beyond-grace → §11.4.90 Obsolete `Reason=stale-documentation`.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.99. Non-compliance is a release blocker.
+
+### §11.4.100 — Video color + visual-quality fidelity mandate (User mandate, 2026-05-28)
+
+Forensic anchor — verbatim user mandate (2026-05-28): "We MUST check for all content being played — all videos ... that all colors are fine and proper! We MUST HAVE same approach to colors like to our sound quality! ... Maximally sharp, no glitches, and all video colors MUST BE as expected! ... not rendering colors as pale, or wrongly saturated, or modified from original stream or file! There MUST BE NO degradation of any kind! ... deep analysis on gathered frames ... colors, aspect ratio, speed, frames per second, any obstacle or interruption ... all available streaming apps and installed and pre-installed players by full automation tests ... No false positives or false negatives or bluff(s) of any kind!"
+
+§11.4.5 mandates audio quality + baseline video presence; §11.4.100 raises the video bar to **color + visual-quality fidelity parity with the audio bar**. Every user-visible video-playback PASS MUST carry a captured-frame deep-analysis artefact proving the rendered output matches the source within documented tolerance. Metadata-only PASS (file exists / frames > 0 / codec registered / config-only) = §11.4 / §107 PASS-bluff at the visual-fidelity layer.
+
+Discriminator: host-side `ffmpeg` extracts the ground-truth source frame, device-side capture grabs the actually-rendered frame, align + compare. Device-only capture cannot detect a uniform pale/desaturation/hue shift the renderer introduces.
+
+Closed-set required checks (ALL mandatory): (1) **Color fidelity** — per-frame ΔE2000 vs source ≤ threshold; RGB+HSV histogram correlation ≥ threshold; no pale/washed-out; no over-saturation; no hue shift; gamma/luma within tolerance (full-vs-limited-range BT.601/709/2020 negotiation exercised — #1 pale-render cause); (2) **Sharpness** — Laplacian-variance / HF-energy of rendered ≥ source; (3) **Aspect ratio** — matches source (no stretch/letterbox-crop); (4) **FPS / speed** — presented FPS matches source over a window, no slow/fast drift; (5) **Continuity** — no freeze (SSIM > 0.99 ≥ 1 s), no dropped-frame burst, no tearing, no glitch, no obstruction overlay (§11.4.5 OCR census).
+
+Coverage: EVERY installed + pre-installed player AND every streaming app, local-file + streamed (HTTP/HLS/DASH/RTMP/DRM), full automation per §11.4.52 + §11.4.48 + §11.4.49. Geo-restricted SKIP-with-reason per §11.4.3 + §11.4.69 — never PASS-by-default, never FAIL-for-geo. Anti-bluff: captured-frame deep-analysis artefact load-bearing per §11.4.5 + §11.4.69 (`video_display`); NO false positives AND NO false negatives — harness validated against known-good golden + known-bad desaturated pairs. Helper `video_fidelity.sh` primitives compose with §11.4.69 `ab_pass_with_evidence`.
+
+Pre-build gate `CM-VIDEO-COLOR-FIDELITY` + propagation gate `CM-COVENANT-114-100-PROPAGATION` (literal `11.4.100` across consumer fleet) — each with paired §1.1 meta-test mutation (strip ΔE2000/histogram/sharpness assertion or the source-frame ground-truth extraction → gate FAILs). Gate-code lands as a separate work item.
+
+Composes with §11.4.2 / §11.4.5 / §11.4.6 / §11.4.50 / §11.4.52 / §11.4.69 / §11.4.83 / §11.4.85. Classification: universal (§11.4.17) — consumer supplies player roster, thresholds, capture mechanism per §11.4.35.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.100. Non-compliance is a release blocker. No escape hatch — no `--skip-color-fidelity`, `--no-frame-analysis`, `--metadata-video-pass-suffices`, `--color-check-later`, `--source-comparison-optional` flag.

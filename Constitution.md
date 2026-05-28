@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Revision | 6 |
+| Revision | 7 |
 | Created | 2026-05-14 |
-| Last modified | 2026-05-20 |
+| Last modified | 2026-05-28T00:00:00Z |
 | Status | active |
-| Status summary | New mandate landed: §11.4.76 Containers-submodule mandate (renumbered from drafted §11.4.75 after concurrent `0a70083` landed §11.4.75 Mechanical Enforcement). For ANY containerized workload (Docker / Podman / Qemu / Kubernetes / emulators), consuming projects MUST install `vasic-digital/containers` as a Git submodule + boot infra on-demand via its `pkg/boot`+`pkg/compose`+`pkg/health` APIs + extend (never reimplement) when features are missing. QWEN.md created in this commit per the user-stated `Constitution.md / AGENTS.md / CLAUDE.md / QWEN.md` propagation set. CLAUDE.md + AGENTS.md mirrors updated in lockstep. |
+| Status summary | New mandate landed: §11.4.100 Video color + visual-quality fidelity mandate (User mandate 2026-05-28). Every user-visible video-playback PASS MUST carry a captured-frame deep-analysis artefact proving rendered colors / sharpness / aspect-ratio / FPS-speed / continuity match the host-extracted ground-truth source within tolerance — raising the video bar to parity with the §11.4.5 audio bar. Gates `CM-VIDEO-COLOR-FIDELITY` + `CM-COVENANT-114-100-PROPAGATION` (gate-code = separate work item). Drafted as §11.4.98 but renumbered to §11.4.100 per §11.4.71 fetch-first after concurrent upstream `c640947` landed §11.4.98 + §11.4.99. CLAUDE.md + AGENTS.md + QWEN.md mirrors updated in lockstep. |
 | Issues | none |
 | Issues summary | ToC is currently stale (missing entries for §11.4.71/.72/.73/.74/.75/.76) — separate clean-up commit needed per §11.4.61. |
 | Fixed | §11.4.73, §11.4.74, §11.4.76; QWEN.md created |
@@ -7970,6 +7970,49 @@ This list is **NOT exhaustive** — when a new external service is documented, t
 **Canonical authority:** this Constitution.md §11.4.99 in the HelixConstitution submodule. All consuming projects (Herald, ATMOSphere, future) restate + cite via §11.4.35 inheritance.
 
 **Non-compliance is a release blocker.** No `--skip-source-check` / `--documentation-freshness-optional` / `--cite-sources-later` / `--trust-prior-doc-as-authoritative` flag exists. The 2026-05-28 user mandate is unambiguous: the result MUST be "consistency and safety of created instructions, guides and manuals".
+
+### §11.4.100 — Video color + visual-quality fidelity mandate (User mandate, 2026-05-28)
+
+**Short tag:** `video-color-fidelity`.
+
+**Forensic anchor — verbatim user mandate (2026-05-28):**
+
+> "We MUST check for all content being played — all videos — video streams from the internet, or offline videos we play, from any of applications — video streaming applications or video players, that all colors are fine and proper! We MUST HAVE same approach to colors like to our sound quality! EVERYTHING MUST be cutting edge, highest quality! Maximally sharp, no glitches, and all video colors MUST BE as expected! We MUST CHECK that we are not rendering colors as pale, or wrongly saturated, or modified from original stream or file! There MUST BE NO degradation of any kind! ... high quality warm colors as expected from the most expensive multimedia systems! ... deep analysis on gathered frames ... colors, aspect ratio, speed, frames per second, any obstacle or interruption — all this MUST BE validated, verified and confirmed! ... all available streaming apps and installed and pre-installed players by full automation tests ... No false positives or false negatives or bluff(s) of any kind!"
+
+**The mandate.** §11.4.5 already mandates *audio* quality analysis (RMS, channel count, sample rate, glitch census) AND a baseline *video* presence/health pass. §11.4.100 raises the video bar to **color + visual-quality fidelity parity with the audio bar**: every user-visible video-playback test PASS MUST carry a captured-frame deep-analysis artefact proving the rendered output matches the source within documented tolerance. A video test that PASSes because the recording file exists, frames decoded > 0, or the codec registered — WITHOUT proving the rendered colors / sharpness / aspect-ratio / speed / continuity match the source — is a §11.4 / §107 PASS-bluff at the visual-fidelity layer. "Looks like it played" is not "played correctly."
+
+**The discriminator (ground-truth comparison).** The captured-frame deep analysis MUST compare the device's *actually-rendered* output against the *ground-truth source*: (i) extract the ground-truth reference frame from the original file/stream **on the host** with `ffmpeg` (decoded from the same source bytes the device received); (ii) capture the corresponding rendered frame from the device's actual output (`screenrecord` / HDMI-sink capture / secondary-display capture per the routing target); (iii) align temporally; (iv) compute the per-check metrics below. A test that analyses only the device-side capture in isolation (no source comparison) is insufficient — it cannot detect a uniform pale/desaturation/hue shift the renderer introduces.
+
+**Closed-set of required checks (ALL mandatory for every video-playback PASS):**
+
+1. **Color fidelity** — rendered frame's color matches the source within tolerance: (a) per-frame **ΔE2000 (CIEDE2000)** color-difference vs the ground-truth source frame ≤ a documented threshold; (b) **RGB + HSV histogram correlation** ≥ a documented threshold; (c) **no pale / washed-out** rendering — saturation channel NOT collapsed below the source's saturation distribution; (d) **no over-saturation** — saturation NOT inflated above source; (e) **no hue shift** — mean hue delta within tolerance; (f) **gamma / luma within tolerance** — luma histogram + gamma curve match source. The full-range-vs-limited-range (BT.601/709/2020 + 16-235 vs 0-255) negotiation is the single most common real-world cause of pale/washed-out rendering and MUST be exercised explicitly.
+2. **Sharpness** — no softening / blur introduced by the render path: Laplacian-variance OR high-frequency-energy of the rendered frame ≥ the source frame's within tolerance (a downscale-then-upscale or wrong-scaler path collapses high-frequency energy).
+3. **Aspect ratio** — rendered AR matches source AR exactly; no stretch (anamorphic squeeze), no letterbox/pillarbox-crop error, no incorrect SAR/DAR handling.
+4. **Frame rate / speed** — decoded/presented FPS matches source FPS; playback speed correct (no slow-motion / fast-forward drift, no judder from frame-rate-conversion mismatch). Measured over a sustained window, not a single frame.
+5. **Continuity** — no freeze (SSIM > 0.99 across consecutive frames for ≥ 1 s = frozen), no dropped-frame burst, no tearing, no glitch, no obstruction overlay. The obstruction census reuses the §11.4.5 OCR scan for hostile overlays (`Application not responding`, sign-in dialog, geo-restriction overlay, ad break, paywall, `App is not certified`).
+
+**Coverage.** EVERY installed + pre-installed video player AND every streaming application, across both local-file content AND streamed content (progressive HTTP / HLS / DASH / RTMP / DRM), via **full automation** per §11.4.52 (autonomous-validation) + §11.4.48 (UI-driven where the player is accessibility-instrumented) + §11.4.49 (dual-approach). Geo-restricted streams SKIP-with-reason per §11.4.3 + §11.4.69 (`geo_restricted` / `network_unreachable_external`) — never PASS-by-default, never FAIL-for-geo.
+
+**Anti-bluff (mandatory).** The captured-frame deep-analysis artefact is the load-bearing evidence per §11.4.5 + §11.4.69 (`video_display` feature class). Acceptable evidence shapes: `delta_e2000.json` (per-frame ΔE values + threshold + verdict), `histogram_correlation.json`, `sharpness_metrics.json`, `aspect_ratio.json`, `fps_speed.json`, `continuity_ssim.json`, plus the aligned source-vs-rendered frame PNG pair. Metadata-only PASS ("file exists" / "frames > 0" / "codec registered" / config-XML-only) is forbidden. **No false positives** (claiming color-correct when degraded) AND **no false negatives** (failing color-correct content because the comparison harness mis-aligned frames or applied the wrong color matrix) — the harness MUST itself be validated against a known-good golden pair and a known-bad (deliberately desaturated) pair.
+
+**Helper contracts (project-side, per §11.4.35).** A consuming project SHOULD ship a `video_fidelity.sh` (or analogous binding) exposing reusable primitives composing with §11.4.69 `ab_pass_with_evidence` / `ab_skip_with_reason`: `vf_extract_source_frame` (host ffmpeg ground-truth extraction), `vf_capture_rendered_frame` (device/sink capture), `vf_assert_delta_e2000`, `vf_assert_histogram_correlation`, `vf_assert_no_pale_no_oversaturation`, `vf_assert_sharpness`, `vf_assert_aspect_ratio`, `vf_assert_fps_speed`, `vf_assert_continuity_no_freeze`, `vf_obstruction_ocr_census`. Each emits a captured-evidence artefact path.
+
+**4-layer coverage per §11.4.4(b):**
+
+- **Pre-build gate** `CM-VIDEO-COLOR-FIDELITY` — the video-fidelity test files + `video_fidelity.sh` helper exist + are executable + parse under `sh -n` and `bash -n` per §11.4.67; every video-playback test cites the fidelity-analysis artefact path; the comparison harness's golden-pair + bad-pair self-validation is wired.
+- **Paired §1.1 meta-test mutation** — removing the ΔE2000 / histogram / sharpness assertion (or stripping the source-frame ground-truth extraction so the test analyses only the device capture in isolation) → the gate FAILs.
+- **On-device test** (LIVE_ADB_TESTABLE per §11.4.51) — dispatched against a real device + real sink, captured-evidence directory under `qa-results/<run-id>/video_fidelity/`.
+- **HelixQA Challenge entry** — a Challenge bank entry per user-visible player/streaming app references the same fidelity test as its validation route.
+
+- **Propagation gate** `CM-COVENANT-114-100-PROPAGATION` — enforces the literal anchor `11.4.100` across the canonical consumer fleet (parent + owned-submodule CLAUDE.md / AGENTS.md / QWEN.md). Paired §1.1 mutation strips the literal → gate FAILs. (Both `CM-VIDEO-COLOR-FIDELITY` and `CM-COVENANT-114-100-PROPAGATION` gate-code implementations land as a separate work item; this anchor defines the contract.)
+
+**Composes with** §11.4.2 (recorded-evidence — the captured frames ARE the recording), §11.4.5 (audio + video quality analysis — §11.4.100 is the strict expansion of §11.4.5's video bar to color + sharpness + AR + speed fidelity, mirroring the §11.4.5 audio bar), §11.4.6 (no-guessing — metric values captured, never "looks fine"), §11.4.50 (deterministic consistency — fidelity metrics MUST be N-iteration identical), §11.4.52 (autonomous-validation — fidelity analysis runs without operator presence), §11.4.69 (universal sink-side positive-evidence taxonomy — `video_display` feature class), §11.4.83 (docs/qa transcript — fidelity artefacts ARE the end-user-channel proof), §11.4.85 (stress + chaos — fidelity holds under sustained playback + fault injection, not just on the first frame).
+
+**Classification:** universal (per §11.4.17). Color + visual-quality fidelity is a reusable discipline for ANY media-playback project — codec-/platform-/app-agnostic. The consuming project supplies the specific player/streaming-app roster, the tolerance thresholds, and the capture mechanism per §11.4.35.
+
+**Canonical authority:** this Constitution.md §11.4.100 in the HelixConstitution submodule. All consuming projects (ATMOSphere, future media projects) restate + cite via §11.4.35 inheritance.
+
+**Non-compliance is a release blocker regardless of context.** No escape hatch — no `--skip-color-fidelity`, `--no-frame-analysis`, `--metadata-video-pass-suffices`, `--color-check-later`, `--source-comparison-optional` flag exists. The 2026-05-28 user mandate is unambiguous: video colors MUST be validated to the same bar as audio quality, "with or without mandatory fix", "No false positives or false negatives or bluff(s) of any kind!"
 
 ---
 
