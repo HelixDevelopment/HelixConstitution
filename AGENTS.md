@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Revision | 5 |
+| Revision | 6 |
 | Created | 2026-05-14 |
 | Last modified | 2026-05-20 |
 | Status | active |
@@ -1976,3 +1976,11 @@ Conductor MUST dispatch ≥1 (A)-(K) item per pause point. "Build running, nothi
 Operating-mode capstone: (A) every minute of progressable idle time = §11.4.97 violation; dispatch CONTINUOUSLY; (B) emit 1-line operator update at every commit/subagent-return/anchor-landed/evidence-captured/migration-closure — no prompt required; (C) continuous physical-proof gathering per §11.4.5+§11.4.6+§11.4.69; (D) composes with §11.4.5/6/13/20/27/42/50/52/69/70/72/83/85/87/88/89/94/96; (E) idle-only-when-blocked closed-set unchanged. Pre-build gates `CM-COVENANT-114-97-PROPAGATION` + `CM-IDLE-TIME-AUDIT`.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.97. Non-compliance is a release blocker.
+
+### §11.4.98 — Full-Automation Anti-Bluff Mandate — Live tests MUST be re-runnable end-to-end without manual intervention (User mandate, 2026-05-28)
+
+Forensic anchor — verbatim user mandate (2026-05-28): "Make sure we have full automation testing of all scenarios with real bot, main group and users without any manual intervention or contribution of real user! ... No bluff is allowed!"
+
+Closes the manual-intervention gap §11.4 + §11.4.85 + §11.4.87 + §11.4.89 + §11.4.94 did not explicitly forbid: a test requiring human action during execution is a §11.4 PASS-bluff at the automation layer. (A) Binding rule: every test MUST be self-driving end-to-end; PASS/FAIL/SKIP-with-reason without further human action after startup. (B) Single exception: one-time credential bootstrap OUTSIDE test execution (`.env`, `~/.bashrc`, OAuth, MTProto-session-activation) — configuration, not test driving. (C) Concrete live-messenger requirements: (1) no "operator MUST type" prompts — drive programmatically (MTProto/real-user-API/webhook-fixture/in-process loopback); (2) no UUIDs colliding with active dev session (Herald 2026-05-28 lesson: same-UUID `claude --resume` returns silent exit -1); (3) no 60s human-response windows (§11.4.50 determinism violation); (4) re-runnability proof at `-count=3` consecutive automated runs with self-cleaning state; (5) §11.4.98 audit — every existing test classified COMPLIANT vs NON-COMPLIANT; (6) no false-positive PASS — silent-skip-as-PASS forbidden, stale-evidence forbidden, SKIP-with-reason per §11.4.3. (D) Composes with §11.4.85+89+87+94 = continuously-validated fully-automated non-flake anti-bluff regime. (E) Inheritance per §11.4.35 — restate literal anchor `11.4.98` in every consumer's CLAUDE/AGENTS/QWEN; pre-build gate `CM-COVENANT-114-98-PROPAGATION`; paired §1.1 mutations strip → gates FAIL. (F) Enforcement: manual-action commit BLOCKED at release-gate; NON-COMPLIANT test not rewritten in 30 days → §11.4.90 Obsolete citing §11.4.98.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.98. Non-compliance is a release blocker.

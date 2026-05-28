@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Revision | 2 |
+| Revision | 3 |
 | Created | 2026-05-20 |
 | Last modified | 2026-05-20 |
 | Status | active |
@@ -360,3 +360,11 @@ Conductor dispatches ≥1 (A)-(K) per pause. "Build running, nothing else to do"
 (A) Every minute progressable idle = §11.4.97 violation, dispatch CONTINUOUSLY; (B) 1-line operator updates at commit/subagent/anchor/evidence/migration — no prompt; (C) continuous physical-proof gathering per §11.4.5/6/69; (D) composes with operating-mode anchor family; (E) idle-only-when-blocked closed-set unchanged from §11.4.94(A). Pre-build gates `CM-COVENANT-114-97-PROPAGATION` + `CM-IDLE-TIME-AUDIT`.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.97. Release blocker.
+
+### §11.4.98 — Full-Automation Anti-Bluff (User mandate, 2026-05-28)
+
+Forensic anchor: "Make sure we have full automation testing of all scenarios with real bot, main group and users without any manual intervention or contribution of real user! ... No bluff is allowed!"
+
+Closes the manual-intervention gap §11.4+85+87+89+94 didn't forbid. (A) every test MUST self-drive end-to-end — PASS/FAIL/SKIP-with-reason without further human action; (B) single exception = one-time credential bootstrap OUTSIDE test execution (.env, ~/.bashrc, OAuth, MTProto-session-activation); (C) concrete live requirements: (1) no "operator MUST type" prompts — drive via MTProto/real-user-API/webhook-fixture/in-process loopback; (2) no UUIDs colliding with active dev session (Herald 2026-05-28: silent exit -1 lesson); (3) no 60s human-response windows (§11.4.50 violation); (4) re-runnability `-count=3` with self-cleaning state; (5) audit COMPLIANT vs NON-COMPLIANT; (6) no false-positive PASS — silent-skip-as-PASS + stale-evidence forbidden, §11.4.3 SKIP-with-reason correct; (D) composes §11.4.85+89+87+94 = continuously-validated fully-automated non-flake anti-bluff regime; (E) inheritance per §11.4.35 — restate literal `11.4.98` in every consumer; pre-build gate `CM-COVENANT-114-98-PROPAGATION`; paired §1.1 mutations strip → FAIL; (F) enforcement: manual-action commit BLOCKED; NON-COMPLIANT after 30 days → §11.4.90 Obsolete citing §11.4.98.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.98. Release blocker.
