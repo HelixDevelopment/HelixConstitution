@@ -901,5 +901,110 @@ force-push only. Composes §2.1 / §9.2 / §11.4.41 / §11.4.42 / §11.4.71 /
 <code>CM-BACKGROUND-PUSH-WIRED</code> + paired §1.1 mutations.</p>
 <p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.88.
 Non-compliance is a release blocker.</p>
+<h3 id="11489--background-test-execution-mandate-user-mandate-2026-05-27">§11.4.89
+— Background test execution mandate (User mandate, 2026-05-27)</h3>
+<p>Forensic anchor 2026-05-27: conductor invoked long pre_build
+synchronously, blocking main stream 6-7 min on §JV/§JW/§JX/§JY
+scaffolding. Symmetric to §11.4.88 at test-execution layer. Mandate: (A)
+long tests (&gt;30s) run via
+<code>nohup ... &gt; &lt;log&gt; 2&gt;&amp;1 &amp;</code> +
+<code>disown</code>; (B) main stream proceeds to §11.4.42 priority queue
+immediately; (C) hard-dependency gating via poll/pgrep — surface
+§11.4.66 options if still running; (D) failures land in log files; (E)
+foreground only &lt;30s OR operator authorisation; (F) per-script flock.
+Composes §11.4.42 / §11.4.66 / §11.4.82 / §11.4.84 / §11.4.85 / §11.4.87
+/ §11.4.88. Gates <code>CM-COVENANT-114-89-PROPAGATION</code> +
+<code>CM-BACKGROUND-TEST-EXECUTION-WIRED</code> + paired §1.1
+mutations.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.89.
+Non-compliance is a release blocker.</p>
+<h3 id="11490--obsolete-status--obsolescence-audit-user-mandate-2026-05-27">§11.4.90
+— Obsolete status + obsolescence audit (User mandate, 2026-05-27)</h3>
+<p>§11.4.15 Status closed-set + terminal
+<code>Obsolete (→ Fixed.md)</code>. Reasons:
+<code>superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology</code>.
+<code>**Obsolete-Details:**</code> line mandatory (Since + Reason +
+Superseding-item + Triple-check evidence). Colorizer
+<code>cell-status-obsolete</code> = light-gray + strikethrough. Audit
+cadence per §11.4.40 + §11.4.42. Triple-check non-negotiable.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.90.
+Release blocker.</p>
+<h3 id="11491--summary-doc-clarity-user-mandate-2026-05-27">§11.4.91 —
+Summary-doc clarity (User mandate, 2026-05-27)</h3>
+<p>Every summary entry&#39;s description: self-contained, meaningful, ≥ 6
+words / ≥ 40 chars, SUBJECT + PROBLEM/GOAL. Anti-patterns forbidden:
+section labels, bare metadata, §-letter alone. Generators extract from
+H1/H2 heading. Pre-build gate
+<code>CM-SUMMARY-CLARITY-DESCRIPTIONS</code>.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.91.
+Release blocker.</p>
+<h3 id="11492--multi-pass-change-evaluation-user-mandate-2026-05-27">§11.4.92
+— Multi-pass change-evaluation (User mandate, 2026-05-27)</h3>
+<p>5-pass evaluation BEFORE commit-ready: (1) Main-task verification;
+(2) Regression-blast-radius; (3) Cross-feature interaction; (4)
+Deep-research per §11.4.8; (5) Anti-bluff confirmation. Doc per pass.
+Trivial exemption: typo/revision/MD-export ONLY if zero source
+touched.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.92.
+Release blocker.</p>
+<h3 id="11493--sqlite-ssot-for-workable-items-user-mandate-2026-05-27">§11.4.93
+— SQLite-SSoT for workable items (User mandate, 2026-05-27)</h3>
+<p><code>docs/.workable_items.db</code> SQLite — DB authoritative, MD
+derived. Schema: items + item_history + obsolete_details +
+operator_block_details + firebase_metadata + meta. Go binary
+<code>cmd/workable-items/</code> sync md↔︎db + diff + validate + add +
+close. Bidirectional regen byte-identical. Anti-bluff:
+unit+integration+stress+chaos per §11.4.85. Go binary in constitution
+submodule per §11.4.74. 6-phase migration §LA.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.93.
+Release blocker.</p>
+<h3 id="11494--zero-idle-priority-first-parallel-by-default-user-mandate-2026-05-27">§11.4.94
+— Zero-idle priority-first parallel-by-default (User mandate,
+2026-05-27)</h3>
+<p>Binds §11.4.20/42/58/70/72/82/87/88/89 — always-on. Idle ONLY:
+externally blocked, operator STOP, §12 host-safety. Before any
+wake/sleep survey parallel-work queue. Priority MANDATORY (§11.4.72
+audio first). Subagent-driven default non-trivial. Background default
+&gt;30s. Stability per §11.4.92 + §11.4.84 + §12.6-9. Updates at
+milestones.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.94.
+Release blocker.</p>
+<h3 id="11495--workable-items-db-tracked-in-git-user-mandate-2026-05-27">§11.4.95
+— Workable-items DB TRACKED in git (User mandate, 2026-05-27)</h3>
+<p>§11.4.93 amendment: <code>docs/workable_items.db</code> TRACKED,
+NEVER gitignored. Authoritative source. Every mutation →
+stage+commit+push DB + MD. WAL-checkpoint before commit. §11.4.77 does
+NOT apply. Pre-build gates <code>CM-COVENANT-114-95-PROPAGATION</code> +
+<code>CM-WORKABLE-ITEMS-DB-TRACKED</code>.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.95.
+Release blocker.</p>
+<h3 id="11496--safe-parallel-work-with-long-build-user-mandate-2026-05-27">§11.4.96
+— Safe-parallel-work-with-long-build (User mandate, 2026-05-27)</h3>
+<p>SAFE during AOSP build: (A) docs/MD; (B) scripts/; (C) pre-build
+gates; (D) on-device tests; (E) constitution edits+push; (F) submodule
+push per §11.4.88; (G) read-only ADB probes; (H) subagent dispatch; (I)
+web research; (J) workable-items DB ops; (K) pre-build + meta-test
+execution backgrounded.</p>
+<p>UNSAFE: (α) git checkout/reset on source; (β) mass deletes/renames
+under built source; (γ) APK-built submodule pointer; (δ) out/; (ε) make
+clean; (ζ) container destruction; (η) disk-fill; (θ) §12
+host-safety.</p>
+<p>Conductor dispatches ≥1 (A)-(K) per pause. &quot;Build running, nothing
+else to do&quot; NEVER true.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.96.
+Release blocker.</p>
+<h3 id="11497--max-use-of-idle--progress-update-cadence-user-mandate-2026-05-27">§11.4.97
+— Max-use-of-idle + progress-update cadence (User mandate,
+2026-05-27)</h3>
+<p>(A) Every minute progressable idle = §11.4.97 violation, dispatch
+CONTINUOUSLY; (B) 1-line operator updates at
+commit/subagent/anchor/evidence/migration — no prompt; (C) continuous
+physical-proof gathering per §11.4.5/6/69; (D) composes with
+operating-mode anchor family; (E) idle-only-when-blocked closed-set
+unchanged from §11.4.94(A). Pre-build gates
+<code>CM-COVENANT-114-97-PROPAGATION</code> +
+<code>CM-IDLE-TIME-AUDIT</code>.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.97.
+Release blocker.</p>
 </body>
 </html>

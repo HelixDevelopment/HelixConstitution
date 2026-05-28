@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+
+html {
+color: #1a1a1a;
+background-color: #fdfdfd;
+}
+body {
+margin: 0 auto;
+max-width: 36em;
+padding-left: 50px;
+padding-right: 50px;
+padding-top: 50px;
+padding-bottom: 50px;
+hyphens: auto;
+overflow-wrap: break-word;
+text-rendering: optimizeLegibility;
+font-kerning: normal;
+}
+@media (max-width: 600px) {
+body {
+font-size: 0.9em;
+padding: 12px;
+}
+h1 {
+font-size: 1.8em;
+}
+}
+@media print {
+html {
+background-color: white;
+}
+body {
+background-color: transparent;
+color: black;
+font-size: 12pt;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3, h4 {
+page-break-after: avoid;
+}
+}
+p {
+margin: 1em 0;
+}
+a {
+color: #1a1a1a;
+}
+a:visited {
+color: #1a1a1a;
+}
+img {
+max-width: 100%;
+}
+svg {
+height: auto;
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+margin-top: 1.4em;
+}
+h5, h6 {
+font-size: 1em;
+font-style: italic;
+}
+h6 {
+font-weight: normal;
+}
+ol, ul {
+padding-left: 1.7em;
+margin-top: 1em;
+}
+li > ol, li > ul {
+margin-top: 0;
+}
+blockquote {
+margin: 1em 0 1em 1.7em;
+padding-left: 1em;
+border-left: 2px solid #e6e6e6;
+color: #606060;
+}
+code {
+font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+font-size: 85%;
+margin: 0;
+hyphens: manual;
+}
+pre {
+margin: 1em 0;
+overflow: auto;
+}
+pre code {
+padding: 0;
+overflow: visible;
+overflow-wrap: normal;
+}
+.sourceCode {
+background-color: transparent;
+overflow: visible;
+}
+hr {
+border: none;
+border-top: 1px solid #1a1a1a;
+height: 1px;
+margin: 1em 0;
+}
+table {
+margin: 1em 0;
+border-collapse: collapse;
+width: 100%;
+overflow-x: auto;
+display: block;
+font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+margin-bottom: 0.75em;
+}
+tbody {
+margin-top: 0.5em;
+border-top: 1px solid #1a1a1a;
+border-bottom: 1px solid #1a1a1a;
+}
+th {
+border-top: 1px solid #1a1a1a;
+padding: 0.25em 0.5em 0.25em 0.5em;
+}
+td {
+padding: 0.125em 0.5em 0.25em 0.5em;
+}
+header {
+margin-bottom: 4em;
+text-align: center;
+}
+#TOC li {
+list-style: none;
+}
+#TOC ul {
+padding-left: 1.3em;
+}
+#TOC > ul {
+padding-left: 0;
+}
+#TOC a:not(:hover) {
+text-decoration: none;
+}
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">README</h1>
+</header>
+<h1 id="workable-items--11493-sqlite-ssot-go-binary">workable-items —
+§11.4.93 SQLite-SSoT Go binary</h1>
+<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
+2026-05-27T06:30:00Z <strong>Description:</strong> Authoritative
+source-of-truth registry for every workable item in every consuming
+project. Bidirectional regen between SQLite DB and Markdown trackers per
+Constitution §11.4.93.</p>
+<h2 id="overview">Overview</h2>
+<p>Per Constitution §11.4.93, every consuming project&#39;s workable-items
+inventory (Issues.md / Fixed.md / Issues_Summary.md / Fixed_Summary.md /
+Status.md fleet / CONTINUATION.md §3) is reconstructible from this
+DB-backed registry. The DB is the <strong>authoritative</strong> source;
+all Markdown / HTML / PDF surfaces are generator output.</p>
+<p>Sync drift is mechanically impossible because every regeneration
+starts from the DB.</p>
+<h2 id="layout">Layout</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>schema.sql</code></td>
+<td>DDL — 6 tables: items + item_history + obsolete_details +
+operator_block_details + firebase_metadata + meta</td>
+</tr>
+<tr>
+<td><code>cmd/workable-items/main.go</code></td>
+<td>Go binary entrypoint (Phase 2 scaffold)</td>
+</tr>
+<tr>
+<td><code>pkg/itemsdb/</code></td>
+<td>SQLite access layer (Phase 2 scaffold)</td>
+</tr>
+<tr>
+<td><code>pkg/mdparser/</code></td>
+<td>Markdown→DB parser (Phase 3 scaffold)</td>
+</tr>
+<tr>
+<td><code>pkg/mdrender/</code></td>
+<td>DB→Markdown renderer (Phase 4 scaffold)</td>
+</tr>
+<tr>
+<td><code>tests/</code></td>
+<td>Unit + integration + stress + chaos tests per §11.4.85</td>
+</tr>
+</tbody>
+</table>
+<h2 id="subcommands-phase-2-spec">Subcommands (Phase 2 spec)</h2>
+<pre><code>workable-items sync md-to-db        # parse Issues.md+Fixed.md → upsert DB
+workable-items sync db-to-md        # regen MD docs from DB
+workable-items diff                 # show DB vs MD divergence (CI gate)
+workable-items validate             # invariant + schema sanity (pre-build gate)
+workable-items add &lt;type&gt; &lt;severity&gt; --title &lt;T&gt; --description &lt;D&gt;
+workable-items close &lt;atm-id&gt; --status &lt;fixed|implemented|completed|obsolete&gt; --evidence &lt;path&gt;
+workable-items report --by-type|--by-status|--by-severity|--obsolete-audit</code></pre>
+<h2 id="anti-bluff-coverage-mandatory-per-11493--11485">Anti-bluff
+coverage (mandatory per §11.4.93 + §11.4.85)</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit</td>
+<td>every CRUD operation + every schema invariant + closed-set
+validators</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td>full MD→DB→MD round-trip byte-identical (modulo whitespace
+tolerance)</td>
+</tr>
+<tr>
+<td>Stress per §11.4.85</td>
+<td>1000-row insert; 10 concurrent writers; sustained read
+throughput</td>
+</tr>
+<tr>
+<td>Chaos per §11.4.85</td>
+<td>mid-write SIGKILL; corrupt-DB recovery; disk-full; FD
+exhaustion</td>
+</tr>
+<tr>
+<td>Paired §1.1 mutation</td>
+<td>strip CRUD function → unit test FAILs</td>
+</tr>
+<tr>
+<td>HelixQA Challenge</td>
+<td><code>CME-WORKABLE-ITEMS-001</code> exercises end-to-end
+DB→MD→DB→MD</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-phase-migration-per-11493-consuming-project-work">6-phase
+migration per §11.4.93 (consuming-project work)</h2>
+<ol type="1">
+<li><strong>Phase 1</strong> — Issues entry <code>§LA</code> filed,
+scope-locked.</li>
+<li><strong>Phase 2</strong> — Go binary scaffold + DDL committed (this
+PWU).</li>
+<li><strong>Phase 3</strong> — <code>sync md-to-db</code> lands +
+captures initial migration.</li>
+<li><strong>Phase 4</strong> — <code>sync db-to-md</code> lands +
+byte-identical round-trip CI gate.</li>
+<li><strong>Phase 5</strong> — Existing bash generators
+(<code>generate_issues_summary.sh</code> etc.) become Go-binary
+shims.</li>
+<li><strong>Phase 6</strong> — Legacy text-direct edits prohibited
+(pre-commit hook).</li>
+</ol>
+<h2 id="composes-with-constitution-anchors">Composes with constitution
+anchors</h2>
+<p>§11.4 / §11.4.12 / §11.4.15 / §11.4.16 / §11.4.17 / §11.4.19 /
+§11.4.21 / §11.4.27 / §11.4.30 / §11.4.33 / §11.4.34 / §11.4.42 /
+§11.4.43 / §11.4.44 / §11.4.45 / §11.4.50 / §11.4.52 / §11.4.53 /
+§11.4.54 / §11.4.55 / §11.4.56 / §11.4.57 / §11.4.58 / §11.4.60 /
+§11.4.65 / §11.4.74 / §11.4.77 / §11.4.83 / §11.4.85 / §11.4.86 /
+§11.4.87 / §11.4.89 / §11.4.90 / §11.4.91 / §11.4.92.</p>
+<h2 id="canonical-authority">Canonical authority</h2>
+<p><a href="../../Constitution.md"><code>../../Constitution.md</code></a>
+§11.4.93.</p>
+</body>
+</html>
