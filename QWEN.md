@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Revision | 5 |
+| Revision | 6 |
 | Created | 2026-05-20 |
-| Last modified | 2026-05-28T00:00:00Z |
+| Last modified | 2026-05-28T12:00:00Z |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.100 (Video color + visual-quality fidelity mandate, User mandate 2026-05-28) into this QWEN.md. §11.4.78–§11.4.99 mirrors continue from earlier Revisions. |
+| Status summary | Mirrored Constitution.md §11.4.101 (Autonomous-decision-over-blocking mandate, User mandate 2026-05-28) into this QWEN.md. §11.4.78–§11.4.100 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
 | Fixed | §11.4.100 mirror |
@@ -390,3 +390,13 @@ Closed-set checks (ALL): (1) **Color** — ΔE2000 vs source ≤ threshold; RGB+
 Coverage: EVERY pre-installed player + every streaming app, local + streamed, full automation per §11.4.52+48+49. Geo SKIP-with-reason per §11.4.3+69. Anti-bluff: artefact load-bearing per §11.4.5+69 (`video_display`); NO false pos AND NO false neg — harness validated vs known-good golden + known-bad desaturated pairs. Helper `video_fidelity.sh` composes with §11.4.69 `ab_pass_with_evidence`. Gate `CM-VIDEO-COLOR-FIDELITY` + propagation `CM-COVENANT-114-100-PROPAGATION` (literal `11.4.100`) + paired §1.1 mutations (gate-code = separate work item). Composes §11.4.2/5/6/50/52/69/83/85. Classification: universal (§11.4.17).
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.100. Release blocker. No `--skip-color-fidelity` / `--no-frame-analysis` / `--metadata-video-pass-suffices` / `--source-comparison-optional` escape.
+
+### §11.4.101 — Autonomous-decision-over-blocking (User mandate, 2026-05-28)
+
+Forensic: "when working in endless working loop fully autonomously try to decide most properly about points which would block execution and wait for us. If we haven't answered now work would be blocked whole night! If possible and if that will not cause any issues make proper and most reliable and safe decision so we achieve maximal efficiency and work gets fully done!"
+
+In autonomous / endless-loop mode (per §11.4.87) the agent MUST minimize operator-blocking and make the safe, reliable, reversible decision itself — work NOT stalled overnight waiting for input. §11.4.87 = keep working; §11.4.101 = HOW to clear the decision points.
+
+Decision rule (proceed autonomously when ALL): (a) reversible OR pre-op backup per §9.2; (b) safe choice determinable from captured evidence per §11.4.6 (`LIKELY` ≠ determination); (c) wrong-choice blast radius bounded AND recoverable; (d) composes with §11.4 + §12 + §9. Block-only-when (BLOCK via §11.4.66 ONLY when ALL): irreversible AND high-blast-radius AND choice undeterminable from evidence — external-account state, inaccessible hardware, destructive-op-without-backup, force-push (§9.2 + §11.4.41), spending / third-party send. `Operator-blocked` per §11.4.21 only after this fires + self-resolution-exhaustion audit. Maximize-progress-while-blocked: a block parks one work unit, not the loop — keep progressing NON-blocked items per §11.4.87 + §11.4.94; pose-and-idle = §11.4.94 + §11.4.97 violation. Composes §11.4.6/21/40/41/66/87/94/§9.2/§12. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-101-PROPAGATION` (literal `11.4.101`) + paired §1.1 mutation (gate-code = separate work item).
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.101. Release blocker. No `--always-block-on-decision` / `--never-decide-autonomously` / `--skip-decision-rule` / `--block-without-self-resolution` escape.

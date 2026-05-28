@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Revision | 8 |
+| Revision | 9 |
 | Created | 2026-05-14 |
-| Last modified | 2026-05-28T00:00:00Z |
+| Last modified | 2026-05-28T12:00:00Z |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.100 (Video color + visual-quality fidelity mandate, User mandate 2026-05-28) into this AGENTS.md. §11.4.78–§11.4.99 mirrors continue from earlier Revisions. |
+| Status summary | Mirrored Constitution.md §11.4.101 (Autonomous-decision-over-blocking mandate, User mandate 2026-05-28) into this AGENTS.md. §11.4.78–§11.4.100 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
 | Fixed | §11.4.100 mirror |
@@ -2012,3 +2012,19 @@ Pre-build gate `CM-VIDEO-COLOR-FIDELITY` + propagation gate `CM-COVENANT-114-100
 Composes with §11.4.2 / §11.4.5 / §11.4.6 / §11.4.50 / §11.4.52 / §11.4.69 / §11.4.83 / §11.4.85. Classification: universal (§11.4.17) — consumer supplies player roster, thresholds, capture mechanism per §11.4.35.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.100. Non-compliance is a release blocker. No escape hatch — no `--skip-color-fidelity`, `--no-frame-analysis`, `--metadata-video-pass-suffices`, `--color-check-later`, `--source-comparison-optional` flag.
+
+### §11.4.101 — Autonomous-decision-over-blocking mandate (User mandate, 2026-05-28)
+
+Forensic anchor — verbatim user mandate (2026-05-28): "when working in endless working loop fully autonomously try to decide most properly about points which would block execution and wait for us. If we haven't answered now work would be blocked whole night! If possible and if that will not cause any issues make proper and most reliable and safe decision so we achieve maximal efficiency and work gets fully done!"
+
+When operating in autonomous / endless-loop mode (per §11.4.87), the agent MUST minimize operator-blocking and instead make the safe, reliable, reversible decision itself — so work is NOT stalled (e.g. overnight) waiting for input. §11.4.87 says keep working; §11.4.101 says HOW to clear the decision points.
+
+Decision rule (closed-set — proceed autonomously when ALL hold): (a) action reversible OR captured pre-op backup per §9.2; (b) safe choice determinable from captured evidence per §11.4.6 (no guessing — `LIKELY` is not a determination); (c) wrong-choice blast radius bounded AND recoverable; (d) composes with anti-bluff §11.4 + host-safety §12 + data-safety §9.
+
+Block-only-when rule (BLOCK via §11.4.66 ONLY when ALL hold): action irreversible AND high-blast-radius AND safe choice undeterminable from evidence — e.g. external-account state the agent cannot inspect, hardware it cannot access, destructive ops without backup, force-push (also §9.2 + §11.4.41), spending / sending to third parties. `Operator-blocked` per §11.4.21 reached only after this rule fires AND self-resolution-exhaustion audit completes.
+
+Maximize-progress-while-blocked: an unavoidable block parks one work unit, not the loop — keep progressing every NON-blocked item in parallel per §11.4.87 + §11.4.94. Posing the question and going idle is a §11.4.94 + §11.4.97 violation.
+
+Composes with §11.4.6 / §11.4.21 / §11.4.40 / §11.4.41 / §11.4.66 / §11.4.87 / §11.4.94 / §9.2 / §12. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-101-PROPAGATION` (literal `11.4.101` across consumer fleet) + paired §1.1 meta-test mutation (strip literal → gate FAILs; gate-code = separate work item). No escape hatch — no `--always-block-on-decision`, `--never-decide-autonomously`, `--skip-decision-rule`, `--block-without-self-resolution` flag.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.101. Non-compliance is a release blocker.
