@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Revision | 3 |
+| Revision | 4 |
 | Created | 2026-05-20 |
 | Last modified | 2026-05-20 |
 | Status | active |
@@ -368,3 +368,13 @@ Forensic anchor: "Make sure we have full automation testing of all scenarios wit
 Closes the manual-intervention gap §11.4+85+87+89+94 didn't forbid. (A) every test MUST self-drive end-to-end — PASS/FAIL/SKIP-with-reason without further human action; (B) single exception = one-time credential bootstrap OUTSIDE test execution (.env, ~/.bashrc, OAuth, MTProto-session-activation); (C) concrete live requirements: (1) no "operator MUST type" prompts — drive via MTProto/real-user-API/webhook-fixture/in-process loopback; (2) no UUIDs colliding with active dev session (Herald 2026-05-28: silent exit -1 lesson); (3) no 60s human-response windows (§11.4.50 violation); (4) re-runnability `-count=3` with self-cleaning state; (5) audit COMPLIANT vs NON-COMPLIANT; (6) no false-positive PASS — silent-skip-as-PASS + stale-evidence forbidden, §11.4.3 SKIP-with-reason correct; (D) composes §11.4.85+89+87+94 = continuously-validated fully-automated non-flake anti-bluff regime; (E) inheritance per §11.4.35 — restate literal `11.4.98` in every consumer; pre-build gate `CM-COVENANT-114-98-PROPAGATION`; paired §1.1 mutations strip → FAIL; (F) enforcement: manual-action commit BLOCKED; NON-COMPLIANT after 30 days → §11.4.90 Obsolete citing §11.4.98.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.98. Release blocker.
+
+### §11.4.99 — Latest-Source Documentation Cross-Reference (User mandate, 2026-05-28)
+
+Forensic: "ALWAYS check against latest versions of services we use web/online docs before creating instructions! ... mandatory rules / constraints, result is consistency and safety of created instructions, guides and manuals!"
+
+Case study (Herald 2026-05-28): MTProto guide recommended VoIP + omitted `recover@telegram.org` pre-login email; contradicted official Telegram + gotd/td docs; could have caused permanent ban. Misguidance-by-stale-docs = §11.4 PASS-bluff at documentation layer.
+
+(A) Pre-commit cross-reference: fetch LATEST official online docs (WebFetch/MCP/direct browsing — NEVER training data) for every operator-facing instruction doc; cite source URL+date in "## Sources verified" footer AND commit-message footer; seek secondary authoritative sources for sparse official docs. (B) Negative findings documented explicitly. (C) STALE after 6 months (90 days for risk-classified services); re-verify at vN.0.0, on breaking-change, on operator-error. (D) Risk-classified: messengers/cloud/payment/AI/code-hosting/package-managers. (E) Composes with §11.4.92 Pass 4 INDEPENDENT — cannot substitute. (F) Inheritance per §11.4.35 — restate literal `11.4.99` in every consumer's CLAUDE/AGENTS/QWEN. (G) Enforcement: missing-footer BLOCKED; stale-beyond-grace → §11.4.90 Obsolete.
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.99. Release blocker.

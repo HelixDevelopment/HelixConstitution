@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Revision | 6 |
+| Revision | 7 |
 | Created | 2026-05-14 |
 | Last modified | 2026-05-20 |
 | Status | active |
@@ -1984,3 +1984,13 @@ Forensic anchor — verbatim user mandate (2026-05-28): "Make sure we have full 
 Closes the manual-intervention gap §11.4 + §11.4.85 + §11.4.87 + §11.4.89 + §11.4.94 did not explicitly forbid: a test requiring human action during execution is a §11.4 PASS-bluff at the automation layer. (A) Binding rule: every test MUST be self-driving end-to-end; PASS/FAIL/SKIP-with-reason without further human action after startup. (B) Single exception: one-time credential bootstrap OUTSIDE test execution (`.env`, `~/.bashrc`, OAuth, MTProto-session-activation) — configuration, not test driving. (C) Concrete live-messenger requirements: (1) no "operator MUST type" prompts — drive programmatically (MTProto/real-user-API/webhook-fixture/in-process loopback); (2) no UUIDs colliding with active dev session (Herald 2026-05-28 lesson: same-UUID `claude --resume` returns silent exit -1); (3) no 60s human-response windows (§11.4.50 determinism violation); (4) re-runnability proof at `-count=3` consecutive automated runs with self-cleaning state; (5) §11.4.98 audit — every existing test classified COMPLIANT vs NON-COMPLIANT; (6) no false-positive PASS — silent-skip-as-PASS forbidden, stale-evidence forbidden, SKIP-with-reason per §11.4.3. (D) Composes with §11.4.85+89+87+94 = continuously-validated fully-automated non-flake anti-bluff regime. (E) Inheritance per §11.4.35 — restate literal anchor `11.4.98` in every consumer's CLAUDE/AGENTS/QWEN; pre-build gate `CM-COVENANT-114-98-PROPAGATION`; paired §1.1 mutations strip → gates FAIL. (F) Enforcement: manual-action commit BLOCKED at release-gate; NON-COMPLIANT test not rewritten in 30 days → §11.4.90 Obsolete citing §11.4.98.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.98. Non-compliance is a release blocker.
+
+### §11.4.99 — Latest-Source Documentation Cross-Reference Mandate — instructions/guides/manuals MUST be verified against latest official online sources BEFORE publication (User mandate, 2026-05-28)
+
+Forensic anchor: "Make sure we ALWAYS check against latest versions of services we use web/online docs before creating instructions! This situation is illustration of how we can misguide ourselves or get banned!"
+
+Case study (Herald 2026-05-28): first-draft MTProto guide recommended VoIP + omitted `recover@telegram.org` pre-login email; both contradicted official Telegram + gotd/td docs and could have caused permanent account ban. Misguidance-by-stale-docs = §11.4 PASS-bluff at documentation layer.
+
+(A) Pre-commit cross-reference: agent MUST fetch LATEST official online docs (WebFetch/MCP/direct browsing — NEVER training data) for every operator-facing instruction doc; cross-reference each instruction; seek secondary authoritative sources (maintainer SUPPORT.md, changelogs, vetted FAQs) when official is sparse; cite source URL + date in "## Sources verified" footer; cite in commit-message footer (`Sources verified <date>: <urls>`). (B) Negative findings documented (gaps/silences = no authoritative agreement). (C) Re-verification cadence — STALE after 6 months (90 days for risk-classified services); re-verify before operator-authority citation, at vN.0.0 release boundary, on breaking-change announcements, on operator-error report. (D) Risk-classified services (messengers/cloud/payment/AI/code-hosting/package-managers) — 90-day staleness limit + explicit safety warnings vs latest policies. (E) Composes with §11.4.92 Pass 4 but INDEPENDENT — cannot substitute. (F) Inheritance per §11.4.35 — restate literal `11.4.99` in every consumer; pre-build gate `CM-COVENANT-114-99-PROPAGATION`. (G) Enforcement: missing footer → BLOCKED at release-gate; stale-beyond-grace → §11.4.90 Obsolete `Reason=stale-documentation`.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.99. Non-compliance is a release blocker.
