@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 7 |
+| Revision | 8 |
 | Created | 2026-05-14 |
-| Last modified | 2026-05-20 |
+| Last modified | 2026-05-28T00:00:00Z |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.78 (CodeGraph code-intelligence mandate) into this CLAUDE.md. §11.4.73–§11.4.77 mirrors continue from earlier Revisions. |
+| Status summary | Mirrored Constitution.md §11.4.100 (Video color + visual-quality fidelity mandate, User mandate 2026-05-28) into this CLAUDE.md. §11.4.78–§11.4.99 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | §11.4.78 mirror |
-| Fixed summary | §11.4.78 lands in lockstep with the Constitution.md §11.4.78 addition. |
+| Fixed | §11.4.100 mirror |
+| Fixed summary | §11.4.100 lands in lockstep with the Constitution.md §11.4.100 addition. |
 | Continuation | — |
 
 ## Table of contents
@@ -2749,3 +2749,21 @@ Case study (Herald 2026-05-28): first-draft Herald MTProto setup guide recommend
 Composes with §11.4.4 + §11.4.5 + §11.4.8 + §11.4.92 Pass 4 + §107 + §11.4.98. Closes the gap §11.4.92 Pass 4 alludes to but does not explicitly mandate. (A) Pre-commit cross-reference: every operator-facing instruction document MUST (1) fetch the LATEST official online docs of the service/library via WebFetch/MCP/direct browsing (NEVER training data, memory, or prior committed docs); (2) cross-reference each instruction against the source; (3) seek secondary authoritative sources when the official docs are sparse/silent (library maintainer SUPPORT.md, official changelogs, vetted community FAQs); (4) cite source URL + date in a "## Sources verified" footer on the doc; (5) cite the cross-reference in the commit-message footer (`Sources verified <date>: <urls>`). (B) Negative findings: gaps/silences/contradictions MUST be documented explicitly so the next reader doesn't assume absence-of-contradiction is authoritative agreement. (C) Re-verification cadence: documents older than 6 months are STALE — re-verify before citing as operator authority, at every vN.0.0 release boundary, on service breaking-change announcements, or when an operator reports an error following the guide. (D) Risk-classified services (Telegram/WhatsApp messengers, cloud APIs, payment systems, AI/LLM providers, code-hosting services, package managers) — 90-day max staleness; explicit safety warnings cited against latest policies. (E) Composes with §11.4.92 Pass 4 but is INDEPENDENT — cannot substitute. (F) Inheritance per §11.4.35 — restate literal anchor `11.4.99` in every consumer's CLAUDE/AGENTS/QWEN; pre-build gate `CM-COVENANT-114-99-PROPAGATION` (when implemented) enforces; paired §1.1 mutations strip → gates FAIL. (G) Enforcement: commit without "Sources verified <date>" doc-footer AND commit-message-footer BLOCKED at release-gate; stale-beyond-grace docs graduate to §11.4.90 Obsolete with `Reason=stale-documentation`.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.99. Non-compliance is a release blocker.
+
+### §11.4.100 — Video color + visual-quality fidelity mandate (User mandate, 2026-05-28)
+
+Forensic anchor — verbatim user mandate (2026-05-28): "We MUST check for all content being played — all videos ... that all colors are fine and proper! We MUST HAVE same approach to colors like to our sound quality! ... Maximally sharp, no glitches, and all video colors MUST BE as expected! We MUST CHECK that we are not rendering colors as pale, or wrongly saturated, or modified from original stream or file! There MUST BE NO degradation of any kind! ... deep analysis on gathered frames ... colors, aspect ratio, speed, frames per second, any obstacle or interruption — all this MUST BE validated, verified and confirmed! ... all available streaming apps and installed and pre-installed players by full automation tests ... No false positives or false negatives or bluff(s) of any kind!"
+
+§11.4.5 mandates audio quality analysis + a baseline video presence pass; §11.4.100 raises the video bar to **color + visual-quality fidelity parity with the audio bar**. Every user-visible video-playback test PASS MUST carry a captured-frame deep-analysis artefact proving the rendered output matches the source within documented tolerance. Metadata-only PASS (file exists / frames > 0 / codec registered / config-only) is a §11.4 / §107 PASS-bluff at the visual-fidelity layer.
+
+The discriminator: extract the ground-truth reference frame from the original file/stream **on the host** with `ffmpeg`, capture the corresponding rendered frame from the device's actual output, align, compare. Device-only capture (no source comparison) cannot detect a uniform pale/desaturation/hue shift the renderer introduces.
+
+Closed-set of required checks (ALL mandatory): (1) **Color fidelity** — per-frame ΔE2000 (CIEDE2000) vs source ≤ threshold; RGB+HSV histogram correlation ≥ threshold; no pale/washed-out (saturation not collapsed); no over-saturation; no hue shift; gamma/luma within tolerance (full-range-vs-limited-range BT.601/709/2020 negotiation exercised explicitly — the #1 real-world pale-render cause); (2) **Sharpness** — Laplacian-variance / high-frequency-energy of rendered ≥ source within tolerance; (3) **Aspect ratio** — rendered AR matches source (no stretch/letterbox-crop error); (4) **Frame rate / speed** — presented FPS matches source FPS, no slow/fast drift, measured over a window; (5) **Continuity** — no freeze (SSIM > 0.99 for ≥ 1 s), no dropped-frame burst, no tearing, no glitch, no obstruction overlay (§11.4.5 OCR census).
+
+Coverage: EVERY installed + pre-installed video player AND every streaming app, local-file + streamed (HTTP/HLS/DASH/RTMP/DRM), via full automation per §11.4.52 + §11.4.48 + §11.4.49. Geo-restricted streams SKIP-with-reason per §11.4.3 + §11.4.69 — never PASS-by-default, never FAIL-for-geo. Anti-bluff: captured-frame deep-analysis artefact is load-bearing per §11.4.5 + §11.4.69 (`video_display`); NO false positives AND NO false negatives — the comparison harness MUST be validated against a known-good golden pair AND a known-bad desaturated pair. Helper contract `video_fidelity.sh` (`vf_assert_delta_e2000` / `vf_assert_histogram_correlation` / `vf_assert_no_pale_no_oversaturation` / `vf_assert_sharpness` / `vf_assert_aspect_ratio` / `vf_assert_fps_speed` / `vf_assert_continuity_no_freeze` / `vf_obstruction_ocr_census`) composing with §11.4.69 `ab_pass_with_evidence`.
+
+Pre-build gate `CM-VIDEO-COLOR-FIDELITY` + propagation gate `CM-COVENANT-114-100-PROPAGATION` (literal anchor `11.4.100` across the consumer fleet) — each with a paired §1.1 meta-test mutation (strip the ΔE2000/histogram/sharpness assertion or the source-frame ground-truth extraction → gate FAILs). Gate-code implementations land as a separate work item; this anchor defines the contract.
+
+Composes with §11.4.2 / §11.4.5 (strict expansion of §11.4.5's video bar) / §11.4.6 / §11.4.50 / §11.4.52 / §11.4.69 / §11.4.83 / §11.4.85. Classification: universal (§11.4.17) — color + visual-quality fidelity is reusable for any media-playback project; consumer supplies player roster, tolerance thresholds, capture mechanism per §11.4.35.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.100. Non-compliance is a release blocker. No escape hatch — no `--skip-color-fidelity`, `--no-frame-analysis`, `--metadata-video-pass-suffices`, `--color-check-later`, `--source-comparison-optional` flag exists.
