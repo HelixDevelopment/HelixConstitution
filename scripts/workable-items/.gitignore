@@ -1,0 +1,4 @@
+/workable-items
+/cmd/workable-items/workable-items
+*.db-wal
+*.db-shm
