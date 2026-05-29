@@ -100,3 +100,9 @@ The scripts append entries below automatically; manual entries are also acceptab
 - current: `0.9.6`
 - latest:  `0.9.6`
 - action:  **no-op** (already at latest)
+
+## 2026-05-29T18:51:55Z — codegraph version check
+
+- current: `0.9.7`
+- latest:  `0.9.7`
+- action:  **no-op** (already at latest)

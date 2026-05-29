@@ -1,252 +1,245 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>QWEN</title>
   <style>
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
-    html {
-      color: #1a1a1a;
-      background-color: #fdfdfd;
-    }
-    body {
-      margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
-      overflow-wrap: break-word;
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-    @media (max-width: 600px) {
-      body {
-        font-size: 0.9em;
-        padding: 12px;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-    @media print {
-      html {
-        background-color: white;
-      }
-      body {
-        background-color: transparent;
-        color: black;
-        font-size: 12pt;
-      }
-      p, h2, h3 {
-        orphans: 3;
-        widows: 3;
-      }
-      h2, h3, h4 {
-        page-break-after: avoid;
-      }
-    }
-    p {
-      margin: 1em 0;
-    }
-    a {
-      color: #1a1a1a;
-    }
-    a:visited {
-      color: #1a1a1a;
-    }
-    img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.4em;
-    }
-    h5, h6 {
-      font-size: 1em;
-      font-style: italic;
-    }
-    h6 {
-      font-weight: normal;
-    }
-    ol, ul {
-      padding-left: 1.7em;
-      margin-top: 1em;
-    }
-    li > ol, li > ul {
-      margin-top: 0;
-    }
-    blockquote {
-      margin: 1em 0 1em 1.7em;
-      padding-left: 1em;
-      border-left: 2px solid #e6e6e6;
-      color: #606060;
-    }
-    code {
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-      font-size: 85%;
-      margin: 0;
-      hyphens: manual;
-    }
-    pre {
-      margin: 1em 0;
-      overflow: auto;
-    }
-    pre code {
-      padding: 0;
-      overflow: visible;
-      overflow-wrap: normal;
-    }
-    .sourceCode {
-     background-color: transparent;
-     overflow: visible;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #1a1a1a;
-      height: 1px;
-      margin: 1em 0;
-    }
-    table {
-      margin: 1em 0;
-      border-collapse: collapse;
-      width: 100%;
-      overflow-x: auto;
-      display: block;
-      font-variant-numeric: lining-nums tabular-nums;
-    }
-    table caption {
-      margin-bottom: 0.75em;
-    }
-    tbody {
-      margin-top: 0.5em;
-      border-top: 1px solid #1a1a1a;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    th {
-      border-top: 1px solid #1a1a1a;
-      padding: 0.25em 0.5em 0.25em 0.5em;
-    }
-    td {
-      padding: 0.125em 0.5em 0.25em 0.5em;
-    }
-    header {
-      margin-bottom: 4em;
-      text-align: center;
-    }
-    #TOC li {
-      list-style: none;
-    }
-    #TOC ul {
-      padding-left: 1.3em;
-    }
-    #TOC > ul {
-      padding-left: 0;
-    }
-    #TOC a:not(:hover) {
-      text-decoration: none;
-    }
-    code{white-space: pre-wrap;}
-    span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-    code span.at { color: #7d9029; } /* Attribute */
-    code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { color: #008000; } /* BuiltIn */
-    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #4070a0; } /* Char */
-    code span.cn { color: #880000; } /* Constant */
-    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-    code span.dt { color: #902000; } /* DataType */
-    code span.dv { color: #40a070; } /* DecVal */
-    code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #40a070; } /* Float */
-    code span.fu { color: #06287e; } /* Function */
-    code span.im { color: #008000; font-weight: bold; } /* Import */
-    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-    code span.op { color: #666666; } /* Operator */
-    code span.ot { color: #007020; } /* Other */
-    code span.pp { color: #bc7a00; } /* Preprocessor */
-    code span.sc { color: #4070a0; } /* SpecialChar */
-    code span.ss { color: #bb6688; } /* SpecialString */
-    code span.st { color: #4070a0; } /* String */
-    code span.va { color: #19177c; } /* Variable */
-    code span.vs { color: #4070a0; } /* VerbatimString */
-    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
+
+html {
+color: #1a1a1a;
+background-color: #fdfdfd;
+}
+body {
+margin: 0 auto;
+max-width: 36em;
+padding-left: 50px;
+padding-right: 50px;
+padding-top: 50px;
+padding-bottom: 50px;
+hyphens: auto;
+overflow-wrap: break-word;
+text-rendering: optimizeLegibility;
+font-kerning: normal;
+}
+@media (max-width: 600px) {
+body {
+font-size: 0.9em;
+padding: 12px;
+}
+h1 {
+font-size: 1.8em;
+}
+}
+@media print {
+html {
+background-color: white;
+}
+body {
+background-color: transparent;
+color: black;
+font-size: 12pt;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3, h4 {
+page-break-after: avoid;
+}
+}
+p {
+margin: 1em 0;
+}
+a {
+color: #1a1a1a;
+}
+a:visited {
+color: #1a1a1a;
+}
+img {
+max-width: 100%;
+}
+svg {
+height: auto;
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+margin-top: 1.4em;
+}
+h5, h6 {
+font-size: 1em;
+font-style: italic;
+}
+h6 {
+font-weight: normal;
+}
+ol, ul {
+padding-left: 1.7em;
+margin-top: 1em;
+}
+li > ol, li > ul {
+margin-top: 0;
+}
+blockquote {
+margin: 1em 0 1em 1.7em;
+padding-left: 1em;
+border-left: 2px solid #e6e6e6;
+color: #606060;
+}
+code {
+font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+font-size: 85%;
+margin: 0;
+hyphens: manual;
+}
+pre {
+margin: 1em 0;
+overflow: auto;
+}
+pre code {
+padding: 0;
+overflow: visible;
+overflow-wrap: normal;
+}
+.sourceCode {
+background-color: transparent;
+overflow: visible;
+}
+hr {
+border: none;
+border-top: 1px solid #1a1a1a;
+height: 1px;
+margin: 1em 0;
+}
+table {
+margin: 1em 0;
+border-collapse: collapse;
+width: 100%;
+overflow-x: auto;
+display: block;
+font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+margin-bottom: 0.75em;
+}
+tbody {
+margin-top: 0.5em;
+border-top: 1px solid #1a1a1a;
+border-bottom: 1px solid #1a1a1a;
+}
+th {
+border-top: 1px solid #1a1a1a;
+padding: 0.25em 0.5em 0.25em 0.5em;
+}
+td {
+padding: 0.125em 0.5em 0.25em 0.5em;
+}
+header {
+margin-bottom: 4em;
+text-align: center;
+}
+#TOC li {
+list-style: none;
+}
+#TOC ul {
+padding-left: 1.3em;
+}
+#TOC > ul {
+padding-left: 0;
+}
+#TOC a:not(:hover) {
+text-decoration: none;
+}
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
 </head>
 <body>
 <header id="title-block-header">
 <h1 class="title">QWEN</h1>
 </header>
-<h1 id="helix-constitution-universal-qwen.md">Helix Constitution —
+<h1 id="helix-constitution--universal-qwenmd">Helix Constitution —
 Universal QWEN.md</h1>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Field</th>
@@ -256,7 +249,7 @@ Universal QWEN.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>8</td>
+<td>10</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -272,10 +265,14 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Mirrored Constitution.md §11.4.102 (Mandatory systematic-debugging
-activation + always-loaded skill-discovery + plugin-dependency
-availability, User mandate 2026-05-29) into this QWEN.md.
-§11.4.78–§11.4.101 mirrors continue from earlier Revisions.</td>
+<td>Strengthened §11.4.103 mirror (User mandate 2026-05-29) —
+parallel-stream floor raised ≥2 → ≥3 + auto-backfill (the moment one
+stream is fully done, a new one immediately takes its place; count never
+drops below 3 while actionable items remain). Continuous parallel-stream
+working routine: main stream stays FREE (all commit + push detached), ≥3
+parallel subagent streams, audio-first priority, safe-during-build
+scope, heavy anti-bluff, idle-only-when-externally-blocked.
+§11.4.78–§11.4.102 mirrors continue from earlier Revisions.</td>
 </tr>
 <tr>
 <td>Issues</td>
@@ -287,11 +284,11 @@ availability, User mandate 2026-05-29) into this QWEN.md.
 </tr>
 <tr>
 <td>Fixed</td>
-<td>§11.4.102 mirror</td>
+<td>§11.4.103 mirror</td>
 </tr>
 <tr>
 <td>Fixed summary</td>
-<td>§11.4.102 lands in lockstep with the Constitution.md §11.4.102
+<td>§11.4.103 lands in lockstep with the Constitution.md §11.4.103
 addition.</td>
 </tr>
 <tr>
@@ -306,10 +303,8 @@ addition.</td>
 <li><a href="#identity-posture">Identity &amp; posture</a></li>
 <li><a href="#top-level-invariants-for-every-agent">Top-level invariants
 for every agent</a></li>
-<li><a
-href="#critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
-base rules restated (for agents that don’t honour <span class="citation"
-data-cites="imports">@imports</span>)</a>
+<li><a href="#critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don&#39;t honour @imports)</a>
 <ul>
 <li><a href="#114-anti-bluff-covenant-end-user-quality-guarantee">§11.4
 — Anti-bluff covenant — END-USER QUALITY GUARANTEE</a></li>
@@ -321,13 +316,11 @@ Credentials-handling mandate</a></li>
 Universal-vs-project classification</a></li>
 <li><a href="#11420-subagent-driven-by-default">§11.4.20 —
 Subagent-driven-by-default</a></li>
-<li><a
-href="#11473-main-specification-document-versioning-revision-discipline">§11.4.73
+<li><a href="#11473-main-specification-document-versioning-revision-discipline">§11.4.73
 — Main-specification document versioning + revision discipline</a></li>
-<li><a
-href="#11474-submodule-catalogue-first-discovery-extend-dont-reimplement">§11.4.74
+<li><a href="#11474-submodule-catalogue-first-discovery-extend-dont-reimplement">§11.4.74
 — Submodule-catalogue-first discovery +
-extend-don’t-reimplement</a></li>
+extend-don&#39;t-reimplement</a></li>
 <li><a href="#11475-containers-submodule-mandate">§11.4.76 —
 Containers-submodule mandate</a></li>
 </ul></li>
@@ -336,7 +329,7 @@ Containers-submodule mandate</a></li>
 <h2 id="how-inheritance-works">How inheritance works</h2>
 <p>This <code>QWEN.md</code> is for the <strong>Qwen Code CLI
 agent</strong> (<code>qwen-code</code>). It documents the universal
-Helix Constitution from the Qwen agent’s perspective — the same content
+Helix Constitution from the Qwen agent&#39;s perspective — the same content
 seen by Claude Code via <code>CLAUDE.md</code> and by OpenCode / Cursor
 / generic AI tooling via <code>AGENTS.md</code>.</p>
 <p>The <strong>authoritative source</strong> is
@@ -352,10 +345,9 @@ reads them on every session.</li>
 baseline.</li>
 </ol>
 <p>Discover this file via the canonical parent-walk pattern documented
-in every consuming project’s <code>CLAUDE.md</code> /
+in every consuming project&#39;s <code>CLAUDE.md</code> /
 <code>AGENTS.md</code>:</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">find_constitution_root()</span> <span class="kw">{</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">find_constitution_root()</span> <span class="kw">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">local</span> <span class="va">cur</span><span class="op">=</span><span class="st">&quot;</span><span class="va">${1</span><span class="op">:-</span><span class="va">$PWD}</span><span class="st">&quot;</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="va">${cur}</span><span class="st">&quot;</span> <span class="ot">!=</span> <span class="st">&quot;/&quot;</span> <span class="kw">]];</span> <span class="cf">do</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">[[</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">${cur}</span><span class="st">/constitution/Constitution.md&quot;</span> <span class="kw">]];</span> <span class="cf">then</span></span>
@@ -365,11 +357,11 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div>
-<h2 id="identity-posture">Identity &amp; posture</h2>
+<h2 id="identity--posture">Identity &amp; posture</h2>
 <p>When the Qwen Code agent loads this file as part of session
 bootstrap, it operates under the Helix Constitution with the same
 identity, anti-bluff posture, and end-user quality covenant as any other
-CLI agent in the catalogue. There is no “Qwen-lite” interpretation —
+CLI agent in the catalogue. There is no &quot;Qwen-lite&quot; interpretation —
 Qwen Code is held to the full §11.4 covenant.</p>
 <h2 id="top-level-invariants-for-every-agent">Top-level invariants for
 every agent</h2>
@@ -377,7 +369,7 @@ every agent</h2>
 <li><strong>Read order on a cold start.</strong> <code>CLAUDE.md</code>
 / <code>AGENTS.md</code> / <code>QWEN.md</code> (this file) for the
 AI-agent posture; <code>Constitution.md</code> for the canonical
-universal rules; then the consuming project’s <code>CLAUDE.md</code> for
+universal rules; then the consuming project&#39;s <code>CLAUDE.md</code> for
 project-specific extensions.</li>
 <li><strong>Multi-mirror push.</strong> Every commit on this submodule
 MUST land on all four canonical mirrors (GitHub + GitLab + GitFlic +
@@ -393,63 +385,60 @@ Reuse → extend → no-match in that order.</li>
 Use <code>vasic-digital/containers</code> (§11.4.76) — never reinvent
 compose/boot orchestration in-project.</li>
 </ol>
-<h2
-id="critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
-base rules restated (for agents that don’t honour <span class="citation"
-data-cites="imports">@imports</span>)</h2>
-<h3 id="anti-bluff-covenant-end-user-quality-guarantee">§11.4 —
+<h2 id="critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don&#39;t honour @imports)</h2>
+<h3 id="114--anti-bluff-covenant--end-user-quality-guarantee">§11.4 —
 Anti-bluff covenant — END-USER QUALITY GUARANTEE</h3>
 <p><strong>Forensic anchor — verbatim user mandate (2026-04-28,
 reasserted 2026-05-21, 2026-05-29):</strong></p>
 <blockquote>
-<p>“all existing tests and Challenges do work in anti-bluff manner -
+<p>&quot;all existing tests and Challenges do work in anti-bluff manner -
 they MUST confirm that all tested codebase really works as expected! We
 had been in position that all tests do execute with success and all
 Challenges as well, but in reality the most of the features does not
-work and can’t be used! This MUST NOT be the case and execution of tests
+work and can&#39;t be used! This MUST NOT be the case and execution of tests
 and Challenges MUST guarantee the quality, the completion and full
-usability by end users of the product!”</p>
+usability by end users of the product!&quot;</p>
 </blockquote>
 <p><strong>Operative rule.</strong> Captured tests MUST exercise the
 behavior they claim to verify. PASS-without-execution paths, mock-only
-tests that don’t round-trip, skip-by-default integration tests that mask
+tests that don&#39;t round-trip, skip-by-default integration tests that mask
 real failures, metadata-only PASS, configuration-only PASS,
-“absence-of-error” PASS, and grep-without-runtime PASS are all critical
+&quot;absence-of-error&quot; PASS, and grep-without-runtime PASS are all critical
 defects regardless of how green the summary line looks. Each test
 failure in CI MUST imply a real broken feature; each PASS MUST imply the
 feature actually works for the end user. Tests and HelixQA Challenges
 are bound EQUALLY.</p>
 <p>The verbatim covenant MUST be present in every consumer governance
 file (project Constitution.md, CLAUDE.md, AGENTS.md, QWEN.md) and in
-every owned submodule’s equivalent. Tools that don’t expand
+every owned submodule&#39;s equivalent. Tools that don&#39;t expand
 <code>@imports</code> still read the literal text.</p>
-<h3 id="mutation-paired-gates">§1.1 — Mutation-paired gates</h3>
+<h3 id="11--mutation-paired-gates">§1.1 — Mutation-paired gates</h3>
 <p>Every captured-evidence gate MUST ship with a paired mutation test
-that mutates the gate’s anchor + runs the gate + asserts the gate now
+that mutates the gate&#39;s anchor + runs the gate + asserts the gate now
 FAILs. Absence of the paired mutation is itself a bluff.</p>
-<h3 id="credentials-handling-mandate">§11.4.10 — Credentials-handling
-mandate</h3>
+<h3 id="11410--credentials-handling-mandate">§11.4.10 —
+Credentials-handling mandate</h3>
 <p>Credentials are NEVER committed to git, NEVER logged, NEVER printed
 to stdout/stderr. <code>.env</code> files are <code>.gitignore</code>d;
 committed siblings are <code>.env.example</code> placeholders only.
 Pre-store leak audit (§11.4.10.A) scans every PR for credential patterns
 before merge.</p>
-<h3 id="universal-vs-project-classification">§11.4.17 —
+<h3 id="11417--universal-vs-project-classification">§11.4.17 —
 Universal-vs-project classification</h3>
 <p>Every new rule MUST declare itself <strong>universal</strong>
 (applies to every project consuming this Constitution) or
 <strong>project</strong> (applies only to one specific project).
-Misclassification (universal rule landing in a project’s local CLAUDE.md
+Misclassification (universal rule landing in a project&#39;s local CLAUDE.md
 instead of the constitution submodule) is a release blocker.</p>
-<h3 id="subagent-driven-by-default">§11.4.20 —
+<h3 id="11420--subagent-driven-by-default">§11.4.20 —
 Subagent-driven-by-default</h3>
 <p>When a CLI agent (Qwen Code included) has a subagent / Task tool
 available, the default mode of operation is to dispatch subagents for
 discrete units of work rather than perform them inline. This protects
 context, enables parallel work, and matches the §11.4.27
 no-fakes-beyond-unit-tests posture (each subagent runs real tools).</p>
-<h3
-id="main-specification-document-versioning-revision-discipline">§11.4.73
+<h3 id="11473--main-specification-document-versioning--revision-discipline">§11.4.73
 — Main-specification document versioning + revision discipline</h3>
 <p>Projects with a main specification
 (<code>docs/specs/.../specification.V&lt;N&gt;.md</code>-shaped)
@@ -462,23 +451,21 @@ table) bumps for additive changes within a primary version.</li>
 </ul>
 <p>Spec edits trigger mandatory comprehensive planning and
 implementation in the consuming project — they are not isolated doc
-tweaks (the “spec ripple” rule).</p>
-<h3
-id="submodule-catalogue-first-discovery-extend-dont-reimplement">§11.4.74
-— Submodule-catalogue-first discovery + extend-don’t-reimplement</h3>
-<p>Direct user mandate (verbatim, 2026-05-20): “We MUST ALWAYS check
+tweaks (the &quot;spec ripple&quot; rule).</p>
+<h3 id="11474--submodule-catalogue-first-discovery--extend-dont-reimplement">§11.4.74
+— Submodule-catalogue-first discovery + extend-don&#39;t-reimplement</h3>
+<p>Direct user mandate (verbatim, 2026-05-20): &quot;We MUST ALWAYS check
 which already developed features / functionalities do exist as a part of
 our comprehensive Submodules catalogue located in
 <code>vasic-digital</code> and <code>HelixDevelopment</code>
 organizations on GitHub and GitLab both! Project MUST BE aware of all
 its existence so we do not implement same things multiple times. For any
 missing features we MUST IMPLEMENT them properly and extend those
-Submodules further!”</p>
+Submodules further!&quot;</p>
 <p>Before scaffolding any new module / package / helper / utility, the
 Qwen Code agent MUST: (1) survey <code>vasic-digital</code> +
 <code>HelixDevelopment</code> on GitHub + GitLab — the canonical
-inventory is <a
-href="submodules-catalogue.md"><code>submodules-catalogue.md</code></a>
+inventory is <a href="submodules-catalogue.md"><code>submodules-catalogue.md</code></a>
 (142 repos categorised); (2) reuse an existing Submodule when it covers
 ≥ 80%; (3) extend in-place via upstream PR when 80%+ matches; (4)
 document the survey result via
@@ -489,9 +476,9 @@ development-cycle rules (§11.4 anti-bluff, §1.1 paired mutations,
 §11.4.10 credentials, §11.4.61 metadata + ToC, §11.4.65 universal
 export, §11.4.73 spec versioning, §2.1 multi-mirror push, §3 propagation
 order).</p>
-<h3 id="containers-submodule-mandate">§11.4.76 — Containers-submodule
-mandate</h3>
-<p>Direct user mandate (verbatim, 2026-05-20): “For any work or
+<h3 id="11476--containers-submodule-mandate">§11.4.76 —
+Containers-submodule mandate</h3>
+<p>Direct user mandate (verbatim, 2026-05-20): &quot;For any work or
 requirements of running services or codebase inside the Containers
 (Docker / Podman / Qemy / Emulators, and so on) we MUST USE /
 INCORPORATE the Containers Submodule properly:
@@ -500,14 +487,14 @@ INCORPORATE the Containers Submodule properly:
 Submodule contains all means for us to Containerize our code and
 services! If any feature or Containing System is missing or not
 supported we MUST EXTEND IT properly like we do all of our projects! No
-bluff work is allowed of any kind!”</p>
+bluff work is allowed of any kind!&quot;</p>
 <p>For ANY containerized workload (Docker / Podman / Qemu / Kubernetes /
 container-backed emulators), the Qwen Code agent MUST: (1) install
 <code>vasic-digital/containers</code>
 (<code>digital.vasic.containers</code>) as a Git submodule when
 scaffolding the consuming project; (2) consume via <code>replace</code>
 directive during development + pinned commit SHAs in production; (3)
-boot infra on-demand via the Submodule’s <code>pkg/boot</code> +
+boot infra on-demand via the Submodule&#39;s <code>pkg/boot</code> +
 <code>pkg/compose</code> + <code>pkg/health</code> APIs so the operator
 is never required to start <code>podman machine</code> /
 <code>docker compose up</code> manually — the boot is part of the test
@@ -525,20 +512,19 @@ the Submodule cannot model the workload.</p>
 <p>Planned anti-bluff gate <code>CM-CONTAINERS-USED</code> scans
 container-touching PRs for <code>digital.vasic.containers/...</code>
 imports. Paired mutation strips the import + asserts FAIL.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.76.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.76.</p>
 <p>Non-compliance: reinventing compose orchestration in-project is a
 release blocker.</p>
-<h3 id="regeneration-mechanism-required-mandate">§11.4.77 —
+<h3 id="11477--regeneration-mechanism-required-mandate">§11.4.77 —
 Regeneration-mechanism-required mandate</h3>
-<p>Direct user mandate (verbatim, 2026-05-20): “We must be sure that
+<p>Direct user mandate (verbatim, 2026-05-20): &quot;We must be sure that
 after excluding anything from Git versioning we still have the mechanism
 which will out of the box obtain or re-generate missing content! Add
 this mandatory safety rule / constraint into ours root (constitution
 Submodule) Constitution.md, CLAUDE.md, AGENTS.md, QWEN.md or any other
-required document / file from the constitution Submodule!”</p>
+required document / file from the constitution Submodule!&quot;</p>
 <p><strong>Forensic anchor.</strong> 2026-05-20T15:00Z: ATMOSphere
-parent’s audio Tier 1 <code>commit_all.sh</code> stalled 4 h on
+parent&#39;s audio Tier 1 <code>commit_all.sh</code> stalled 4 h on
 <code>git add -A</code> scanning 274 GiB <code>.git-backup-*</code> +
 159 GiB <code>RKTools/linux/</code> + 167 GiB <code>qa-results/</code> —
 all untracked but un-gitignored. Bare <code>.gitignore</code> fix would
@@ -573,15 +559,14 @@ scans every <code>.gitignore</code> addition for matching
 required YAML key → gate FAILs.</p>
 <p>Composes with §11.4.6, §11.4.65, §11.4.66, §11.4.71, §11.4.74,
 §11.4.75, §11.4.76, §9 / §9.2, §3.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.77.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.77.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
-<h3 id="codegraph-code-intelligence-mandate">§11.4.78 — CodeGraph
+<h3 id="11478--codegraph-code-intelligence-mandate">§11.4.78 — CodeGraph
 code-intelligence mandate</h3>
-<p>Direct user mandate (verbatim, 2026-05-20): “Make codegraph MANDATORY
-CHOICE for this purpose for all of our project … All project which do
+<p>Direct user mandate (verbatim, 2026-05-20): &quot;Make codegraph MANDATORY
+CHOICE for this purpose for all of our project ... All project which do
 not have configured and installed codegraph yet MUST DO IT and MUST USE
-IT!”</p>
+IT!&quot;</p>
 <p>Every consuming project worked on by AI coding agents — Qwen Code
 included — MUST install, initialize, and use <strong>CodeGraph</strong>
 (<code>https://github.com/colbymchenry/codegraph</code>, npm
@@ -603,24 +588,22 @@ faked PASSes. Document in <code>docs/CODEGRAPH.md</code>. CodeGraph is
 consumed as the npm package (§11.4.74), not a git submodule.</p>
 <p>Composes with §11.4.3, §11.4.10, §11.4.12, §11.4.65, §11.4.30,
 §11.4.74, §11.4.77, §11.4, §1.1.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.78.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.78.</p>
 <p>Non-compliance is a process violation; a project worked on by AI
 agents without CodeGraph installed, wired, and anti-bluff-verified is in
 breach.</p>
-<h3
-id="own-org-submodules-must-be-included-in-the-codegraph-index">§11.4.79
+<h3 id="11479--own-org-submodules-must-be-included-in-the-codegraph-index">§11.4.79
 — Own-org submodules MUST be included in the CodeGraph index</h3>
-<p>Direct user mandate (verbatim, 2026-05-21): “All Submodules we use in
+<p>Direct user mandate (verbatim, 2026-05-21): &quot;All Submodules we use in
 the project and that are part of organizations to which we have the full
 access via GitHub, GitLab and other CLIs MUST BE included into the
-codegraph database and initialized / scanned / synced!”</p>
+codegraph database and initialized / scanned / synced!&quot;</p>
 <p>Refines §11.4.78 step 2 with a per-submodule-ownership split.
 <strong>Own-org submodules</strong> — full write access via the
-project’s CLIs (canonical orgs: <code>vasic-digital</code> +
+project&#39;s CLIs (canonical orgs: <code>vasic-digital</code> +
 <code>HelixDevelopment</code>) — MUST be INCLUDED in the index so Qwen
 Code (and every other AI agent) sees a unified call-graph across the
-project’s domain + own-org infra code. <strong>Third-party
+project&#39;s domain + own-org infra code. <strong>Third-party
 submodules</strong> (the §11.4.74 <code>no-match → vendor</code> path)
 MUST be EXCLUDED. Operational steps: (1)
 <code>git submodule update --remote --merge</code> to pull latest before
@@ -631,26 +614,25 @@ re-indexing — respect load-bearing third-party pins. (2) Adjust
 lives ONLY inside an own-org submodule. (5) Paired §1.1 mutation:
 temporarily add own-org path to exclude → validate FAILs → restore.</p>
 <p>Composes with §11.4.74, §11.4.78, §11.4.10, §1.1, §107.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.79.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.79.</p>
 <p>Non-compliance is a process violation; severe cases (own-org
 submodules silently excluded without an audit trail in
 <code>.codegraph/config.json</code>) are release blockers.</p>
-<h3 id="codegraph-regular-update-sync-automation-mandate">§11.4.80 —
+<h3 id="11480--codegraph-regular-update--sync-automation-mandate">§11.4.80 —
 CodeGraph regular-update + sync automation mandate</h3>
-<p>Direct user mandate (verbatim, 2026-05-21): “We MUST regularly check
+<p>Direct user mandate (verbatim, 2026-05-21): &quot;We MUST regularly check
 for the updates and execute codegraph npm updates so the latest version
-of it is always installed […] Make sure we have proper full automation
+of it is always installed [...] Make sure we have proper full automation
 bash scripts which will run regularly and that these are part of the
-constitution Submodule […] Make sure all updates, sync processes we do
+constitution Submodule [...] Make sure all updates, sync processes we do
 and important codegraph related events are all documented under
-docs/codegraph in Status and Status_Summary documents […]”</p>
+docs/codegraph in Status and Status_Summary documents [...]&quot;</p>
 <p>Three deliverables in this constitution submodule: (1)
 <code>scripts/codegraph_update.sh</code> — npm-installs latest; §107
 anti-bluff verifies <code>codegraph --version</code> reflects the new
 version. (2) <code>scripts/codegraph_sync.sh</code> — runs
 <code>status</code> → <code>sync</code> → <code>status</code> →
-project’s validate; appends to both project’s + constitution’s
+project&#39;s validate; appends to both project&#39;s + constitution&#39;s
 <code>docs/codegraph/Status.md</code>. (3)
 <code>docs/codegraph/Status.md</code> + <code>Status_Summary.md</code>
 ledgers, exported per §11.4.65 to <code>.html</code> +
@@ -660,17 +642,16 @@ ledgers, exported per §11.4.65 to <code>.html</code> +
 <code>${CONST_DIR}/scripts/codegraph_*.sh</code>, never copy.</p>
 <p>Composes with §11.4.78, §11.4.79, §11.4.10, §11.4.45, §11.4.65, §107,
 §1.1.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.80.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.80.</p>
 <p>Non-compliance is a process violation; severe cases (&gt;2 weeks
 since last update + open AI-agent work) are release blockers.</p>
-<h3 id="cross-platform-parity-mandate-user-mandate-2026-05-21">§11.4.81
+<h3 id="11481--cross-platform-parity-mandate-user-mandate-2026-05-21">§11.4.81
 — Cross-platform-parity mandate (User mandate, 2026-05-21)</h3>
-<p>Direct user mandate (verbatim, 2026-05-21): “Any Linux-only blocker /
+<p>Direct user mandate (verbatim, 2026-05-21): &quot;Any Linux-only blocker /
 issue we have MUST BE created macOS and other supported platforms
 equivalent! So, depending on platform proper implementation will be used
 for particular OS! EVERYTHING MUST BE PROPERLY EXTENDED AND
-UPDATED!”</p>
+UPDATED!&quot;</p>
 <p>Every consuming project whose supported-platforms manifest lists more
 than one OS MUST ship per-OS-equivalent implementations + tests for
 every feature/gate/challenge/mutation that depends on platform-specific
@@ -680,14 +661,14 @@ implementation REQUIRED — cgroup/systemd/<code>/proc</code> primitives
 have documented equivalents (POSIX
 <code>setrlimit</code>/<code>ulimit</code>, launchd, <code>rctl</code>,
 Job Object). <strong>(B)</strong> Per-OS tests REQUIRED — every gate
-test has <code>case "$(uname -s)" in</code> branches with positive
+test has <code>case &quot;$(uname -s)&quot; in</code> branches with positive
 captured evidence per §11.4.2 + §11.4.5 in each branch; SKIP-with-reason
 only when the platform genuinely cannot enforce. <strong>(C)</strong>
 Honest kernel-gap citation + adjacent equivalent test REQUIRED where no
 equivalent exists (canonical: XNU does NOT enforce
 <code>RLIMIT_AS</code> for unprivileged processes → SKIP with exact
-reproducer + adjacent test of what IS enforced,
-e.g. <code>RLIMIT_CPU</code>+<code>SIGXCPU</code>). The adjacent test is
+reproducer + adjacent test of what IS enforced, e.g.
+<code>RLIMIT_CPU</code>+<code>SIGXCPU</code>). The adjacent test is
 itself anti-bluff per §11.4 with a paired §1.1 mutation.</p>
 <p>Per-OS equivalence catalogue (canonical):
 <code>systemd-run --user --scope</code> ↔︎ POSIX
@@ -701,23 +682,21 @@ when kernel cannot) / §11.4.4 / §11.4.5 / §11.4.6 / §11.4.20 / §11.4.27
 / §11.4.69 / §11.4.70 / §107. Pre-build gate
 <code>CM-CROSS-PLATFORM-PARITY</code> + paired §1.1 mutation. No escape
 hatch.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.81.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.81.</p>
 <p>Non-compliance is a release blocker on multi-platform projects.</p>
-<h3
-id="iteration-speedup-discipline-mandate-user-mandate-2026-05-22">§11.4.82
+<h3 id="11482--iteration-speedup-discipline-mandate-user-mandate-2026-05-22">§11.4.82
 — Iteration-speedup discipline mandate (User mandate, 2026-05-22)</h3>
-<p>Direct user mandate (verbatim, 2026-05-22): “How can we speed-up this
-whole development and fixing process? … all speed optimizations critical
-rules and mandatory constraints MUST BE all added into our root
+<p>Direct user mandate (verbatim, 2026-05-22): &quot;How can we speed-up this
+whole development and fixing process? ... all speed optimizations
+critical rules and mandatory constraints MUST BE all added into our root
 (constitution Submodule) Constitution.md, CLAUDE.md, AGENTS.md and
-QWEN.md!”</p>
-<p>Iteration cycle time bounds the project’s defect-discovery rate. Slow
+QWEN.md!&quot;</p>
+<p>Iteration cycle time bounds the project&#39;s defect-discovery rate. Slow
 cycles ship fewer validated features per unit of operator time. The
 2026-05-22 forensic session witnessed ~3 hours of operator wait on a job
 whose intrinsic compute was ~90 min — every wasted minute came from a
 missing speedup discipline.</p>
-<p>Every consuming project’s build / test / commit / debug pipeline MUST
+<p>Every consuming project&#39;s build / test / commit / debug pipeline MUST
 adopt the following 9 speedup disciplines AS MANDATORY:</p>
 <ul>
 <li><strong>(A) Phase 1 forensic before any speculative source
@@ -756,19 +735,17 @@ aggregation surfaces empirical ROI per discipline.</li>
 <code>--no-pre-flight</code>, <code>--rebuild-everything</code>,
 <code>--unlimited-subagent-scope</code>, <code>--ignore-locks</code>,
 <code>--no-telemetry</code> flag exists.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.82.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.82.</p>
 <p>Non-compliance is a release blocker.</p>
-<h3
-id="docsqa-end-user-evidence-mandate-user-mandate-2026-05-22">§11.4.83 —
-docs/qa/ end-user evidence mandate (User mandate, 2026-05-22)</h3>
-<p>Direct user mandate (verbatim, 2026-05-22): “every feature that ships
+<h3 id="11483--docsqa-end-user-evidence-mandate-user-mandate-2026-05-22">§11.4.83
+— docs/qa/ end-user evidence mandate (User mandate, 2026-05-22)</h3>
+<p>Direct user mandate (verbatim, 2026-05-22): &quot;every feature that ships
 MUST carry a recorded e2e communication transcript + any attached
 materials under <code>docs/qa/&lt;run-id&gt;/</code> (per-feature
 subdirectories). A feature with no QA transcript is itself a §107
 PASS-bluff — it claims to work but has no auditable runtime evidence.
 Bot-driven automation MUST preserve full bidirectional communication
-threads as proof.”</p>
+threads as proof.&quot;</p>
 <p>Every feature that ships MUST carry a recorded end-to-end
 communication transcript plus attached materials committed under
 <code>docs/qa/&lt;run-id&gt;/</code>. Transcripts MUST be full
@@ -779,21 +756,19 @@ gates MUST refuse to tag a version whose feature-shipping commit lacks
 its <code>docs/qa/&lt;run-id&gt;/</code>.</p>
 <p>Composes with §11.4.2, §11.4.5, §11.4.13, §11.4.65, §11.4.69, §107,
 §1.1.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.83.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.83.</p>
 <p>Non-compliance is a release blocker.</p>
-<h3
-id="working-tree-quiescence-rule-for-subagent-commits-user-mandate-2026-05-22">§11.4.84
+<h3 id="11484--working-tree-quiescence-rule-for-subagent-commits-user-mandate-2026-05-22">§11.4.84
 — Working-tree quiescence rule for subagent commits (User mandate,
 2026-05-22)</h3>
 <p><strong>Short tag:</strong> <code>working-tree quiescence</code>.</p>
-<p>Direct user mandate (verbatim, 2026-05-22): “no subagent commit may
+<p>Direct user mandate (verbatim, 2026-05-22): &quot;no subagent commit may
 proceed while any concurrent mutation gate is in flight in the same
 checkout. Before <code>git add</code>, the committing agent MUST
 <code>grep</code> its own working tree for mutation markers
 (<code>MUTATED for paired</code>, <code>// always pass</code>,
 <code>return json.Marshal</code> shortcut paths, etc.). Any unexplained
-file in the staging area triggers ABORT.”</p>
+file in the staging area triggers ABORT.&quot;</p>
 <p>No subagent commit may proceed while any concurrent mutation gate is
 in flight in the same checkout. Pre-<code>git add</code>: grep for
 mutation markers (<code>MUTATED for paired</code>,
@@ -801,7 +776,7 @@ mutation markers (<code>MUTATED for paired</code>,
 <code>// MUTATION</code> annotations, <code>_mutated_*</code>
 filenames). Cross-check <code>git status --porcelain</code> against
 declared scope → unaccounted entries ABORT.</p>
-<p>Lesson (forensic). A consuming project’s logo-fix subagent (Herald
+<p>Lesson (forensic). A consuming project&#39;s logo-fix subagent (Herald
 commit <code>72e81ab</code>, 2026-05-21) swept a
 <code>// always pass</code> JWT-bypass mutation residue into an
 unrelated commit, pushed to all four mirrors before being caught. Fix
@@ -816,18 +791,17 @@ lockfile (<code>.git/MUTATION_IN_PROGRESS</code>) or
 markers.</p>
 <p>Composes with §1.1, §11.4.20, §11.4.70, §11.4.27, §11.4.10, §11.4.71,
 §107.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.84.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.84.</p>
 <p>Non-compliance is a release blocker.</p>
-<h3 id="stress-chaos-test-mandate-user-mandate-2026-05-24">§11.4.85 —
-Stress + Chaos Test Mandate (User mandate, 2026-05-24)</h3>
+<h3 id="11485--stress--chaos-test-mandate-user-mandate-2026-05-24">§11.4.85
+— Stress + Chaos Test Mandate (User mandate, 2026-05-24)</h3>
 <p><strong>Short tag:</strong> <code>stress-chaos-mandate</code>.</p>
-<p>Direct user mandate (verbatim, 2026-05-24): “Every fix or improvement
+<p>Direct user mandate (verbatim, 2026-05-24): &quot;Every fix or improvement
 you do MUST BE covered with full automation stress and chaos tests so we
 are sure nothing can break the functionality and all edge cases are
 monitored and polished and additionally fixed if that is needed!
 Everything must produce rock solid proofs and follow fully no-bluff
-policy!”</p>
+policy!&quot;</p>
 <p>Every fix MUST ship with full-automation stress + chaos test suites.
 Happy-path-only coverage is a §11.4 / §107 PASS-bluff at the resilience
 layer.</p>
@@ -847,20 +821,18 @@ process-restart MUST run in trap EXIT.</p>
 paired meta-test mutation + on-device test (if LIVE_ADB_TESTABLE) +
 HelixQA Challenge entry. Composes with §11.4 / §11.4.1 / §11.4.5 /
 §11.4.6 / §11.4.43 / §11.4.50 / §11.4.52 / §11.4.69 / §11.4.83.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.85.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.85.</p>
 <p>Non-compliance is a release blocker. No <code>--skip-stress</code>,
 <code>--no-chaos</code>, <code>--happy-path-suffices</code> flag
 exists.</p>
-<h3
-id="rostercorpus-backed-status-doc-auto-sync-mandate-user-mandate-2026-05-25">§11.4.86
+<h3 id="11486--rostercorpus-backed-status-doc-auto-sync-mandate-user-mandate-2026-05-25">§11.4.86
 — Roster/corpus-backed Status-doc auto-sync mandate (User mandate,
 2026-05-25)</h3>
-<p>Forensic anchor (verbatim): “Make sure that assets and players Status
+<p>Forensic anchor (verbatim): &quot;Make sure that assets and players Status
 docs are ALWAYS regularly updated and in sync like all others Status
 docs — any time we add or modify the assets content(s) or we change or
 add new / remove existing pre-installed video and audio player apps!
-This MUST WORK OUT OF THE BOX!”</p>
+This MUST WORK OUT OF THE BOX!&quot;</p>
 <p>Status docs (§11.4.45) backed by a <strong>tracked roster</strong>
 (installed apps/components) or <strong>asset corpus</strong> (test/media
 directory) MUST resync out of the box the moment a member changes —
@@ -873,29 +845,27 @@ helper</strong> regenerates fingerprint + re-exports (via §11.4.65); (3)
 §11.4.45 / §11.4.53 / §11.4.56 / §11.4.57 / §11.4.59 / §11.4.60 /
 §11.4.65 / §11.4.6. Universal (§11.4.17) — consuming project supplies
 the specific docs/roster/helper/gate per §11.4.35.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.86.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.86.</p>
 <p>Non-compliance is a release blocker. No
 <code>--skip-roster-sync</code>, <code>--allow-status-drift</code> flag
 exists.</p>
-<h3
-id="endless-loop-autonomous-work-zero-idle-agent-dispatch-anti-bluff-testing-mandate-user-mandate-2026-05-26">§11.4.87
+<h3 id="11487--endless-loop-autonomous-work--zero-idle-agent-dispatch--anti-bluff-testing-mandate-user-mandate-2026-05-26">§11.4.87
 — Endless-loop autonomous work + zero-idle agent dispatch + anti-bluff
 testing mandate (User mandate, 2026-05-26)</h3>
-<p>When operator instructs an AI agent to “continue in endless loop
-fully autonomously” (or semantically-equivalent), the agent MUST treat
+<p>When operator instructs an AI agent to &quot;continue in endless loop
+fully autonomously&quot; (or semantically-equivalent), the agent MUST treat
 as HARD-CONTRACT covenant: (A) continue until
 <code>docs/Issues.md</code> non-terminal Status entries = 0 AND
 <code>docs/CONTINUATION.md</code> §3 Active work empty AND no subagent
 in-flight AND no external dep in-flight; (B) dispatch background
 subagents for parallelisable work — main + subagents concurrent,
-“waiting for results” is the ONLY idle reason; (C) every closure lands
-four-layer test coverage per §11.4.4(b) with captured-evidence “physical
-proofs” (audio/video/network/UI/sysfs) — metadata-only / config-only /
+&quot;waiting for results&quot; is the ONLY idle reason; (C) every closure lands
+four-layer test coverage per §11.4.4(b) with captured-evidence &quot;physical
+proofs&quot; (audio/video/network/UI/sysfs) — metadata-only / config-only /
 absence-of-error / grep-without-runtime PASS are critical defects; (D)
 §11.4 anti-bluff covenant family operative end-to-end (tests AND HelixQA
-Challenges bound equally per forensic anchor “tests pass but features
-don’t work”); (E) loop terminates ONLY on all-conditions-met, explicit
+Challenges bound equally per forensic anchor &quot;tests pass but features
+don&#39;t work&quot;); (E) loop terminates ONLY on all-conditions-met, explicit
 operator STOP, host-safety demand, or scheduled wake on
 known-future-actionable signal.</p>
 <p>Composes with §11.4 / §11.4.1 / §11.4.2 / §11.4.4 / §11.4.5 / §11.4.6
@@ -903,8 +873,7 @@ known-future-actionable signal.</p>
 §11.4.52 / §11.4.58 / §11.4.68 / §11.4.69 / §11.4.70 / §11.4.83 /
 §11.4.85 / §11.4.86 / §12.10. Pre-build gate
 <code>CM-COVENANT-114-87-PROPAGATION</code> + paired §1.1 mutation.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.87.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.87.</p>
 <p>Non-compliance is a release blocker. No <code>--idle-OK</code>,
 <code>--skip-endless-loop</code>,
 <code>--bluff-permitted-for-this-task</code>,
@@ -914,19 +883,18 @@ href="Constitution.md"><code>Constitution.md</code></a> §11.4.87.</p>
 <ul>
 <li><a href="Constitution.md"><code>Constitution.md</code></a> —
 authoritative universal Constitution. ALWAYS the tie-breaker.</li>
-<li><a href="CLAUDE.md"><code>CLAUDE.md</code></a> — Claude Code agent’s
+<li><a href="CLAUDE.md"><code>CLAUDE.md</code></a> — Claude Code agent&#39;s
 view of the universal constitution.</li>
 <li><a href="AGENTS.md"><code>AGENTS.md</code></a> — OpenCode / Cursor /
 generic-tooling view.</li>
 <li><a href="README.md"><code>README.md</code></a> — high-level overview
 + multi-mirror contract.</li>
 </ul>
-<p>When operating in a consuming project, ALSO read the project’s local
+<p>When operating in a consuming project, ALSO read the project&#39;s local
 <code>QWEN.md</code> / <code>CLAUDE.md</code> / <code>AGENTS.md</code>
 for project-specific extensions; these MUST NOT weaken any universal
 rule but MAY add stricter project-specific constraints.</p>
-<h3
-id="background-push-mandate-commit-lock-release-immediately-after-commit-push-runs-detached-user-mandate-2026-05-26">§11.4.88
+<h3 id="11488--background-push-mandate-commit-lock-release-immediately-after-commit-push-runs-detached-user-mandate-2026-05-26">§11.4.88
 — Background-push mandate: commit-lock release immediately after commit,
 push runs detached (User mandate, 2026-05-26)</h3>
 <p>Forensic anchor: 2026-05-26 commit_all.sh held flock ~5h on
@@ -938,11 +906,9 @@ checks per §11.4.87(A); (E) <code>--sync-push</code> escape for §11.4.41
 force-push only. Composes §2.1 / §9.2 / §11.4.41 / §11.4.42 / §11.4.71 /
 §11.4.87. Gates <code>CM-COVENANT-114-88-PROPAGATION</code> +
 <code>CM-BACKGROUND-PUSH-WIRED</code> + paired §1.1 mutations.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.88.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.88.
 Non-compliance is a release blocker.</p>
-<h3
-id="background-test-execution-mandate-user-mandate-2026-05-27">§11.4.89
+<h3 id="11489--background-test-execution-mandate-user-mandate-2026-05-27">§11.4.89
 — Background test execution mandate (User mandate, 2026-05-27)</h3>
 <p>Forensic anchor 2026-05-27: conductor invoked long pre_build
 synchronously, blocking main stream 6-7 min on §JV/§JW/§JX/§JY
@@ -957,11 +923,9 @@ Composes §11.4.42 / §11.4.66 / §11.4.82 / §11.4.84 / §11.4.85 / §11.4.87
 / §11.4.88. Gates <code>CM-COVENANT-114-89-PROPAGATION</code> +
 <code>CM-BACKGROUND-TEST-EXECUTION-WIRED</code> + paired §1.1
 mutations.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.89.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.89.
 Non-compliance is a release blocker.</p>
-<h3
-id="obsolete-status-obsolescence-audit-user-mandate-2026-05-27">§11.4.90
+<h3 id="11490--obsolete-status--obsolescence-audit-user-mandate-2026-05-27">§11.4.90
 — Obsolete status + obsolescence audit (User mandate, 2026-05-27)</h3>
 <p>§11.4.15 Status closed-set + terminal
 <code>Obsolete (→ Fixed.md)</code>. Reasons:
@@ -970,30 +934,27 @@ id="obsolete-status-obsolescence-audit-user-mandate-2026-05-27">§11.4.90
 Superseding-item + Triple-check evidence). Colorizer
 <code>cell-status-obsolete</code> = light-gray + strikethrough. Audit
 cadence per §11.4.40 + §11.4.42. Triple-check non-negotiable.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.90.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.90.
 Release blocker.</p>
-<h3 id="summary-doc-clarity-user-mandate-2026-05-27">§11.4.91 —
+<h3 id="11491--summary-doc-clarity-user-mandate-2026-05-27">§11.4.91 —
 Summary-doc clarity (User mandate, 2026-05-27)</h3>
-<p>Every summary entry’s description: self-contained, meaningful, ≥ 6
+<p>Every summary entry&#39;s description: self-contained, meaningful, ≥ 6
 words / ≥ 40 chars, SUBJECT + PROBLEM/GOAL. Anti-patterns forbidden:
 section labels, bare metadata, §-letter alone. Generators extract from
 H1/H2 heading. Pre-build gate
 <code>CM-SUMMARY-CLARITY-DESCRIPTIONS</code>.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.91.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.91.
 Release blocker.</p>
-<h3 id="multi-pass-change-evaluation-user-mandate-2026-05-27">§11.4.92 —
-Multi-pass change-evaluation (User mandate, 2026-05-27)</h3>
+<h3 id="11492--multi-pass-change-evaluation-user-mandate-2026-05-27">§11.4.92
+— Multi-pass change-evaluation (User mandate, 2026-05-27)</h3>
 <p>5-pass evaluation BEFORE commit-ready: (1) Main-task verification;
 (2) Regression-blast-radius; (3) Cross-feature interaction; (4)
 Deep-research per §11.4.8; (5) Anti-bluff confirmation. Doc per pass.
 Trivial exemption: typo/revision/MD-export ONLY if zero source
 touched.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.92.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.92.
 Release blocker.</p>
-<h3 id="sqlite-ssot-for-workable-items-user-mandate-2026-05-27">§11.4.93
+<h3 id="11493--sqlite-ssot-for-workable-items-user-mandate-2026-05-27">§11.4.93
 — SQLite-SSoT for workable items (User mandate, 2026-05-27)</h3>
 <p><code>docs/.workable_items.db</code> SQLite — DB authoritative, MD
 derived. Schema: items + item_history + obsolete_details +
@@ -1002,11 +963,9 @@ operator_block_details + firebase_metadata + meta. Go binary
 close. Bidirectional regen byte-identical. Anti-bluff:
 unit+integration+stress+chaos per §11.4.85. Go binary in constitution
 submodule per §11.4.74. 6-phase migration §LA.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.93.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.93.
 Release blocker.</p>
-<h3
-id="zero-idle-priority-first-parallel-by-default-user-mandate-2026-05-27">§11.4.94
+<h3 id="11494--zero-idle-priority-first-parallel-by-default-user-mandate-2026-05-27">§11.4.94
 — Zero-idle priority-first parallel-by-default (User mandate,
 2026-05-27)</h3>
 <p>Binds §11.4.20/42/58/70/72/82/87/88/89 — always-on. Idle ONLY:
@@ -1015,22 +974,18 @@ wake/sleep survey parallel-work queue. Priority MANDATORY (§11.4.72
 audio first). Subagent-driven default non-trivial. Background default
 &gt;30s. Stability per §11.4.92 + §11.4.84 + §12.6-9. Updates at
 milestones.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.94.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.94.
 Release blocker.</p>
-<h3
-id="workable-items-db-tracked-in-git-user-mandate-2026-05-27">§11.4.95 —
-Workable-items DB TRACKED in git (User mandate, 2026-05-27)</h3>
+<h3 id="11495--workable-items-db-tracked-in-git-user-mandate-2026-05-27">§11.4.95
+— Workable-items DB TRACKED in git (User mandate, 2026-05-27)</h3>
 <p>§11.4.93 amendment: <code>docs/workable_items.db</code> TRACKED,
 NEVER gitignored. Authoritative source. Every mutation →
 stage+commit+push DB + MD. WAL-checkpoint before commit. §11.4.77 does
 NOT apply. Pre-build gates <code>CM-COVENANT-114-95-PROPAGATION</code> +
 <code>CM-WORKABLE-ITEMS-DB-TRACKED</code>.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.95.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.95.
 Release blocker.</p>
-<h3
-id="safe-parallel-work-with-long-build-user-mandate-2026-05-27">§11.4.96
+<h3 id="11496--safe-parallel-work-with-long-build-user-mandate-2026-05-27">§11.4.96
 — Safe-parallel-work-with-long-build (User mandate, 2026-05-27)</h3>
 <p>SAFE during AOSP build: (A) docs/MD; (B) scripts/; (C) pre-build
 gates; (D) on-device tests; (E) constitution edits+push; (F) submodule
@@ -1041,39 +996,34 @@ execution backgrounded.</p>
 under built source; (γ) APK-built submodule pointer; (δ) out/; (ε) make
 clean; (ζ) container destruction; (η) disk-fill; (θ) §12
 host-safety.</p>
-<p>Conductor dispatches ≥1 (A)-(K) per pause. “Build running, nothing
-else to do” NEVER true.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.96.
+<p>Conductor dispatches ≥1 (A)-(K) per pause. &quot;Build running, nothing
+else to do&quot; NEVER true.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.96.
 Release blocker.</p>
-<h3
-id="max-use-of-idle-progress-update-cadence-user-mandate-2026-05-27">§11.4.97
+<h3 id="11497--max-use-of-idle--progress-update-cadence-user-mandate-2026-05-27">§11.4.97
 — Max-use-of-idle + progress-update cadence (User mandate,
 2026-05-27)</h3>
-<ol type="A">
-<li>Every minute progressable idle = §11.4.97 violation, dispatch
+<p>(A) Every minute progressable idle = §11.4.97 violation, dispatch
 CONTINUOUSLY; (B) 1-line operator updates at
 commit/subagent/anchor/evidence/migration — no prompt; (C) continuous
 physical-proof gathering per §11.4.5/6/69; (D) composes with
 operating-mode anchor family; (E) idle-only-when-blocked closed-set
 unchanged from §11.4.94(A). Pre-build gates
 <code>CM-COVENANT-114-97-PROPAGATION</code> +
-<code>CM-IDLE-TIME-AUDIT</code>.</li>
-</ol>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.97.
+<code>CM-IDLE-TIME-AUDIT</code>.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.97.
 Release blocker.</p>
-<h3 id="full-automation-anti-bluff-user-mandate-2026-05-28">§11.4.98 —
-Full-Automation Anti-Bluff (User mandate, 2026-05-28)</h3>
-<p>Forensic anchor: “Make sure we have full automation testing of all
+<h3 id="11498--full-automation-anti-bluff-user-mandate-2026-05-28">§11.4.98
+— Full-Automation Anti-Bluff (User mandate, 2026-05-28)</h3>
+<p>Forensic anchor: &quot;Make sure we have full automation testing of all
 scenarios with real bot, main group and users without any manual
-intervention or contribution of real user! … No bluff is allowed!”</p>
-<p>Closes the manual-intervention gap §11.4+85+87+89+94 didn’t forbid.
+intervention or contribution of real user! ... No bluff is allowed!&quot;</p>
+<p>Closes the manual-intervention gap §11.4+85+87+89+94 didn&#39;t forbid.
 (A) every test MUST self-drive end-to-end — PASS/FAIL/SKIP-with-reason
 without further human action; (B) single exception = one-time credential
 bootstrap OUTSIDE test execution (.env, ~/.bashrc, OAuth,
 MTProto-session-activation); (C) concrete live requirements: (1) no
-“operator MUST type” prompts — drive via
+&quot;operator MUST type&quot; prompts — drive via
 MTProto/real-user-API/webhook-fixture/in-process loopback; (2) no UUIDs
 colliding with active dev session (Herald 2026-05-28: silent exit -1
 lesson); (3) no 60s human-response windows (§11.4.50 violation); (4)
@@ -1086,52 +1036,46 @@ fully-automated non-flake anti-bluff regime; (E) inheritance per
 pre-build gate <code>CM-COVENANT-114-98-PROPAGATION</code>; paired §1.1
 mutations strip → FAIL; (F) enforcement: manual-action commit BLOCKED;
 NON-COMPLIANT after 30 days → §11.4.90 Obsolete citing §11.4.98.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.98.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.98.
 Release blocker.</p>
-<h3
-id="latest-source-documentation-cross-reference-user-mandate-2026-05-28">§11.4.99
+<h3 id="11499--latest-source-documentation-cross-reference-user-mandate-2026-05-28">§11.4.99
 — Latest-Source Documentation Cross-Reference (User mandate,
 2026-05-28)</h3>
-<p>Forensic: “ALWAYS check against latest versions of services we use
-web/online docs before creating instructions! … mandatory rules /
+<p>Forensic: &quot;ALWAYS check against latest versions of services we use
+web/online docs before creating instructions! ... mandatory rules /
 constraints, result is consistency and safety of created instructions,
-guides and manuals!”</p>
+guides and manuals!&quot;</p>
 <p>Case study (Herald 2026-05-28): MTProto guide recommended VoIP +
 omitted <code>recover@telegram.org</code> pre-login email; contradicted
 official Telegram + gotd/td docs; could have caused permanent ban.
 Misguidance-by-stale-docs = §11.4 PASS-bluff at documentation layer.</p>
-<ol type="A">
-<li>Pre-commit cross-reference: fetch LATEST official online docs
+<p>(A) Pre-commit cross-reference: fetch LATEST official online docs
 (WebFetch/MCP/direct browsing — NEVER training data) for every
-operator-facing instruction doc; cite source URL+date in “## Sources
-verified” footer AND commit-message footer; seek secondary authoritative
+operator-facing instruction doc; cite source URL+date in &quot;## Sources
+verified&quot; footer AND commit-message footer; seek secondary authoritative
 sources for sparse official docs. (B) Negative findings documented
 explicitly. (C) STALE after 6 months (90 days for risk-classified
 services); re-verify at vN.0.0, on breaking-change, on operator-error.
 (D) Risk-classified:
 messengers/cloud/payment/AI/code-hosting/package-managers. (E) Composes
 with §11.4.92 Pass 4 INDEPENDENT — cannot substitute. (F) Inheritance
-per §11.4.35 — restate literal <code>11.4.99</code> in every consumer’s
+per §11.4.35 — restate literal <code>11.4.99</code> in every consumer&#39;s
 CLAUDE/AGENTS/QWEN. (G) Enforcement: missing-footer BLOCKED;
-stale-beyond-grace → §11.4.90 Obsolete.</li>
-</ol>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.99.
+stale-beyond-grace → §11.4.90 Obsolete.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.99.
 Release blocker.</p>
 <p><strong>§11.4.100 — RETIRED.</strong> Demoted to consumer project
 (ATMOSphere video-color/visual-quality fidelity) per §11.4.17/§11.4.35 —
 project-specific (RK3588/MPV/Arvus), not universal. See the consuming
-project’s Constitution/CLAUDE/AGENTS/QWEN.</p>
-<h3
-id="autonomous-decision-over-blocking-user-mandate-2026-05-28">§11.4.101
+project&#39;s Constitution/CLAUDE/AGENTS/QWEN.</p>
+<h3 id="114101--autonomous-decision-over-blocking-user-mandate-2026-05-28">§11.4.101
 — Autonomous-decision-over-blocking (User mandate, 2026-05-28)</h3>
-<p>Forensic: “when working in endless working loop fully autonomously
+<p>Forensic: &quot;when working in endless working loop fully autonomously
 try to decide most properly about points which would block execution and
-wait for us. If we haven’t answered now work would be blocked whole
+wait for us. If we haven&#39;t answered now work would be blocked whole
 night! If possible and if that will not cause any issues make proper and
 most reliable and safe decision so we achieve maximal efficiency and
-work gets fully done!”</p>
+work gets fully done!&quot;</p>
 <p>In autonomous / endless-loop mode (per §11.4.87) the agent MUST
 minimize operator-blocking and make the safe, reliable, reversible
 decision itself — work NOT stalled overnight waiting for input. §11.4.87
@@ -1154,33 +1098,30 @@ pose-and-idle = §11.4.94 + §11.4.97 violation. Composes
 <code>CM-COVENANT-114-101-PROPAGATION</code> (literal
 <code>11.4.101</code>) + paired §1.1 mutation (gate-code = separate work
 item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.101.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.101.
 Release blocker. No <code>--always-block-on-decision</code> /
 <code>--never-decide-autonomously</code> /
 <code>--skip-decision-rule</code> /
 <code>--block-without-self-resolution</code> escape.</p>
-<h3
-id="systematic-debugging-always-on-always-loaded-skill-discovery-plugin-availability-user-mandate-2026-05-29">§11.4.102
+<h3 id="114102--systematic-debugging-always-on--always-loaded-skill-discovery--plugin-availability-user-mandate-2026-05-29">§11.4.102
 — Systematic-debugging always-on + always-loaded skill-discovery +
 plugin availability (User mandate, 2026-05-29)</h3>
-<p>Forensic: “ALWAYS trigger / start
-the”/superpowers:systematic-debugging” skills when any issues happen! …
+<p>Forensic: &quot;ALWAYS trigger / start the
+&quot;/superpowers:systematic-debugging&quot; skills when any issues happen! ...
 we MUST activate the skill(s) and make strongest efforts in full in
-depth analisys / debugging and determine root causes …
-“/using-superpowers” skill is ALWAYS loaded, applied and used! All
+depth analisys / debugging and determine root causes ...
+&quot;/using-superpowers&quot; skill is ALWAYS loaded, applied and used! All
 dependencies (plugins) that Claude Code or other market places are
 offering MUST BE installed if these are not already available for
-loading and use!”</p>
-<ol type="A">
-<li>On ANY spotted
+loading and use!&quot;</p>
+<p>(A) On ANY spotted
 issue/bug/test-failure/gate-failure/regression/misalignment/inconsistency/unexpected-behaviour
 the agent MUST activate <code>superpowers:systematic-debugging</code>
 (or platform-equivalent) BEFORE proposing/writing/applying any fix —
 Iron Law: NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST. Four-phase
 arc: root-cause → pattern → hypothesis (prove/disprove with captured
 evidence) → implementation (against proven cause only). Guess-and-retry
-/ symptom-patch / re-run-hoping-it-passes (“probably transient/flaky”)
+/ symptom-patch / re-run-hoping-it-passes (&quot;probably transient/flaky&quot;)
 without completed investigation = §11.4.102 violation; calling a failure
 <code>transient</code>/<code>flaky</code>/<code>intermittent</code>
 without captured forensic evidence = simultaneous §11.4.6 + §11.4.7
@@ -1190,22 +1131,62 @@ start, consulted before any task — if ANY skill could apply (even 1%) it
 MUST be invoked, never improvised. (C) Every mandated skill
 plugin/dependency (Claude Code marketplaces or other runtime ecosystems)
 MUST be installed + loadable BEFORE dependent work; missing plugin
-blocking a mandated skill = release-blocker. Install: runtime’s own path
+blocking a mandated skill = release-blocker. Install: runtime&#39;s own path
 — Claude Code <code>/plugin</code> flow (add marketplace → install →
-confirm skill in available-skills list); other runtimes’ documented
+confirm skill in available-skills list); other runtimes&#39; documented
 installer. Anti-bluff: confirm via live capability list (install exit 0
 ≠ skill loadable, §11.4.80 lesson). Composes
 §11.4.4/6/7/8/43/70/82(A)/92. Classification: universal (§11.4.17).
 Propagation gate <code>CM-COVENANT-114-102-PROPAGATION</code> (literal
 <code>11.4.102</code>) + paired §1.1 mutation (gate-code = separate work
-item).</li>
-</ol>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.102.
+item).</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.102.
 Release blocker. No <code>--skip-systematic-debugging</code> /
 <code>--guess-and-retry-OK</code> /
 <code>--symptom-patch-permitted</code> /
 <code>--skip-skill-discovery</code> / <code>--plugin-optional</code> /
 <code>--missing-plugin-is-warning</code> escape.</p>
+<h3 id="114103--continuous-parallel-stream-working-routine-user-mandate-2026-05-29">§11.4.103
+— Continuous parallel-stream working routine (User mandate,
+2026-05-29)</h3>
+<p>Forensic: &quot;Do this working approach continuously and make it part of
+regular working routine and add it to the Constitution Submodule
+documented fully.&quot;</p>
+<p>Promotes the proven multi-stream pattern into the project&#39;s standing
+default working routine (not a per-request opt-in). Load-bearing
+invariant: main work stream MUST always stay FREE. (A) Main stream FREE
+— ALL commit AND push run detached (<code>nohup … &amp;</code> +
+<code>disown</code> per §11.4.88), never blocking on push or slow
+mirror. (B) ≥3 parallel background streams at all times + auto-backfill
+(User mandate 2026-05-29; raised from ≥2) — at least three
+subagent-driven streams (§11.4.70/§11.4.20, isolated §11.4.58 +
+§11.4.84) alongside main whenever three-plus non-contending actionable
+items exist; the moment any one stream is FULLY done a new stream MUST
+immediately start + take its place (next-highest-priority non-contending
+item), count NEVER drops below 3 while actionable items remain. Idle
+below 3 only when no remaining items OR all externally blocked
+(§11.4.94/97/101). Band 3–6, bounded §12.6 60% mem + §11.4.58 6-agent
+cap. (C) Most-critical + most-visible first; audio always top §11.4.72 +
+§11.4.42. (D) Safe-during-build scope only — while heavy
+<code>gradle</code>/<code>m -j</code>/42 GB containerised AOSP build
+(§12.9) runs, streams restrict to §11.4.96 SAFE catalogue; NEVER a
+second concurrent heavy build (§12.8). (E) Heavy anti-bluff every
+closure (§11.4.5/6/50/69/102; root cause proven or
+<code>UNCONFIRMED:</code>/<code>UNKNOWN:</code>/<code>PENDING_FORENSICS:</code>).
+(F) Idle ONLY when genuinely externally blocked
+(hardware/network/in-flight build-test-push) OR operator STOP OR §12
+host-safety per §11.4.94(A)+§11.4.97; block parks one work unit not the
+loop (§11.4.101). Composes
+§11.4.58/70/72/87/88/89/94/96/97/101/102/42/84/§12.6-§12.9/§9.2.
+Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-103-PROPAGATION</code> (literal
+<code>11.4.103</code>) + paired §1.1 mutation (gate-code = separate work
+item).</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.103.
+Release blocker. No <code>--block-main-stream</code> /
+<code>--synchronous-commit</code> / <code>--synchronous-push</code> /
+<code>--single-stream-only</code> / <code>--skip-parallel-streams</code>
+/ <code>--serialise-actionable-work</code> /
+<code>--idle-without-queue-survey</code> escape.</p>
 </body>
 </html>
