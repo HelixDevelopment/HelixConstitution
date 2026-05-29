@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 7 |
+| Revision | 8 |
 | Created | 2026-05-20 |
-| Last modified | 2026-05-28T18:00:00Z |
+| Last modified | 2026-05-29T00:00:00Z |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.101 (Autonomous-decision-over-blocking mandate, User mandate 2026-05-28) into this QWEN.md. §11.4.78–§11.4.100 mirrors continue from earlier Revisions. |
+| Status summary | Mirrored Constitution.md §11.4.102 (Mandatory systematic-debugging activation + always-loaded skill-discovery + plugin-dependency availability, User mandate 2026-05-29) into this QWEN.md. §11.4.78–§11.4.101 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | §11.4.100 mirror |
-| Fixed summary | §11.4.100 lands in lockstep with the Constitution.md §11.4.100 addition. |
+| Fixed | §11.4.102 mirror |
+| Fixed summary | §11.4.102 lands in lockstep with the Constitution.md §11.4.102 addition. |
 | Continuation | — |
 
 ## Table of contents
@@ -390,3 +390,11 @@ In autonomous / endless-loop mode (per §11.4.87) the agent MUST minimize operat
 Decision rule (proceed autonomously when ALL): (a) reversible OR pre-op backup per §9.2; (b) safe choice determinable from captured evidence per §11.4.6 (`LIKELY` ≠ determination); (c) wrong-choice blast radius bounded AND recoverable; (d) composes with §11.4 + §12 + §9. Block-only-when (BLOCK via §11.4.66 ONLY when ALL): irreversible AND high-blast-radius AND choice undeterminable from evidence — external-account state, inaccessible hardware, destructive-op-without-backup, force-push (§9.2 + §11.4.41), spending / third-party send. `Operator-blocked` per §11.4.21 only after this fires + self-resolution-exhaustion audit. Maximize-progress-while-blocked: a block parks one work unit, not the loop — keep progressing NON-blocked items per §11.4.87 + §11.4.94; pose-and-idle = §11.4.94 + §11.4.97 violation. Composes §11.4.6/21/40/41/66/87/94/§9.2/§12. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-101-PROPAGATION` (literal `11.4.101`) + paired §1.1 mutation (gate-code = separate work item).
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.101. Release blocker. No `--always-block-on-decision` / `--never-decide-autonomously` / `--skip-decision-rule` / `--block-without-self-resolution` escape.
+
+### §11.4.102 — Systematic-debugging always-on + always-loaded skill-discovery + plugin availability (User mandate, 2026-05-29)
+
+Forensic: "ALWAYS trigger / start the "/superpowers:systematic-debugging" skills when any issues happen! ... we MUST activate the skill(s) and make strongest efforts in full in depth analisys / debugging and determine root causes ... "/using-superpowers" skill is ALWAYS loaded, applied and used! All dependencies (plugins) that Claude Code or other market places are offering MUST BE installed if these are not already available for loading and use!"
+
+(A) On ANY spotted issue/bug/test-failure/gate-failure/regression/misalignment/inconsistency/unexpected-behaviour the agent MUST activate `superpowers:systematic-debugging` (or platform-equivalent) BEFORE proposing/writing/applying any fix — Iron Law: NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST. Four-phase arc: root-cause → pattern → hypothesis (prove/disprove with captured evidence) → implementation (against proven cause only). Guess-and-retry / symptom-patch / re-run-hoping-it-passes ("probably transient/flaky") without completed investigation = §11.4.102 violation; calling a failure `transient`/`flaky`/`intermittent` without captured forensic evidence = simultaneous §11.4.6 + §11.4.7 violation. (B) `superpowers:using-superpowers` (or platform-equivalent skill-discovery) ALWAYS loaded + applied at session start, consulted before any task — if ANY skill could apply (even 1%) it MUST be invoked, never improvised. (C) Every mandated skill plugin/dependency (Claude Code marketplaces or other runtime ecosystems) MUST be installed + loadable BEFORE dependent work; missing plugin blocking a mandated skill = release-blocker. Install: runtime's own path — Claude Code `/plugin` flow (add marketplace → install → confirm skill in available-skills list); other runtimes' documented installer. Anti-bluff: confirm via live capability list (install exit 0 ≠ skill loadable, §11.4.80 lesson). Composes §11.4.4/6/7/8/43/70/82(A)/92. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-102-PROPAGATION` (literal `11.4.102`) + paired §1.1 mutation (gate-code = separate work item).
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.102. Release blocker. No `--skip-systematic-debugging` / `--guess-and-retry-OK` / `--symptom-patch-permitted` / `--skip-skill-discovery` / `--plugin-optional` / `--missing-plugin-is-warning` escape.
