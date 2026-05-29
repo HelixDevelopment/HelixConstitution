@@ -6,15 +6,42 @@
 package main
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"regexp"
 	"strings"
 )
 
-// issueHeadingRe matches an Issues.md item heading: `## <ID> — <title>` where
-// <ID> is a ticket id (3 uppercase letters, dash, alnum suffix e.g. HXC-014b).
-// The em-dash separator (` — `, U+2014) distinguishes item headings from
-// structural headings like `## Prefix convention`.
+// issueHeadingRe matches the canonical HelixCode Issues.md item heading:
+// `## <ID> — <title>` where <ID> is a ticket id (3 uppercase letters, dash,
+// alnum suffix e.g. HXC-014b). The em-dash separator (` — `, U+2014)
+// distinguishes item headings from structural headings like
+// `## Prefix convention`. This is the ORIGINAL, backward-compatible form and
+// is recognised unconditionally (no Status-block requirement).
 var issueHeadingRe = regexp.MustCompile(`^## ([A-Z]{3}-[0-9A-Za-z]+)(?: \([^)]*\))? — (.+)$`)
+
+// atmBracketIDRe matches an ATMOSphere `[ATM-NNN]` bracket id appearing
+// anywhere in a heading line, e.g. `## §GL CRITICAL — [ATM-238] Netflix …`.
+var atmBracketIDRe = regexp.MustCompile(`\[(ATM-\d+)\]`)
+
+// atmCandidateHeadingRe recognises ATMOSphere's real tracker heading SHAPES
+// that MAY be workable items (subject to the Status-block test below). Two
+// shapes are accepted, mirroring Herald's commons_workable/parser.go:
+//
+//	## §<letters>[ CRITICAL/…] — [ATM-NNN] <title>   (§-prefixed, em-dash title)
+//	## §<letters> <title>                            (§-prefixed, space title)
+//
+// A heading matching this shape is treated as an item ONLY when its body
+// carries a `**Status:**` metadata line; without one it is a section header
+// (e.g. `## §FN. DEFERRED …`) and is skipped. Backward-compat note: the
+// canonical `## ABC-123 — …` form is handled by issueHeadingRe FIRST and never
+// reaches this path.
+var atmCandidateHeadingRe = regexp.MustCompile(`^## §\S`)
+
+// statusLineRe detects a `**Status:**` metadata line anywhere in an item body
+// (it may follow blockquote prose, per the real ATMOSphere blocks). This is
+// the section-header-vs-item discriminator for ATMOSphere-shaped headings.
+var statusLineRe = regexp.MustCompile(`(?m)^\*\*Status:\*\*`)
 
 // metaLineRe extracts `**Key:** value` metadata lines from an item body.
 var metaLineRe = regexp.MustCompile(`(?m)^\*\*([A-Za-z-]+):\*\*[ \t]*(.*)$`)
@@ -54,18 +81,25 @@ func parseIssues(content string) ([]item, []segment) {
 		rawBuf.Reset()
 	}
 
+	seenID := map[string]int{} // atm_id -> dedup counter (PK-collision guard)
+
 	i := 0
 	for i < len(lines) {
 		trimmed := strings.TrimRight(lines[i], "\n")
-		m := issueHeadingRe.FindStringSubmatch(trimmed)
-		if m == nil {
+
+		canonical := issueHeadingRe.FindStringSubmatch(trimmed)
+		atmShaped := canonical == nil && atmCandidateHeadingRe.MatchString(trimmed)
+
+		if canonical == nil && !atmShaped {
 			rawBuf.WriteString(lines[i])
 			i++
 			continue
 		}
-		// Item heading found. Capture the block from this line up to the next
-		// `## ` heading (any H2) or EOF.
-		flushRaw()
+
+		// Candidate item heading. Capture the block from this line up to the
+		// next `## ` heading (any H2) or EOF — verbatim, for byte-identical
+		// round-trip. body_md preserves the exact source bytes regardless of
+		// which heading form recognised it.
 		var block strings.Builder
 		block.WriteString(lines[i])
 		i++
@@ -78,13 +112,94 @@ func parseIssues(content string) ([]item, []segment) {
 			i++
 		}
 		body := block.String()
-		it := buildItem(m[1], m[2], body, "Issues")
+
+		var it item
+		if canonical != nil {
+			// Canonical `## ABC-123 — title` — unchanged behaviour; recognised
+			// unconditionally (no Status-block requirement), exactly as before.
+			it = buildItem(canonical[1], canonical[2], body, "Issues")
+		} else {
+			// ATMOSphere-shaped `## §… [— [ATM-NNN]] title`. It is a workable
+			// item ONLY if its body carries a `**Status:**` line; otherwise it
+			// is a section header (`## §FN. DEFERRED …`) → keep it as raw so the
+			// round-trip is unaffected.
+			if !statusLineRe.MatchString(body) {
+				rawBuf.WriteString(body)
+				continue
+			}
+			id, title := parseATMHeading(trimmed)
+			// PK-collision guard: ATMOSphere reuses §-letters across reopened
+			// items, and derived ids could theoretically collide. The DB
+			// identity is (atm_id, current_location), so disambiguate within
+			// Issues here, matching parseFixed's seen-counter discipline.
+			if n, ok := seenID[id]; ok {
+				seenID[id] = n + 1
+				id = id + "#" + itoa(n+1)
+			} else {
+				seenID[id] = 0
+			}
+			it = buildItem(id, title, body, "Issues")
+		}
+
+		// Close any preceding raw prose into its own segment BEFORE the item
+		// segment, preserving source order for byte-identical regeneration.
+		flushRaw()
 		items = append(items, it)
 		segs = append(segs, segment{Document: "Issues", Seq: seq, Kind: "item", AtmID: it.AtmID})
 		seq++
 	}
 	flushRaw()
 	return items, segs
+}
+
+// parseATMHeading extracts the (id, title) pair from an ATMOSphere-shaped H2
+// heading line (the leading `## ` already present in `headingLine`). The id is
+// a `[ATM-NNN]` bracket if present, else a stable sha1-derived id. The title is
+// the human-readable text after the em-/hyphen-dash separator (or the §-code
+// segment when there is no separator), with any `[ATM-NNN]` bracket stripped.
+//
+//	"## §GL CRITICAL — [ATM-238] Netflix login failure on D3" -> ("ATM-238", "Netflix login failure on D3")
+//	"## §GZ — [ATM-240] 3-button navigation …"                -> ("ATM-240", "3-button navigation …")
+//	"## §GS CRITICAL — Local-playback A/V quality …"          -> ("ATM-DERIVED-xxxxxxxx", "Local-playback A/V quality …")
+//	"## §EU HDMI audio \"command error 1\" — total loss …"    -> ("ATM-DERIVED-xxxxxxxx", "HDMI audio …")
+func parseATMHeading(headingLine string) (id, title string) {
+	heading := strings.TrimSpace(strings.TrimPrefix(headingLine, "## "))
+
+	if m := atmBracketIDRe.FindStringSubmatch(heading); m != nil {
+		id = m[1]
+	} else {
+		id = deriveATMID(heading)
+	}
+	title = atmHeadingTitle(heading)
+	return id, title
+}
+
+// atmHeadingTitle strips the §-code prefix segment and any [ATM-NNN] bracket
+// from an ATMOSphere heading, returning the human-readable title.
+func atmHeadingTitle(heading string) string {
+	title := heading
+	if idx := strings.Index(title, " — "); idx >= 0 {
+		title = title[idx+len(" — "):]
+	} else if idx := strings.Index(title, " - "); idx >= 0 {
+		title = title[idx+len(" - "):]
+	} else {
+		// No dash separator (e.g. `§EU HDMI audio …`): drop the leading
+		// `§<letters>` code token, keep the rest as the title.
+		if fields := strings.SplitN(title, " ", 2); len(fields) == 2 && strings.HasPrefix(fields[0], "§") {
+			title = fields[1]
+		}
+	}
+	// Drop a leading/inline [ATM-NNN] bracket if it survived the split.
+	title = atmBracketIDRe.ReplaceAllString(title, "")
+	return strings.TrimSpace(title)
+}
+
+// deriveATMID produces a stable, deterministic id for a bracket-less
+// ATMOSphere heading: "ATM-DERIVED-<8hexchars>" of the sha1 of the heading
+// text (mirrors Herald commons_workable/parser.go deriveID).
+func deriveATMID(heading string) string {
+	sum := sha1.Sum([]byte(heading))
+	return "ATM-DERIVED-" + hex.EncodeToString(sum[:])[:8]
 }
 
 // buildItem parses the metadata + description out of an item's raw body block.
