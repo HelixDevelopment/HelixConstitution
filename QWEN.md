@@ -69,9 +69,9 @@ When the Qwen Code agent loads this file as part of session bootstrap, it operat
 
 ### §11.4 — Anti-bluff covenant — END-USER QUALITY GUARANTEE
 
-**Forensic anchor — verbatim user mandate (2026-04-28, reasserted 2026-05-21):**
+**Forensic anchor — verbatim user mandate (2026-04-28, reasserted 2026-05-21, 2026-05-29):**
 
-> "We had been in position that all tests do execute with success and all Challenges as well, but in reality the most of the features does not work and can't be used! This MUST NOT be the case and execution of tests and Challenges MUST guarantee the quality, the completion and full usability by end users of the product!"
+> "all existing tests and Challenges do work in anti-bluff manner - they MUST confirm that all tested codebase really works as expected! We had been in position that all tests do execute with success and all Challenges as well, but in reality the most of the features does not work and can't be used! This MUST NOT be the case and execution of tests and Challenges MUST guarantee the quality, the completion and full usability by end users of the product!"
 
 **Operative rule.** Captured tests MUST exercise the behavior they claim to verify. PASS-without-execution paths, mock-only tests that don't round-trip, skip-by-default integration tests that mask real failures, metadata-only PASS, configuration-only PASS, "absence-of-error" PASS, and grep-without-runtime PASS are all critical defects regardless of how green the summary line looks. Each test failure in CI MUST imply a real broken feature; each PASS MUST imply the feature actually works for the end user. Tests and HelixQA Challenges are bound EQUALLY.
 
