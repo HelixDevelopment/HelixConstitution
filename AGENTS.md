@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 11 |
+| Revision | 13 |
 | Created | 2026-05-14 |
 | Last modified | 2026-05-29T00:00:00Z |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.102 (Mandatory systematic-debugging activation + always-loaded skill-discovery + plugin-dependency availability, User mandate 2026-05-29) into this AGENTS.md. §11.4.78–§11.4.101 mirrors continue from earlier Revisions. |
+| Status summary | Strengthened §11.4.103 mirror (User mandate 2026-05-29) — parallel-stream floor raised ≥2 → ≥3 + auto-backfill (the moment one stream is fully done, a new one immediately takes its place; count never drops below 3 while actionable items remain). Continuous parallel-stream working routine: main stream stays FREE (all commit + push detached), ≥3 parallel subagent streams, audio-first priority, safe-during-build scope, heavy anti-bluff, idle-only-when-externally-blocked. §11.4.78–§11.4.102 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | §11.4.102 mirror |
-| Fixed summary | §11.4.102 lands in lockstep with the Constitution.md §11.4.102 addition. |
+| Fixed | §11.4.103 mirror |
+| Fixed summary | §11.4.103 lands in lockstep with the Constitution.md §11.4.103 addition. |
 | Continuation | — |
 
 ## Table of contents
@@ -2028,3 +2028,13 @@ Three cooperating invariants — the difference between guess-and-retry and inve
 Composes with §11.4.4 / §11.4.6 / §11.4.7 / §11.4.8 / §11.4.43 / §11.4.70 / §11.4.82(A) / §11.4.92. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-102-PROPAGATION` (literal `11.4.102` across consumer fleet) + paired §1.1 meta-test mutation (strip literal → gate FAILs; gate-code = separate work item). No escape hatch — no `--skip-systematic-debugging`, `--guess-and-retry-OK`, `--symptom-patch-permitted`, `--skip-skill-discovery`, `--plugin-optional`, `--missing-plugin-is-warning` flag.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.102. Non-compliance is a release blocker.
+
+### §11.4.103 — Continuous parallel-stream working routine (User mandate, 2026-05-29)
+
+**Forensic anchor — verbatim user mandate (2026-05-29):** "Do this working approach continuously and make it part of regular working routine and add it to the Constitution Submodule documented fully."
+
+Promotes the proven multi-stream operating pattern into the project's standing default working routine (not a per-request opt-in). Adds the load-bearing invariant: the main work stream MUST always stay FREE. (A) Main stream FREE — ALL commit AND push run detached (`nohup … &` + `disown` per §11.4.88), never blocking on a push or slow mirror. (B) ≥3 parallel background streams at all times + auto-backfill (User mandate 2026-05-29; raised from ≥2) — run at least three subagent-driven background streams (per §11.4.70/§11.4.20, isolated per §11.4.58 + §11.4.84) alongside the main stream whenever three-plus non-contending actionable items exist; the moment any one stream is FULLY done, a new stream MUST immediately start and take its place (claim next-highest-priority non-contending item), so the active-stream count NEVER drops below 3 while actionable items remain. Idle below 3 only when no remaining non-contending actionable items OR all externally blocked (§11.4.94/§11.4.97/§11.4.101). Standing band 3–6, bounded above by §12.6 60% memory + §11.4.58 6-agent cap. (C) Most-critical + most-visible first; audio always top per §11.4.72 + §11.4.42. (D) Safe-during-build scope only — while a heavy `gradle`/`m -j`/42 GB containerised AOSP build (§12.9) runs, streams restrict to the §11.4.96 SAFE catalogue; NEVER a second concurrent heavy build (§12.8). (E) Heavy anti-bluff on every closure (§11.4.5/§11.4.6/§11.4.50/§11.4.69/§11.4.102). (F) Idle ONLY when genuinely externally blocked (hardware/network/in-flight build-test-push) OR operator STOP OR §12 host-safety per §11.4.94(A)+§11.4.97; a block parks one work unit, not the loop (§11.4.101).
+
+Composes with §11.4.58 / §11.4.70 / §11.4.72 / §11.4.87 / §11.4.88 / §11.4.89 / §11.4.94 / §11.4.96 / §11.4.97 / §11.4.101 / §11.4.102 / §11.4.42 / §11.4.84 / §12.6-§12.9 / §9.2. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-103-PROPAGATION` (literal `11.4.103` across consumer fleet) + paired §1.1 meta-test mutation (strip literal → gate FAILs; gate-code = separate work item). No escape hatch — no `--block-main-stream`, `--synchronous-commit`, `--synchronous-push`, `--single-stream-only`, `--skip-parallel-streams`, `--serialise-actionable-work`, `--idle-without-queue-survey` flag.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.103. Non-compliance is a release blocker.

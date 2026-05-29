@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 8 |
+| Revision | 10 |
 | Created | 2026-05-20 |
 | Last modified | 2026-05-29T00:00:00Z |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.102 (Mandatory systematic-debugging activation + always-loaded skill-discovery + plugin-dependency availability, User mandate 2026-05-29) into this QWEN.md. §11.4.78–§11.4.101 mirrors continue from earlier Revisions. |
+| Status summary | Strengthened §11.4.103 mirror (User mandate 2026-05-29) — parallel-stream floor raised ≥2 → ≥3 + auto-backfill (the moment one stream is fully done, a new one immediately takes its place; count never drops below 3 while actionable items remain). Continuous parallel-stream working routine: main stream stays FREE (all commit + push detached), ≥3 parallel subagent streams, audio-first priority, safe-during-build scope, heavy anti-bluff, idle-only-when-externally-blocked. §11.4.78–§11.4.102 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | §11.4.102 mirror |
-| Fixed summary | §11.4.102 lands in lockstep with the Constitution.md §11.4.102 addition. |
+| Fixed | §11.4.103 mirror |
+| Fixed summary | §11.4.103 lands in lockstep with the Constitution.md §11.4.103 addition. |
 | Continuation | — |
 
 ## Table of contents
@@ -398,3 +398,11 @@ Forensic: "ALWAYS trigger / start the "/superpowers:systematic-debugging" skills
 (A) On ANY spotted issue/bug/test-failure/gate-failure/regression/misalignment/inconsistency/unexpected-behaviour the agent MUST activate `superpowers:systematic-debugging` (or platform-equivalent) BEFORE proposing/writing/applying any fix — Iron Law: NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST. Four-phase arc: root-cause → pattern → hypothesis (prove/disprove with captured evidence) → implementation (against proven cause only). Guess-and-retry / symptom-patch / re-run-hoping-it-passes ("probably transient/flaky") without completed investigation = §11.4.102 violation; calling a failure `transient`/`flaky`/`intermittent` without captured forensic evidence = simultaneous §11.4.6 + §11.4.7 violation. (B) `superpowers:using-superpowers` (or platform-equivalent skill-discovery) ALWAYS loaded + applied at session start, consulted before any task — if ANY skill could apply (even 1%) it MUST be invoked, never improvised. (C) Every mandated skill plugin/dependency (Claude Code marketplaces or other runtime ecosystems) MUST be installed + loadable BEFORE dependent work; missing plugin blocking a mandated skill = release-blocker. Install: runtime's own path — Claude Code `/plugin` flow (add marketplace → install → confirm skill in available-skills list); other runtimes' documented installer. Anti-bluff: confirm via live capability list (install exit 0 ≠ skill loadable, §11.4.80 lesson). Composes §11.4.4/6/7/8/43/70/82(A)/92. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-102-PROPAGATION` (literal `11.4.102`) + paired §1.1 mutation (gate-code = separate work item).
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.102. Release blocker. No `--skip-systematic-debugging` / `--guess-and-retry-OK` / `--symptom-patch-permitted` / `--skip-skill-discovery` / `--plugin-optional` / `--missing-plugin-is-warning` escape.
+
+### §11.4.103 — Continuous parallel-stream working routine (User mandate, 2026-05-29)
+
+Forensic: "Do this working approach continuously and make it part of regular working routine and add it to the Constitution Submodule documented fully."
+
+Promotes the proven multi-stream pattern into the project's standing default working routine (not a per-request opt-in). Load-bearing invariant: main work stream MUST always stay FREE. (A) Main stream FREE — ALL commit AND push run detached (`nohup … &` + `disown` per §11.4.88), never blocking on push or slow mirror. (B) ≥3 parallel background streams at all times + auto-backfill (User mandate 2026-05-29; raised from ≥2) — at least three subagent-driven streams (§11.4.70/§11.4.20, isolated §11.4.58 + §11.4.84) alongside main whenever three-plus non-contending actionable items exist; the moment any one stream is FULLY done a new stream MUST immediately start + take its place (next-highest-priority non-contending item), count NEVER drops below 3 while actionable items remain. Idle below 3 only when no remaining items OR all externally blocked (§11.4.94/97/101). Band 3–6, bounded §12.6 60% mem + §11.4.58 6-agent cap. (C) Most-critical + most-visible first; audio always top §11.4.72 + §11.4.42. (D) Safe-during-build scope only — while heavy `gradle`/`m -j`/42 GB containerised AOSP build (§12.9) runs, streams restrict to §11.4.96 SAFE catalogue; NEVER a second concurrent heavy build (§12.8). (E) Heavy anti-bluff every closure (§11.4.5/6/50/69/102; root cause proven or `UNCONFIRMED:`/`UNKNOWN:`/`PENDING_FORENSICS:`). (F) Idle ONLY when genuinely externally blocked (hardware/network/in-flight build-test-push) OR operator STOP OR §12 host-safety per §11.4.94(A)+§11.4.97; block parks one work unit not the loop (§11.4.101). Composes §11.4.58/70/72/87/88/89/94/96/97/101/102/42/84/§12.6-§12.9/§9.2. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-103-PROPAGATION` (literal `11.4.103`) + paired §1.1 mutation (gate-code = separate work item).
+
+**Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.103. Release blocker. No `--block-main-stream` / `--synchronous-commit` / `--synchronous-push` / `--single-stream-only` / `--skip-parallel-streams` / `--serialise-actionable-work` / `--idle-without-queue-survey` escape.

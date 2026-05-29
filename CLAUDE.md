@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 11 |
+| Revision | 13 |
 | Created | 2026-05-14 |
 | Last modified | 2026-05-29T00:00:00Z |
 | Status | active |
-| Status summary | Mirrored Constitution.md §11.4.102 (Mandatory systematic-debugging activation + always-loaded skill-discovery + plugin-dependency availability, User mandate 2026-05-29) into this CLAUDE.md. §11.4.78–§11.4.101 mirrors continue from earlier Revisions. |
+| Status summary | Strengthened §11.4.103 mirror (User mandate 2026-05-29) — parallel-stream floor raised ≥2 → ≥3 + auto-backfill (the moment one stream is fully done, a new one immediately takes its place; count never drops below 3 while actionable items remain). Continuous parallel-stream working routine: main stream stays FREE (all commit + push detached), ≥3 parallel subagent streams, audio-first priority, safe-during-build scope, heavy anti-bluff, idle-only-when-externally-blocked. §11.4.78–§11.4.102 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | §11.4.102 mirror |
-| Fixed summary | §11.4.102 lands in lockstep with the Constitution.md §11.4.102 addition. |
+| Fixed | §11.4.103 mirror |
+| Fixed summary | §11.4.103 lands in lockstep with the Constitution.md §11.4.103 addition. |
 | Continuation | — |
 
 ## Table of contents
@@ -2789,5 +2789,21 @@ Three cooperating invariants — the difference between guess-and-retry and inve
 Composes with §11.4.4 (test-interrupt — first action after STOP is launch systematic-debugging), §11.4.6 (no-guessing — (A) is the procedural enforcement producing the facts §11.4.6 demands), §11.4.7 (demotion-evidence — the arc captures same-conditions evidence), §11.4.8 (deep-web-research — inside the hypothesis phase), §11.4.43 (TDD-fix — RED test written against proven root cause), §11.4.70 (subagent-driven — the investigation is a natural subagent dispatch), §11.4.82(A) (generalises Phase-1-forensic-before-speculative-patch to ANY fix + adds skill-discovery + plugin-availability), §11.4.92 (feeds Pass 1 + Pass 4). Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-102-PROPAGATION` (literal `11.4.102` across consumer fleet) + paired §1.1 meta-test mutation (strip literal → gate FAILs; gate-code = separate work item). No escape hatch — no `--skip-systematic-debugging`, `--guess-and-retry-OK`, `--symptom-patch-permitted`, `--skip-skill-discovery`, `--plugin-optional`, `--missing-plugin-is-warning` flag.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.102.
+
+Non-compliance is a release blocker regardless of context.
+
+### §11.4.103 — Continuous parallel-stream working routine (User mandate, 2026-05-29)
+
+**Forensic anchor — verbatim user mandate (2026-05-29):**
+
+> "Do this working approach continuously and make it part of regular working routine and add it to the Constitution Submodule documented fully."
+
+Promotes the proven multi-stream operating pattern into the project's **standing default working routine** (not a per-request opt-in). Binds §11.4.87/§11.4.88/§11.4.89/§11.4.94/§11.4.96 and adds the load-bearing invariant: **the main work stream MUST always stay FREE.**
+
+**(A) Main stream stays FREE.** ALL commit AND push operations run detached (`nohup … &` + `disown`, per §11.4.88 commit-lock-release-immediately + detached-push) — the main stream returns to the priority queue the moment the local commit is durable, never blocking on a push or a slow mirror. **(B) ≥3 parallel background streams at all times + auto-backfill** (User mandate 2026-05-29; raised from ≥2) — run **at least three** subagent-driven background streams (per §11.4.70/§11.4.20, isolated per §11.4.58 PWU worktree + §11.4.84 quiescence) alongside the main stream whenever three-plus non-contending actionable items exist; **the moment any one stream is FULLY done, a new stream MUST immediately start and take its place** (claim next-highest-priority non-contending item), so the active-stream count NEVER drops below 3 while actionable items remain. Idle below 3 is permitted ONLY when no remaining non-contending actionable items OR all remaining are externally blocked (§11.4.94/§11.4.97/§11.4.101). Standing band 3–6, bounded above by §12.6 60% memory + §11.4.58 6-agent cap. **(C) Most-critical + most-visible first; audio always top** per §11.4.72 + §11.4.42 priority order. **(D) Safe-during-build scope only** — while the 42 GB containerised AOSP rebuild (§12.9) or any heavy `gradle`/`m -j` build runs, streams restrict to the §11.4.96 SAFE catalogue (investigation/forensic/docs/test-authoring/gate-authoring/read-only probes/submodule edits/research/DB ops/backgrounded pre-build+meta-test); NEVER a second concurrent heavy build (§12.8). **(E) Heavy anti-bluff on every closure** — root cause proven or `UNCONFIRMED:`/`UNKNOWN:`/`PENDING_FORENSICS:` per §11.4.6, captured evidence per §11.4.5+§11.4.69, deterministic consistency per §11.4.50, paired §1.1 mutations, §11.4.102 systematic-debugging on any spotted problem. **(F) Idle ONLY when genuinely externally blocked** (hardware/network upstream/in-flight build-test-push completion) OR operator STOP OR §12 host-safety, per §11.4.94(A)+§11.4.97; "nothing visible to do" with progressable items is NEVER valid; a block parks one work unit, not the loop (§11.4.101).
+
+Composes with §11.4.58 / §11.4.70 / §11.4.72 / §11.4.87 / §11.4.88 / §11.4.89 / §11.4.94 / §11.4.96 / §11.4.97 / §11.4.101 / §11.4.102 / §11.4.42 / §11.4.84 / §12.6 / §12.7 / §12.8 / §12.9 / §9.2. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-103-PROPAGATION` (literal `11.4.103` across consumer fleet) + paired §1.1 meta-test mutation (strip literal → gate FAILs; gate-code = separate work item). No escape hatch — no `--block-main-stream`, `--synchronous-commit`, `--synchronous-push`, `--single-stream-only`, `--skip-parallel-streams`, `--serialise-actionable-work`, `--idle-without-queue-survey` flag.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.103.
 
 Non-compliance is a release blocker regardless of context.
