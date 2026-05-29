@@ -249,7 +249,7 @@ Universal AGENTS.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>9</td>
+<td>10</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -257,7 +257,7 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-05-28T12:00:00Z</td>
+<td>2026-05-28T18:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -2834,69 +2834,10 @@ stale-beyond-grace → §11.4.90 Obsolete
 <code>Reason=stale-documentation</code>.</p>
 <p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.99.
 Non-compliance is a release blocker.</p>
-<h3 id="114100--video-color--visual-quality-fidelity-mandate-user-mandate-2026-05-28">§11.4.100
-— Video color + visual-quality fidelity mandate (User mandate,
-2026-05-28)</h3>
-<p>Forensic anchor — verbatim user mandate (2026-05-28): &quot;We MUST check
-for all content being played — all videos ... that all colors are fine
-and proper! We MUST HAVE same approach to colors like to our sound
-quality! ... Maximally sharp, no glitches, and all video colors MUST BE
-as expected! ... not rendering colors as pale, or wrongly saturated, or
-modified from original stream or file! There MUST BE NO degradation of
-any kind! ... deep analysis on gathered frames ... colors, aspect ratio,
-speed, frames per second, any obstacle or interruption ... all available
-streaming apps and installed and pre-installed players by full
-automation tests ... No false positives or false negatives or bluff(s)
-of any kind!&quot;</p>
-<p>§11.4.5 mandates audio quality + baseline video presence; §11.4.100
-raises the video bar to <strong>color + visual-quality fidelity parity
-with the audio bar</strong>. Every user-visible video-playback PASS MUST
-carry a captured-frame deep-analysis artefact proving the rendered
-output matches the source within documented tolerance. Metadata-only
-PASS (file exists / frames &gt; 0 / codec registered / config-only) =
-§11.4 / §107 PASS-bluff at the visual-fidelity layer.</p>
-<p>Discriminator: host-side <code>ffmpeg</code> extracts the
-ground-truth source frame, device-side capture grabs the
-actually-rendered frame, align + compare. Device-only capture cannot
-detect a uniform pale/desaturation/hue shift the renderer
-introduces.</p>
-<p>Closed-set required checks (ALL mandatory): (1) <strong>Color
-fidelity</strong> — per-frame ΔE2000 vs source ≤ threshold; RGB+HSV
-histogram correlation ≥ threshold; no pale/washed-out; no
-over-saturation; no hue shift; gamma/luma within tolerance
-(full-vs-limited-range BT.601/709/2020 negotiation exercised — #1
-pale-render cause); (2) <strong>Sharpness</strong> — Laplacian-variance
-/ HF-energy of rendered ≥ source; (3) <strong>Aspect ratio</strong> —
-matches source (no stretch/letterbox-crop); (4) <strong>FPS /
-speed</strong> — presented FPS matches source over a window, no
-slow/fast drift; (5) <strong>Continuity</strong> — no freeze (SSIM &gt;
-0.99 ≥ 1 s), no dropped-frame burst, no tearing, no glitch, no
-obstruction overlay (§11.4.5 OCR census).</p>
-<p>Coverage: EVERY installed + pre-installed player AND every streaming
-app, local-file + streamed (HTTP/HLS/DASH/RTMP/DRM), full automation per
-§11.4.52 + §11.4.48 + §11.4.49. Geo-restricted SKIP-with-reason per
-§11.4.3 + §11.4.69 — never PASS-by-default, never FAIL-for-geo.
-Anti-bluff: captured-frame deep-analysis artefact load-bearing per
-§11.4.5 + §11.4.69 (<code>video_display</code>); NO false positives AND
-NO false negatives — harness validated against known-good golden +
-known-bad desaturated pairs. Helper <code>video_fidelity.sh</code>
-primitives compose with §11.4.69 <code>ab_pass_with_evidence</code>.</p>
-<p>Pre-build gate <code>CM-VIDEO-COLOR-FIDELITY</code> + propagation
-gate <code>CM-COVENANT-114-100-PROPAGATION</code> (literal
-<code>11.4.100</code> across consumer fleet) — each with paired §1.1
-meta-test mutation (strip ΔE2000/histogram/sharpness assertion or the
-source-frame ground-truth extraction → gate FAILs). Gate-code lands as a
-separate work item.</p>
-<p>Composes with §11.4.2 / §11.4.5 / §11.4.6 / §11.4.50 / §11.4.52 /
-§11.4.69 / §11.4.83 / §11.4.85. Classification: universal (§11.4.17) —
-consumer supplies player roster, thresholds, capture mechanism per
-§11.4.35.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.100.
-Non-compliance is a release blocker. No escape hatch — no
-<code>--skip-color-fidelity</code>, <code>--no-frame-analysis</code>,
-<code>--metadata-video-pass-suffices</code>,
-<code>--color-check-later</code>,
-<code>--source-comparison-optional</code> flag.</p>
+<p><strong>§11.4.100 — RETIRED.</strong> Demoted to consumer project
+(ATMOSphere video-color/visual-quality fidelity) per §11.4.17/§11.4.35 —
+project-specific (RK3588/MPV/Arvus), not universal. See the consuming
+project&#39;s Constitution/CLAUDE/AGENTS/QWEN.</p>
 <h3 id="114101--autonomous-decision-over-blocking-mandate-user-mandate-2026-05-28">§11.4.101
 — Autonomous-decision-over-blocking mandate (User mandate,
 2026-05-28)</h3>

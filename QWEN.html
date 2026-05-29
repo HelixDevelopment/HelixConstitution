@@ -249,7 +249,7 @@ Universal QWEN.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>6</td>
+<td>7</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -257,7 +257,7 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-05-28T12:00:00Z</td>
+<td>2026-05-28T18:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -1058,52 +1058,10 @@ CLAUDE/AGENTS/QWEN. (G) Enforcement: missing-footer BLOCKED;
 stale-beyond-grace → §11.4.90 Obsolete.</p>
 <p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.99.
 Release blocker.</p>
-<h3 id="114100--video-color--visual-quality-fidelity-user-mandate-2026-05-28">§11.4.100
-— Video color + visual-quality fidelity (User mandate, 2026-05-28)</h3>
-<p>Forensic: &quot;We MUST check for all content being played — all videos
-... all colors are fine and proper! ... same approach to colors like to
-our sound quality! ... Maximally sharp, no glitches ... not rendering
-colors as pale, or wrongly saturated, or modified from original stream
-or file! NO degradation ... deep analysis on gathered frames ... colors,
-aspect ratio, speed, frames per second, any obstacle or interruption ...
-all streaming apps and pre-installed players by full automation tests
-... No false positives or false negatives or bluff(s)!&quot;</p>
-<p>§11.4.5 mandates audio quality + baseline video presence; §11.4.100
-raises the video bar to <strong>color + visual-quality fidelity parity
-with the audio bar</strong>. Every user-visible video-playback PASS MUST
-carry a captured-frame deep-analysis artefact proving rendered output
-matches source within tolerance. Metadata-only PASS (file exists /
-frames&gt;0 / codec registered) = §11.4 PASS-bluff at visual-fidelity
-layer. Discriminator: host <code>ffmpeg</code> extracts ground-truth
-source frame, device capture grabs rendered frame, align+compare
-(device-only capture can&#39;t catch uniform pale/desat/hue shift).</p>
-<p>Closed-set checks (ALL): (1) <strong>Color</strong> — ΔE2000 vs
-source ≤ threshold; RGB+HSV histogram correlation ≥ threshold; no
-pale/washed-out; no over-saturation; no hue shift; gamma/luma in
-tolerance (full-vs-limited-range BT.601/709/2020 — #1 pale cause); (2)
-<strong>Sharpness</strong> — Laplacian-variance/HF-energy rendered ≥
-source; (3) <strong>Aspect ratio</strong> — matches source; (4)
-<strong>FPS/speed</strong> — matches source over window, no drift; (5)
-<strong>Continuity</strong> — no freeze (SSIM&gt;0.99 ≥1s), no
-dropped-frame burst, no tearing, no obstruction overlay (§11.4.5
-OCR).</p>
-<p>Coverage: EVERY pre-installed player + every streaming app, local +
-streamed, full automation per §11.4.52+48+49. Geo SKIP-with-reason per
-§11.4.3+69. Anti-bluff: artefact load-bearing per §11.4.5+69
-(<code>video_display</code>); NO false pos AND NO false neg — harness
-validated vs known-good golden + known-bad desaturated pairs. Helper
-<code>video_fidelity.sh</code> composes with §11.4.69
-<code>ab_pass_with_evidence</code>. Gate
-<code>CM-VIDEO-COLOR-FIDELITY</code> + propagation
-<code>CM-COVENANT-114-100-PROPAGATION</code> (literal
-<code>11.4.100</code>) + paired §1.1 mutations (gate-code = separate
-work item). Composes §11.4.2/5/6/50/52/69/83/85. Classification:
-universal (§11.4.17).</p>
-<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.100.
-Release blocker. No <code>--skip-color-fidelity</code> /
-<code>--no-frame-analysis</code> /
-<code>--metadata-video-pass-suffices</code> /
-<code>--source-comparison-optional</code> escape.</p>
+<p><strong>§11.4.100 — RETIRED.</strong> Demoted to consumer project
+(ATMOSphere video-color/visual-quality fidelity) per §11.4.17/§11.4.35 —
+project-specific (RK3588/MPV/Arvus), not universal. See the consuming
+project&#39;s Constitution/CLAUDE/AGENTS/QWEN.</p>
 <h3 id="114101--autonomous-decision-over-blocking-user-mandate-2026-05-28">§11.4.101
 — Autonomous-decision-over-blocking (User mandate, 2026-05-28)</h3>
 <p>Forensic: &quot;when working in endless working loop fully autonomously

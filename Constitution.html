@@ -248,7 +248,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 <tbody>
 <tr>
 <td>Revision</td>
-<td>8</td>
+<td>9</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -256,7 +256,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-05-28T12:00:00Z</td>
+<td>2026-05-28T18:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -11224,186 +11224,10 @@ ATMOSphere, future) restate + cite via §11.4.35 inheritance.</p>
 <code>--trust-prior-doc-as-authoritative</code> flag exists. The
 2026-05-28 user mandate is unambiguous: the result MUST be &quot;consistency
 and safety of created instructions, guides and manuals&quot;.</p>
-<h3 id="114100--video-color--visual-quality-fidelity-mandate-user-mandate-2026-05-28">§11.4.100
-— Video color + visual-quality fidelity mandate (User mandate,
-2026-05-28)</h3>
-<p><strong>Short tag:</strong> <code>video-color-fidelity</code>.</p>
-<p><strong>Forensic anchor — verbatim user mandate
-(2026-05-28):</strong></p>
-<blockquote>
-<p>&quot;We MUST check for all content being played — all videos — video
-streams from the internet, or offline videos we play, from any of
-applications — video streaming applications or video players, that all
-colors are fine and proper! We MUST HAVE same approach to colors like to
-our sound quality! EVERYTHING MUST be cutting edge, highest quality!
-Maximally sharp, no glitches, and all video colors MUST BE as expected!
-We MUST CHECK that we are not rendering colors as pale, or wrongly
-saturated, or modified from original stream or file! There MUST BE NO
-degradation of any kind! ... high quality warm colors as expected from
-the most expensive multimedia systems! ... deep analysis on gathered
-frames ... colors, aspect ratio, speed, frames per second, any obstacle
-or interruption — all this MUST BE validated, verified and confirmed!
-... all available streaming apps and installed and pre-installed players
-by full automation tests ... No false positives or false negatives or
-bluff(s) of any kind!&quot;</p>
-</blockquote>
-<p><strong>The mandate.</strong> §11.4.5 already mandates <em>audio</em>
-quality analysis (RMS, channel count, sample rate, glitch census) AND a
-baseline <em>video</em> presence/health pass. §11.4.100 raises the video
-bar to <strong>color + visual-quality fidelity parity with the audio
-bar</strong>: every user-visible video-playback test PASS MUST carry a
-captured-frame deep-analysis artefact proving the rendered output
-matches the source within documented tolerance. A video test that PASSes
-because the recording file exists, frames decoded &gt; 0, or the codec
-registered — WITHOUT proving the rendered colors / sharpness /
-aspect-ratio / speed / continuity match the source — is a §11.4 / §107
-PASS-bluff at the visual-fidelity layer. &quot;Looks like it played&quot; is not
-&quot;played correctly.&quot;</p>
-<p><strong>The discriminator (ground-truth comparison).</strong> The
-captured-frame deep analysis MUST compare the device&#39;s
-<em>actually-rendered</em> output against the <em>ground-truth
-source</em>: (i) extract the ground-truth reference frame from the
-original file/stream <strong>on the host</strong> with
-<code>ffmpeg</code> (decoded from the same source bytes the device
-received); (ii) capture the corresponding rendered frame from the
-device&#39;s actual output (<code>screenrecord</code> / HDMI-sink capture /
-secondary-display capture per the routing target); (iii) align
-temporally; (iv) compute the per-check metrics below. A test that
-analyses only the device-side capture in isolation (no source
-comparison) is insufficient — it cannot detect a uniform
-pale/desaturation/hue shift the renderer introduces.</p>
-<p><strong>Closed-set of required checks (ALL mandatory for every
-video-playback PASS):</strong></p>
-<ol type="1">
-<li><strong>Color fidelity</strong> — rendered frame&#39;s color matches the
-source within tolerance: (a) per-frame <strong>ΔE2000
-(CIEDE2000)</strong> color-difference vs the ground-truth source frame ≤
-a documented threshold; (b) <strong>RGB + HSV histogram
-correlation</strong> ≥ a documented threshold; (c) <strong>no pale /
-washed-out</strong> rendering — saturation channel NOT collapsed below
-the source&#39;s saturation distribution; (d) <strong>no
-over-saturation</strong> — saturation NOT inflated above source; (e)
-<strong>no hue shift</strong> — mean hue delta within tolerance; (f)
-<strong>gamma / luma within tolerance</strong> — luma histogram + gamma
-curve match source. The full-range-vs-limited-range (BT.601/709/2020 +
-16-235 vs 0-255) negotiation is the single most common real-world cause
-of pale/washed-out rendering and MUST be exercised explicitly.</li>
-<li><strong>Sharpness</strong> — no softening / blur introduced by the
-render path: Laplacian-variance OR high-frequency-energy of the rendered
-frame ≥ the source frame&#39;s within tolerance (a downscale-then-upscale or
-wrong-scaler path collapses high-frequency energy).</li>
-<li><strong>Aspect ratio</strong> — rendered AR matches source AR
-exactly; no stretch (anamorphic squeeze), no letterbox/pillarbox-crop
-error, no incorrect SAR/DAR handling.</li>
-<li><strong>Frame rate / speed</strong> — decoded/presented FPS matches
-source FPS; playback speed correct (no slow-motion / fast-forward drift,
-no judder from frame-rate-conversion mismatch). Measured over a
-sustained window, not a single frame.</li>
-<li><strong>Continuity</strong> — no freeze (SSIM &gt; 0.99 across
-consecutive frames for ≥ 1 s = frozen), no dropped-frame burst, no
-tearing, no glitch, no obstruction overlay. The obstruction census
-reuses the §11.4.5 OCR scan for hostile overlays
-(<code>Application not responding</code>, sign-in dialog,
-geo-restriction overlay, ad break, paywall,
-<code>App is not certified</code>).</li>
-</ol>
-<p><strong>Coverage.</strong> EVERY installed + pre-installed video
-player AND every streaming application, across both local-file content
-AND streamed content (progressive HTTP / HLS / DASH / RTMP / DRM), via
-<strong>full automation</strong> per §11.4.52 (autonomous-validation) +
-§11.4.48 (UI-driven where the player is accessibility-instrumented) +
-§11.4.49 (dual-approach). Geo-restricted streams SKIP-with-reason per
-§11.4.3 + §11.4.69 (<code>geo_restricted</code> /
-<code>network_unreachable_external</code>) — never PASS-by-default,
-never FAIL-for-geo.</p>
-<p><strong>Anti-bluff (mandatory).</strong> The captured-frame
-deep-analysis artefact is the load-bearing evidence per §11.4.5 +
-§11.4.69 (<code>video_display</code> feature class). Acceptable evidence
-shapes: <code>delta_e2000.json</code> (per-frame ΔE values + threshold +
-verdict), <code>histogram_correlation.json</code>,
-<code>sharpness_metrics.json</code>, <code>aspect_ratio.json</code>,
-<code>fps_speed.json</code>, <code>continuity_ssim.json</code>, plus the
-aligned source-vs-rendered frame PNG pair. Metadata-only PASS (&quot;file
-exists&quot; / &quot;frames &gt; 0&quot; / &quot;codec registered&quot; / config-XML-only) is
-forbidden. <strong>No false positives</strong> (claiming color-correct
-when degraded) AND <strong>no false negatives</strong> (failing
-color-correct content because the comparison harness mis-aligned frames
-or applied the wrong color matrix) — the harness MUST itself be
-validated against a known-good golden pair and a known-bad (deliberately
-desaturated) pair.</p>
-<p><strong>Helper contracts (project-side, per §11.4.35).</strong> A
-consuming project SHOULD ship a <code>video_fidelity.sh</code> (or
-analogous binding) exposing reusable primitives composing with §11.4.69
-<code>ab_pass_with_evidence</code> / <code>ab_skip_with_reason</code>:
-<code>vf_extract_source_frame</code> (host ffmpeg ground-truth
-extraction), <code>vf_capture_rendered_frame</code> (device/sink
-capture), <code>vf_assert_delta_e2000</code>,
-<code>vf_assert_histogram_correlation</code>,
-<code>vf_assert_no_pale_no_oversaturation</code>,
-<code>vf_assert_sharpness</code>, <code>vf_assert_aspect_ratio</code>,
-<code>vf_assert_fps_speed</code>,
-<code>vf_assert_continuity_no_freeze</code>,
-<code>vf_obstruction_ocr_census</code>. Each emits a captured-evidence
-artefact path.</p>
-<p><strong>4-layer coverage per §11.4.4(b):</strong></p>
-<ul>
-<li><p><strong>Pre-build gate</strong>
-<code>CM-VIDEO-COLOR-FIDELITY</code> — the video-fidelity test files +
-<code>video_fidelity.sh</code> helper exist + are executable + parse
-under <code>sh -n</code> and <code>bash -n</code> per §11.4.67; every
-video-playback test cites the fidelity-analysis artefact path; the
-comparison harness&#39;s golden-pair + bad-pair self-validation is
-wired.</p></li>
-<li><p><strong>Paired §1.1 meta-test mutation</strong> — removing the
-ΔE2000 / histogram / sharpness assertion (or stripping the source-frame
-ground-truth extraction so the test analyses only the device capture in
-isolation) → the gate FAILs.</p></li>
-<li><p><strong>On-device test</strong> (LIVE_ADB_TESTABLE per §11.4.51)
-— dispatched against a real device + real sink, captured-evidence
-directory under
-<code>qa-results/&lt;run-id&gt;/video_fidelity/</code>.</p></li>
-<li><p><strong>HelixQA Challenge entry</strong> — a Challenge bank entry
-per user-visible player/streaming app references the same fidelity test
-as its validation route.</p></li>
-<li><p><strong>Propagation gate</strong>
-<code>CM-COVENANT-114-100-PROPAGATION</code> — enforces the literal
-anchor <code>11.4.100</code> across the canonical consumer fleet (parent
-+ owned-submodule CLAUDE.md / AGENTS.md / QWEN.md). Paired §1.1 mutation
-strips the literal → gate FAILs. (Both
-<code>CM-VIDEO-COLOR-FIDELITY</code> and
-<code>CM-COVENANT-114-100-PROPAGATION</code> gate-code implementations
-land as a separate work item; this anchor defines the
-contract.)</p></li>
-</ul>
-<p><strong>Composes with</strong> §11.4.2 (recorded-evidence — the
-captured frames ARE the recording), §11.4.5 (audio + video quality
-analysis — §11.4.100 is the strict expansion of §11.4.5&#39;s video bar to
-color + sharpness + AR + speed fidelity, mirroring the §11.4.5 audio
-bar), §11.4.6 (no-guessing — metric values captured, never &quot;looks
-fine&quot;), §11.4.50 (deterministic consistency — fidelity metrics MUST be
-N-iteration identical), §11.4.52 (autonomous-validation — fidelity
-analysis runs without operator presence), §11.4.69 (universal sink-side
-positive-evidence taxonomy — <code>video_display</code> feature class),
-§11.4.83 (docs/qa transcript — fidelity artefacts ARE the
-end-user-channel proof), §11.4.85 (stress + chaos — fidelity holds under
-sustained playback + fault injection, not just on the first frame).</p>
-<p><strong>Classification:</strong> universal (per §11.4.17). Color +
-visual-quality fidelity is a reusable discipline for ANY media-playback
-project — codec-/platform-/app-agnostic. The consuming project supplies
-the specific player/streaming-app roster, the tolerance thresholds, and
-the capture mechanism per §11.4.35.</p>
-<p><strong>Canonical authority:</strong> this Constitution.md §11.4.100
-in the HelixConstitution submodule. All consuming projects (ATMOSphere,
-future media projects) restate + cite via §11.4.35 inheritance.</p>
-<p><strong>Non-compliance is a release blocker regardless of
-context.</strong> No escape hatch — no
-<code>--skip-color-fidelity</code>, <code>--no-frame-analysis</code>,
-<code>--metadata-video-pass-suffices</code>,
-<code>--color-check-later</code>,
-<code>--source-comparison-optional</code> flag exists. The 2026-05-28
-user mandate is unambiguous: video colors MUST be validated to the same
-bar as audio quality, &quot;with or without mandatory fix&quot;, &quot;No false
-positives or false negatives or bluff(s) of any kind!&quot;</p>
+<p><strong>§11.4.100 — RETIRED.</strong> Demoted to consumer project
+(ATMOSphere video-color/visual-quality fidelity) per §11.4.17/§11.4.35 —
+project-specific (RK3588/MPV/Arvus), not universal. See the consuming
+project&#39;s Constitution/CLAUDE/AGENTS/QWEN.</p>
 <hr />
 <h3 id="114101--autonomous-decision-over-blocking-mandate-user-mandate-2026-05-28">§11.4.101
 — Autonomous-decision-over-blocking mandate (User mandate,
