@@ -21,19 +21,19 @@ const (
 )
 
 func usage() {
-	fmt.Fprintln(os.Stderr, `workable-items — §11.4.93 SQLite-SSoT for workable items
+	fmt.Fprint(os.Stderr, `workable-items — §11.4.93 SQLite-SSoT for workable items
 
 Usage:
   workable-items <subcommand> [args...]
 
-Subcommands (Phase 2 scaffold — Phase 3+ implementation pending):
-  sync md-to-db          Parse Issues.md + Fixed.md, upsert into DB.
-  sync db-to-md          Regenerate Markdown trackers from DB.
-  diff                   Show DB vs Markdown divergence (CI gate).
-  validate               Schema sanity + §11.4.X invariants.
-  add <type> <sev>       Interactive item creation with mandatory fields.
-  close <atm-id> [opts]  Terminal transition with §11.4.5 evidence.
-  report [--filter]      Query helpers (by type / status / severity / obsolete-audit).
+Subcommands:
+  sync md-to-db --db <p> [--issues <p>] [--fixed <p>]   Parse trackers, upsert DB.
+  sync db-to-md --db <p> [--out-issues <p>] [--out-fixed <p>]  Regenerate trackers from DB.
+  diff --db <p> [--issues <p>] [--fixed <p>]            Show DB vs Markdown divergence.
+  validate --db <p>                                     Closed-set + §11.4.91 invariants.
+  add                                                   (not implemented in this build)
+  close                                                 (not implemented in this build)
+  report                                                (not implemented in this build)
 
 Canonical authority: Constitution.md §11.4.93.
 `)
@@ -77,38 +77,34 @@ func runSync(args []string) {
 	}
 	switch args[0] {
 	case "md-to-db":
-		fmt.Fprintln(os.Stderr, "Phase 3 not yet implemented — sync md-to-db scaffolded but not wired")
-		os.Exit(exitNotImpl)
+		os.Exit(syncMDToDB(args[1:]))
 	case "db-to-md":
-		fmt.Fprintln(os.Stderr, "Phase 4 not yet implemented — sync db-to-md scaffolded but not wired")
-		os.Exit(exitNotImpl)
+		os.Exit(syncDBToMD(args[1:]))
 	default:
 		fmt.Fprintf(os.Stderr, "unknown sync direction: %s\n", args[0])
 		os.Exit(exitUsage)
 	}
 }
 
-func runDiff(_ []string) {
-	fmt.Fprintln(os.Stderr, "Phase 3/4 dependent — diff requires md-to-db + db-to-md")
-	os.Exit(exitNotImpl)
+func runDiff(args []string) {
+	os.Exit(diffCmd(args))
 }
 
-func runValidate(_ []string) {
-	fmt.Fprintln(os.Stderr, "Phase 2 scaffold — validate not yet wired to schema.sql")
-	os.Exit(exitNotImpl)
+func runValidate(args []string) {
+	os.Exit(validateCmd(args))
 }
 
 func runAdd(_ []string) {
-	fmt.Fprintln(os.Stderr, "Phase 3 dependent — add requires Phase 3 schema + parser")
+	fmt.Fprintln(os.Stderr, "add: not implemented in this build (use sync md-to-db after editing the Markdown trackers)")
 	os.Exit(exitNotImpl)
 }
 
 func runClose(_ []string) {
-	fmt.Fprintln(os.Stderr, "Phase 3 dependent — close requires Phase 3 schema")
+	fmt.Fprintln(os.Stderr, "close: not implemented in this build (edit the Markdown trackers + run sync md-to-db)")
 	os.Exit(exitNotImpl)
 }
 
 func runReport(_ []string) {
-	fmt.Fprintln(os.Stderr, "Phase 3 dependent — report requires Phase 3 schema queries")
+	fmt.Fprintln(os.Stderr, "report: not implemented in this build (query the SQLite DB directly)")
 	os.Exit(exitNotImpl)
 }
