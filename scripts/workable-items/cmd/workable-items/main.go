@@ -9,15 +9,13 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 )
 
 const (
-	exitOK      = 0
-	exitUsage   = 1
-	exitNotImpl = 2
+	exitOK    = 0
+	exitUsage = 1
 )
 
 func usage() {
@@ -31,17 +29,19 @@ Subcommands:
   sync db-to-md --db <p> [--out-issues <p>] [--out-fixed <p>]  Regenerate trackers from DB.
   diff --db <p> [--issues <p>] [--fixed <p>]            Show DB vs Markdown divergence.
   validate --db <p>                                     Closed-set + §11.4.91 invariants.
-  add                                                   (not implemented in this build)
-  close                                                 (not implemented in this build)
-  report                                                (not implemented in this build)
+  add <type> <severity> --db <p> --title <T> --description <D> [--id <id>] [--prefix <P>]
+                                                        Create a new Queued item in Issues.
+  close <atm-id> --db <p> --status <fixed|implemented|completed|obsolete> --evidence <p>
+                                                        Atomic Issues→Fixed closure (§11.4.19).
+  report --db <p> [--by-type|--by-status|--by-severity|--obsolete-audit]
+                                                        Read-only grouped tally / §11.4.90 audit.
 
 Canonical authority: Constitution.md §11.4.93.
 `)
 }
 
 func main() {
-	flag.Parse()
-	args := flag.Args()
+	args := os.Args[1:]
 	if len(args) < 1 {
 		usage()
 		os.Exit(exitUsage)
@@ -92,19 +92,4 @@ func runDiff(args []string) {
 
 func runValidate(args []string) {
 	os.Exit(validateCmd(args))
-}
-
-func runAdd(_ []string) {
-	fmt.Fprintln(os.Stderr, "add: not implemented in this build (use sync md-to-db after editing the Markdown trackers)")
-	os.Exit(exitNotImpl)
-}
-
-func runClose(_ []string) {
-	fmt.Fprintln(os.Stderr, "close: not implemented in this build (edit the Markdown trackers + run sync md-to-db)")
-	os.Exit(exitNotImpl)
-}
-
-func runReport(_ []string) {
-	fmt.Fprintln(os.Stderr, "report: not implemented in this build (query the SQLite DB directly)")
-	os.Exit(exitNotImpl)
 }

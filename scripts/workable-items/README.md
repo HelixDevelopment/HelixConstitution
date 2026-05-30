@@ -1,7 +1,7 @@
 # workable-items — §11.4.93 SQLite-SSoT Go binary
 
-**Revision:** 1
-**Last modified:** 2026-05-27T06:30:00Z
+**Revision:** 2
+**Last modified:** 2026-05-30T00:00:00Z
 **Description:** Authoritative source-of-truth registry for every workable item in every consuming project. Bidirectional regen between SQLite DB and Markdown trackers per Constitution §11.4.93.
 
 ## Overview
@@ -26,17 +26,40 @@ starts from the DB.
 | `pkg/mdrender/` | DB→Markdown renderer (Phase 4 scaffold) |
 | `tests/` | Unit + integration + stress + chaos tests per §11.4.85 |
 
-## Subcommands (Phase 2 spec)
+## Subcommands (implemented)
+
+All subcommands below are implemented and tested against a real SQLite DB
+(no mocks). `--db <path>` is required by every subcommand.
 
 ```
-workable-items sync md-to-db        # parse Issues.md+Fixed.md → upsert DB
-workable-items sync db-to-md        # regen MD docs from DB
-workable-items diff                 # show DB vs MD divergence (CI gate)
-workable-items validate             # invariant + schema sanity (pre-build gate)
-workable-items add <type> <severity> --title <T> --description <D>
-workable-items close <atm-id> --status <fixed|implemented|completed|obsolete> --evidence <path>
-workable-items report --by-type|--by-status|--by-severity|--obsolete-audit
+workable-items sync md-to-db --db <p> [--issues <p>] [--fixed <p>]
+                                    # parse Issues.md+Fixed.md → upsert DB
+workable-items sync db-to-md --db <p> [--out-issues <p>] [--out-fixed <p>]
+                                    # regen MD docs from DB (byte-identical round-trip)
+workable-items diff --db <p> [--issues <p>] [--fixed <p>]
+                                    # show DB vs MD divergence (CI gate)
+workable-items validate --db <p>    # invariant + schema sanity (pre-build gate)
+workable-items add <type> <severity> --db <p> --title <T> --description <D> [--id <id>] [--prefix <P>]
+                                    # create a new Queued item in Issues; --id
+                                    # auto-generated as <PREFIX>-NNN when absent
+                                    # (PREFIX defaults to WIT). §11.4.91 floor
+                                    # enforced on --description at entry.
+workable-items close <atm-id> --db <p> --status <fixed|implemented|completed|obsolete> --evidence <p>
+                                    # atomic Issues→Fixed move (§11.4.19); --evidence
+                                    # mandatory (§11.4.5/§11.4.90); records item_history.
+workable-items report --db <p> [--by-type|--by-status|--by-severity|--obsolete-audit]
+                                    # read-only grouped tally; --obsolete-audit lists
+                                    # Obsolete items + flags missing §11.4.90 details.
 ```
+
+Positional and flag arguments may be given in either order (e.g. both
+`add Bug Critical --db x …` and `add --db x … Bug Critical` are accepted).
+
+`add` and `close` mutate the DB *and* keep the §11.4.93 byte-identical
+round-trip intact: they generate / move the canonical `## <ID> — <title>`
+item block + its `doc_segments` entry so a subsequent `sync db-to-md`
+regenerates a well-formed, re-parseable tracker (add is a stable fixed point;
+close round-trips and re-validates).
 
 ## Anti-bluff coverage (mandatory per §11.4.93 + §11.4.85)
 

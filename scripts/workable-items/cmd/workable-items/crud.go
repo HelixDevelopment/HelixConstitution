@@ -1,0 +1,440 @@
+// crud.go — the mutating subcommands: add, close.
+//
+// §11.4.93: add/close mutate the DB AND keep the byte-identical round-trip
+// invariant intact. Both operations write an items row, an item_history audit
+// entry, and a doc_segments item entry (add) / move the segment between
+// documents (close) so that a subsequent `sync db-to-md` regenerates a
+// well-formed, re-parseable Markdown tracker. The generated item body_md uses
+// the canonical `## <ID> — <title>` heading + `**Status:**`/`**Type:**` meta
+// block the parser already recognises, so add→sync db-to-md→sync md-to-db is a
+// stable fixed point.
+package main
+
+import (
+	"database/sql"
+	"flag"
+	"fmt"
+	"os"
+	"strings"
+)
+
+// partitionArgs separates positional (non-flag) tokens from flag tokens so the
+// Go flag package — which stops at the first positional — can still parse flags
+// that appear AFTER positionals (e.g. `add Bug Critical --db x`). boolFlags are
+// flags that take NO value; every other `--flag` / `-flag` token is assumed to
+// consume the following token as its value (whether `--db x` or `--db=x`).
+// Returns (positionals, flagArgs). Order within each group is preserved.
+func partitionArgs(args []string, boolFlags map[string]bool) (positionals, flagArgs []string) {
+	i := 0
+	for i < len(args) {
+		a := args[i]
+		if strings.HasPrefix(a, "-") && a != "-" {
+			flagArgs = append(flagArgs, a)
+			name := strings.TrimLeft(a, "-")
+			// `--flag=value` carries its own value; a bare bool flag takes none;
+			// otherwise the next token is this flag's value.
+			if !strings.Contains(a, "=") && !boolFlags[name] && i+1 < len(args) {
+				flagArgs = append(flagArgs, args[i+1])
+				i++
+			}
+			i++
+			continue
+		}
+		positionals = append(positionals, a)
+		i++
+	}
+	return positionals, flagArgs
+}
+
+// addPrefixDefault is the ticket-id prefix used when --id is not supplied. It is
+// deliberately generic (3 uppercase letters per §11.4.54 / issueHeadingRe);
+// consuming projects pass their own via --prefix (e.g. HRD, ATM, HXC).
+const addPrefixDefault = "WIT"
+
+// runAdd implements `add <type> <severity> --title <T> --description <D>`.
+//
+//	type      positional (Bug | Feature | Task) — §11.4.16 closed-set
+//	severity  positional (free text; informational)
+//	--title   heading title (required)
+//	--description  §11.4.91 floor (≥6 words OR ≥40 chars; required)
+//	--id      explicit ticket id (optional; auto-generated from --prefix when absent)
+//	--prefix  3-letter id prefix for auto-generated ids (default WIT)
+//	--db      SQLite DB path (required)
+func runAdd(args []string) {
+	os.Exit(addCmd(args))
+}
+
+func addCmd(args []string) int {
+	fs := flag.NewFlagSet("add", flag.ContinueOnError)
+	dbPath := fs.String("db", "", "path to the workable-items SQLite DB")
+	title := fs.String("title", "", "item title (heading text)")
+	description := fs.String("description", "", "item description (§11.4.91 floor: ≥6 words OR ≥40 chars)")
+	explicitID := fs.String("id", "", "explicit ticket id (auto-generated when absent)")
+	prefix := fs.String("prefix", addPrefixDefault, "3-letter id prefix for auto-generated ids")
+	pos, flagArgs := partitionArgs(args, nil)
+	if err := fs.Parse(flagArgs); err != nil {
+		return exitUsage
+	}
+	if len(pos) < 1 {
+		fmt.Fprintln(os.Stderr, "add: missing positional <type> (Bug | Feature | Task)")
+		return exitUsage
+	}
+	typ := normalizeType(pos[0])
+	severity := ""
+	if len(pos) >= 2 {
+		severity = pos[1]
+	}
+	if *dbPath == "" {
+		fmt.Fprintln(os.Stderr, "add: --db is required")
+		return exitUsage
+	}
+	if strings.TrimSpace(*title) == "" {
+		fmt.Fprintln(os.Stderr, "add: --title is required")
+		return exitUsage
+	}
+	if strings.TrimSpace(*description) == "" {
+		fmt.Fprintln(os.Stderr, "add: --description is required")
+		return exitUsage
+	}
+	// §11.4.91 description floor — enforced at entry per the mandate.
+	if wordCount(*description) < 6 && len(*description) < 40 {
+		fmt.Fprintf(os.Stderr, "add: --description fails §11.4.91 floor (%d words / %d chars; need ≥6 words OR ≥40 chars)\n",
+			wordCount(*description), len(*description))
+		return exitUsage
+	}
+
+	db, err := openDB(*dbPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "add: %v\n", err)
+		return exitUsage
+	}
+	defer db.Close()
+
+	id := strings.TrimSpace(*explicitID)
+	if id == "" {
+		id, err = nextID(db, *prefix)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "add: allocate id: %v\n", err)
+			return exitUsage
+		}
+	} else {
+		exists, err := itemExists(db, id, "Issues")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "add: %v\n", err)
+			return exitUsage
+		}
+		if exists {
+			fmt.Fprintf(os.Stderr, "add: item %s already exists in Issues\n", id)
+			return exitUsage
+		}
+	}
+
+	body := renderItemBody(id, *title, typ, severity, *description, "Queued")
+
+	tx, err := db.Begin()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "add: begin: %v\n", err)
+		return exitUsage
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(`INSERT INTO items
+		(atm_id, type, status, severity, title, description, current_location, body_md)
+		VALUES (?,?,?,?,?,?,?,?)`,
+		id, typ, "Queued", nullable(severity), *title, *description, "Issues", body); err != nil {
+		fmt.Fprintf(os.Stderr, "add: insert item: %v\n", err)
+		return exitUsage
+	}
+	if err := appendSegment(tx, "Issues", id); err != nil {
+		fmt.Fprintf(os.Stderr, "add: append segment: %v\n", err)
+		return exitUsage
+	}
+	if err := recordHistory(tx, id, "Opened", "User", "", ""); err != nil {
+		fmt.Fprintf(os.Stderr, "add: history: %v\n", err)
+		return exitUsage
+	}
+	if err := tx.Commit(); err != nil {
+		fmt.Fprintf(os.Stderr, "add: commit: %v\n", err)
+		return exitUsage
+	}
+
+	fmt.Printf("add: created %s (%s, status=Queued) in Issues\n", id, typ)
+	return exitOK
+}
+
+// closeStatusMap maps the close --status keyword onto the closed-set terminal
+// value + the item_history event_type per §11.4.33 / §11.4.90.
+var closeStatusMap = map[string]struct {
+	status string
+	event  string
+}{
+	"fixed":       {"Fixed (→ Fixed.md)", "Fixed"},
+	"implemented": {"Implemented (→ Fixed.md)", "Implemented"},
+	"completed":   {"Completed (→ Fixed.md)", "Completed"},
+	"obsolete":    {"Obsolete (→ Fixed.md)", "Obsolete"},
+}
+
+// runClose implements `close <atm-id> --status <fixed|implemented|completed|
+// obsolete> --evidence <path>`. It performs the §11.4.19 atomic move from
+// Issues to Fixed: the item's current_location flips, its status becomes the
+// terminal closed-set value, its body_md is regenerated with the closure
+// metadata (so it round-trips), the Issues item-segment is removed, a Fixed
+// item-segment is appended, and an item_history closure entry with mandatory
+// captured-evidence (§11.4.5/§11.4.90) is recorded.
+func runClose(args []string) {
+	os.Exit(closeCmd(args))
+}
+
+func closeCmd(args []string) int {
+	fs := flag.NewFlagSet("close", flag.ContinueOnError)
+	dbPath := fs.String("db", "", "path to the workable-items SQLite DB")
+	status := fs.String("status", "", "terminal status: fixed | implemented | completed | obsolete")
+	evidence := fs.String("evidence", "", "path to captured-evidence artefact (§11.4.5/§11.4.90)")
+	pos, flagArgs := partitionArgs(args, nil)
+	if err := fs.Parse(flagArgs); err != nil {
+		return exitUsage
+	}
+	if len(pos) < 1 {
+		fmt.Fprintln(os.Stderr, "close: missing positional <atm-id>")
+		return exitUsage
+	}
+	id := pos[0]
+	if *dbPath == "" {
+		fmt.Fprintln(os.Stderr, "close: --db is required")
+		return exitUsage
+	}
+	mapping, ok := closeStatusMap[strings.ToLower(strings.TrimSpace(*status))]
+	if !ok {
+		fmt.Fprintln(os.Stderr, "close: --status must be one of: fixed | implemented | completed | obsolete")
+		return exitUsage
+	}
+	// §11.4.5 / §11.4.90 — closure requires captured evidence.
+	if strings.TrimSpace(*evidence) == "" {
+		fmt.Fprintln(os.Stderr, "close: --evidence is required (§11.4.5/§11.4.90 captured-evidence mandate)")
+		return exitUsage
+	}
+
+	db, err := openDB(*dbPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "close: %v\n", err)
+		return exitUsage
+	}
+	defer db.Close()
+
+	src, err := loadItem(db, id, "Issues")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "close: %v\n", err)
+		return exitUsage
+	}
+	if src == nil {
+		fmt.Fprintf(os.Stderr, "close: item %s not found in Issues (nothing to close)\n", id)
+		return exitUsage
+	}
+	exists, err := itemExists(db, id, "Fixed")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "close: %v\n", err)
+		return exitUsage
+	}
+	if exists {
+		fmt.Fprintf(os.Stderr, "close: item %s already present in Fixed\n", id)
+		return exitUsage
+	}
+
+	closedBody := renderItemBody(id, src.Title, src.Type, src.Severity, src.Description, mapping.status)
+	closedBody = appendEvidence(closedBody, *evidence)
+
+	tx, err := db.Begin()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "close: begin: %v\n", err)
+		return exitUsage
+	}
+	defer tx.Rollback()
+
+	// Remove the Issues item row + its Issues item-segment (atomic move out).
+	if _, err := tx.Exec(`DELETE FROM items WHERE atm_id=? AND current_location='Issues'`, id); err != nil {
+		fmt.Fprintf(os.Stderr, "close: remove from Issues: %v\n", err)
+		return exitUsage
+	}
+	if err := removeItemSegment(tx, "Issues", id); err != nil {
+		fmt.Fprintf(os.Stderr, "close: remove Issues segment: %v\n", err)
+		return exitUsage
+	}
+
+	// Insert the Fixed item row + append its Fixed item-segment (atomic move in).
+	if _, err := tx.Exec(`INSERT INTO items
+		(atm_id, type, status, severity, title, description, current_location, body_md)
+		VALUES (?,?,?,?,?,?,?,?)`,
+		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, "Fixed", closedBody); err != nil {
+		fmt.Fprintf(os.Stderr, "close: insert into Fixed: %v\n", err)
+		return exitUsage
+	}
+	if err := appendSegment(tx, "Fixed", id); err != nil {
+		fmt.Fprintf(os.Stderr, "close: append Fixed segment: %v\n", err)
+		return exitUsage
+	}
+	if err := recordHistory(tx, id, mapping.event, "AI", "", *evidence); err != nil {
+		fmt.Fprintf(os.Stderr, "close: history: %v\n", err)
+		return exitUsage
+	}
+	// Per §11.4.90, Obsolete closures carry triple-check evidence in their own
+	// table when the operator supplies the required fields; the minimal close
+	// path records the evidence path in item_history (above) and leaves the
+	// richer obsolete_details entry to a dedicated flow.
+	if err := tx.Commit(); err != nil {
+		fmt.Fprintf(os.Stderr, "close: commit: %v\n", err)
+		return exitUsage
+	}
+
+	fmt.Printf("close: moved %s Issues→Fixed (status=%s, evidence=%s)\n", id, mapping.status, *evidence)
+	return exitOK
+}
+
+// ---- shared persistence helpers ----
+
+// nextID allocates the next monotonic ticket id for prefix by scanning existing
+// ids of the form <PREFIX>-<NNN> and returning prefix-(max+1), zero-padded to 3
+// digits. Append-only per §11.4.54 — ids are never reused.
+func nextID(db *sql.DB, prefix string) (string, error) {
+	rows, err := db.Query(`SELECT atm_id FROM items`)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+	max := 0
+	want := prefix + "-"
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return "", err
+		}
+		if !strings.HasPrefix(id, want) {
+			continue
+		}
+		n := atoiSafe(id[len(want):])
+		if n > max {
+			max = n
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s-%03d", prefix, max+1), nil
+}
+
+// atoiSafe parses the leading run of digits in s (stops at the first non-digit,
+// tolerating suffixes like "014b"). Returns 0 when no leading digit is present.
+func atoiSafe(s string) int {
+	n := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] < '0' || s[i] > '9' {
+			break
+		}
+		n = n*10 + int(s[i]-'0')
+	}
+	return n
+}
+
+func itemExists(db *sql.DB, id, location string) (bool, error) {
+	var n int
+	err := db.QueryRow(`SELECT COUNT(1) FROM items WHERE atm_id=? AND current_location=?`, id, location).Scan(&n)
+	return n > 0, err
+}
+
+// loadItem returns the single item at (id, location), or nil when absent.
+func loadItem(db *sql.DB, id, location string) (*item, error) {
+	row := db.QueryRow(`SELECT atm_id, type, status,
+		COALESCE(severity,''), title, description,
+		COALESCE(forensic_anchor,''), COALESCE(closure_criteria,''),
+		COALESCE(composes_with,''), current_location, COALESCE(body_md,'')
+		FROM items WHERE atm_id=? AND current_location=?`, id, location)
+	var it item
+	err := row.Scan(&it.AtmID, &it.Type, &it.Status, &it.Severity,
+		&it.Title, &it.Description, &it.ForensicAnchor, &it.ClosureCriteria,
+		&it.ComposesWith, &it.CurrentLocation, &it.BodyMD)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &it, nil
+}
+
+// appendSegment appends an item-segment to the END of a document's segment list
+// (max(seq)+1), so a freshly added/closed item renders after the existing
+// content. A raw newline separator is NOT injected here — renderItemBody emits a
+// trailing blank line so consecutive items stay well-formed.
+func appendSegment(tx *sql.Tx, document, id string) error {
+	var maxSeq sql.NullInt64
+	if err := tx.QueryRow(`SELECT MAX(seq) FROM doc_segments WHERE document=?`, document).Scan(&maxSeq); err != nil {
+		return err
+	}
+	next := 0
+	if maxSeq.Valid {
+		next = int(maxSeq.Int64) + 1
+	}
+	_, err := tx.Exec(`INSERT INTO doc_segments (document, seq, kind, atm_id, raw) VALUES (?,?,?,?,?)`,
+		document, next, "item", id, nil)
+	return err
+}
+
+// removeItemSegment deletes the item-segment for id from document. Remaining
+// segments keep their seq values (gaps are harmless — render walks ORDER BY
+// seq), so no renumbering is required.
+func removeItemSegment(tx *sql.Tx, document, id string) error {
+	_, err := tx.Exec(`DELETE FROM doc_segments WHERE document=? AND kind='item' AND atm_id=?`, document, id)
+	return err
+}
+
+// recordHistory appends an append-only audit entry per §11.4.34 / §11.4.90.
+func recordHistory(tx *sql.Tx, id, event, by, reason, evidence string) error {
+	_, err := tx.Exec(`INSERT INTO item_history
+		(atm_id, event_type, by, on_date, reason, evidence_path)
+		VALUES (?,?,?,date('now'),?,?)`,
+		id, event, nullable(by), nullable(reason), nullable(evidence))
+	return err
+}
+
+// renderItemBody produces a canonical, re-parseable Markdown item block:
+//
+//	## <ID> — <title>
+//
+//	**Status:** <status>
+//	**Type:** <type>
+//	[**Severity:** <severity>]
+//
+//	<description>
+//
+// The trailing blank line keeps consecutive item segments separated. The block
+// round-trips: parseIssues/parseFixed recognise the canonical heading + meta.
+func renderItemBody(id, title, typ, severity, description, status string) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "## %s — %s\n\n", id, title)
+	fmt.Fprintf(&b, "**Status:** %s\n", status)
+	fmt.Fprintf(&b, "**Type:** %s\n", typ)
+	if strings.TrimSpace(severity) != "" {
+		fmt.Fprintf(&b, "**Severity:** %s\n", severity)
+	}
+	fmt.Fprintf(&b, "\n%s\n\n", description)
+	return b.String()
+}
+
+// appendEvidence inserts an `**Evidence:**` metadata line into a rendered item
+// body, immediately after the `**Type:**` line, so closures carry their
+// captured-evidence reference in the regenerated Markdown.
+func appendEvidence(body, evidence string) string {
+	lines := strings.SplitAfter(body, "\n")
+	var out strings.Builder
+	inserted := false
+	for _, ln := range lines {
+		out.WriteString(ln)
+		if !inserted && strings.HasPrefix(ln, "**Type:**") {
+			fmt.Fprintf(&out, "**Evidence:** %s\n", evidence)
+			inserted = true
+		}
+	}
+	if !inserted {
+		fmt.Fprintf(&out, "**Evidence:** %s\n", evidence)
+	}
+	return out.String()
+}
