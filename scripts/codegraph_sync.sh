@@ -58,6 +58,33 @@ TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 LOG_TMP="$(mktemp)"
 trap "rm -f '${LOG_TMP}'" EXIT
 
+# --- §11.4.1 forensic fix (2026-05-29) -----------------------------------
+# A prior run captured a 198 MB spinner-spam blob into docs/codegraph/Status.md:
+# codegraph's "Scanning files..." progress spinner emits carriage-return-laden
+# ANSI output to stderr. Because the spinner uses '\r' (no '\n'), the WHOLE blob
+# is a single logical line — so `grep | tail -N` (line-bounded only) let one line
+# grow to ~180 MB and `tee -a … >> Status.md` wrote it verbatim. That corrupted
+# Status.md broke pre-build CM-DOCS-COMPOSITE-SYNC / CM-UNIVERSAL-MARKDOWN-EXPORT-SYNC.
+#
+# sanitize_tail bounds + cleans EVERY raw-command-output tail before it reaches
+# Status.md: (a) strip ANSI escape sequences + carriage returns, (b) collapse
+# repeated identical lines (spinner spam), (c) HARD-CAP bytes AND lines so a
+# runaway spinner can NEVER again exceed a few KB in the ledger.
+#   Approach reference: standard ANSI-strip sed `s/\x1b\[[0-9;]*[a-zA-Z]//g`
+#   + `tr -d '\r'` + `uniq` (collapse) + `tail -c`/`tail -n` (bounded capture).
+SANITIZE_MAX_BYTES=8192
+SANITIZE_MAX_LINES=40
+sanitize_tail() {
+    # Reads raw command output on stdin, emits a bounded, ANSI/CR-stripped,
+    # spinner-collapsed tail safe to append to a tracked Markdown ledger.
+    sed -r 's/\x1b\[[0-9;?]*[a-zA-Z]//g' \
+        | tr '\r' '\n' \
+        | sed '/^[[:space:]]*$/d' \
+        | uniq \
+        | tail -n "${SANITIZE_MAX_LINES}" \
+        | tail -c "${SANITIZE_MAX_BYTES}"
+}
+
 append_log() {
     local message="$1"
     {
@@ -84,7 +111,7 @@ cd "${PROJECT_ROOT}"
 
 echo "Step 1/4: baseline codegraph status"
 ${CG} status . > "${LOG_TMP}" 2>&1
-baseline_summary="$(grep -E 'file|function|method|struct|interface|constant' "${LOG_TMP}" | tail -10 || true)"
+baseline_summary="$(sanitize_tail < "${LOG_TMP}" | grep -E 'file|function|method|struct|interface|constant' | tail -10 || true)"
 echo "${baseline_summary}"
 
 echo ""
@@ -93,7 +120,7 @@ sync_start="$(date +%s)"
 if ! ${CG} sync . > "${LOG_TMP}" 2>&1; then
     echo "ERROR: codegraph sync FAILed:" >&2
     cat "${LOG_TMP}" >&2
-    append_log "**FAIL** — codegraph sync exited non-zero. Tail of log:\n\n\`\`\`\n$(tail -10 "${LOG_TMP}")\n\`\`\`"
+    append_log "**FAIL** — codegraph sync exited non-zero. Tail of log:\n\n\`\`\`\n$(sanitize_tail < "${LOG_TMP}")\n\`\`\`"
     exit 1
 fi
 sync_end="$(date +%s)"
@@ -103,7 +130,7 @@ echo "sync completed in ${sync_duration}s"
 echo ""
 echo "Step 3/4: post-sync codegraph status"
 ${CG} status . > "${LOG_TMP}" 2>&1
-postsync_summary="$(grep -E 'file|function|method|struct|interface|constant' "${LOG_TMP}" | tail -10 || true)"
+postsync_summary="$(sanitize_tail < "${LOG_TMP}" | grep -E 'file|function|method|struct|interface|constant' | tail -10 || true)"
 echo "${postsync_summary}"
 
 echo ""
@@ -116,7 +143,7 @@ if [ -x "${PROJECT_ROOT}/scripts/codegraph_validate.sh" ]; then
     else
         validate_status="FAIL"
     fi
-    validate_summary="$(tail -5 "${LOG_TMP}")"
+    validate_summary="$(sanitize_tail < "${LOG_TMP}")"
     cat "${LOG_TMP}"
 else
     echo "WARNING: ${PROJECT_ROOT}/scripts/codegraph_validate.sh not found — per §11.4.78 step 4, projects MUST ship an anti-bluff validator. Skipping but flagging."
