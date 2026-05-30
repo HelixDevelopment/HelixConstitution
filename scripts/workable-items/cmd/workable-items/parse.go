@@ -25,23 +25,59 @@ var issueHeadingRe = regexp.MustCompile(`^## ([A-Z]{3}-[0-9A-Za-z]+)(?: \([^)]*\
 var atmBracketIDRe = regexp.MustCompile(`\[(ATM-\d+)\]`)
 
 // atmCandidateHeadingRe recognises ATMOSphere's real tracker heading SHAPES
-// that MAY be workable items (subject to the Status-block test below). Two
-// shapes are accepted, mirroring Herald's commons_workable/parser.go:
+// that MAY be workable items (subject to the Status-block test below). THREE
+// shapes are accepted — the three the real docs/Fixed.md uses:
 //
-//	## §<letters>[ CRITICAL/…] — [ATM-NNN] <title>   (§-prefixed, em-dash title)
-//	## §<letters> <title>                            (§-prefixed, space title)
+//	shape 1: ## <CODE>. <title> …      letter-code + a DOT, NO § (dominant ~29 items)
+//	                                   e.g. `## GO. …`, `## GS-2. …`, `## BJ-SOURCE. …`
+//	shape 2: ## [ATM-NNN] <title> …    heading STARTS with an [ATM-NNN] bracket
+//	                                   e.g. `## [ATM-248] D11 — VideoOutputManager …`
+//	shape 3: ## §<code> <title> …      §-prefixed
+//	                                   e.g. `## §FL …`, `## §GB …`
 //
-// A heading matching this shape is treated as an item ONLY when its body
-// carries a `**Status:**` metadata line; without one it is a section header
-// (e.g. `## §FN. DEFERRED …`) and is skipped. Backward-compat note: the
-// canonical `## ABC-123 — …` form is handled by issueHeadingRe FIRST and never
-// reaches this path.
-var atmCandidateHeadingRe = regexp.MustCompile(`^## §\S`)
+// shape 1's CODE is one uppercase letter followed by [A-Za-z0-9]* and an
+// optional `-<suffix>` (so `GS-2`, `BJ-SOURCE`, `AD.0`'s `AD` all match), then a
+// literal `. ` (dot + space). Single-letter codes (`## U. …`, `## T. …`) match
+// too. A heading matching ANY shape is treated as an item ONLY when its body
+// carries a `**Status:**` metadata line BEFORE any nested `### ` subheading
+// (see statusBeforeSubheading) — without one it is a section header
+// (`## A. Tooling …`, `## AI/AK. … closure cycle`, whose Status sits under a
+// `### `) and is skipped, kept raw. Backward-compat note: the canonical
+// `## ABC-123 — …` form is handled by issueHeadingRe FIRST and never reaches
+// this path.
+var (
+	atmShape1HeadingRe = regexp.MustCompile(`^## [A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)?\. \S`)
+	atmShape2HeadingRe = regexp.MustCompile(`^## \[ATM-\d+\] \S`)
+	atmShape3HeadingRe = regexp.MustCompile(`^## §\S`)
+)
 
-// statusLineRe detects a `**Status:**` metadata line anywhere in an item body
-// (it may follow blockquote prose, per the real ATMOSphere blocks). This is
-// the section-header-vs-item discriminator for ATMOSphere-shaped headings.
-var statusLineRe = regexp.MustCompile(`(?m)^\*\*Status:\*\*`)
+// isATMCandidateHeading reports whether a heading line matches any of the three
+// ATMOSphere item-heading shapes. The Status-block test (statusBeforeSubheading)
+// is applied separately to confirm it is an item and not a section header.
+func isATMCandidateHeading(trimmed string) bool {
+	return atmShape1HeadingRe.MatchString(trimmed) ||
+		atmShape2HeadingRe.MatchString(trimmed) ||
+		atmShape3HeadingRe.MatchString(trimmed)
+}
+
+// statusBeforeSubheading is the section-header-vs-item discriminator for
+// ATMOSphere-shaped headings. An H2 is an ITEM only when its OWN block carries a
+// `**Status:**` line before any nested `### ` (or `#### …`) subheading. Section
+// headers like `## A. Tooling …` / `## AI/AK. … closure cycle` carry their
+// Status only under a nested `### `, so they correctly fail this test and stay
+// raw. `body` is the verbatim H2 block (already cut at the next `## ` / EOF).
+func statusBeforeSubheading(body string) bool {
+	for _, ln := range splitKeepNewlines(body) {
+		t := strings.TrimRight(ln, "\n")
+		if strings.HasPrefix(t, "### ") || strings.HasPrefix(t, "#### ") {
+			return false
+		}
+		if strings.HasPrefix(t, "**Status:**") {
+			return true
+		}
+	}
+	return false
+}
 
 // metaLineRe extracts `**Key:** value` metadata lines from an item body.
 var metaLineRe = regexp.MustCompile(`(?m)^\*\*([A-Za-z-]+):\*\*[ \t]*(.*)$`)
@@ -88,7 +124,7 @@ func parseIssues(content string) ([]item, []segment) {
 		trimmed := strings.TrimRight(lines[i], "\n")
 
 		canonical := issueHeadingRe.FindStringSubmatch(trimmed)
-		atmShaped := canonical == nil && atmCandidateHeadingRe.MatchString(trimmed)
+		atmShaped := canonical == nil && isATMCandidateHeading(trimmed)
 
 		if canonical == nil && !atmShaped {
 			rawBuf.WriteString(lines[i])
@@ -119,11 +155,11 @@ func parseIssues(content string) ([]item, []segment) {
 			// unconditionally (no Status-block requirement), exactly as before.
 			it = buildItem(canonical[1], canonical[2], body, "Issues")
 		} else {
-			// ATMOSphere-shaped `## §… [— [ATM-NNN]] title`. It is a workable
-			// item ONLY if its body carries a `**Status:**` line; otherwise it
-			// is a section header (`## §FN. DEFERRED …`) → keep it as raw so the
-			// round-trip is unaffected.
-			if !statusLineRe.MatchString(body) {
+			// ATMOSphere-shaped item. It is a workable item ONLY if its OWN
+			// block carries a `**Status:**` line before any nested `### `;
+			// otherwise it is a section header → keep it raw so the round-trip
+			// is unaffected.
+			if !statusBeforeSubheading(body) {
 				rawBuf.WriteString(body)
 				continue
 			}
@@ -152,46 +188,99 @@ func parseIssues(content string) ([]item, []segment) {
 	return items, segs
 }
 
+// atmShape1CodeRe captures the shape-1 letter-code that precedes the `. `
+// boundary, e.g. `GO`, `GS-2`, `BJ-SOURCE`, `U`. atmShape2CodeRe captures the
+// leading `[ATM-NNN]` bracket; atmShape3CodeRe captures the §-code token.
+var (
+	atmShape1CodeRe = regexp.MustCompile(`^([A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)?)\. (.*)$`)
+	atmShape2CodeRe = regexp.MustCompile(`^\[(ATM-\d+)\] (.*)$`)
+	atmShape3CodeRe = regexp.MustCompile(`^§(\S+)\s*(.*)$`)
+)
+
 // parseATMHeading extracts the (id, title) pair from an ATMOSphere-shaped H2
-// heading line (the leading `## ` already present in `headingLine`). The id is
-// a `[ATM-NNN]` bracket if present, else a stable sha1-derived id. The title is
-// the human-readable text after the em-/hyphen-dash separator (or the §-code
-// segment when there is no separator), with any `[ATM-NNN]` bracket stripped.
+// heading line (the leading `## ` already present in `headingLine`). It
+// dispatches on the heading shape:
 //
-//	"## §GL CRITICAL — [ATM-238] Netflix login failure on D3" -> ("ATM-238", "Netflix login failure on D3")
-//	"## §GZ — [ATM-240] 3-button navigation …"                -> ("ATM-240", "3-button navigation …")
-//	"## §GS CRITICAL — Local-playback A/V quality …"          -> ("ATM-DERIVED-xxxxxxxx", "Local-playback A/V quality …")
-//	"## §EU HDMI audio \"command error 1\" — total loss …"    -> ("ATM-DERIVED-xxxxxxxx", "HDMI audio …")
+//	shape 2 `## [ATM-NNN] <rest>`  -> id = ATM-NNN (the bracket), title = trim(rest)
+//	shape 3 `## §<code> <rest>`    -> id = a `[ATM-NNN]` bracket anywhere in the
+//	                                 heading if present, else derived from the
+//	                                 §-code; title = trim(rest)
+//	shape 1 `## <CODE>. <rest>`    -> id = a `[ATM-NNN]` bracket anywhere in the
+//	                                 heading if present, else the CODE itself
+//	                                 (`GO`, `GS-2`, `BJ-SOURCE`); title = trim(rest)
+//
+// The title is the human text AFTER the code-terminating boundary (the `. `
+// after a shape-1 code, the `] ` after a shape-2 bracket, the §-code token for
+// shape 3) — NOT the first ` — ` (which lands inside the description). trimTitle
+// then cuts the trailing backtick-status / `[migrated …]` suffix while
+// PRESERVING any inner ` — ` and inner `code` spans the title legitimately
+// contains.
+//
+//	"## GO. 2nd display … — `Fixed (→ Fixed.md)` (…)"            -> ("GO", "2nd display …")
+//	"## BJ-SOURCE. Fix #135 — c2.rk.avc.encoder … — `Fixed …`"  -> ("BJ-SOURCE", "Fix #135 — c2.rk.avc.encoder …")
+//	"## [ATM-248] D11 — VideoOutputManager … — `Completed …`"   -> ("ATM-248", "D11 — VideoOutputManager …")
+//	"## §FL Phase 39.FL D3 … — `Completed …` [migrated …]"      -> ("ATM-DERIVED-xxxxxxxx", "Phase 39.FL D3 …")
 func parseATMHeading(headingLine string) (id, title string) {
 	heading := strings.TrimSpace(strings.TrimPrefix(headingLine, "## "))
 
-	if m := atmBracketIDRe.FindStringSubmatch(heading); m != nil {
-		id = m[1]
-	} else {
+	var rest string
+	switch {
+	case atmShape2CodeRe.MatchString(heading):
+		m := atmShape2CodeRe.FindStringSubmatch(heading)
+		id, rest = m[1], m[2]
+	case strings.HasPrefix(heading, "§"):
+		m := atmShape3CodeRe.FindStringSubmatch(heading)
+		rest = m[2]
+		if b := atmBracketIDRe.FindStringSubmatch(heading); b != nil {
+			id = b[1]
+		} else {
+			id = deriveATMID(heading)
+		}
+	case atmShape1CodeRe.MatchString(heading):
+		m := atmShape1CodeRe.FindStringSubmatch(heading)
+		code, r := m[1], m[2]
+		rest = r
+		if b := atmBracketIDRe.FindStringSubmatch(heading); b != nil {
+			id = b[1]
+		} else {
+			id = code
+		}
+	default:
+		// Defensive fallback — should not happen for candidate headings.
+		rest = heading
 		id = deriveATMID(heading)
 	}
-	title = atmHeadingTitle(heading)
+
+	title = trimTitle(rest)
 	return id, title
 }
 
-// atmHeadingTitle strips the §-code prefix segment and any [ATM-NNN] bracket
-// from an ATMOSphere heading, returning the human-readable title.
-func atmHeadingTitle(heading string) string {
-	title := heading
-	if idx := strings.Index(title, " — "); idx >= 0 {
-		title = title[idx+len(" — "):]
-	} else if idx := strings.Index(title, " - "); idx >= 0 {
-		title = title[idx+len(" - "):]
-	} else {
-		// No dash separator (e.g. `§EU HDMI audio …`): drop the leading
-		// `§<letters>` code token, keep the rest as the title.
-		if fields := strings.SplitN(title, " ", 2); len(fields) == 2 && strings.HasPrefix(fields[0], "§") {
-			title = fields[1]
-		}
+// statusBacktickRe matches the trailing closure-status boundary: a ` — ` (em-
+// dash) immediately followed by a backtick-quoted status token. This is the
+// canonical title-terminating boundary across all three shapes.
+var statusBacktickRe = regexp.MustCompile(`\s+—\s+\x60`)
+
+// statusBacktickNoDashRe handles the rarer `<title> \`Status…\`` form with a
+// bare space before the backtick (e.g. `## JD. … investigation outcome
+// \`Completed …\``). It only fires on a recognised closure-status keyword to
+// avoid cutting an inner inline `code` span.
+var statusBacktickNoDashRe = regexp.MustCompile(`\s+\x60(?:Fixed|Implemented|Completed|Obsolete|FIXED|OPEN|OBSOLETE|RESOLVED)`)
+
+// trimTitle returns the human-readable title from the post-code remainder of an
+// ATMOSphere heading: cut at the trailing backtick-status boundary (preserving
+// inner ` — ` and inner `code` spans), strip any leftover `[ATM-NNN]` bracket,
+// and drop a trailing ` [migrated …]` / parenthetical when no status backtick
+// is present.
+func trimTitle(rest string) string {
+	if loc := statusBacktickRe.FindStringIndex(rest); loc != nil {
+		rest = rest[:loc[0]]
+	} else if loc := statusBacktickNoDashRe.FindStringIndex(rest); loc != nil {
+		rest = rest[:loc[0]]
+	} else if idx := strings.Index(rest, " [migrated"); idx >= 0 {
+		rest = rest[:idx]
 	}
-	// Drop a leading/inline [ATM-NNN] bracket if it survived the split.
-	title = atmBracketIDRe.ReplaceAllString(title, "")
-	return strings.TrimSpace(title)
+	rest = atmBracketIDRe.ReplaceAllString(rest, "")
+	return strings.TrimSpace(rest)
 }
 
 // deriveATMID produces a stable, deterministic id for a bracket-less
@@ -341,42 +430,133 @@ func normalizeStatus(v string) string {
 	}
 }
 
-// fixedRowRe matches a Fixed.md closure table data row:
+// fixedRowRe matches a LEGACY Fixed.md closure table data row:
 // `| <date> | <title> | <Type> | <Status> | <Round> | <Commit(s)> | <Evidence> |`
 // The title cell holds `<ID>[ (...)]: <title>` (colon separator in Fixed.md).
+// NOTE: the real Fixed.md uses the H2-heading + `**Status:**` block form (see
+// parseFixed); this regex remains only for backward-compatible table-form docs.
 var fixedRowRe = regexp.MustCompile(`^\| *([0-9]{4}-[0-9]{2}-[0-9]{2}) *\| *(.*?) *\| *([^|]*?) *\| *([^|]*?) *\| *([^|]*?) *\| *(.*?) *\| *(.*?) *\|\s*$`)
 
 // fixedTitleIDRe pulls the leading ticket id out of a Fixed.md title cell.
 var fixedTitleIDRe = regexp.MustCompile(`^([A-Z]{3}-[0-9A-Za-z]+)(?: \([^)]*\))?`)
 
-// parseFixed decomposes Fixed.md (table form) into items + segments. Each
-// closure data row becomes an item segment; all other lines (preamble, table
-// header, blank separators, footer) are raw.
+// parseFixed decomposes Fixed.md into items + segments. The REAL Fixed.md uses
+// the SAME H2-heading + `**Status:**` metadata-block shape as Issues.md (the
+// canonical `## ABC-123 — title` form and the ATMOSphere `## §… [— [ATM-NNN]]
+// title` forms), so the primary path mirrors parseIssues. For backward
+// compatibility the legacy pipe-table closure rows (fixedRowRe) are ALSO
+// recognised inside any raw span. Every emitted item carries
+// current_location='Fixed'. The decomposition is byte-preserving: item bodies
+// + raw segments reassemble the source exactly.
 func parseFixed(content string) ([]item, []segment) {
 	lines := splitKeepNewlines(content)
 	var items []item
 	var segs []segment
 	seq := 0
-	seen := map[string]int{} // atm_id -> dedup counter for synthetic ids
 
+	seenID := map[string]int{} // atm_id -> dedup counter (PK-collision guard)
+
+	// flushRaw emits the buffered raw prose, but FIRST gives the legacy
+	// pipe-table closure rows a chance to be recognised within it. Any line
+	// matching fixedRowRe becomes its own item segment; surrounding lines stay
+	// raw. This preserves the original table-form behaviour byte-identically.
 	var rawBuf strings.Builder
 	flushRaw := func() {
 		if rawBuf.Len() == 0 {
 			return
 		}
-		segs = append(segs, segment{Document: "Fixed", Seq: seq, Kind: "raw", Raw: rawBuf.String()})
-		seq++
+		raw := rawBuf.String()
 		rawBuf.Reset()
+		emitLegacyTable(raw, &items, &segs, &seq, seenID)
 	}
 
-	for _, ln := range lines {
+	i := 0
+	for i < len(lines) {
+		trimmed := strings.TrimRight(lines[i], "\n")
+
+		canonical := issueHeadingRe.FindStringSubmatch(trimmed)
+		atmShaped := canonical == nil && isATMCandidateHeading(trimmed)
+
+		if canonical == nil && !atmShaped {
+			rawBuf.WriteString(lines[i])
+			i++
+			continue
+		}
+
+		// Candidate item heading. Capture the block verbatim from this line up
+		// to the next `## ` heading (any H2) or EOF, for byte-identical
+		// round-trip — exactly as parseIssues does.
+		var block strings.Builder
+		block.WriteString(lines[i])
+		i++
+		for i < len(lines) {
+			lt := strings.TrimRight(lines[i], "\n")
+			if strings.HasPrefix(lt, "## ") {
+				break
+			}
+			block.WriteString(lines[i])
+			i++
+		}
+		body := block.String()
+
+		var it item
+		if canonical != nil {
+			it = buildItem(canonical[1], canonical[2], body, "Fixed")
+		} else {
+			// ATMOSphere-shaped item. It is a workable item ONLY if its OWN
+			// block carries a `**Status:**` line before any nested `### `;
+			// otherwise it is a section header (`## A. Tooling …`,
+			// `## AI/AK. … closure cycle`) → keep it raw so the round-trip is
+			// unaffected.
+			if !statusBeforeSubheading(body) {
+				rawBuf.WriteString(body)
+				continue
+			}
+			id, title := parseATMHeading(trimmed)
+			if n, ok := seenID[id]; ok {
+				seenID[id] = n + 1
+				id = id + "#" + itoa(n+1)
+			} else {
+				seenID[id] = 0
+			}
+			it = buildItem(id, title, body, "Fixed")
+		}
+
+		// Close any preceding raw prose into its own segment(s) BEFORE the item
+		// segment, preserving source order for byte-identical regeneration.
+		flushRaw()
+		items = append(items, it)
+		segs = append(segs, segment{Document: "Fixed", Seq: seq, Kind: "item", AtmID: it.AtmID})
+		seq++
+	}
+	flushRaw()
+	return items, segs
+}
+
+// emitLegacyTable walks a raw span line-by-line, splitting out any legacy
+// pipe-table closure rows (fixedRowRe) as their own item segments and keeping
+// everything else as raw segments. Pointers into parseFixed's running state are
+// mutated in place. This keeps the original table-form Fixed.md round-tripping
+// byte-identically while the H2-heading form is the primary path.
+func emitLegacyTable(raw string, items *[]item, segs *[]segment, seq *int, seenID map[string]int) {
+	var buf strings.Builder
+	flush := func() {
+		if buf.Len() == 0 {
+			return
+		}
+		*segs = append(*segs, segment{Document: "Fixed", Seq: *seq, Kind: "raw", Raw: buf.String()})
+		*seq++
+		buf.Reset()
+	}
+
+	for _, ln := range splitKeepNewlines(raw) {
 		trimmed := strings.TrimRight(ln, "\n")
 		m := fixedRowRe.FindStringSubmatch(trimmed)
 		if m == nil {
-			rawBuf.WriteString(ln)
+			buf.WriteString(ln)
 			continue
 		}
-		// A data row. Resolve its id from the title cell.
+		// A legacy data row. Resolve its id from the title cell.
 		titleCell := m[2]
 		idm := fixedTitleIDRe.FindStringSubmatch(titleCell)
 		var id string
@@ -387,16 +567,14 @@ func parseFixed(content string) ([]item, []segment) {
 			// document-unique key so the row still round-trips + validates.
 			id = "FIX-" + m[1] // date-based
 		}
-		// Disambiguate duplicate ids within Fixed.md (same ticket closed in
-		// multiple rows / no-id rows sharing a date).
-		if n, ok := seen[id]; ok {
-			seen[id] = n + 1
+		if n, ok := seenID[id]; ok {
+			seenID[id] = n + 1
 			id = id + "#" + itoa(n+1)
 		} else {
-			seen[id] = 0
+			seenID[id] = 0
 		}
 
-		flushRaw()
+		flush()
 		it := item{
 			AtmID:           id,
 			Title:           strings.TrimSpace(titleCell),
@@ -406,12 +584,11 @@ func parseFixed(content string) ([]item, []segment) {
 			BodyMD:          ln, // verbatim row (with trailing newline)
 		}
 		it.Description = deriveDescription(it.Title, m[7])
-		items = append(items, it)
-		segs = append(segs, segment{Document: "Fixed", Seq: seq, Kind: "item", AtmID: it.AtmID})
-		seq++
+		*items = append(*items, it)
+		*segs = append(*segs, segment{Document: "Fixed", Seq: *seq, Kind: "item", AtmID: it.AtmID})
+		*seq++
 	}
-	flushRaw()
-	return items, segs
+	flush()
 }
 
 func itoa(n int) string {
