@@ -31,10 +31,18 @@ Subcommands:
   validate --db <p>                                     Closed-set + §11.4.91 invariants.
   add <type> <severity> --db <p> --title <T> --description <D> [--id <id>] [--prefix <P>] [--created-by <h>] [--assigned-to <h>]
                                                         Create a new Queued item in Issues.
+  update --id <ID> --db <p> [--title|--severity|--description|--type|--status|--created-by|--assigned-to ...] [--location Issues|Fixed]
+                                                        Mutate fields on an existing item (§11.4.34 audit).
+  reopen --id <ID> --db <p> --why <reason> --who <AI|User> --when <ISO> --incident <p> [--location Issues|Fixed]
+                                                        Set Status=Reopened with §11.4.34 source attribution.
+  block --id <ID> --db <p> --details <T> [--why <T>] [--unblock <T>] [--who <T>] [--location Issues|Fixed]
+                                                        Set Status=Operator-blocked with §11.4.21 details.
   close <atm-id> --db <p> --status <fixed|implemented|completed|obsolete> --evidence <p>
                                                         Atomic Issues→Fixed closure (§11.4.19).
   report --db <p> [--by-type|--by-status|--by-severity|--by-assigned|--by-creator|--obsolete-audit]
                                                         Read-only grouped tally / §11.4.90 audit.
+  export --db <p> [--out-dir <d>] [--issues <p>] [--fixed <p>] [--out-issues <p>] [--out-fixed <p>]
+                                                        Regenerate Issues.md + Fixed.md + Summary docs + HTML/PDF/DOCX (§11.4.12/§11.4.53).
 
 Canonical authority: Constitution.md §11.4.93.
 `)
@@ -56,10 +64,18 @@ func main() {
 		runValidate(args[1:])
 	case "add":
 		runAdd(args[1:])
+	case "update":
+		runUpdate(args[1:])
+	case "reopen":
+		runReopen(args[1:])
+	case "block":
+		runBlock(args[1:])
 	case "close":
 		runClose(args[1:])
 	case "report":
 		runReport(args[1:])
+	case "export":
+		runExport(args[1:])
 	case "-h", "--help", "help":
 		usage()
 		os.Exit(exitOK)

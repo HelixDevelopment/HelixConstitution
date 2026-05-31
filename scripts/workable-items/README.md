@@ -1,7 +1,7 @@
 # workable-items — §11.4.93 SQLite-SSoT Go binary
 
-**Revision:** 2
-**Last modified:** 2026-05-30T00:00:00Z
+**Revision:** 3
+**Last modified:** 2026-05-31T00:00:00Z
 **Description:** Authoritative source-of-truth registry for every workable item in every consuming project. Bidirectional regen between SQLite DB and Markdown trackers per Constitution §11.4.93.
 
 ## Overview
@@ -44,22 +44,51 @@ workable-items add <type> <severity> --db <p> --title <T> --description <D> [--i
                                     # auto-generated as <PREFIX>-NNN when absent
                                     # (PREFIX defaults to WIT). §11.4.91 floor
                                     # enforced on --description at entry.
+workable-items update --id <ID> --db <p> [--title|--severity|--description|--type|--status|--created-by|--assigned-to ...] [--location Issues|Fixed]
+                                    # mutate ONLY the explicitly-set fields on an
+                                    # existing item; regenerate body_md; append an
+                                    # item_history 'Updated' row (§11.4.34). Rejects
+                                    # unknown ids, no-field calls, §11.4.91-short desc.
+workable-items reopen --id <ID> --db <p> --why <reason> --who <AI|User> --when <ISO> --incident <p> [--location Issues|Fixed]
+                                    # set Status=Reopened with the four §11.4.34
+                                    # attribution facts (By/On/Reason/Evidence). --why
+                                    # drawn from the closed set: test-failed |
+                                    # manual-testing-detected | captured-evidence-
+                                    # contradicts | end-user-report | cycle-re-
+                                    # discovered | design-reconsidered. ALL four
+                                    # mandatory (a reopen is a §11.4.7 demotion).
+workable-items block --id <ID> --db <p> --details <WHAT> [--why <T>] [--unblock <T>] [--who <T>] [--location Issues|Fixed]
+                                    # set Status=Operator-blocked + an
+                                    # operator_block_details row (§11.4.21). --details
+                                    # (the WHAT) is mandatory and non-empty.
 workable-items close <atm-id> --db <p> --status <fixed|implemented|completed|obsolete> --evidence <p>
                                     # atomic Issues→Fixed move (§11.4.19); --evidence
                                     # mandatory (§11.4.5/§11.4.90); records item_history.
-workable-items report --db <p> [--by-type|--by-status|--by-severity|--obsolete-audit]
+workable-items report --db <p> [--by-type|--by-status|--by-severity|--by-assigned|--by-creator|--obsolete-audit]
                                     # read-only grouped tally; --obsolete-audit lists
                                     # Obsolete items + flags missing §11.4.90 details.
+workable-items export --db <p> [--out-dir <d>] [--no-formats] [--out-issues <p>] [--out-fixed <p>]
+                                    # regenerate Issues.md + Fixed.md (byte-identical
+                                    # round-trip) + Issues_Summary.md (§11.4.12 open-
+                                    # only Type×Status tally) + Fixed_Summary.md
+                                    # (§11.4.53 closed-only) + §11.4.65 HTML/PDF/DOCX
+                                    # siblings via pandoc (--pdf-engine=weasyprint).
+                                    # Sibling steps are exec.LookPath-gated: when
+                                    # pandoc/weasyprint is absent the .md is still
+                                    # written + an honest message printed — NO fake
+                                    # sibling is fabricated (§6.J/§11.4.6).
 ```
 
 Positional and flag arguments may be given in either order (e.g. both
 `add Bug Critical --db x …` and `add --db x … Bug Critical` are accepted).
 
-`add` and `close` mutate the DB *and* keep the §11.4.93 byte-identical
-round-trip intact: they generate / move the canonical `## <ID> — <title>`
-item block + its `doc_segments` entry so a subsequent `sync db-to-md`
-regenerates a well-formed, re-parseable tracker (add is a stable fixed point;
-close round-trips and re-validates).
+`add`, `update`, `reopen`, `block`, and `close` all mutate the DB *and*
+keep the §11.4.93 byte-identical round-trip intact: they generate / regenerate
+/ move the canonical `## <ID> — <title>` item block + its `doc_segments` entry
+so a subsequent `sync db-to-md` regenerates a well-formed, re-parseable tracker
+(add is a stable fixed point; close round-trips and re-validates; update/reopen/
+block regenerate `body_md` with the new status + any §11.4.34/§11.4.21 detail
+line embedded in the heading-adjacent meta block).
 
 ## Anti-bluff coverage (mandatory per §11.4.93 + §11.4.85)
 
