@@ -38,7 +38,70 @@ func openDB(path string) (*sql.DB, error) {
 		db.Close()
 		return nil, fmt.Errorf("apply schema: %w", err)
 	}
+	// Forward-compatible migrations for DBs created by an OLDER schema. CREATE
+	// TABLE IF NOT EXISTS never alters an existing table, so columns added after
+	// a DB was first materialised must be ADDed here. Each step is idempotent
+	// (skipped when the column already exists) and lossless (NOT NULL DEFAULT '').
+	if err := migrateColumns(db); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("migrate columns: %w", err)
+	}
 	return db, nil
+}
+
+// migrateColumns brings an existing `items` table up to the current schema by
+// adding any missing columns. §11.4.104 added created_by + assigned_to; a DB
+// materialised under schema_version 2 (or earlier) lacks them and would fail the
+// attribution INSERT/SELECT paths. ALTER TABLE … ADD COLUMN preserves all
+// existing rows; the NOT NULL DEFAULT ” backfills legacy rows transparently.
+func migrateColumns(db *sql.DB) error {
+	have, err := itemColumns(db)
+	if err != nil {
+		return err
+	}
+	type colDef struct{ name, ddl string }
+	wanted := []colDef{
+		{"created_by", `ALTER TABLE items ADD COLUMN created_by TEXT NOT NULL DEFAULT ''`},
+		{"assigned_to", `ALTER TABLE items ADD COLUMN assigned_to TEXT NOT NULL DEFAULT ''`},
+	}
+	for _, c := range wanted {
+		if have[c.name] {
+			continue
+		}
+		if _, err := db.Exec(c.ddl); err != nil {
+			return fmt.Errorf("add column %s: %w", c.name, err)
+		}
+	}
+	// Keep the schema_version meta marker honest after a successful migration.
+	if _, err := db.Exec(`UPDATE meta SET value='3' WHERE key='schema_version' AND value < '3'`); err != nil {
+		return err
+	}
+	return nil
+}
+
+// itemColumns returns the set of column names currently present on the `items`
+// table (via PRAGMA table_info), so migrateColumns can ADD only what is missing.
+func itemColumns(db *sql.DB) (map[string]bool, error) {
+	rows, err := db.Query(`PRAGMA table_info(items)`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	cols := map[string]bool{}
+	for rows.Next() {
+		var (
+			cid       int
+			name, typ string
+			notNull   int
+			dfltValue any
+			pk        int
+		)
+		if err := rows.Scan(&cid, &name, &typ, &notNull, &dfltValue, &pk); err != nil {
+			return nil, err
+		}
+		cols[name] = true
+	}
+	return cols, rows.Err()
 }
 
 // item is the in-memory representation of a workable item row.
@@ -52,6 +115,8 @@ type item struct {
 	ForensicAnchor  string
 	ClosureCriteria string
 	ComposesWith    string
+	CreatedBy       string // §11.4.104 canonical handle that opened the item ("" = legacy)
+	AssignedTo      string // §11.4.104 canonical handle the item is assigned to ("" = legacy)
 	CurrentLocation string // "Issues" | "Fixed"
 	BodyMD          string
 }
@@ -89,8 +154,8 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 	insItem, err := tx.Prepare(`INSERT INTO items
 		(atm_id, type, status, severity, title, description,
 		 forensic_anchor, closure_criteria, composes_with,
-		 current_location, body_md)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
+		 created_by, assigned_to, current_location, body_md)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`)
 	if err != nil {
 		return err
 	}
@@ -100,7 +165,8 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 		if _, err := insItem.Exec(it.AtmID, it.Type, it.Status,
 			nullable(it.Severity), it.Title, it.Description,
 			nullable(it.ForensicAnchor), nullable(it.ClosureCriteria),
-			nullable(it.ComposesWith), it.CurrentLocation, it.BodyMD); err != nil {
+			nullable(it.ComposesWith), it.CreatedBy, it.AssignedTo,
+			it.CurrentLocation, it.BodyMD); err != nil {
 			return fmt.Errorf("insert item %s: %w", it.AtmID, err)
 		}
 	}
@@ -149,7 +215,9 @@ func loadItems(db *sql.DB) ([]item, error) {
 	rows, err := db.Query(`SELECT atm_id, type, status,
 		COALESCE(severity,''), title, description,
 		COALESCE(forensic_anchor,''), COALESCE(closure_criteria,''),
-		COALESCE(composes_with,''), current_location, COALESCE(body_md,'')
+		COALESCE(composes_with,''),
+		COALESCE(created_by,''), COALESCE(assigned_to,''),
+		current_location, COALESCE(body_md,'')
 		FROM items ORDER BY atm_id`)
 	if err != nil {
 		return nil, err
@@ -160,7 +228,8 @@ func loadItems(db *sql.DB) ([]item, error) {
 		var it item
 		if err := rows.Scan(&it.AtmID, &it.Type, &it.Status, &it.Severity,
 			&it.Title, &it.Description, &it.ForensicAnchor,
-			&it.ClosureCriteria, &it.ComposesWith, &it.CurrentLocation,
+			&it.ClosureCriteria, &it.ComposesWith,
+			&it.CreatedBy, &it.AssignedTo, &it.CurrentLocation,
 			&it.BodyMD); err != nil {
 			return nil, err
 		}

@@ -260,9 +260,9 @@ func parseATMHeading(headingLine string) (id, title string) {
 // canonical title-terminating boundary across all three shapes.
 var statusBacktickRe = regexp.MustCompile(`\s+—\s+\x60`)
 
-// statusBacktickNoDashRe handles the rarer `<title> \`Status…\`` form with a
+// statusBacktickNoDashRe handles the rarer `<title> \`Status…\“ form with a
 // bare space before the backtick (e.g. `## JD. … investigation outcome
-// \`Completed …\``). It only fires on a recognised closure-status keyword to
+// \`Completed …\“). It only fires on a recognised closure-status keyword to
 // avoid cutting an inner inline `code` span.
 var statusBacktickNoDashRe = regexp.MustCompile(`\s+\x60(?:Fixed|Implemented|Completed|Obsolete|FIXED|OPEN|OBSOLETE|RESOLVED)`)
 
@@ -311,6 +311,12 @@ func buildItem(id, titleRest, body, location string) item {
 			it.Status = normalizeStatus(val)
 		case "severity":
 			it.Severity = val
+		case "created-by":
+			// §11.4.104 participant attribution. Empty/absent → "" (legacy items
+			// parse unchanged). Canonical handle string, stored verbatim.
+			it.CreatedBy = val
+		case "assigned-to":
+			it.AssignedTo = val
 		}
 	}
 	it.Description = deriveDescription(it.Title, body)

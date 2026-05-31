@@ -2807,3 +2807,17 @@ Composes with §11.4.58 / §11.4.70 / §11.4.72 / §11.4.87 / §11.4.88 / §11.4
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.103.
 
 Non-compliance is a release blocker regardless of context.
+
+### §11.4.104 — Participant identity, attribution & notification-tagging (User mandate, 2026-05-31)
+
+**Forensic anchor — verbatim user mandate (2026-05-31):**
+
+> "Every supported messenger must relate messages to participants (Subscribers/Users); the same logical person may have a different username on every messenger. Workable items must carry who created them and who they are assigned to. Notifications must @-tag the right participant — but never the operator (who drives the system) and never the system agent."
+
+MANDATORY for every consumer that ships a messenger/notification surface (Herald + flavor binaries are the reference impl; others inherit per §11.4.35). Detailed spec: Herald `docs/design/PARTICIPANT_ATTRIBUTION.md` — restated, not redefined. **(A) Participant identity.** Every messenger MUST relate messages to a **Participant** (logical Subscriber/User); the SAME person MAY have a DIFFERENT username per messenger — modelled as a logical subscriber (canonical messenger-neutral `handle`, `kind ∈ {human,agent,service}`) + per-channel aliases (`channel`, `channel_user_id`, the `@username` used for tagging). Canonical handle closed set: `Claude` (reserved system-agent sentinel; never tagged) OR a subscriber `@username`. **(B) Operator = env var, not a DB flag** — the one human who drives via the agent CLI, designated by `HERALD_<CHANNEL>_OPERATOR_USERNAME` (e.g. `HERALD_TGRAM_OPERATOR_USERNAME`); a normal Participant whose handle equals that value. **(C) Workable items MUST carry `created_by` + `assigned_to`** (canonical handles): CLI-prompt→Operator; system/agent-detected→`Claude`; received-message→sender's resolved `@username`. `assigned_to` defaults to Operator, overridable. Legacy items carry `""` and MUST still parse + validate. **(D) Tagging matrix:** tag `assigned_to` if it is a human ≠ Operator; tag `created_by` if it is a human ≠ Operator ≠ `Claude`; NEVER tag `Claude` (system) or the Operator (no self-ping); de-dup; resolve each handle to the channel `@username`, skip if not on that channel. **(E) Anti-bluff (composes §11.4):** real SQLite round-trip with the new columns byte-identical (incl. legacy fixtures WITHOUT the fields); tagging matrix proven by a truth-table + a cell-flip mutation forcing FAIL; E2E real-event → real-message asserting the exact `@username`s + a NEGATIVE case proving the Operator is NOT tagged; evidence under `docs/qa/<run-id>/`.
+
+Composes with §11.4 + §11.4.1..§11.4.16 (anti-bluff covenant) / §11.4.5 / §11.4.69 / §11.4.50 / §11.4.91 / §11.4.93 / §11.4.95 / §1.1. Classification: universal (§11.4.17) — projects with no messenger surface inherit it latently (binds the moment they ship one, per the §11.4.96 pattern). Propagation gate `CM-COVENANT-114-104-PROPAGATION` (literal `11.4.104` across consumer fleet) + paired §1.1 meta-test mutation (strip literal → gate FAILs; gate-code = separate work item). No escape hatch — no `--skip-attribution`, `--no-participant-tagging`, `--tag-operator-anyway`, `--attribution-later` flag.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.104; detailed spec Herald `docs/design/PARTICIPANT_ATTRIBUTION.md`.
+
+Non-compliance is a release blocker.

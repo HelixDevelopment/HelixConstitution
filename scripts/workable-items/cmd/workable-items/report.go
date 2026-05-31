@@ -28,6 +28,8 @@ func reportCmd(args []string) int {
 	byType := fs.Bool("by-type", false, "group counts by Type")
 	byStatus := fs.Bool("by-status", false, "group counts by Status (default)")
 	bySeverity := fs.Bool("by-severity", false, "group counts by Severity")
+	byAssigned := fs.Bool("by-assigned", false, "group counts by Assigned-To (§11.4.104)")
+	byCreator := fs.Bool("by-creator", false, "group counts by Created-By (§11.4.104)")
 	obsoleteAudit := fs.Bool("obsolete-audit", false, "list Obsolete items + their §11.4.90 details")
 	if err := fs.Parse(args); err != nil {
 		return exitUsage
@@ -38,13 +40,13 @@ func reportCmd(args []string) int {
 	}
 
 	selected := 0
-	for _, b := range []bool{*byType, *byStatus, *bySeverity, *obsoleteAudit} {
+	for _, b := range []bool{*byType, *byStatus, *bySeverity, *byAssigned, *byCreator, *obsoleteAudit} {
 		if b {
 			selected++
 		}
 	}
 	if selected > 1 {
-		fmt.Fprintln(os.Stderr, "report: choose at most one of --by-type / --by-status / --by-severity / --obsolete-audit")
+		fmt.Fprintln(os.Stderr, "report: choose at most one of --by-type / --by-status / --by-severity / --by-assigned / --by-creator / --obsolete-audit")
 		return exitUsage
 	}
 
@@ -62,6 +64,10 @@ func reportCmd(args []string) int {
 		return reportGroupBy(db, "type", "Type")
 	case *bySeverity:
 		return reportGroupBy(db, "COALESCE(severity,'(none)')", "Severity")
+	case *byAssigned:
+		return reportGroupBy(db, "CASE WHEN COALESCE(assigned_to,'')='' THEN '(unassigned)' ELSE assigned_to END", "Assigned-To")
+	case *byCreator:
+		return reportGroupBy(db, "CASE WHEN COALESCE(created_by,'')='' THEN '(none)' ELSE created_by END", "Created-By")
 	default: // --by-status or no flag
 		return reportGroupBy(db, "status", "Status")
 	}

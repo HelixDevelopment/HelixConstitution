@@ -58,6 +58,14 @@ CREATE TABLE IF NOT EXISTS items (
     -- Composes-with cross-references — JSON array of §-letter or ATM-NNN refs
     composes_with    TEXT,                    -- JSON-encoded array
 
+    -- Participant attribution (§11.4.104 / Herald PARTICIPANT_ATTRIBUTION.md).
+    -- created_by  = canonical handle that opened the item; assigned_to = canonical
+    -- handle the item is assigned to. Canonical handle closed set: "Claude" (the
+    -- system agent; never tagged), or a subscriber's @username. Empty '' = legacy
+    -- item with no attribution recorded (back-compat default).
+    created_by       TEXT NOT NULL DEFAULT '',
+    assigned_to      TEXT NOT NULL DEFAULT '',
+
     -- Current document location for atomic-move discipline per §11.4.19
     current_location TEXT NOT NULL CHECK (current_location IN ('Issues', 'Fixed')) DEFAULT 'Issues',
 
@@ -193,7 +201,7 @@ CREATE TABLE IF NOT EXISTS meta (
 );
 
 INSERT OR REPLACE INTO meta(key, value) VALUES
-    ('schema_version', '2'),
+    ('schema_version', '3'),
     ('last_sync_direction', 'none'),
     ('last_sync_timestamp', ''),
     ('integrity_hash', '');

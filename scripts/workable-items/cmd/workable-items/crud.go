@@ -71,6 +71,8 @@ func addCmd(args []string) int {
 	description := fs.String("description", "", "item description (§11.4.91 floor: ≥6 words OR ≥40 chars)")
 	explicitID := fs.String("id", "", "explicit ticket id (auto-generated when absent)")
 	prefix := fs.String("prefix", addPrefixDefault, "3-letter id prefix for auto-generated ids")
+	createdBy := fs.String("created-by", "", "§11.4.104 canonical handle that opened the item (default '')")
+	assignedTo := fs.String("assigned-to", "", "§11.4.104 canonical handle the item is assigned to (default '')")
 	pos, flagArgs := partitionArgs(args, nil)
 	if err := fs.Parse(flagArgs); err != nil {
 		return exitUsage
@@ -129,7 +131,9 @@ func addCmd(args []string) int {
 		}
 	}
 
-	body := renderItemBody(id, *title, typ, severity, *description, "Queued")
+	cb := strings.TrimSpace(*createdBy)
+	at := strings.TrimSpace(*assignedTo)
+	body := renderItemBody(id, *title, typ, severity, *description, "Queued", cb, at)
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -139,9 +143,9 @@ func addCmd(args []string) int {
 	defer tx.Rollback()
 
 	if _, err := tx.Exec(`INSERT INTO items
-		(atm_id, type, status, severity, title, description, current_location, body_md)
-		VALUES (?,?,?,?,?,?,?,?)`,
-		id, typ, "Queued", nullable(severity), *title, *description, "Issues", body); err != nil {
+		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md)
+		VALUES (?,?,?,?,?,?,?,?,?,?)`,
+		id, typ, "Queued", nullable(severity), *title, *description, cb, at, "Issues", body); err != nil {
 		fmt.Fprintf(os.Stderr, "add: insert item: %v\n", err)
 		return exitUsage
 	}
@@ -240,7 +244,8 @@ func closeCmd(args []string) int {
 		return exitUsage
 	}
 
-	closedBody := renderItemBody(id, src.Title, src.Type, src.Severity, src.Description, mapping.status)
+	// §11.4.104: closure preserves the attribution columns unchanged.
+	closedBody := renderItemBody(id, src.Title, src.Type, src.Severity, src.Description, mapping.status, src.CreatedBy, src.AssignedTo)
 	closedBody = appendEvidence(closedBody, *evidence)
 
 	tx, err := db.Begin()
@@ -262,9 +267,9 @@ func closeCmd(args []string) int {
 
 	// Insert the Fixed item row + append its Fixed item-segment (atomic move in).
 	if _, err := tx.Exec(`INSERT INTO items
-		(atm_id, type, status, severity, title, description, current_location, body_md)
-		VALUES (?,?,?,?,?,?,?,?)`,
-		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, "Fixed", closedBody); err != nil {
+		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md)
+		VALUES (?,?,?,?,?,?,?,?,?,?)`,
+		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, src.CreatedBy, src.AssignedTo, "Fixed", closedBody); err != nil {
 		fmt.Fprintf(os.Stderr, "close: insert into Fixed: %v\n", err)
 		return exitUsage
 	}
@@ -345,12 +350,14 @@ func loadItem(db *sql.DB, id, location string) (*item, error) {
 	row := db.QueryRow(`SELECT atm_id, type, status,
 		COALESCE(severity,''), title, description,
 		COALESCE(forensic_anchor,''), COALESCE(closure_criteria,''),
-		COALESCE(composes_with,''), current_location, COALESCE(body_md,'')
+		COALESCE(composes_with,''),
+		COALESCE(created_by,''), COALESCE(assigned_to,''),
+		current_location, COALESCE(body_md,'')
 		FROM items WHERE atm_id=? AND current_location=?`, id, location)
 	var it item
 	err := row.Scan(&it.AtmID, &it.Type, &it.Status, &it.Severity,
 		&it.Title, &it.Description, &it.ForensicAnchor, &it.ClosureCriteria,
-		&it.ComposesWith, &it.CurrentLocation, &it.BodyMD)
+		&it.ComposesWith, &it.CreatedBy, &it.AssignedTo, &it.CurrentLocation, &it.BodyMD)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -402,18 +409,31 @@ func recordHistory(tx *sql.Tx, id, event, by, reason, evidence string) error {
 //	**Status:** <status>
 //	**Type:** <type>
 //	[**Severity:** <severity>]
+//	[**Created-By:** <createdBy>]
+//	[**Assigned-To:** <assignedTo>]
 //
 //	<description>
 //
 // The trailing blank line keeps consecutive item segments separated. The block
 // round-trips: parseIssues/parseFixed recognise the canonical heading + meta.
-func renderItemBody(id, title, typ, severity, description, status string) string {
+//
+// §11.4.104: the **Created-By:** / **Assigned-To:** lines are emitted ONLY when
+// the corresponding handle is non-empty. A legacy item with empty attribution
+// renders exactly as before (no empty fields injected), preserving the
+// byte-identical round-trip for fixtures that never carried the fields.
+func renderItemBody(id, title, typ, severity, description, status, createdBy, assignedTo string) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "## %s — %s\n\n", id, title)
 	fmt.Fprintf(&b, "**Status:** %s\n", status)
 	fmt.Fprintf(&b, "**Type:** %s\n", typ)
 	if strings.TrimSpace(severity) != "" {
 		fmt.Fprintf(&b, "**Severity:** %s\n", severity)
+	}
+	if strings.TrimSpace(createdBy) != "" {
+		fmt.Fprintf(&b, "**Created-By:** %s\n", createdBy)
+	}
+	if strings.TrimSpace(assignedTo) != "" {
+		fmt.Fprintf(&b, "**Assigned-To:** %s\n", assignedTo)
 	}
 	fmt.Fprintf(&b, "\n%s\n\n", description)
 	return b.String()
