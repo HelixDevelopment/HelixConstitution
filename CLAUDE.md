@@ -2,15 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Revision | 13 |
+| Revision | 14 |
 | Created | 2026-05-14 |
-| Last modified | 2026-05-29T00:00:00Z |
+| Last modified | 2026-06-02T00:00:00Z |
 | Status | active |
-| Status summary | Strengthened §11.4.103 mirror (User mandate 2026-05-29) — parallel-stream floor raised ≥2 → ≥3 + auto-backfill (the moment one stream is fully done, a new one immediately takes its place; count never drops below 3 while actionable items remain). Continuous parallel-stream working routine: main stream stays FREE (all commit + push detached), ≥3 parallel subagent streams, audio-first priority, safe-during-build scope, heavy anti-bluff, idle-only-when-externally-blocked. §11.4.78–§11.4.102 mirrors continue from earlier Revisions. |
+| Status summary | Added §11.4.107 Anti-bluff AV/test-validation techniques mandate mirror (User-driven research, 2026-06-02) — a single captured frame is NOT proof of playback; freeze-detection oracle (not byte-identical) + independent frame-advance counter; loading-aware playback-start wait; not-stale cross-check; no-flash-on-wrong-output sampling; feed/UI-driven (not deep-link) method; metamorphic relations for the oracle problem; full-reference quality metrics for owned content; mutation-test every analyzer with golden-good + golden-bad fixtures; per-channel loudness + XRUN census; confidence-floored ROI OCR; fixture-calibrated thresholds. Composes §11.4.5/.6/.50/.68/.69/.85. §11.4.78–§11.4.106 mirrors continue from earlier Revisions. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | §11.4.103 mirror |
-| Fixed summary | §11.4.103 lands in lockstep with the Constitution.md §11.4.103 addition. |
+| Fixed | §11.4.107 mirror |
+| Fixed summary | §11.4.107 lands in lockstep with the Constitution.md §11.4.107 addition. |
 | Continuation | — |
 
 ## Table of contents
@@ -2847,3 +2847,19 @@ Composes with §11.4 + §11.4.1..§11.4.16 (anti-bluff covenant) / §11.4.6 (no-
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.106; detailed spec the Docs Chain engine docs `docs/CONSTITUTION_INTEGRATION.md` + `docs/USE_CASE_CATALOGUE.md` (`vasic-digital/docs_chain`).
 
 Non-compliance is a release blocker.
+
+### §11.4.107 — Anti-bluff AV/test-validation techniques mandate (User-driven research, 2026-06-02)
+
+**Forensic anchor (genericised, 2026-06-02):** a test PASSed on a SINGLE captured frame showing "a picture" on the target output — but the picture was a FROZEN / STALE frame from the previously-played content (stale-producer / stuck-decoder), so the feature was broken for the user while the test was green; a sibling incident FLASHED media on the WRONG output for ~1 s before routing with no test sampling that window; a third class shipped a comparator that PASSed its own deliberately-degraded fixture (the analyzer, not the feature, was the bluff). §11.4.5 mandates captured evidence + a presence pass; §11.4.107 raises the bar to **liveness + correct-routing + self-validated-analyzer**.
+
+Every test asserting audio/video output is genuinely playing/advancing for the end user MUST satisfy ALL of: (1) **a single captured frame is NOT proof** — prove LIVE, ADVANCING frames over a steady-state window via a **freeze-detection oracle** (near-duplicate / `freezedetect`-class filter OR perceptual-hash adjacent-frame distance, **NOT byte-identical compare** — byte-identity is only a zero-cost pre-filter); (2) an **independent frame-advance counter from the platform's compositor/decoder telemetry** must increase across the window (a different-domain oracle — flat counter ⇒ stuck decoder ⇒ FAIL even if pixels appear to move); (3) **loading/buffering is a distinct state** — wait for genuine playback-start before judging liveness, never false-FAIL a still-loading stream nor false-PASS a spinner; timeout+unreachable ⇒ SKIP-with-reason per §11.4.3, timeout+reachable ⇒ FAIL; (4) **not-stale-from-previous cross-check** — new content's first frame ≠ previous content's last frame; (5) **measured FPS / no-lost-frames within tolerance**; (6) **no-flash-on-the-wrong-output** — sample the non-target output at high frequency during a routing transition, any content frame there ⇒ FAIL (content-protection regime classified explicitly, never guessed); (7) **drive through the realistic feed/UI path, not deep-link shortcuts** (shortcuts bypass the transition paths where bugs live; UI-not-introspectable ⇒ operator-attended fallback per §11.4.52, never fake-PASS); (8) **metamorphic relations solve the oracle problem when there is no golden source** (same content on output-A vs output-B must match; paused ⇒ counter stops; 2× speed ⇒ ~2× advance rate); (9) **full-reference quality metrics (SSIM/VMAF/ΔE2000) vs a golden source for owned content**; (10) **mutation-test every analyzer with a golden-good + golden-bad fixture pair** so the analyzer itself provably cannot bluff (an analyzer that PASSes its golden-bad fixture is a bluff gate — §1.1 applied to the analyzers); (11) **per-channel audio RMS/loudness (EBU R128) + XRUN/underrun census** — a single aggregate RMS misses a dead channel; (12) **OCR overlay/subtitle detection needs a per-word confidence floor + ROI** to avoid BOTH false-positive (false-FAIL) and false-negative (false-PASS); (13) **thresholds calibrated on the project's own fixtures, not hardcoded from literature** (§11.4.6 no-guessing).
+
+Honest gap (§11.4.6): true photon FPS at the sink has no clean software oracle — compositor/decoder counters measure the presentation pipeline; flag the gap, never claim it.
+
+4-layer coverage per §11.4.4(b): pre-build gate (a `CM-AV-LIVENESS-NO-FROZEN-FRAME`-class gate asserting every output-is-playing test references the liveness battery not a single frame + an analyzer-self-validation gate wiring the golden-good/golden-bad fixtures into meta-test) + on-device/runtime test + paired §1.1 meta-test mutation (single-frame-only assertion → gate FAILs; analyzer that PASSes its golden-bad fixture → self-validation FAILs) + HelixQA Challenge. Every PASS via `ab_pass_with_evidence` citing the motion / not-stale / frame-advance / fps / per-channel-loudness / metamorphic / self-validation artefacts (`video_display` / `audio_output` / `subtitle_render` per §11.4.69) — never a single screenshot.
+
+Classification: universal (§11.4.17) — platform-neutral AV/test-validation techniques reusable by ANY project validating media playback or any pixel/audio output; the project supplies its concrete capture mechanism + calibrated thresholds per §11.4.35. Composes with §11.4.5 (its strict expansion), §11.4.6, §11.4.50, §11.4.68, §11.4.69, §11.4.85, plus §11.4.2 / §11.4.3 / §11.4.13 / §11.4.48 / §11.4.52 / §1.1. Propagation gate `CM-COVENANT-114-107-PROPAGATION` enforces the literal anchor `11.4.107` across the consumer fleet; paired §1.1 meta-test mutation strips the literal → gate FAILs (gate-code = separate work item).
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.107.
+
+Non-compliance is a release blocker regardless of context. No escape hatch — no `--single-frame-proves-playback`, `--skip-liveness`, `--byte-identical-freeze-OK`, `--no-frame-advance-counter`, `--skip-not-stale-check`, `--allow-wrong-output-flash`, `--deep-link-shortcut-OK`, `--unvalidated-analyzer-OK`, `--aggregate-rms-suffices`, `--hardcoded-thresholds-OK` flag exists.
