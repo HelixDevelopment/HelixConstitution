@@ -31,6 +31,7 @@ Subcommands:
   sync db-to-md --db <p> [--out-issues <p>] [--out-fixed <p>]  Regenerate trackers from DB.
   diff --db <p> [--issues <p>] [--fixed <p>]            Show DB vs Markdown divergence.
   validate --db <p>                                     Closed-set + §11.4.91 invariants.
+  version-tags --db <p> --repo <p> [--issues <p>] [--fixed <p>]  Derive + persist release-tag column (feature 2026-05-30).
   add                                                   (not implemented in this build)
   close                                                 (not implemented in this build)
   report                                                (not implemented in this build)
@@ -54,6 +55,8 @@ func main() {
 		runDiff(args[1:])
 	case "validate":
 		runValidate(args[1:])
+	case "version-tags":
+		os.Exit(versionTagsCmd(args[1:]))
 	case "add":
 		runAdd(args[1:])
 	case "close":
