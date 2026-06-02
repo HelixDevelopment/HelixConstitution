@@ -43,6 +43,7 @@ Subcommands:
                                                         Read-only grouped tally / §11.4.90 audit.
   export --db <p> [--out-dir <d>] [--issues <p>] [--fixed <p>] [--out-issues <p>] [--out-fixed <p>]
                                                         Regenerate Issues.md + Fixed.md + Summary docs + HTML/PDF/DOCX (§11.4.12/§11.4.53).
+  version-tags --db <p> --repo <p> [--issues <p>] [--fixed <p>]  Derive + persist release-tag column (feature 2026-05-30).
 
 Canonical authority: Constitution.md §11.4.93.
 `)
@@ -62,6 +63,8 @@ func main() {
 		runDiff(args[1:])
 	case "validate":
 		runValidate(args[1:])
+	case "version-tags":
+		os.Exit(versionTagsCmd(args[1:]))
 	case "add":
 		runAdd(args[1:])
 	case "update":

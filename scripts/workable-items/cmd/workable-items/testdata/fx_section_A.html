@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>fx_section_A</title>
+  <style>
+
+html {
+color: #1a1a1a;
+background-color: #fdfdfd;
+}
+body {
+margin: 0 auto;
+max-width: 36em;
+padding-left: 50px;
+padding-right: 50px;
+padding-top: 50px;
+padding-bottom: 50px;
+hyphens: auto;
+overflow-wrap: break-word;
+text-rendering: optimizeLegibility;
+font-kerning: normal;
+}
+@media (max-width: 600px) {
+body {
+font-size: 0.9em;
+padding: 12px;
+}
+h1 {
+font-size: 1.8em;
+}
+}
+@media print {
+html {
+background-color: white;
+}
+body {
+background-color: transparent;
+color: black;
+font-size: 12pt;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3, h4 {
+page-break-after: avoid;
+}
+}
+p {
+margin: 1em 0;
+}
+a {
+color: #1a1a1a;
+}
+a:visited {
+color: #1a1a1a;
+}
+img {
+max-width: 100%;
+}
+svg {
+height: auto;
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+margin-top: 1.4em;
+}
+h5, h6 {
+font-size: 1em;
+font-style: italic;
+}
+h6 {
+font-weight: normal;
+}
+ol, ul {
+padding-left: 1.7em;
+margin-top: 1em;
+}
+li > ol, li > ul {
+margin-top: 0;
+}
+blockquote {
+margin: 1em 0 1em 1.7em;
+padding-left: 1em;
+border-left: 2px solid #e6e6e6;
+color: #606060;
+}
+code {
+font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+font-size: 85%;
+margin: 0;
+hyphens: manual;
+}
+pre {
+margin: 1em 0;
+overflow: auto;
+}
+pre code {
+padding: 0;
+overflow: visible;
+overflow-wrap: normal;
+}
+.sourceCode {
+background-color: transparent;
+overflow: visible;
+}
+hr {
+border: none;
+border-top: 1px solid #1a1a1a;
+height: 1px;
+margin: 1em 0;
+}
+table {
+margin: 1em 0;
+border-collapse: collapse;
+width: 100%;
+overflow-x: auto;
+display: block;
+font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+margin-bottom: 0.75em;
+}
+tbody {
+margin-top: 0.5em;
+border-top: 1px solid #1a1a1a;
+border-bottom: 1px solid #1a1a1a;
+}
+th {
+border-top: 1px solid #1a1a1a;
+padding: 0.25em 0.5em 0.25em 0.5em;
+}
+td {
+padding: 0.125em 0.5em 0.25em 0.5em;
+}
+header {
+margin-bottom: 4em;
+text-align: center;
+}
+#TOC li {
+list-style: none;
+}
+#TOC ul {
+padding-left: 1.3em;
+}
+#TOC > ul {
+padding-left: 0;
+}
+#TOC a:not(:hover) {
+text-decoration: none;
+}
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">fx_section_A</h1>
+</header>
+<h2 id="a-tooling--harness-gaps--resolved">A. Tooling / harness gaps —
+RESOLVED</h2>
+<h3 id="a1-commit_allsh-doesnt-recurse-into-nested-submodules-to-commit-pending-pointer-changes">A1.
+<code>commit_all.sh</code> doesn&#39;t recurse into nested submodules to
+commit pending pointer changes</h3>
+<p><strong>Status:</strong> Fixed (→ Fixed.md) <strong>Type:</strong>
+Bug</p>
+<ul>
+<li><strong>Closure cycle:</strong> Phase 25.3 (1.1.5-dev-0.0.7).</li>
+<li><strong>Closure commit:</strong> opt-in <code>--auto-cascade</code>
+flag + meta-test wired as <code>CM-A1-METATEST</code> (see commit log
+around 2026-04-30).</li>
+<li><strong>Captured evidence:</strong>
+<code>test_commit_all_nested_detection.sh</code> Invariant 4 — asserts
+the flag is exposed in <code>--help</code>, default is OFF, the
+message-required guard is present, and the failure counter is wired (4
+anti-bluff guards). Result: 5 PASS / 0 FAIL / 1 ACTION.</li>
+<li><strong>Regression-protection:</strong> <code>CM-A1-METATEST</code>
+pre-build gate + paired mutation in
+<code>meta_test_false_positive_proof.sh</code>.</li>
+<li><strong>Migrated from Issues.md A1 on 2026-05-05.</strong></li>
+</ul>
+<h3 id="a1b-commit_allsh-validate_submodules-pipefail-regression">A1.b.
+<code>commit_all.sh</code> validate_submodules() pipefail
+regression</h3>
+<p><strong>Status:</strong> Fixed (→ Fixed.md) <strong>Type:</strong>
+Bug</p>
+<ul>
+<li><strong>Closure cycle:</strong> Phase 23.5 (1.1.5-dev-0.0.7).</li>
+<li><strong>Closure commit:</strong> <code>7351a8320a0</code>.</li>
+<li><strong>Fix:</strong> wrapped the inner pipeline in a subshell with
+<code>|| true</code> so an empty-status submodule no longer aborts the
+parent:
+<code>sub_dirty=$(cd &quot;$sm_path&quot; &amp;&amp; (git status --porcelain 2&gt;/dev/null | grep -vE &#39;^\s*m\s&#39; | head -1) || true)</code>.
+Subshell-scoped <code>|| true</code> (not outer-<code>$()</code>-scoped)
+lets pipefail still catch <em>real</em> git failures inside the subshell
+where they matter.</li>
+<li><strong>Anti-bluff lens:</strong> this was a <strong>success-bluff
+inversion</strong> — the script ran loudly, validated all 20 submodules,
+declared success on each, and then died silently. The user-visible
+signal was indistinguishable from &quot;script crashed for unknown reasons&quot;
+but the actual content of the run was &quot;no work done because the safety
+check killed itself before doing the work.&quot;</li>
+<li><strong>Captured evidence:</strong> Phase 23.5 commit
+<code>7351a8320a0</code> flowed cleanly through commit_all.sh
+end-to-end: validate_submodules → stage_changes (1 file, +13/-9) →
+do_commit → push to github + vasicdigitalmirror.</li>
+<li><strong>Regression-protection:</strong> A1&#39;s meta-test umbrella
+covers A1.b too — both &quot;silently does nothing&quot; and &quot;loudly fails&quot; are
+caught by the same harness.</li>
+<li><strong>Migrated from Issues.md A1.b on 2026-05-05.</strong></li>
+</ul>
+<h3 id="a2-sharedmodules-pointer-in-smarttube-player-recorded-at-8cdd62b52-stale-by-one-commit">A2.
+<code>SharedModules</code> pointer in <code>smarttube-player</code>
+recorded at <code>8cdd62b52</code> (stale by one commit)</h3>
+<p><strong>Status:</strong> Fixed (→ Fixed.md) <strong>Type:</strong>
+Task</p>
+<ul>
+<li><strong>Closure cycle:</strong> Phase 23.3 (1.1.5-dev-0.0.7).</li>
+<li><strong>Why it persisted:</strong> unblocked once A1 landed (was a
+downstream consequence of the A1 cascade gap).</li>
+<li><strong>Captured evidence:</strong> SharedModules HEAD =
+<code>5aa4af893</code> (§12 Incident #2 anchor commit).</li>
+<li><strong>Migrated from Issues.md A2 on 2026-05-05.</strong></li>
+</ul>
+<h3 id="a3-test_all_fixessh-per-suite-timeout-was-tight--cascaded-adb-drops-on-sigkill">A3.
+<code>test_all_fixes.sh</code> per-suite timeout was tight + cascaded
+ADB drops on SIGKILL</h3>
+<p><strong>Status:</strong> Fixed (→ Fixed.md) <strong>Type:</strong>
+Bug</p>
+<ul>
+<li><strong>Closure cycle:</strong> 1.1.5-dev-0.0.7 (Phase 20.0
+hardening).</li>
+<li><strong>Closure commit:</strong> <code>137c0a2054e</code> (&quot;single
+source of truth Issues.md + test_all_fixes.sh wrapper hardening, User
+mandate 2026-04-29&quot;).</li>
+<li><strong>Fix landed:</strong>
+<ul>
+<li>Bumped <code>SUITE_TIMEOUT</code> 3600 → 5400 (90 min cap) in
+<code>device/rockchip/rk3588/tests/test_all_fixes.sh:68</code>.</li>
+<li>Added <code>adb_recover_after_timeout()</code> helper at lines 70-75
+that runs <code>adb kill-server &amp;&amp; adb start-server</code> and
+waits for the targeted device to come back to <code>state=device</code>.
+Wired into both the <code>run_device_test</code> and
+<code>run_device_test_nohup</code> TIMEOUT branches at line 189.</li>
+</ul></li>
+<li><strong>Captured evidence:</strong> Phase 25.2 verification
+confirmed both lines present and SUITE_TIMEOUT=5400. Next regression run
+hitting TIMEOUT will surface the recovery hook output.</li>
+<li><strong>Follow-up tracked as Bug #11 (Issues.md G7):</strong> soft
+per-category timeouts to surface hangs faster than 90 min.</li>
+<li><strong>Migrated from Issues.md A3 + G3 on 2026-05-05.</strong></li>
+</ul>
+<hr />
+</body>
+</html>

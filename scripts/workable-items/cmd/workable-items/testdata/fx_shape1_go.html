@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>fx_shape1_go</title>
+  <style>
+
+html {
+color: #1a1a1a;
+background-color: #fdfdfd;
+}
+body {
+margin: 0 auto;
+max-width: 36em;
+padding-left: 50px;
+padding-right: 50px;
+padding-top: 50px;
+padding-bottom: 50px;
+hyphens: auto;
+overflow-wrap: break-word;
+text-rendering: optimizeLegibility;
+font-kerning: normal;
+}
+@media (max-width: 600px) {
+body {
+font-size: 0.9em;
+padding: 12px;
+}
+h1 {
+font-size: 1.8em;
+}
+}
+@media print {
+html {
+background-color: white;
+}
+body {
+background-color: transparent;
+color: black;
+font-size: 12pt;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3, h4 {
+page-break-after: avoid;
+}
+}
+p {
+margin: 1em 0;
+}
+a {
+color: #1a1a1a;
+}
+a:visited {
+color: #1a1a1a;
+}
+img {
+max-width: 100%;
+}
+svg {
+height: auto;
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+margin-top: 1.4em;
+}
+h5, h6 {
+font-size: 1em;
+font-style: italic;
+}
+h6 {
+font-weight: normal;
+}
+ol, ul {
+padding-left: 1.7em;
+margin-top: 1em;
+}
+li > ol, li > ul {
+margin-top: 0;
+}
+blockquote {
+margin: 1em 0 1em 1.7em;
+padding-left: 1em;
+border-left: 2px solid #e6e6e6;
+color: #606060;
+}
+code {
+font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+font-size: 85%;
+margin: 0;
+hyphens: manual;
+}
+pre {
+margin: 1em 0;
+overflow: auto;
+}
+pre code {
+padding: 0;
+overflow: visible;
+overflow-wrap: normal;
+}
+.sourceCode {
+background-color: transparent;
+overflow: visible;
+}
+hr {
+border: none;
+border-top: 1px solid #1a1a1a;
+height: 1px;
+margin: 1em 0;
+}
+table {
+margin: 1em 0;
+border-collapse: collapse;
+width: 100%;
+overflow-x: auto;
+display: block;
+font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+margin-bottom: 0.75em;
+}
+tbody {
+margin-top: 0.5em;
+border-top: 1px solid #1a1a1a;
+border-bottom: 1px solid #1a1a1a;
+}
+th {
+border-top: 1px solid #1a1a1a;
+padding: 0.25em 0.5em 0.25em 0.5em;
+}
+td {
+padding: 0.125em 0.5em 0.25em 0.5em;
+}
+header {
+margin-bottom: 4em;
+text-align: center;
+}
+#TOC li {
+list-style: none;
+}
+#TOC ul {
+padding-left: 1.3em;
+}
+#TOC > ul {
+padding-left: 0;
+}
+#TOC a:not(:hover) {
+text-decoration: none;
+}
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">fx_shape1_go</h1>
+</header>
+<h2 id="go-2nd-display-arvus-monitor-immediate-sleep-on-d3--secondary-display-keep-awake-wakelock--completes-unimplemented-ju-4--fixed--fixedmd-phase-39-go-2026-05-28">GO.
+2nd display (Arvus monitor) immediate-sleep on D3 — secondary-display
+keep-awake WakeLock (= completes unimplemented §JU-4) —
+<code>Fixed (→ Fixed.md)</code> (Phase 39 §GO, 2026-05-28)</h2>
+<p><strong>Status:</strong> Fixed (→ Fixed.md) <strong>Type:</strong>
+Bug <strong>Phase:</strong> 39 §GO <strong>Closure commit:</strong>
+Presenter submodule <code>9581c5b</code> (§GO/§JU-4 persistent
+secondary-display WakeLock + 20s CEC re-knock); parent build carrying it
+validated on D3. <strong>Closure cycle:</strong> 1.1.7-dev, validated on
+D3 (<code>998fd36615e99484</code>).</p>
+<h3 id="root-cause-confirmed-source-evidenced">Root cause (CONFIRMED,
+source-evidenced)</h3>
+<p>The §JU-4 persistent secondary-display WakeLock was specced but had
+NEVER been implemented — the pre-fix image (<code>6bb9de44</code>,
+Presenter HEAD <code>f523417</code>) shipped only the one-shot
+30s-throttled CEC nudge (§GW/§JT <code>87cdc18</code>), a momentary
+&quot;knock&quot;, not a &quot;hold&quot;. The Arvus AVR&#39;s sub-30s idle-standby timer fired
+faster than the 30s CEC throttle, so the secondary monitor self-slept on
+no-signal after 2-3s. Grep of the entire Presenter source confirmed no
+<code>newWakeLock</code>/<code>SCREEN_BRIGHT_WAKE_LOCK</code>/<code>onAnyPlaybackStarted</code>
+path existed.</p>
+<h3 id="fix-go--completes-ju-4-requires_rebuild">Fix §GO (= completes
+§JU-4, REQUIRES_REBUILD)</h3>
+<p><code>PresenterService.kt</code> acquires
+<code>PowerManager.SCREEN_BRIGHT_WAKE_LOCK | ON_AFTER_RELEASE</code>
+(<code>ATMOSphere:SecondaryDisplayKeepAwake</code>) in the
+VideoPlaybackDetector PLAYING callback + integrated video/music start
+paths; release on STOPPED after ≥5s debounce. Periodic CEC re-knock
+every ~20s during sustained playback (bypasses the 30s throttle for the
+keep-alive path). Cross-ref §JU, §JT, §GW, Fix #65, Fix #132.</p>
+<h3 id="captured-evidence-d3-1147-same-conditions--11469-video_displaydisplay_topology">Captured
+evidence (D3, §11.4.7 same-conditions + §11.4.69
+<code>video_display</code>/<code>display_topology</code>)</h3>
+<ul>
+<li><code>qa-results/validate_d3_117_20260528T160926Z/go_wakelock.log</code>
+— TWO held Presenter SCREEN_BRIGHT_WAKE_LOCKs:
+<code>WindowManager/displayId:2</code> (uid=1000
+ws=com.atmosphere.presenter) +
+<code>ATMOSphere:SecondaryDisplayKeepAwake</code> (uid=10025), both
+<code>ON_AFTER_RELEASE</code>.</li>
+<li><code>qa-results/validate_d3_117_20260528T160926Z/go_secondary_poll.log</code>
+— 3-minute 1s/10s-interval poll:
+<code>mPhysicalDisplayId=1 mState=ON</code> for EVERY sample during MPV
+playback (monitor stayed ON, no sleep).</li>
+<li><code>qa-results/validate_d3_rkmpp_20260528T204713Z/go_wakelock.txt</code>
++ <code>go_display_states.txt</code> — re-confirmed in the rkmpp re-run:
+<code>ATMOSphere:SecondaryDisplayKeepAwake</code> ACQ logged, both
+<code>local:0</code> + <code>local:1 (&quot;HDMI Screen&quot;)</code> report
+<code>state ON, committedState ON</code>.</li>
+</ul>
+<h3 id="regression-protection">Regression-protection</h3>
+<p>Paired meta-test: strip the §JU-4 WakeLock acquisition → the §GO
+on-device test FAILs (monitor sleeps mid-playback). The §JU-4 WakeLock
+remains defensive-useful for any sink with an aggressive DPMS timer.</p>
+<hr />
+</body>
+</html>
