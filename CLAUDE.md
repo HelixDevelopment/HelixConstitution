@@ -2877,3 +2877,17 @@ Classification: universal (§11.4.17) — platform-neutral verification-pipeline
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.108.
 
 Non-compliance is a release blocker regardless of context. No escape hatch — no `--source-green-is-done`, `--skip-artifact-byte-check`, `--validate-against-running-state`, `--no-clean-deployment`, `--skip-runtime-signature`, `--spot-validate-touched-only` flag exists.
+
+### §11.4.109 — Mandatory Anti-Forgetting Enforcement: PreToolUse Guard Hook + Subagent Constitutional Preamble + Orchestrator Pre-Action Checklist (Operator mandate)
+
+**Short tag:** `anti-forgetting-enforcement`. **UNCONFIRMED forensic anchor** (pending operator's verbatim mandate quote). Background: emulator subagents ran raw host-direct `emulator`/`adb` because the orchestrator forgot to inject the Containers-submodule rule. A rule forgotten at dispatch is not enforcement. Fix: (A) a `PreToolUse` guard hook (`constitution/scripts/hooks/guard-forbidden-commands.sh`) that blocks host-direct emulator, force-push/bypass, sudo, and host-power commands at the tool-call boundary regardless of agent memory; (B) a canonical `docs/AGENT_GUARDRAILS.md` preamble the orchestrator pastes verbatim into every subagent dispatch; (C) an **ORCHESTRATOR PRE-ACTION CHECKLIST** in the same document. Hook = the floor; preamble = the ceiling.
+
+Consuming projects MUST: (1) wire `constitution/scripts/hooks/guard-forbidden-commands.sh` as a `PreToolUse` hook in `.claude/settings.json` (or equivalent runtime settings); (2) maintain `docs/AGENT_GUARDRAILS.md` containing the `SUBAGENT CONSTITUTIONAL PREAMBLE` and `ORCHESTRATOR PRE-ACTION CHECKLIST` headings, with the anchor literal `11.4.109`; (3) provide a hermetic hook test suite (≥ 20 cases: every blocked class exits 2, every allowed command exits 0, escape hatch fires for non-power classes, host-power rejects even with escape marker). The hook is inherited by reference — NEVER copied locally (a copy diverges silently).
+
+Gates: `CM-ANTI-FORGETTING-ENFORCEMENT` (hook present + wired + guardrails doc present + test present) + `CM-COVENANT-114-109-PROPAGATION` (anchor literal `11.4.109` across every consumer CLAUDE.md / AGENTS.md / QWEN.md). Paired §1.1 mutations: remove hook entry → gate (2) FAILs; delete guardrails doc → gate (3) FAILs; strip hook from constitution → gate (1) FAILs; strip `11.4.109` → propagation gate FAILs.
+
+Classification: universal (§11.4.17). Composes with §11.4.6 / §11.4.10 / §11.4.75 / §11.4.76 / §11.4.78 / §11.4.79 / §11.4.80 / §11.4.81 / §11.4.84 / §11.4.98 / §11.4.102 / §12.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.109; reference implementation `constitution/scripts/hooks/guard-forbidden-commands.sh` + `constitution/docs/AGENT_GUARDRAILS.md`.
+
+Non-compliance is a release blocker. No escape hatch — no `--skip-pretooluse-hook`, `--no-guardrails-doc`, `--anti-forgetting-optional`, `--single-layer-sufficient` flag exists.
