@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
@@ -249,7 +249,7 @@ Universal AGENTS.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>16</td>
+<td>17</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -265,10 +265,22 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.114–§11.4.121 mirrors (eight new universal anchors from
-the 1.1.8-dev live-defect remediation, 2026-06-03): §11.4.114
-last-known-good-tag regression isolation; §11.4.115
-RED-baseline-on-the-broken-artifact + polarity-switch (refines
+<td>Added §11.4.122 mirror —
+No-silent-removal-of-existing-components-without-operator-confirmation
+mandate (User mandate 2026-06-03): no
+application/component/service/package/feature/driver/module/prebuilt —
+any already-existing end-user capability — may be removed from the
+existing codebase/System without FIRST interactively asking the operator
+(§11.4.66, never silent/autonomous) + an EXPLICIT keep-or-remove
+decision; silent removal is a release blocker; forensic case study F2
+Apple-TV-class app + F4 Huawei HMS component removed without asking,
+operator reversed both; tracked DROP path
+ask→approve→<code>Obsolete</code> reason
+<code>feature-removed</code>+citation (§11.4.90)→remove. Classification:
+universal (§11.4.17). Prior round: Added §11.4.114–§11.4.121 mirrors
+(eight new universal anchors from the 1.1.8-dev live-defect remediation,
+2026-06-03): §11.4.114 last-known-good-tag regression isolation;
+§11.4.115 RED-baseline-on-the-broken-artifact + polarity-switch (refines
 §11.4.43); §11.4.116 real-time conductor↔︎autonomous-test-framework sync
 channel (append-only event stream + atomically-rewritten status
 snapshot, verdict events carry evidence paths); §11.4.117 CV/OCR
@@ -3793,5 +3805,46 @@ Release blocker. No <code>--commit-during-build</code> /
 <code>--stage-partial-artifact-OK</code> /
 <code>--assume-build-finished</code> /
 <code>--skip-build-completion-check</code> escape.</p>
+<h3 id="114122--no-silent-removal-of-existing-components-without-operator-confirmation-mandate-user-mandate-2026-06-03">§11.4.122
+— No-silent-removal-of-existing-components-without-operator-confirmation
+mandate (User mandate, 2026-06-03)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-03):</strong> &quot;Never ever remove any application, system
+component or service from already existing codebase / System without
+interactively asked question to us! THIS IS MANDATORY RULE /
+CONSTRAINT!&quot; Case study (FACT): in the 1.1.8-dev burn-down, F2 (an
+Apple-TV-class app) + F4 (a Huawei HMS component) were removed WITHOUT
+asking; the operator reversed both.</p>
+<p>No application / system component / service / package / feature /
+driver / module / library / prebuilt asset — any already-existing
+end-user capability — may be removed (deleted, dropped from the package
+set, disabled-into-non-shipping, un-bundled, de-listed) from the
+existing codebase / shipped System WITHOUT FIRST interactively asking
+the operator (via the §11.4.66 interactive mechanism —
+<code>AskUserQuestion</code> on Claude Code, never free-text, never
+silent, never an autonomous decision) and receiving an EXPLICIT
+keep-or-remove decision. A removal is: a deletion from the
+package/service/module manifest set whose NET EFFECT is &quot;a capability
+that shipped before no longer ships.&quot; Adding /
+replacing-with-operator-approved-equivalent / fixing is NOT a removal;
+when uncertain, treat AS a removal and ask (§11.4.6 no-guessing). A
+silent removal is a release blocker regardless of rationale (dedup /
+&quot;broken anyway&quot; / geo-restricted / incompatible / superseded). The
+tracked DROP path: ask → operator approves → mark item
+<code>Obsolete (→ Fixed.md)</code> with reason
+<code>feature-removed</code> + operator-approval citation (§11.4.90) →
+then remove. Classification: universal (§11.4.17). Composes §11.4.66 /
+§11.4.101 (removal of a live capability is exactly the high-blast-radius
+class §11.4.101 reserves for an operator question, never an autonomous
+decision) / §11.4.90 / §11.4.112 / §11.4.6 / §11.4.40 / §11.4.42.
+Propagation gate <code>CM-COVENANT-114-122-PROPAGATION</code> (literal
+<code>11.4.122</code>) + recommended gate
+<code>CM-NO-SILENT-COMPONENT-REMOVAL</code> + paired §1.1 mutation
+(gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.122.
+Release blocker. No <code>--remove-without-asking</code> /
+<code>--silent-removal</code> / <code>--autonomous-removal-OK</code> /
+<code>--dedup-removal-exempt</code> /
+<code>--it-was-broken-anyway</code> escape.</p>
 </body>
 </html>

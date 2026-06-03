@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
@@ -249,7 +249,7 @@ Universal CLAUDE.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>16</td>
+<td>17</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -265,13 +265,26 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.114–§11.4.121 mirrors (eight new universal anchors from
-the 1.1.8-dev live-defect remediation, 2026-06-03): §11.4.114
-last-known-good-tag regression isolation (diff the broken state against
-the known-good tag FIRST — the tagged-good version is the regression
-oracle), §11.4.115 RED-baseline-on-the-broken-artifact + polarity-switch
-(one test reproduces the defect on the pre-fix artifact then flips
-RED_MODE=0 to GREEN-guard — refines §11.4.43), §11.4.116 real-time
+<td>Added §11.4.122 mirror —
+No-silent-removal-of-existing-components-without-operator-confirmation
+mandate (User mandate 2026-06-03): no
+application/component/service/package/feature/driver/module/prebuilt —
+any already-existing end-user capability — may be removed from the
+existing codebase/System without FIRST interactively asking the operator
+(§11.4.66, never silent/autonomous) + an EXPLICIT keep-or-remove
+decision; silent removal is a release blocker; forensic case study F2
+Apple-TV-class app + F4 Huawei HMS component removed without asking,
+operator reversed both; tracked DROP path
+ask→approve→<code>Obsolete</code> reason
+<code>feature-removed</code>+citation (§11.4.90)→remove. Classification:
+universal (§11.4.17). Prior round: Added §11.4.114–§11.4.121 mirrors
+(eight new universal anchors from the 1.1.8-dev live-defect remediation,
+2026-06-03): §11.4.114 last-known-good-tag regression isolation (diff
+the broken state against the known-good tag FIRST — the tagged-good
+version is the regression oracle), §11.4.115
+RED-baseline-on-the-broken-artifact + polarity-switch (one test
+reproduces the defect on the pre-fix artifact then flips RED_MODE=0 to
+GREEN-guard — refines §11.4.43), §11.4.116 real-time
 conductor↔︎autonomous-test-framework sync channel (append-only JSONL
 event stream + atomically-rewritten status snapshot the orchestrator
 tails live; every verdict event carries its evidence path), §11.4.117
@@ -5022,5 +5035,71 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--stage-partial-artifact-OK</code>,
 <code>--assume-build-finished</code>,
 <code>--skip-build-completion-check</code> flag.</p>
+<h3 id="114122--no-silent-removal-of-existing-components-without-operator-confirmation-mandate-user-mandate-2026-06-03">§11.4.122
+— No-silent-removal-of-existing-components-without-operator-confirmation
+mandate (User mandate, 2026-06-03)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-03):</strong></p>
+<blockquote>
+<p>&quot;Never ever remove any application, system component or service from
+already existing codebase / System without interactively asked question
+to us! THIS IS MANDATORY RULE / CONSTRAINT!&quot;</p>
+</blockquote>
+<p><strong>Forensic case study (FACT).</strong> During the 1.1.8-dev
+burn-down, two shipped capabilities — F2 (an Apple-TV-class application)
+and F4 (a Huawei HMS / Mobile-Services component) — were removed from
+the existing System WITHOUT first asking the operator; the operator
+reversed both. A removal the operator has to discover and reverse after
+the fact is a defect of the same severity class as a §11.4 PASS-bluff:
+the System silently lost a user-facing capability the operator never
+agreed to drop.</p>
+<p>No application, system component, service, package, feature, driver,
+module, library, prebuilt asset — any already-existing end-user
+capability of the existing codebase / shipped System — may be removed
+(deleted, dropped from the package set, disabled-into-non-shipping,
+un-bundled, de-listed, or otherwise made unavailable to the end user)
+WITHOUT FIRST interactively asking the operator and receiving an
+EXPLICIT keep-or-remove decision. The question MUST be posed through the
+platform&#39;s interactive clarification mechanism per §11.4.66
+(<code>AskUserQuestion</code> on Claude Code) — NEVER a free-text
+&quot;should I remove X?&quot; buried in narrative, NEVER a silent removal
+justified post-hoc, NEVER an autonomous removal decision. A silent
+removal is a <strong>release blocker</strong> regardless of how
+well-intentioned the rationale (deduplication, &quot;it was broken anyway&quot;,
+geo-restricted, incompatible, superseded) — the operator decides, the
+agent asks.</p>
+<p>What counts as a removal (non-exhaustive): deleting an app/APK/binary
+from the build&#39;s package set (<code>PRODUCT_PACKAGES</code> /
+<code>device.mk</code> / equivalent), removing a service from the
+init/boot/service-registry set, dropping a kernel module / driver /
+config from the shipping configuration, un-bundling a prebuilt asset,
+deleting a submodule or its shipped output, removing a feature flag that
+gated a live capability, or any edit whose NET EFFECT is &quot;an end-user
+capability that shipped before no longer ships.&quot; Adding,
+replacing-with-operator-approved-equivalent, or fixing a capability is
+NOT a removal. When uncertain whether an edit constitutes a removal,
+treat it AS a removal and ask (per §11.4.6 no-guessing + §11.4.101 —
+removal of an existing user-facing capability is high-blast-radius and
+MUST be operator-confirmed, never autonomously decided). The tracked
+DROP path: ask → operator approves → mark the item
+<code>Obsolete (→ Fixed.md)</code> with <code>Obsolete-Details</code>
+reason <code>feature-removed</code> + an operator-approval citation
+(§11.4.90) → then remove; the removal never precedes the operator&#39;s
+yes.</p>
+<p>Classification: universal (§11.4.17) — a platform-neutral discipline
+reusable by ANY project that ships a set of user-facing capabilities;
+the consuming project supplies its concrete capability-manifest paths
+per §11.4.35. Composes §11.4.66 / §11.4.101 / §11.4.90 / §11.4.112 /
+§11.4.6 / §11.4.40 / §11.4.42. Propagation gate
+<code>CM-COVENANT-114-122-PROPAGATION</code> (literal
+<code>11.4.122</code>) + recommended gate
+<code>CM-NO-SILENT-COMPONENT-REMOVAL</code> + paired §1.1 meta-test
+mutation (gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.122.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--remove-without-asking</code>, <code>--silent-removal</code>,
+<code>--autonomous-removal-OK</code>,
+<code>--dedup-removal-exempt</code>, <code>--it-was-broken-anyway</code>
+flag.</p>
 </body>
 </html>
