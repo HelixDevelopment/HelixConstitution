@@ -249,7 +249,7 @@ Universal QWEN.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>17</td>
+<td>18</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -257,7 +257,7 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-04T12:00:00Z</td>
+<td>2026-06-04T18:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -265,18 +265,35 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.125 mirror — Code-review-agent gate before pre-build +
-main build (mandatory multi-layer review) (User mandate 2026-06-04):
-after all batch fixes/changes/implementations are done and BEFORE the
-pre-build test sweep + main (artifact) build, the agent MUST dispatch
-dedicated code-review agent(s) (subagent-driven per §11.4.70/.20) that
-analyze all batch work + all existing data/facts/captured-evidence + the
-existing codebase (blast radius) + current git history, determine
-quality + safety + will-it-REALLY-work, and validate+verify every
-covering test genuinely exercises the work-under-test and catches its
-negation with ZERO false-result/bluff possibility; any finding (defect /
-error-prone change / safety risk / will-not-work / bluff-capable test /
-coverage gap) MUST be fixed+polished+improved+test-covered (four-layer
+<td>Added §11.4.126 mirror — Default autonomous-loop working mode from
+first prompt (User mandate 2026-06-04): the endless fully-autonomous
+loop is the DEFAULT working mode, engaged automatically the moment the
+operator sends the FIRST request/prompt of a session — no per-session
+activation handshake; the loop continues until EITHER (A) a new
+fully-validated-and-verified version (tag) is created AND published
+across all owned submodules + main repo to all remotes (per
+§2.1/§11.4.40/§11.4.113), OR (B) for non-release main-stream work that
+work is fully completed AND all side work streams done AND nothing is
+left in the working queue for the current scope; STOPS ONLY on explicit
+operator STOP, empty current-scope queue, or §12 host-safety; goal
+ABSOLUTE EFFICIENCY; mimicking/imitation/false-results/bluff of ANY kind
+ABSOLUTELY FORBIDDEN (composes the §11.4 anti-bluff covenant — actually
+perform the work, never narrate/pretend it); §11.4.126 is the CAPSTONE
+promoting §11.4.87 from opt-in to always-on. Composes
+§11.4.87/.94/.97/.101/.103/.66/.6/.40/.42/.72/.113 + §2.1 + §12.
+Classification: universal (§11.4.17). Prior round: Added §11.4.125
+mirror — Code-review-agent gate before pre-build + main build (mandatory
+multi-layer review) (User mandate 2026-06-04): after all batch
+fixes/changes/implementations are done and BEFORE the pre-build test
+sweep + main (artifact) build, the agent MUST dispatch dedicated
+code-review agent(s) (subagent-driven per §11.4.70/.20) that analyze all
+batch work + all existing data/facts/captured-evidence + the existing
+codebase (blast radius) + current git history, determine quality +
+safety + will-it-REALLY-work, and validate+verify every covering test
+genuinely exercises the work-under-test and catches its negation with
+ZERO false-result/bluff possibility; any finding (defect / error-prone
+change / safety risk / will-not-work / bluff-capable test / coverage
+gap) MUST be fixed+polished+improved+test-covered (four-layer
 §11.4.4(b), TDD-RED-first §11.4.43/.115) BEFORE the build proceeds;
 review iterates until no blocking findings; one of MULTIPLE STRONG
 LAYERS complementing (never replacing) the pre-build sweep + §11.4.92
@@ -2235,5 +2252,67 @@ Release blocker. No <code>--skip-code-review</code> /
 <code>--build-without-review</code> / <code>--no-review-gate</code> /
 <code>--review-optional</code> / <code>--trust-the-author</code>
 escape.</p>
+<h3 id="114126--default-autonomous-loop-working-mode-from-first-prompt-user-mandate-2026-06-04">§11.4.126
+— Default autonomous-loop working mode from first prompt (User mandate,
+2026-06-04)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-04):</strong> &quot;Make sure that you continue work in endless
+fully autonomous loop, do not stop until new fully validated and
+verified version (tag) is created and published (all submodules and main
+repo) or IN A CASE OF some other main stream work until it is fully
+completed with all side work streams and nothing else is left in our
+working queue! THIS MUST BE ALWAYS the default working mode without us
+asking you! We tend to achieve ABSOLUTE EFFICIENCY, with this and all
+other projects which will incorporate this MANDATORY RULE /
+CONSTRAINT!!! This way of (your) working will be ALWAYS applied /
+followed / executed / fully respected, as soon as we assign / send first
+request (prompt) in the session! This stops only if we explicitly say so
+or nothing is left to be done in current working scope (release that
+will come / upcoming version)!!! Any mimicking (imitation) of this
+behavior / rules / mandatory constraints, false results or any kind of
+bluff(s) is ABSOLUTELY FORBIDDEN!!!&quot;</p>
+<p>The endless fully-autonomous loop is the <strong>DEFAULT working
+mode</strong>, engaged automatically the moment the operator sends the
+FIRST request / prompt of a session — the operator MUST NOT have to ask
+for it, request it, restate it, or re-enable it per session. §11.4.87
+framed the endless-loop covenant as an explicit-instruction opt-in;
+§11.4.126 is the <strong>capstone</strong> that promotes the same
+covenant to always-on: from the first prompt onward, every agent
+operates in the §11.4.87 loop discipline as the standing default, with
+§11.4.94 zero-idle, §11.4.97 maximum-idle-use, §11.4.101
+autonomous-decision-over-blocking, and §11.4.103
+continuous-parallel-stream all engaged by default — no per-session
+activation handshake. The continuation contract: the loop continues
+until ONE of two terminal conditions holds — (A) <strong>Release
+scope</strong> — a new, fully-validated-and-verified version (tag) is
+created AND published across all owned submodules AND the main repo to
+all configured remotes (per §2.1 + §11.4.40 + §11.4.113); OR (B)
+<strong>Non-release main-stream scope</strong> — the main-stream goal is
+fully completed AND every side work stream is done AND the working queue
+holds nothing left for the current scope. Until (A) or (B) holds, the
+agent MUST keep working per §11.4.42 / §11.4.72 / §11.4.94 / §11.4.103.
+The loop STOPS ONLY on: (1) the operator explicitly saying so (STOP /
+pause / end); (2) nothing left to do in the current working scope with
+the queue genuinely empty per the (A)/(B) terminal conditions; (3) a §12
+host-session-safety demand. Idle-while-blocked parks one work unit, it
+does not stop the loop (§11.4.101 + §11.4.94 + §11.4.97). Goal —
+ABSOLUTE EFFICIENCY; applies to this project AND every project that
+incorporates this Constitution. Anti-bluff: mimicking / imitating this
+loop behaviour, narrating continuation without performing it,
+fabricating progress, or emitting false / bluff results of ANY kind is
+ABSOLUTELY FORBIDDEN (composes §11.4 / §11.4.1 / §11.4.2 / §11.4.5 /
+§11.4.6 / §11.4.50 / §11.4.69 / §11.4.107); a report claiming the loop
+ran while no real work / no captured evidence was produced is a §11.4
+PASS-bluff at the operating-mode layer. Classification: universal
+(§11.4.17). Composes with §11.4.87 / §11.4.94 / §11.4.97 / §11.4.101 /
+§11.4.103 / §11.4.66 / §11.4.6 / §11.4.40 / §11.4.42 / §11.4.72 /
+§11.4.113 / §2.1 / §12. Propagation gate
+<code>CM-COVENANT-114-126-PROPAGATION</code> (literal
+<code>11.4.126</code>) + paired §1.1 mutation (gate-code = separate work
+item).</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.126.
+Release blocker. No <code>--ask-before-continuing</code> /
+<code>--single-turn-only</code> / <code>--not-default-loop</code> /
+<code>--mimic-OK</code> escape.</p>
 </body>
 </html>
