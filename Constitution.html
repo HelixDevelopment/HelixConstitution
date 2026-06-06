@@ -14528,6 +14528,310 @@ cite via §11.4.35 inheritance.</p>
 hatch — no <code>--ask-before-continuing</code>,
 <code>--single-turn-only</code>, <code>--not-default-loop</code>,
 <code>--mimic-OK</code> flag exists.</p>
+<h3 id="114127--session-handoff-resumption-prompt-mandate-user-mandate-2026-06-06">§11.4.127
+— Session-handoff resumption-prompt mandate (User mandate,
+2026-06-06)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-06):</strong></p>
+<blockquote>
+<p>&quot;make sure that in situations like this now when new session is
+needed you ALWAYS prepera such sentence - which will be valid for
+particular moment and the phase of the project and enough for work to
+continue.&quot;</p>
+</blockquote>
+<p>When the agent determines a fresh session is needed (context-window
+limits, performance degradation) OR the operator asks whether a new
+session is needed / requests a handoff, the agent MUST ALWAYS prepare
+and provide a ready-to-paste <strong>resumption prompt valid for that
+EXACT moment and project phase</strong> — self-contained enough that
+pasting it into a fresh session resumes work with ZERO loss. The agent
+MUST proactively offer the resumption prompt the moment it recognises
+the need (not only when asked). Two variants on demand: a SHORT
+first-sentence variant (&quot;Read <code>&lt;handoff docs&gt;</code>, then
+continue <code>&lt;terminal goal&gt;</code> …&quot;) AND a FULL detailed
+block. The prompt MUST: (1) point to the live handoff doc(s) —
+<code>.remember/remember.md</code> if present +
+<code>docs/CONTINUATION.md</code> per §12.10 — and instruct reading them
+FIRST + <code>git fetch --all</code>; (2) state the current PHASE + the
+immediate NEXT action + the terminal goal; (3) embed the exact
+current-state anchors (build IDs / artifact MD5, device/target serials,
+commit HEAD, in-flight PIDs + log paths, captured-evidence paths); (4)
+restate the binding constraints (anti-bluff §11.4 covenant,
+no-force-push §11.4.113, exact version/naming, hardware/target gotchas);
+(5) be MOMENT-VALID — reflect the actual live state, NEVER a generic
+template. The handoff doc(s) MUST be brought current BEFORE the prompt
+is given (§12.10). A handoff that omits the resumption prompt, or gives
+a stale / generic one, is a §11.4.127 violation.</p>
+<p>Classification: universal (§11.4.17) — a platform-neutral
+session-continuity discipline reusable by ANY project worked by
+context-bounded agents; the consuming project supplies its concrete
+handoff-doc paths + state anchors per §11.4.35. Composes with §12.10
+(CONTINUATION doc — the resumption prompt is its operator-facing entry
+point) / §11.4.6 (no-guessing — the embedded state is captured fact, not
+assumed) / §11.4.66 (interactive clarification — &quot;do you need a new
+session?&quot; is itself a §11.4.66 decision point) / §11.4.87 / §11.4.103 /
+§11.4.126 (the fresh session CONTINUES the always-on autonomous loop —
+the resumption prompt is HOW the loop survives a context reset).
+Propagation gate <code>CM-COVENANT-114-127-PROPAGATION</code> (literal
+<code>11.4.127</code> across the consumer fleet) + recommended gate
+<code>CM-HANDOFF-RESUMPTION-PROMPT-PRESENT</code> + paired §1.1
+meta-test mutation (strip the literal → propagation gate FAILs;
+gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> this Constitution.md §11.4.127
+in the HelixConstitution submodule. All consuming projects restate +
+cite via §11.4.35 inheritance.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--skip-handoff-prompt</code>,
+<code>--generic-prompt-OK</code>, <code>--no-resumption-sentence</code>,
+<code>--handoff-without-state</code> flag exists.</p>
+<h3 id="114128--always-on-device-recording-mandate-user-mandate-2026-06-06">§11.4.128
+— Always-on device-recording mandate (User mandate, 2026-06-06)</h3>
+<p><strong>Forensic anchor — direct user mandate (2026-06-06):</strong>
+we MUST ALWAYS live-record all available data from all devices we use
+for testing or that we know manual testing is being performed on, done
+EXTRA carefully so the recording never harms the device, its
+performance, or causes side effects; recorded raw data MUST NOT be
+processed without need (token-conscious) and is ALWAYS excluded from
+version control + the code-intelligence index; only curated
+analysis/evidence is committed, and only during release preparation.</p>
+<p>The mandate (ALL must hold). For EVERY test/debug device the project
+uses — and every device on which the operator is known to be performing
+manual testing — across EVERY reachable transport (USB or wireless ADB /
+SSH / serial / network introspection API), the project MUST ALWAYS
+live-record all available data sources it can later analyse: all
+activities, all logs (system log, kernel log, dropbox, crash/ANR
+traces), performance metrics (CPU / memory / I/O / thermal / load),
+every sink-side / downstream introspection report per §11.4.13, and any
+other live-changeable parameter. (1) <strong>Extra-careful,
+side-effect-free.</strong> Recording MUST be designed so it NEVER harms
+the device, degrades its performance, or causes a side effect —
+non-invasive read-only probes only, bounded sampling intervals, bounded
+write-volume, an observer-effect budget (no probe that mutates the
+system-under-test). A recorder that perturbs the device-under-test is a
+§11.4.128 violation, NOT evidence. (2) <strong>Background + parallel +
+subagent-driven.</strong> Recording MUST run in the background in
+parallel with the main work stream (per §11.4.103
+continuous-parallel-stream), dispatched subagent-driven per §11.4.70 —
+never blocking the main stream, never the only thing the conductor does.
+(3) <strong>Token-conscious — record-now, analyse-later.</strong> Raw
+recorded data MUST NOT be processed / analysed without need; the default
+is capture-and-store. The ONLY standing exception is during release-tag
+preparation (the §11.4.40 full-suite retest / §11.4.42 release-gate) OR
+when the operator explicitly asks — at which point the relevant slice is
+analysed and the curated findings become captured-evidence. Analysing
+raw recordings continuously, eagerly, for no tracked reason burns tokens
+and is a §11.4.128 violation. (4) <strong>Raw is git-ignored AND
+code-intelligence-excluded; only curated evidence is committed.</strong>
+The raw recording corpus MUST be excluded from version control (with a
+§11.4.77 regeneration-mechanism declaration — the mechanism is
+&quot;re-record by re-running the recorder against the device&quot;, with the
+honest caveat that a past device-state is not byte-reproducible) AND
+excluded from the code-intelligence index per §11.4.78/§11.4.79 (a raw
+log/recording corpus is not source; indexing it pollutes the graph).
+Only the CURATED analysis / extracted evidence artefacts are committed —
+and only during release preparation per §11.4.83
+(<code>docs/qa/&lt;run-id&gt;/</code>) — never the raw corpus. (5)
+<strong>Deterministic archive layout.</strong> The raw corpus MUST be
+laid out by date → combined-source-state-hash → device →
+recording-sequence so any artefact is traceable to the exact code state
+and device it came from:
+<code>&lt;recording-root&gt;/YYYY-MM-DD/&lt;combined main+submodules state hash&gt;/&lt;DEVICE&gt;_&lt;SERIAL&gt;/recording_NNN/&lt;files&gt;</code>
+(monotonic <code>NNN</code> per device per state-hash). (6)
+<strong>Anti-bluff.</strong> A recorder claimed running but producing no
+growing corpus is a §11.4 bluff; a curated finding cited as evidence
+MUST trace to a real raw-corpus path under the deterministic layout; the
+recorder&#39;s own health (alive + corpus growing) is itself a
+captured-evidence assertion per §11.4.5/§11.4.69.</p>
+<p>Classification: universal (§11.4.17) — a platform-neutral
+test-evidence-capture discipline reusable by ANY project with reachable
+test/debug devices; the consuming project supplies its concrete device
+serials, transport probes, recorder helper, recording-root, and
+performance-metric set per §11.4.35. Composes with §11.4.2
+(recorded-evidence — §11.4.128 guarantees the recording exists to BE the
+evidence) / §11.4.5 (captured-evidence quality) / §11.4.13 (sink-side
+introspection IS one recorded source) / §11.4.69 (sink-side
+positive-evidence taxonomy) / §11.4.40 + §11.4.42 (release-prep is the
+analyse-the-corpus trigger) / §11.4.70 (subagent-driven recorder
+dispatch) / §11.4.77 (raw corpus git-ignored WITH a
+regeneration-mechanism declaration) / §11.4.78 + §11.4.79 (raw corpus
+excluded from the code-intelligence index) / §11.4.83 (curated evidence
+lands under <code>docs/qa/&lt;run-id&gt;/</code>) / §11.4.103
+(background parallel stream) / §11.4.119 (single-resource-owner — a
+read-only recorder never contends with an exclusive driver). Propagation
+gate <code>CM-COVENANT-114-128-PROPAGATION</code> (literal
+<code>11.4.128</code> across the consumer fleet) + recommended gate
+<code>CM-DEVICE-RECORDING-ALWAYS-ON</code> (recorder present +
+raw-corpus git-ignored + code-intelligence-excluded + deterministic
+layout) + paired §1.1 meta-test mutation (strip the literal →
+propagation gate FAILs; gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> this Constitution.md §11.4.128
+in the HelixConstitution submodule. All consuming projects restate +
+cite via §11.4.35 inheritance.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--skip-recording</code>,
+<code>--record-without-layout</code>, <code>--commit-raw-corpus</code>,
+<code>--index-raw-corpus</code>, <code>--analyse-corpus-always</code>,
+<code>--invasive-probe-OK</code> flag exists.</p>
+<h3 id="114129--huge-blocker-release-protocol-user-mandate-2026-06-06">§11.4.129
+— Huge-blocker release protocol (User mandate, 2026-06-06)</h3>
+<p><strong>Forensic anchor — direct user mandate (2026-06-06):</strong>
+when a huge blocker is discovered during release validation we MUST stop
+all testing, return to fixing ALL discovered issues, process all
+recorded data from the last session, land rock-solid fixes, author NEW
+validation+verification tests of ALL supported test types, rebuild,
+reflash, and RESTART the full validation+verification of every
+fix/change from the last release tag to now — on both devices in
+parallel, recorded, with real physical captured proofs and no bluff.</p>
+<p>When a HUGE BLOCKER (a release-blocking-severity defect — a core
+user-facing capability broken, a regression that invalidates the
+in-flight validation cycle, or a defect whose blast radius reaches the
+batch&#39;s other fixes) is discovered during release validation, the agent
+MUST execute the following protocol in order, with NO partial /
+spot-check shortcut: (1) <strong>STOP all testing</strong> immediately
+on every device (the §11.4.4 test-interrupt-on-discovery STOP, escalated
+to release granularity — a validation cycle that continues past a huge
+blocker produces &quot;all green&quot; summaries on a known-broken build, the
+exact §11.4 PASS-bluff). (2) <strong>Return to fixing ALL discovered
+issues</strong> — not only the huge blocker but every defect surfaced
+this cycle; investigate each to root cause per §11.4.102
+systematic-debugging, isolate regressions against the last known-good
+tag per §11.4.114. (3) <strong>Process all recorded data from the last
+session</strong> — analyse the §11.4.128 raw-corpus slice for the cycle
+(this is the §11.4.128(3) release-prep analyse-trigger) so no defect the
+recordings already captured is missed. (4) <strong>Land rock-solid
+fixes</strong> — per §11.4.123 (rock-solid proof or deep research),
+§11.4.43/§11.4.115 (RED-on-broken-artifact then GREEN), §11.4.9
+batch-source-fixes-before-rebuild. (5) <strong>Author NEW
+validation+verification tests of ALL supported test types</strong> — per
+§11.4.27 (unit / integration / e2e / full-automation / security / stress
+/ chaos / performance / UI / UX / Challenges / HelixQA) + §11.4.85
+stress+chaos, each anti-bluff with captured evidence + paired §1.1
+mutation. (6) <strong>Rebuild + reflash</strong> — full rebuild (NOT
+module-only) for retest-baseline integrity, deploy to a CLEAN target per
+§11.4.108 (no stale-overlay shadow). (7) <strong>RESTART the full
+validation+verification from the last release tag to now</strong> —
+re-validate EVERY fix/change landed since the last tag (per §11.4.40
+full-suite-retest-before-tag — the huge-blocker discovery invalidated
+the in-flight cycle, so the cycle restarts from the beginning, NOT
+resumes), running on both/all owned devices IN PARALLEL per
+§11.4.103/§11.4.119 (single-resource-owner partitioning), every device&#39;s
+run RECORDED per §11.4.128, producing REAL physical captured proofs per
+§11.4.5/§11.4.69/§11.4.107 with no bluff of any kind. This anchor BINDS
+the existing release-cycle anchors for the huge-blocker case — it adds
+the
+STOP→fix-all→process-recordings→new-tests-all-types→rebuild→reflash→full-restart
+sequencing and the &quot;restart, never resume&quot; rule, citing §11.4.4 +
+§11.4.40 + §11.4.108 + §11.4.114/§11.4.115 + §11.4.123 + §11.4.128
+rather than duplicating their text.</p>
+<p>Classification: universal (§11.4.17) — a platform-neutral
+release-discipline reusable by ANY project that runs a
+release-validation cycle; the consuming project supplies its concrete
+device set, build/flash mechanism, and last-known-good tag per §11.4.35.
+Composes with §11.4.4 (test-interrupt-on-discovery — §11.4.129 is its
+release-granularity escalation) / §11.4.40 (full-suite retest before tag
+— §11.4.129 mandates the RESTART, not resume) / §11.4.42 (iteration
+discipline) / §11.4.9 (batch-source-fixes-before-rebuild) / §11.4.27
+(all-test-types coverage) / §11.4.85 (stress+chaos) / §11.4.102
+(systematic-debugging) / §11.4.108 (clean-target
+rebuild+reflush+runtime-signature) / §11.4.114 + §11.4.115 (regression
+isolation + RED-on-broken-artifact) / §11.4.123 (rock-solid proof) /
+§11.4.128 (process the recorded corpus) / §11.4.103 + §11.4.119
+(parallel recorded multi-device). Propagation gate
+<code>CM-COVENANT-114-129-PROPAGATION</code> (literal
+<code>11.4.129</code> across the consumer fleet) + recommended gate
+<code>CM-HUGE-BLOCKER-FULL-RESTART</code> (a release-blocker discovery
+during validation triggers a from-the-last-tag full restart, not a
+resume) + paired §1.1 meta-test mutation (strip the literal →
+propagation gate FAILs; gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> this Constitution.md §11.4.129
+in the HelixConstitution submodule. All consuming projects restate +
+cite via §11.4.35 inheritance.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--resume-after-blocker</code>,
+<code>--spot-validate-after-fix</code>,
+<code>--skip-recording-analysis</code>, <code>--skip-new-tests</code>,
+<code>--module-only-after-blocker</code>,
+<code>--single-device-restart</code> flag exists.</p>
+<h3 id="114130--post-remediation-validate-the-fix-first-after-redeploy-user-mandate-2026-06-06">§11.4.130
+— Post-remediation validate-the-fix-FIRST-after-redeploy (User mandate,
+2026-06-06)</h3>
+<p><strong>Forensic anchor — direct user mandate (2026-06-06):</strong>
+when a blocker discovered during release validation is fixed and a new
+artifact is produced + redeployed, we MUST first re-test the SPECIFIC
+last-failing features and validate+verify the just-incorporated fixes
+BEFORE proceeding to the broader / full validation — a first fix attempt
+may not work, may be incomplete, or may regress again, so confirming the
+targeted fix on the new artifact first prevents wasting a full
+multi-hour cycle on a still-broken fix.</p>
+<p>When a blocker / critical failure is discovered during release
+validation and then FIXED, and a new artifact is produced (rebuild / new
+flashing image / redeploy) and the target is reflashed / redistributed /
+updated, the agent MUST execute the following ordering with NO shortcut:
+(1) <strong>Re-test the SPECIFIC last-failing features FIRST</strong> —
+run the targeted guard tests for exactly the defects this fix addressed,
+BEFORE any broader / full-suite validation. (2) <strong>Validate +
+verify the just-incorporated fixes with real captured evidence</strong>
+— the RED test that reproduced the defect on the pre-fix artifact (per
+§11.4.115) MUST now flip GREEN at <code>RED_MODE=0</code> on the new
+artifact, AND the fix&#39;s declared runtime signature (per §11.4.108) MUST
+verify on the CLEAN target the redeploy produced. Metadata-only /
+config-only / absence-of-error / grep-without-runtime PASS are forbidden
+(§11.4 / §11.4.1) — the proof is captured per §11.4.5 / §11.4.69 /
+§11.4.107 / §11.4.123. (3) <strong>Only after the targeted fix is
+CONFIRMED working on the new artifact</strong> does the agent proceed to
+the §11.4.40 full retest of every fix/change from the last release tag
+to now.</p>
+<p><strong>Rationale.</strong> A first fix attempt may not work, may be
+incomplete, or may regress again under the new artifact. Confirming the
+targeted fix FIRST catches a fix-did-not-take case immediately — instead
+of discovering it hours later at the END of a full multi-hour validation
+cycle (and then having to restart the whole cycle per §11.4.129). The
+targeted re-test is cheap; the full cycle is expensive; ordering
+cheap-confirmation-first is the §11.4.82 iteration-speedup discipline
+applied to the post-blocker reflash. This is the §11.4.46
+recent-work-validation gate specialised for the post-blocker-reflash
+case: the §11.4.129 huge-blocker protocol&#39;s step (7) full-restart MUST
+be preceded by this targeted-fix-first confirmation phase.</p>
+<p>Honest boundary (§11.4.6): &quot;the fix probably took&quot; is not &quot;the fix
+took&quot; — the targeted RED→GREEN flip + runtime-signature verification on
+the new artifact is the captured proof; proceeding to the full cycle
+without it is a §11.4.130 violation. A targeted re-test that still FAILs
+on the new artifact is a finding — return to the §11.4.114/§11.4.115
+isolate→RED→fix loop and produce another artifact; do NOT proceed to the
+full cycle on a still-broken fix.</p>
+<p>Classification: universal (§11.4.17) — a platform-neutral
+release-discipline reusable by ANY project that fixes a blocker,
+redeploys, and re-validates; the consuming project supplies its concrete
+targeted-guard-test set, build/flash mechanism, and clean-deployment /
+runtime-signature observables per §11.4.35. Composes with §11.4.4
+(test-interrupt-on-discovery — the blocker that triggered the fix) /
+§11.4.40 (full-suite retest before tag — §11.4.130 is the targeted-first
+phase that GATES the full retest) / §11.4.46
+(validate-recent-work-before-post-flash-tests — §11.4.130 is its
+post-blocker-reflash specialisation) / §11.4.108
+(runtime-signature-as-definition-of-done on the clean target the
+redeploy produced) / §11.4.114 (regression isolation — a still-failing
+targeted re-test re-enters the isolation loop) / §11.4.115 (RED-baseline
++ polarity-switch — the RED test flips GREEN on the new artifact) /
+§11.4.123 (rock-solid proof — captured evidence, never &quot;probably took&quot;)
+/ §11.4.129 (huge-blocker protocol — §11.4.130 is its post-reflash
+targeted-confirmation phase that precedes the step-7 full-restart) /
+§11.4.82 (iteration-speedup — cheap-confirmation-first). Propagation
+gate <code>CM-COVENANT-114-130-PROPAGATION</code> (literal
+<code>11.4.130</code> across the consumer fleet) + recommended gate
+<code>CM-FIX-FIRST-AFTER-REDEPLOY</code> (after a post-blocker redeploy,
+the targeted last-failing-feature guard tests run + pass on the new
+artifact before the full retest starts) + paired §1.1 meta-test mutation
+(strip the literal → propagation gate FAILs; gate-code = separate work
+item).</p>
+<p><strong>Canonical authority:</strong> this Constitution.md §11.4.130
+in the HelixConstitution submodule. All consuming projects restate +
+cite via §11.4.35 inheritance.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--skip-targeted-retest</code>,
+<code>--full-cycle-first</code>, <code>--assume-fix-took</code>,
+<code>--validate-fix-at-end</code>,
+<code>--skip-red-green-flip-on-new-artifact</code> flag exists.</p>
 <hr />
 <h2 id="12-host-session-safety--directly-or-indirectly-signing-the-user-out-is-forbidden">§12.
 Host-session safety — directly OR indirectly signing the user out is

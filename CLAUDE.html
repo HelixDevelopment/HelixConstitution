@@ -249,7 +249,7 @@ Universal CLAUDE.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>21</td>
+<td>22</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -257,7 +257,7 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-04T18:00:00Z</td>
+<td>2026-06-06T15:30:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -265,12 +265,28 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.126 mirror — Default autonomous-loop working mode from
-first prompt (User mandate 2026-06-04): the endless fully-autonomous
-loop is the DEFAULT working mode, engaged automatically the moment the
-operator sends the FIRST request/prompt of a session — no per-session
-activation handshake; the loop continues until EITHER (A) a new
-fully-validated-and-verified version (tag) is created AND published
+<td>Added §11.4.127 mirror — Session-handoff resumption-prompt mandate
+(User mandate 2026-06-06): when a fresh session is needed (context
+limits / degradation) OR the operator asks whether a new session is
+needed, the agent MUST ALWAYS prepare + proactively provide a
+ready-to-paste resumption prompt valid for that EXACT moment + project
+phase (a SHORT first-sentence variant + a FULL detailed block on demand)
+that points to the live handoff docs (.remember/remember.md if present +
+docs/CONTINUATION.md per §12.10, read FIRST + git fetch --all), states
+current PHASE + immediate NEXT action + terminal goal, embeds exact
+live-state anchors (build IDs/artifact MD5, device serials, commit HEAD,
+in-flight PIDs + log paths, captured-evidence paths), and restates
+binding constraints (anti-bluff §11.4, no-force-push §11.4.113, exact
+version/naming, hardware gotchas); MUST be moment-valid never a generic
+template; handoff docs MUST be current BEFORE the prompt is given; a
+missing/stale/generic prompt is a §11.4.127 violation. Composes
+§12.10/.6/.66/.87/.103/.126. Classification: universal (§11.4.17). Prior
+round: Added §11.4.126 mirror — Default autonomous-loop working mode
+from first prompt (User mandate 2026-06-04): the endless
+fully-autonomous loop is the DEFAULT working mode, engaged automatically
+the moment the operator sends the FIRST request/prompt of a session — no
+per-session activation handshake; the loop continues until EITHER (A) a
+new fully-validated-and-verified version (tag) is created AND published
 across all owned submodules + main repo to all remotes (per
 §2.1/§11.4.40/§11.4.113), OR (B) for non-release main-stream work that
 work is fully completed AND all side work streams done AND nothing is
@@ -5446,5 +5462,179 @@ separate work item).</p>
 Non-compliance is a release blocker. No escape hatch — no
 <code>--ask-before-continuing</code>, <code>--single-turn-only</code>,
 <code>--not-default-loop</code>, <code>--mimic-OK</code> flag.</p>
+<h3 id="114127--session-handoff-resumption-prompt-mandate-user-mandate-2026-06-06">§11.4.127
+— Session-handoff resumption-prompt mandate (User mandate,
+2026-06-06)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-06):</strong> &quot;make sure that in situations like this now when
+new session is needed you ALWAYS prepera such sentence - which will be
+valid for particular moment and the phase of the project and enough for
+work to continue.&quot;</p>
+<p>When the agent determines a fresh session is needed (context-window
+limits, performance degradation) OR the operator asks whether a new
+session is needed / requests a handoff, the agent MUST ALWAYS prepare +
+proactively provide a ready-to-paste <strong>resumption prompt valid for
+that EXACT moment and project phase</strong> — self-contained enough
+that pasting it into a fresh session resumes work with ZERO loss. Two
+variants on demand: a SHORT first-sentence (&quot;Read
+<code>&lt;handoff docs&gt;</code>, then continue
+<code>&lt;terminal goal&gt;</code> …&quot;) AND a FULL detailed block. The
+prompt MUST: (1) point to the live handoff doc(s) —
+<code>.remember/remember.md</code> if present +
+<code>docs/CONTINUATION.md</code> per §12.10 — read FIRST +
+<code>git fetch --all</code>; (2) state current PHASE + immediate NEXT
+action + terminal goal; (3) embed exact live-state anchors (build IDs /
+artifact MD5, device/target serials, commit HEAD, in-flight PIDs + log
+paths, captured-evidence paths); (4) restate binding constraints
+(anti-bluff §11.4, no-force-push §11.4.113, exact version/naming,
+hardware/target gotchas); (5) be MOMENT-VALID, NEVER a generic template.
+Handoff doc(s) MUST be current BEFORE the prompt is given (§12.10). A
+missing / stale / generic prompt is a §11.4.127 violation. Composes
+§12.10 / §11.4.6 / §11.4.66 / §11.4.87 / §11.4.103 / §11.4.126.
+Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-127-PROPAGATION</code> (literal
+<code>11.4.127</code>) + paired §1.1 meta-test mutation.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.127.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-handoff-prompt</code>, <code>--generic-prompt-OK</code>,
+<code>--no-resumption-sentence</code>,
+<code>--handoff-without-state</code> flag.</p>
+<h3 id="114128--always-on-device-recording-mandate-user-mandate-2026-06-06">§11.4.128
+— Always-on device-recording mandate (User mandate, 2026-06-06)</h3>
+<p><strong>Forensic anchor — direct user mandate (2026-06-06):</strong>
+we MUST ALWAYS live-record all available data from all devices we use
+for testing (or known to be under manual testing), EXTRA carefully so it
+never harms the device / its performance / causes side effects; raw
+recordings are NOT processed without need (token-conscious) and are
+ALWAYS git-ignored + code-intelligence-excluded; only curated evidence
+is committed, and only at release prep.</p>
+<p>For EVERY test/debug device the project uses + every device under
+known manual testing, across EVERY reachable transport (USB / wireless
+ADB / SSH / serial / network introspection API), the project MUST ALWAYS
+live-record all analysable data: activities, all logs, performance
+metrics (CPU/memory/I/O/thermal/load), every sink-side report per
+§11.4.13, and any other live-changeable parameter. (1)
+<strong>Extra-careful, side-effect-free</strong> — non-invasive
+read-only probes only, bounded sampling, bounded write-volume, an
+observer-effect budget; a recorder that perturbs the device-under-test
+is a §11.4.128 violation, NOT evidence. (2) <strong>Background +
+parallel + subagent-driven</strong> per §11.4.103 + §11.4.70 — never
+blocks the main stream. (3) <strong>Token-conscious — record-now,
+analyse-later</strong> — raw data NOT processed without need; the only
+standing analyse-trigger is release-tag prep (§11.4.40 / §11.4.42) OR
+explicit operator ask. (4) <strong>Raw is git-ignored (with a §11.4.77
+regen-mechanism declaration) AND code-intelligence-excluded
+(§11.4.78/§11.4.79)</strong> — only CURATED evidence is committed, and
+only at release prep under <code>docs/qa/&lt;run-id&gt;/</code>
+(§11.4.83). (5) <strong>Deterministic layout</strong>
+<code>&lt;recording-root&gt;/YYYY-MM-DD/&lt;combined main+submodules state hash&gt;/&lt;DEVICE&gt;_&lt;SERIAL&gt;/recording_NNN/&lt;files&gt;</code>.
+(6) <strong>Anti-bluff</strong> — a recorder claimed running but with no
+growing corpus is a §11.4 bluff; every curated finding traces to a real
+raw-corpus path; recorder health is itself captured evidence per
+§11.4.5/§11.4.69.</p>
+<p>Composes §11.4.2 / §11.4.5 / §11.4.13 / §11.4.69 / §11.4.40 /
+§11.4.42 / §11.4.70 / §11.4.77 / §11.4.78 / §11.4.79 / §11.4.83 /
+§11.4.103 / §11.4.119. Classification: universal (§11.4.17). Propagation
+gate <code>CM-COVENANT-114-128-PROPAGATION</code> (literal
+<code>11.4.128</code>) + recommended gate
+<code>CM-DEVICE-RECORDING-ALWAYS-ON</code> + paired §1.1 mutation.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.128.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-recording</code>, <code>--record-without-layout</code>,
+<code>--commit-raw-corpus</code>, <code>--index-raw-corpus</code>,
+<code>--analyse-corpus-always</code>, <code>--invasive-probe-OK</code>
+flag.</p>
+<h3 id="114129--huge-blocker-release-protocol-user-mandate-2026-06-06">§11.4.129
+— Huge-blocker release protocol (User mandate, 2026-06-06)</h3>
+<p><strong>Forensic anchor — direct user mandate (2026-06-06):</strong>
+when a huge blocker is discovered during release validation we MUST stop
+all testing, fix ALL discovered issues, process all recorded data from
+the last session, land rock-solid fixes, author NEW
+validation+verification tests of ALL supported test types, rebuild,
+reflash, and RESTART the full validation+verification of every
+fix/change from the last release tag to now — on both devices in
+parallel, recorded, with real physical captured proofs and no bluff.</p>
+<p>On discovery of a HUGE BLOCKER (release-blocking-severity defect:
+core user-facing capability broken, regression invalidating the
+in-flight cycle, or blast radius reaching the batch&#39;s other fixes)
+during release validation, execute in order with NO spot-check shortcut:
+(1) <strong>STOP all testing</strong> on every device (the §11.4.4
+test-interrupt STOP at release granularity — continuing past a huge
+blocker is the §11.4 PASS-bluff). (2) <strong>Fix ALL discovered
+issues</strong> — not just the blocker; root-cause each per §11.4.102 +
+isolate regressions against the last known-good tag per §11.4.114. (3)
+<strong>Process all recorded data from the last session</strong> —
+analyse the §11.4.128 raw-corpus slice (this IS the §11.4.128(3)
+release-prep analyse-trigger). (4) <strong>Land rock-solid
+fixes</strong> per §11.4.123 + §11.4.43/§11.4.115 + §11.4.9. (5)
+<strong>Author NEW validation+verification tests of ALL supported test
+types</strong> per §11.4.27 + §11.4.85, each anti-bluff + paired §1.1
+mutation. (6) <strong>Rebuild (full, not module-only) + reflash to a
+CLEAN target</strong> per §11.4.108. (7) <strong>RESTART the full
+validation+verification from the last release tag to now</strong> per
+§11.4.40 — RESTART, never resume — on both/all owned devices IN PARALLEL
+per §11.4.103/§11.4.119, every run RECORDED per §11.4.128, real physical
+captured proofs per §11.4.5/§11.4.69/§11.4.107, no bluff. This anchor
+BINDS the existing release anchors for the huge-blocker case (adds
+STOP→fix-all→process-recordings→new-tests-all-types→rebuild→reflash→full-restart
++ the restart-not-resume rule), citing them rather than duplicating.</p>
+<p>Composes §11.4.4 / §11.4.40 / §11.4.42 / §11.4.9 / §11.4.27 /
+§11.4.85 / §11.4.102 / §11.4.108 / §11.4.114 / §11.4.115 / §11.4.123 /
+§11.4.128 / §11.4.103 / §11.4.119. Classification: universal (§11.4.17).
+Propagation gate <code>CM-COVENANT-114-129-PROPAGATION</code> (literal
+<code>11.4.129</code>) + recommended gate
+<code>CM-HUGE-BLOCKER-FULL-RESTART</code> + paired §1.1 mutation.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.129.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--resume-after-blocker</code>,
+<code>--spot-validate-after-fix</code>,
+<code>--skip-recording-analysis</code>, <code>--skip-new-tests</code>,
+<code>--module-only-after-blocker</code>,
+<code>--single-device-restart</code> flag.</p>
+<h3 id="114130--post-remediation-validate-the-fix-first-after-redeploy-user-mandate-2026-06-06">§11.4.130
+— Post-remediation validate-the-fix-FIRST-after-redeploy (User mandate,
+2026-06-06)</h3>
+<p><strong>Forensic anchor — direct user mandate (2026-06-06):</strong>
+when a blocker discovered during release validation is fixed and a new
+artifact (rebuild / new flashing image / redeploy) is produced + the
+target reflashed, we MUST first re-test the SPECIFIC last-failing
+features + validate the just-incorporated fixes BEFORE the broader /
+full validation.</p>
+<p>When a blocker / critical failure found during release validation is
+FIXED and a new artifact is produced + the target reflashed /
+redistributed / updated, the agent MUST: (1) <strong>re-test the
+SPECIFIC last-failing features FIRST</strong> (targeted guard tests for
+exactly the defects this fix addressed) BEFORE any broader / full-suite
+validation; (2) <strong>validate the just-incorporated fixes with real
+captured evidence</strong> — the §11.4.115 RED test flips GREEN at
+<code>RED_MODE=0</code> on the new artifact AND the §11.4.108
+runtime-signature verifies on the CLEAN target the redeploy produced
+(metadata-only / config-only / absence-of-error / grep-without-runtime
+PASS forbidden per §11.4 / §11.4.1; proof per
+§11.4.5/§11.4.69/§11.4.107/§11.4.123); (3) <strong>only after the
+targeted fix is CONFIRMED working</strong> proceed to the §11.4.40 full
+retest from the last tag to now. Rationale: a first fix attempt may not
+work / may be incomplete / may regress again under the new artifact —
+confirming the targeted fix FIRST catches a fix-did-not-take case
+immediately instead of hours later at the END of a full cycle (then
+restarting per §11.4.129); cheap-confirmation-first is §11.4.82 applied
+to the post-blocker reflash. This is the §11.4.46 recent-work-validation
+gate specialised for the post-blocker-reflash case + the
+targeted-confirmation phase that GATES §11.4.129&#39;s step-7 full-restart.
+Honest boundary (§11.4.6): &quot;the fix probably took&quot; ≠ &quot;the fix took&quot; —
+the RED→GREEN flip + runtime-signature on the new artifact is the proof;
+a still-FAILing targeted re-test re-enters the §11.4.114/§11.4.115
+isolate→RED→fix loop, never proceeds to the full cycle on a still-broken
+fix. Composes §11.4.4 / §11.4.40 / §11.4.46 / §11.4.108 / §11.4.114 /
+§11.4.115 / §11.4.123 / §11.4.129 / §11.4.82. Classification: universal
+(§11.4.17). Propagation gate
+<code>CM-COVENANT-114-130-PROPAGATION</code> (literal
+<code>11.4.130</code>) + recommended gate
+<code>CM-FIX-FIRST-AFTER-REDEPLOY</code> + paired §1.1 mutation.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.130.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-targeted-retest</code>, <code>--full-cycle-first</code>,
+<code>--assume-fix-took</code>, <code>--validate-fix-at-end</code>,
+<code>--skip-red-green-flip-on-new-artifact</code> flag.</p>
 </body>
 </html>
