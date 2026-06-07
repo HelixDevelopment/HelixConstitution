@@ -2476,5 +2476,46 @@ Release blocker. No <code>--skip-targeted-retest</code> /
 <code>--full-cycle-first</code> / <code>--assume-fix-took</code> /
 <code>--validate-fix-at-end</code> /
 <code>--skip-red-green-flip-on-new-artifact</code> escape.</p>
+<h3 id="114131--standing-session-resumption-file-mandate-user-mandate-2026-06-07">§11.4.131
+— Standing session-resumption file mandate (User mandate,
+2026-06-07)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-07):</strong> &quot;Make this markdown a standard file which will be
+written EVERY TIME when we need fresh session out of the box! It MUST BE
+always up to date and in sync so whenever new session is created all we
+have to do is just point to it!&quot;</p>
+<p>Every project MUST maintain a SINGLE canonical, always-current
+<strong>session-resumption file</strong> at a fixed, project-declared
+standard path (declared once per §11.4.35, never moved without a
+§11.4.66 operator decision) — the OUT-OF-THE-BOX entry point for any
+fresh session (creating a new session = ONLY point the new agent at this
+one file). §11.4.131 promotes §11.4.127 (PREPARE-on-demand) into a
+STANDING, version-controlled ARTIFACT, ALWAYS present + ALWAYS in sync.
+(A) Exists at the declared path at all times (literal path per §11.4.35,
+never silently moved). (B) (Re)written whenever a fresh session is
+needed OR the live state materially changes (new HEAD / build-artifact
+id / phase / device state / in-flight job / blocking decision) — the
+§12.10 trigger set; a stale file = §11.4.131 violation (same class as a
+§12.10 stale-CONTINUATION). (C) Carries SHORT + FULL §11.4.127 variants;
+points to <code>.remember/remember.md</code> +
+<code>docs/CONTINUATION.md</code> read FIRST + <code>git fetch</code>;
+embeds exact live-state anchors (HEAD, artifact checksums, device
+serials, in-flight PIDs+logs, evidence paths); states PHASE + NEXT +
+terminal goal; restates binding constraints (anti-bluff §11.4,
+no-force-push §11.4.113, exact version/naming, hardware gotchas);
+MOMENT-VALID never generic (§11.4.6). (D) §11.4.65 export
+(<code>.html</code>/<code>.pdf</code> siblings) + §11.4.44 revision
+header. (E) Given ONLY this file&#39;s path a fresh session fully resumes
+with zero additional context. Composes §12.10/.127/.65/.44/.6/.66/.126.
+Classification: universal (§11.4.17). Gate
+<code>CM-COVENANT-114-131-PROPAGATION</code> (literal
+<code>11.4.131</code>) + rec. gate
+<code>CM-SESSION-RESUMPTION-FILE-PRESENT</code> + paired §1.1
+mutation.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.131.
+Release blocker. No <code>--skip-resumption-file</code> /
+<code>--ephemeral-prompt-only</code> /
+<code>--stale-resumption-OK</code> / <code>--generic-template-OK</code>
+escape.</p>
 </body>
 </html>

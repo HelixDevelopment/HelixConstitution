@@ -249,7 +249,7 @@ Universal CLAUDE.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>22</td>
+<td>23</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -257,7 +257,7 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-06T15:30:00Z</td>
+<td>2026-06-07T09:30:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -265,10 +265,29 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.127 mirror — Session-handoff resumption-prompt mandate
-(User mandate 2026-06-06): when a fresh session is needed (context
-limits / degradation) OR the operator asks whether a new session is
-needed, the agent MUST ALWAYS prepare + proactively provide a
+<td>Added §11.4.131 mirror — Standing session-resumption file mandate
+(User mandate 2026-06-07): every project MUST maintain a SINGLE
+canonical always-current session-resumption FILE at a fixed
+project-declared standard path (declared once per §11.4.35, never moved
+without a §11.4.66 operator decision) — the OUT-OF-THE-BOX entry point
+for any fresh session (new session = ONLY point the agent at this one
+file); §11.4.131 promotes §11.4.127 (PREPARE-on-demand) into a STANDING
+version-controlled ARTIFACT, ALWAYS present + ALWAYS in sync: (A) exists
+at the declared path at all times; (B) (re)written whenever a fresh
+session is needed OR live state materially changes (new
+HEAD/build-artifact id/phase/device state/in-flight job/blocking
+decision) — §12.10 trigger set, a stale file = §11.4.131 violation (same
+class as §12.10 stale-CONTINUATION); (C) carries SHORT+FULL §11.4.127
+variants + points to handoff docs read-FIRST + git fetch + exact
+live-state anchors + PHASE/NEXT/terminal-goal + binding constraints,
+MOMENT-VALID never generic (§11.4.6); (D) §11.4.65 export + §11.4.44
+revision header; (E) given ONLY this file&#39;s path a fresh session fully
+resumes with zero additional context. Composes
+§12.10/.127/.65/.44/.6/.66/.126. Classification: universal (§11.4.17).
+Prior round: Added §11.4.127 mirror — Session-handoff resumption-prompt
+mandate (User mandate 2026-06-06): when a fresh session is needed
+(context limits / degradation) OR the operator asks whether a new
+session is needed, the agent MUST ALWAYS prepare + proactively provide a
 ready-to-paste resumption prompt valid for that EXACT moment + project
 phase (a SHORT first-sentence variant + a FULL detailed block on demand)
 that points to the live handoff docs (.remember/remember.md if present +
@@ -5636,5 +5655,53 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-targeted-retest</code>, <code>--full-cycle-first</code>,
 <code>--assume-fix-took</code>, <code>--validate-fix-at-end</code>,
 <code>--skip-red-green-flip-on-new-artifact</code> flag.</p>
+<h3 id="114131--standing-session-resumption-file-mandate-user-mandate-2026-06-07">§11.4.131
+— Standing session-resumption file mandate (User mandate,
+2026-06-07)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-07):</strong> &quot;Make this markdown a standard file which will be
+written EVERY TIME when we need fresh session out of the box! It MUST BE
+always up to date and in sync so whenever new session is created all we
+have to do is just point to it!&quot;</p>
+<p>Every project MUST maintain a SINGLE canonical, always-current
+<strong>session-resumption file</strong> at a fixed, project-declared
+standard path (declared once per §11.4.35, never moved without a
+§11.4.66 operator decision). This file is the OUT-OF-THE-BOX entry point
+for any fresh session: creating a new session requires ONLY pointing the
+new agent at this one file. §11.4.131 promotes §11.4.127 (PREPARE a
+resumption prompt on demand) into a STANDING, version-controlled
+ARTIFACT — ALWAYS present, ALWAYS in sync. (A) <strong>Existence + fixed
+path</strong> — exists at the declared path at all times, encoded as a
+literal path in the project-layer instantiation (§11.4.35), never
+silently moved. (B) <strong>Always written + always synced</strong> —
+(re)written whenever a fresh session is needed OR the live state
+materially changes (new HEAD, build/artifact id, phase, device/target
+state, in-flight job, blocking decision) — the §12.10 trigger set; a
+stale resumption file is a §11.4.131 violation of the same severity
+class as a §12.10 stale-CONTINUATION violation. (C) <strong>Content
+(composes §11.4.127)</strong> — both SHORT + FULL variants; points to
+<code>.remember/remember.md</code> + <code>docs/CONTINUATION.md</code>
+read FIRST + <code>git fetch</code>; embeds exact live-state anchors
+(HEAD, build/artifact ids + checksums, device serials, in-flight PIDs +
+log paths, captured-evidence paths); states PHASE + immediate NEXT +
+terminal goal; restates binding constraints (anti-bluff §11.4,
+no-force-push §11.4.113, exact version/naming, hardware gotchas);
+MOMENT-VALID, never a generic template (§11.4.6). (D) <strong>Export +
+freshness</strong> — §11.4.65 scope (synchronized
+<code>.html</code>/<code>.pdf</code> siblings) + §11.4.44 revision
+header. (E) <strong>Out-of-the-box resumption</strong> — a fresh
+session, given ONLY this file&#39;s path, fully resumes with zero additional
+context. Composes §12.10 / §11.4.127 / §11.4.65 / §11.4.44 / §11.4.6 /
+§11.4.66 / §11.4.126. Classification: universal (§11.4.17). Propagation
+gate <code>CM-COVENANT-114-131-PROPAGATION</code> (literal
+<code>11.4.131</code>) + recommended gate
+<code>CM-SESSION-RESUMPTION-FILE-PRESENT</code> + paired §1.1 meta-test
+mutation.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.131.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-resumption-file</code>,
+<code>--ephemeral-prompt-only</code>,
+<code>--stale-resumption-OK</code>, <code>--generic-template-OK</code>
+flag.</p>
 </body>
 </html>
