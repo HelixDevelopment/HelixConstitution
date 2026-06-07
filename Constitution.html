@@ -14903,6 +14903,76 @@ hatch — no <code>--skip-resumption-file</code>,
 <code>--ephemeral-prompt-only</code>,
 <code>--stale-resumption-OK</code>, <code>--generic-template-OK</code>
 flag exists.</p>
+<h3 id="114132--risk-ordered-validation-priority-mandate-user-mandate-2026-06-07">§11.4.132
+— Risk-ordered validation priority mandate (User mandate,
+2026-06-07)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-07):</strong> &quot;We MUST ALWAYS first test and validate features,
+functionalities and fixes/changes that have been worked most recently,
+the ones which were most problematic, which have the most chance to
+crash or break again, the ones which have been re-opened the most times!
+Then, after we validate and verify all this with real (physical) proofs
+and hard evidence, with no false results and bluffs of any kind, we
+continue with all other existing tests in the test suites! This IS
+MANDATORY.&quot;</p>
+<p>Tests, validations, and verifications MUST run in
+<strong>RISK-DESCENDING order</strong> — the highest-risk set FIRST, and
+only AFTER that set is fully GREEN with real (physical) captured
+evidence does the remainder of the suite run. The risk ranking is
+computed from a closed set of factors, highest-risk first:</p>
+<p>(a) <strong>Most-recently-worked</strong> — features /
+functionalities / fixes / changes touched most recently (the freshest
+code is the least-exercised in the wild and the most likely to carry an
+undiscovered defect).</p>
+<p>(b) <strong>Historically most-problematic</strong> — the items with
+the longest defect history, the most prior fixes, the most prior
+failures.</p>
+<p>(c) <strong>Highest crash/break/regress likelihood</strong> — items
+whose blast radius, complexity, or dependency surface gives them the
+greatest chance to crash or break again.</p>
+<p>(d) <strong>Most-reopened</strong> — items with the highest reopen
+count per §11.4.55 (a high reopens-count is the strongest empirical
+signal of fragility — a defect that keeps coming back).</p>
+<p>The highest-risk set, ordered by (a)–(d), is validated FIRST. Each
+item in that set MUST pass with real (physical) captured evidence per
+§11.4.5 / §11.4.69 / §11.4.107 — no metadata-only / config-only /
+absence-of-error / grep-without-runtime PASS (§11.4 / §11.4.1), no false
+results, no bluff of any kind (§11.4.6). ONLY AFTER the entire
+highest-risk set is GREEN with captured proof does the agent proceed to
+all other existing tests in the test suites. Running the full suite in
+arbitrary order, or running lower-risk tests before the highest-risk set
+is GREEN, is a §11.4.132 violation: it spends the operator&#39;s scarce
+validation window on the items least likely to fail while deferring the
+items most likely to fail.</p>
+<p>§11.4.132 REFINES / STRENGTHENS §11.4.130 (post-remediation
+validate-the-fix-FIRST-after-redeploy — §11.4.130 says re-test the
+just-fixed items first; §11.4.132 generalises &quot;first&quot; to the full
+risk-ordered set) + §11.4.46
+(validate-recent-work-before-post-flash-tests — §11.4.46 gates the full
+suite on recent-work GREEN; §11.4.132 adds the explicit risk-ordering
+WITHIN the recent / high-risk set) + §11.4.42 (iteration-discipline
+priority order — §11.4.132 applies the same priority discipline to
+VALIDATION ordering, not just implementation ordering). The risk ranking
+is the validation-layer analogue of the §11.4.42 / §11.4.72
+implementation-layer priority queue.</p>
+<p>Classification: universal (§11.4.17) — a platform-neutral
+validation-ordering discipline reusable by ANY project; the consuming
+project supplies its concrete recency / problematic-history /
+reopen-count sources (e.g. the §11.4.93 workable-items DB
+<code>reopens_count</code> + <code>last_modified</code> columns) per
+§11.4.35. Composes §11.4.4 / §11.4.5 / §11.4.6 / §11.4.7 / §11.4.40 /
+§11.4.42 / §11.4.46 / §11.4.50 / §11.4.55 / §11.4.69 / §11.4.107 /
+§11.4.130. Propagation gate <code>CM-COVENANT-114-132-PROPAGATION</code>
+(literal <code>11.4.132</code>) + recommended gate
+<code>CM-RISK-ORDERED-VALIDATION-PRIORITY</code> + paired §1.1 meta-test
+mutation (gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> this Constitution.md §11.4.132
+in the HelixConstitution submodule. All consuming projects restate +
+cite via §11.4.35 inheritance.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--skip-risk-ordering</code>,
+<code>--any-order-OK</code>, <code>--suite-order-fixed</code> flag
+exists.</p>
 <hr />
 <h2 id="12-host-session-safety--directly-or-indirectly-signing-the-user-out-is-forbidden">§12.
 Host-session safety — directly OR indirectly signing the user out is

@@ -249,7 +249,7 @@ Universal QWEN.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>19</td>
+<td>20</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -257,7 +257,7 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-06T15:30:00Z</td>
+<td>2026-06-07T12:30:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -265,10 +265,31 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.127 mirror — Session-handoff resumption-prompt mandate
-(User mandate 2026-06-06): when a fresh session is needed (context
-limits/degradation) OR the operator asks whether a new session is
-needed, the agent MUST ALWAYS prepare + proactively provide a
+<td>Added §11.4.132 mirror — Risk-ordered validation priority mandate
+(User mandate 2026-06-07): tests/validations/verifications MUST run in
+RISK-DESCENDING order — highest-risk set FIRST (closed factors: (a)
+most-recently-worked, (b) historically most-problematic, (c) highest
+crash/break/regress likelihood, (d) most-reopened per §11.4.55), each
+GREEN with real (physical) captured evidence (§11.4.5/.69/.107, no bluff
+§11.4.6), and ONLY AFTER that set is GREEN does the rest of the suite
+run; arbitrary-order or lower-risk-before-highest-risk-GREEN = §11.4.132
+violation; REFINES/STRENGTHENS §11.4.130 + §11.4.46 + §11.4.42 by adding
+explicit risk-ordering to VALIDATION. Composes
+§11.4.4/.5/.6/.7/.40/.42/.46/.50/.55/.69/.107/.130. Classification:
+universal (§11.4.17). Prior round: Added §11.4.131 mirror — Standing
+session-resumption file mandate (User mandate 2026-06-07): every project
+MUST maintain a SINGLE canonical always-current session-resumption FILE
+at a fixed project-declared standard path (declared once per §11.4.35,
+never moved without a §11.4.66 operator decision) — the OUT-OF-THE-BOX
+entry point for any fresh session; promotes §11.4.127
+(PREPARE-on-demand) into a STANDING version-controlled ARTIFACT, ALWAYS
+present + in sync, SHORT+FULL variants + live-state anchors + §11.4.65
+export + §11.4.44 revision header. Composes
+§12.10/.127/.65/.44/.6/.66/.126. Classification: universal (§11.4.17).
+Prior round: Added §11.4.127 mirror — Session-handoff resumption-prompt
+mandate (User mandate 2026-06-06): when a fresh session is needed
+(context limits/degradation) OR the operator asks whether a new session
+is needed, the agent MUST ALWAYS prepare + proactively provide a
 ready-to-paste resumption prompt valid for that EXACT moment + project
 phase (SHORT first-sentence + FULL block on demand) pointing to the live
 handoff docs (.remember/remember.md if present + docs/CONTINUATION.md
@@ -2516,6 +2537,47 @@ mutation.</p>
 Release blocker. No <code>--skip-resumption-file</code> /
 <code>--ephemeral-prompt-only</code> /
 <code>--stale-resumption-OK</code> / <code>--generic-template-OK</code>
+escape.</p>
+<h3 id="114132--risk-ordered-validation-priority-mandate-user-mandate-2026-06-07">§11.4.132
+— Risk-ordered validation priority mandate (User mandate,
+2026-06-07)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-07):</strong> &quot;We MUST ALWAYS first test and validate features,
+functionalities and fixes/changes that have been worked most recently,
+the ones which were most problematic, which have the most chance to
+crash or break again, the ones which have been re-opened the most times!
+Then, after we validate and verify all this with real (physical) proofs
+and hard evidence, with no false results and bluffs of any kind, we
+continue with all other existing tests in the test suites! This IS
+MANDATORY.&quot;</p>
+<p>Tests / validations / verifications MUST run in RISK-DESCENDING order
+— the highest-risk set FIRST, and ONLY AFTER that set is fully GREEN
+with real (physical) captured evidence does the remainder of the suite
+run. Closed risk factors, highest-first: (a) most-recently-worked; (b)
+historically most-problematic (longest defect history, most prior
+fixes/failures); (c) highest crash/break/regress likelihood (greatest
+blast radius/complexity/dependency surface); (d) most-reopened per
+§11.4.55 reopens-count. Each highest-risk item MUST pass with real
+(physical) captured evidence per §11.4.5/§11.4.69/§11.4.107 — no
+metadata-only / config-only / absence-of-error / grep-without-runtime
+PASS (§11.4/§11.4.1), no false results, no bluff (§11.4.6). ONLY AFTER
+the entire highest-risk set is GREEN with captured proof does the rest
+of the suite run; arbitrary-order or
+lower-risk-before-highest-risk-GREEN = §11.4.132 violation.
+REFINES/STRENGTHENS §11.4.130 (generalises &quot;validate-just-fixed-first&quot;
+to the full risk-ordered set) + §11.4.46 (adds explicit risk-ordering) +
+§11.4.42 (applies implementation-priority discipline to VALIDATION
+ordering). Classification: universal (§11.4.17) — consuming project
+supplies its recency/problematic-history/reopen-count sources (e.g.
+§11.4.93 DB <code>reopens_count</code>+<code>last_modified</code>) per
+§11.4.35. Composes §11.4.4/.5/.6/.7/.40/.42/.46/.50/.55/.69/.107/.130.
+Gate <code>CM-COVENANT-114-132-PROPAGATION</code> (literal
+<code>11.4.132</code>) + rec. gate
+<code>CM-RISK-ORDERED-VALIDATION-PRIORITY</code> + paired §1.1
+mutation.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.132.
+Release blocker. No <code>--skip-risk-ordering</code> /
+<code>--any-order-OK</code> / <code>--suite-order-fixed</code>
 escape.</p>
 </body>
 </html>
