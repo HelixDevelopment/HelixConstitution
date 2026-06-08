@@ -2579,5 +2579,88 @@ mutation.</p>
 Release blocker. No <code>--skip-risk-ordering</code> /
 <code>--any-order-OK</code> / <code>--suite-order-fixed</code>
 escape.</p>
+<h3 id="114133--target-system--hardware-safety-mandate-user-mandate-2026-06-08">§11.4.133
+— Target-System + hardware safety mandate (User mandate,
+2026-06-08)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-08):</strong> &quot;Make sure that all changes we do to the System
+are ALWAYS safe for the System itself and for the hardware the system
+runs on! This is MANDATORY.&quot;</p>
+<p>Every change to the TARGET system (firmware, kernel, init/boot
+scripts, drivers, sysfs/devfreq/voltage/clock/thermal/regulator register
+writes, partition/bootloader/U-Boot, HAL, framework, prebuilts, device
+config) MUST ALWAYS be safe for BOTH (a) the target System itself — MUST
+NOT brick, boot-loop, corrupt data, or render the device unrecoverable —
+AND (b) the hardware it runs on — MUST NOT exceed safe
+electrical/thermal/voltage/clock limits or damage
+panels/storage/radios/regulators. Concrete obligations: (1)
+reversible-first — verify irreversible high-blast-radius changes
+(bootloader/U-Boot MD5, partition layout) against known-good values +
+capture a pre-op backup (§9.2) BEFORE applying; (2) NO unverified
+hardware-control writes — never write an unverified value to a
+voltage/clock/regulator/thermal-throttle/current-limit sysfs node or
+register that could exceed datasheet limits, the safe range established
+as FACT (§11.4.6), never guessed; (3) thermal/perf changes (forcing a
+performance governor, pinning the top OPP, disabling thermal management)
+MUST respect the device&#39;s cooling design, validated by captured thermal
+evidence; (4) flashing MUST use the sanctioned tool + a freshly-built
+integrity-verified image — never an ad-hoc partition write or
+stale/unverified artifact; (5) unprovable-safety ⇒ blocked — a change
+whose target/hardware safety cannot be established from captured
+evidence is treated as UNSAFE and blocked (§11.4.6 + §11.4.101
+reversible-first + §11.4.123 rock-solid-proof). DISTINCT from §12
+host-session safety: §12 protects the DEVELOPER&#39;s HOST + session;
+§11.4.133 protects the TARGET device + its hardware — both apply,
+neither weakens the other. Classification: universal (§11.4.17) —
+consuming project supplies its concrete hardware-control surfaces,
+datasheet-safe ranges, known-good bootloader/image hashes, and
+sanctioned flashing tool per §11.4.35. Composes §12 / §11.4.6 /
+§11.4.101 / §11.4.108 / §11.4.123. Gate
+<code>CM-COVENANT-114-133-PROPAGATION</code> (literal
+<code>11.4.133</code>) + rec. gate
+<code>CM-TARGET-HARDWARE-SAFETY</code> + paired §1.1 mutation.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.133.
+Release blocker. No <code>--unsafe-hardware-write</code> /
+<code>--skip-system-safety</code> / <code>--brick-risk-accepted</code>
+escape.</p>
+<h3 id="114134--code-review-iterate-until-go--rock-solid-evidence-mandate-user-mandate-2026-06-08">§11.4.134
+— Code-review iterate-until-GO + rock-solid-evidence mandate (User
+mandate, 2026-06-08)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-08):</strong> &quot;For any fixes/changes given back to us for
+re-work by the code-review process, once we fix/improve everything per
+the code-review&#39;s requests, we MUST RE-RUN code-review AGAIN until we
+get a GO from it with NO new issues reported or warnings of any kind!
+All results produced by this whole process MUST ALWAYS give us
+rock-solid PHYSICAL evidence that the fixed/improved codebase really
+works now as expected, with no false results and no bluff(s) of any
+kind.&quot;</p>
+<p>When the §11.4.125 code-review returns ANY finding (BLOCKING, nit, or
+warning) and the author fixes/improves per that review, the code review
+MUST BE RE-RUN — and KEEP being re-run after each remediation round —
+until a clean GO with ZERO new issues AND ZERO warnings. A single
+&quot;addressed the findings&quot; pass is NOT sufficient: the corrected batch
+MUST pass a FRESH adversarial review (a re-review can surface NEW
+findings introduced by the fixes — the §11.4.1 fix-A-creates-B mode).
+The loop terminates ONLY on a clean GO; a residual warning is itself a
+finding that re-arms the loop. Every round&#39;s verdict AND every fix&#39;s
+validation MUST carry rock-solid PHYSICAL captured evidence per §11.4.5
+/ §11.4.69 / §11.4.107 (captured audio / video / sysfs / dumpsys /
+sink-side / runtime-signature) proving the fixed codebase REALLY works —
+never metadata-only / config-only / absence-of-error /
+grep-without-runtime; no false results, no bluff; a GO unbacked by
+physical evidence is a §11.4 PASS-bluff at the review-loop layer.
+REFINES / STRENGTHENS §11.4.125 (iterate-until-no-blocking): makes the
+loop EXPLICIT, raises termination to ZERO findings AND ZERO warnings,
+BINDS physical evidence to every round. Classification: universal
+(§11.4.17). Composes §11.4.125 / §11.4.1 / §11.4.4 / §11.4.5 / §11.4.6 /
+§11.4.69 / §11.4.107 / §11.4.50 / §11.4.108 / §11.4.123. Gate
+<code>CM-COVENANT-114-134-PROPAGATION</code> (literal
+<code>11.4.134</code>) + rec. gate
+<code>CM-CODE-REVIEW-ITERATE-UNTIL-GO</code> + paired §1.1 mutation.</p>
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.134.
+Release blocker. No <code>--skip-rereview</code> /
+<code>--single-review-pass</code> / <code>--warnings-ok</code> /
+<code>--evidence-optional</code> escape.</p>
 </body>
 </html>
