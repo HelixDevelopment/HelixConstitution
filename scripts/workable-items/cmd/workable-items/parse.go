@@ -22,7 +22,7 @@ var issueHeadingRe = regexp.MustCompile(`^## ([A-Z]{3}-[0-9A-Za-z]+)(?: \([^)]*\
 
 // atmBracketIDRe matches an ATMOSphere `[ATM-NNN]` bracket id appearing
 // anywhere in a heading line, e.g. `## §GL CRITICAL — [ATM-238] Netflix …`.
-var atmBracketIDRe = regexp.MustCompile(`\[(ATM-\d+)\]`)
+var atmBracketIDRe = regexp.MustCompile(`\[(ATM-\d+|BOB-\d+)\]`)
 
 // atmCandidateHeadingRe recognises ATMOSphere's real tracker heading SHAPES
 // that MAY be workable items (subject to the Status-block test below). THREE
