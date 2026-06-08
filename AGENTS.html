@@ -3276,10 +3276,15 @@ anchors it mechanizes
 Classification: universal (§11.4.17); projects with no
 derived-export/DB-sync surface inherit it latently (binds the moment
 they ship one, §11.4.96 pattern). Status (§11.4.6): engine Phases 1–3
-IMPLEMENTED+tested; CLI/YAML loader (Phase 4) + submodule distribution
-(Phase 6) PLANNED + OPERATOR-GATED — wire as phases land, claim no
-unshipped behaviour. Propagation gate
-<code>CM-COVENANT-114-106-PROPAGATION</code> (literal
+AND the CLI/YAML loader (Phase 4) IMPLEMENTED+tested —
+<code>cmd/docs_chain/main.go</code> registers
+<code>sync</code>/<code>verify</code>/<code>diff</code>(alias)/<code>doctor</code>,
+<code>go test -count=1 ./...</code> GREEN 7/7 packages; this CLI/loader
+is in the working tree but UNTRACKED and the engine is NOT yet a
+registered git submodule (in-tree at <code>./docs_chain</code>, HEAD =
+parent HEAD); only submodule distribution (Phase 6) remains PLANNED +
+OPERATOR-GATED — wire as phases land, claim no unshipped behaviour.
+Propagation gate <code>CM-COVENANT-114-106-PROPAGATION</code> (literal
 <code>11.4.106</code> across consumer fleet) + paired §1.1 meta-test
 mutation (strip literal → gate FAILs; gate-code = separate work item).
 No escape hatch — no <code>--ad-hoc-sync-ok</code>,
@@ -4493,5 +4498,159 @@ BINDS physical evidence to every round. Classification: universal
 Release blocker. No <code>--skip-rereview</code> /
 <code>--single-review-pass</code> / <code>--warnings-ok</code> /
 <code>--evidence-optional</code> escape.</p>
+<p><strong>§11.4.135 — Standing regression-guard suite +
+every-fixed-defect-gets-a-permanent-regression-test (User mandate,
+2026-06-08).</strong> Every project MUST maintain a STANDING
+regression-guard suite that runs on EVERY build+deploy and BLOCKS the
+release tag on any failure. Every closed defect (stable ticket id, e.g.
+ATM-NNN) MUST, in the SAME commit as its fix (extending the §11.4.43
+DOCUMENT step), register a permanent §11.4.115 RED-on-broken-artifact
+regression test into the suite — <code>RED_MODE=1</code> capturing the
+historical defect on a pre-fix artifact (the proof the guard is real),
+<code>RED_MODE=0</code> the standing GREEN guard asserting the defect is
+ABSENT. A closure without a registered guard is a §11.4.123 violation.
+The suite runs FIRST in the post-deploy cycle (highest-risk set per
+§11.4.132) and is a §11.4.40 release-gate blocker. Forensic anchor
+(FACT): the wrong-subtitle-on-2nd-display defect was &quot;fixed&quot; via a
+source-side <code>CONTROL_MENU_LABEL_DENYLIST</code> that NO test
+mirrored or re-ran, so the NEXT chrome class recurred silently while the
+GREEN suite passed. Industry-standard bug-driven testing (Google
+content-driven testing; AOSP CTS/Tradefed) made mechanical + enforced.
+Composes §11.4.4 / §11.4.40 / §11.4.43 / §11.4.46 / §11.4.50 / §11.4.107
+/ §11.4.108 / §11.4.115 / §11.4.118 / §11.4.123 / §11.4.124 / §11.4.130
+/ §11.4.132. Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-135-PROPAGATION</code> (literal
+<code>11.4.135</code>) + recommended gates
+<code>CM-REGRESSION-GUARD-REGISTERED</code> /
+<code>CM-REGRESSION-GUARD-SUITE-WIRED</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.135. Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-regression-guard</code>, <code>--no-guard-on-close</code>,
+<code>--guard-optional</code> flag.</p>
+<p><strong>§11.4.136 — Real-content end-to-end playback-test mandate
+(User mandate, 2026-06-08).</strong> Refines/strengthens §11.4.107. Any
+test asserting media playback works MUST drive REAL content (catalog
+stream or offline reference clip) through the user&#39;s path (§11.4.48
+UI-driven → §11.4.117 CV/OCR fallback) and assert it genuinely PLAYS via
+the §11.4.107 liveness battery PLUS a decoder-health census — a numeric
+drop-buffer budget, no buffer-timestamp re-order/discard, no
+codec-reject (cite Android/Media3 ExoPlayer OEM pre-OTA playback-test
+mandate: &quot;too many dropped buffers&quot; &gt;25, &quot;unexpected presentation
+timestamp&quot;, &quot;test timed out&quot;). Metadata-only / launch-only /
+registration-only / single-frame / config-only PASS is forbidden (§11.4
+/ §11.4.1). A golden/reference clip corpus (BBC ExoPlayer testing
+samples) is the offline ground-truth. Composes §11.4.5 / §11.4.48 /
+§11.4.50 / §11.4.107 / §11.4.117 / §11.4.123 / §11.4.13 / §11.4.69.
+Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-136-PROPAGATION</code> (literal
+<code>11.4.136</code>) + recommended gate
+<code>CM-REAL-CONTENT-PLAYBACK-TEST</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.136. Non-compliance is a release blocker. No escape hatch — no
+<code>--launch-proves-playback</code>,
+<code>--skip-decoder-health</code>,
+<code>--metadata-playback-pass-suffices</code> flag.</p>
+<p><strong>§11.4.137 — Subtitle/caption content-correctness oracle +
+secure-display-proxy-honesty mandate (User mandate,
+2026-06-08).</strong> Refines §11.4.117 + §11.4.107 + §11.4.112.
+Forensic anchor (FACT): tests tasked to &quot;physically verify the
+2nd-display subtitle&quot; PASSed GREEN while subtitles did NOT show / showed
+WRONG — the streaming player surface is FLAG_SECURE so
+<code>screencap -d &lt;secondary&gt;</code> returns BLACK (autonomous
+PIXEL verification structurally impossible per §11.4.112), so the test
+fell back to the
+accessibility-scraped/<code>persist.atmosphere.subdebug</code> proxy,
+and the proxy accepted a chrome/menu LABEL
+(<code>Аудио и субтитры</code>) as a valid subtitle because the prose
+floor accepted any multibyte prose and NO menu-label denylist + NO
+position/cadence check existed. The mandate: a subtitle-correctness test
+MUST classify the cue&#39;s <em>content class</em> — a present cue is NOT a
+correct cue. CHROME (FAIL) if a known control/menu label (closed
+multilingual deny-list MIRRORED from source, case-folded incl.
+non-ASCII), time/numeric chrome, not prose, OUTSIDE the lower safe-title
+band (CEA-708 9-anchor grid), OR STATIC across the window (real subtitle
+changes → ≥2 distinct prose cues, a metamorphic relation). DIALOGUE
+(PASS) only when prose + not-denied + not-chrome + position-ok + cadence
+≥2 OR fuzzy-matches the SOURCE-extracted cue via normalized edit
+distance (§11.4.123 host ground truth). The oracle MUST be
+self-validated golden-good/golden-bad (§11.4.107(10)) and the deny-list
+MUST be verified present in the SHIPPED artifact (§11.4.108) — a
+source-green denylist with no test mirror + no artifact check is the
+exact recurrence pattern forbidden here. Secure-display honesty
+(§11.4.112): where FLAG_SECURE makes pixel verification impossible, the
+rock-solid autonomous proof is the player&#39;s caption telemetry +
+source-track presence + content-class oracle — NEVER a faked pixel
+&quot;physical&quot; pass; human-eye pixel confirmation is
+<code>operator_attended</code> (§11.4.52) with a tracked migration item.
+App-agnostic (keys off content class). Composes §11.4.3 / §11.4.5 /
+§11.4.6 / §11.4.107 / §11.4.108 / §11.4.112 / §11.4.115 / §11.4.117 /
+§11.4.123 / §11.4.13 / §11.4.69. Classification: universal (§11.4.17).
+Propagation gate <code>CM-COVENANT-114-137-PROPAGATION</code> (literal
+<code>11.4.137</code>) + recommended gate
+<code>CM-SUBTITLE-CONTENT-CORRECTNESS-ORACLE</code> + paired §1.1
+mutation (strip the denylist/position/cadence check → golden-bad
+<code>Аудио и субтитры</code> PASSes → gate FAILs). <strong>Canonical
+authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.137. Non-compliance is a release blocker. No escape hatch — no
+<code>--present-cue-is-correct</code>,
+<code>--skip-chrome-oracle</code>,
+<code>--length-heuristic-suffices</code>,
+<code>--pixel-pass-on-secure-display</code>,
+<code>--skip-position-check</code>, <code>--skip-cadence-check</code>
+flag.</p>
+<p><strong>§11.4.138 — Operator-escape =&gt; mandatory bluff-audit +
+permanent guard (User mandate, 2026-06-08).</strong> When the operator
+(or any out-of-band channel) finds a defect that the GREEN test suite
+passed, this is by definition a §11.4 PASS-bluff — it MUST trigger,
+before the fix is closed: (1) a §11.4.102 systematic-debugging pass to
+FACT-root-cause; (2) a bluff-audit identifying the EXACT assertion that
+should have caught it but didn&#39;t, cited to <code>file:line</code>
+(canonical example:
+<code>lib/subtitle_content_validation.sh:sub_is_prose()</code> returning
+TRUE for <code>Аудио и субтитры</code>); (3) a permanent §11.4.135
+regression guard registered in the SAME commit as the fix, with its
+§11.4.115 RED capturing the operator-found defect; (4) the bluff-audit
+committed under
+<code>docs/research/&lt;scope&gt;/&lt;defect&gt;_bluff_audit/</code>.
+Closing an operator-found defect WITHOUT the bluff-audit + permanent
+guard is itself a §11.4 violation (the bluff that let it through is
+still live and the defect will recur). Composes §11.4 / §11.4.1 /
+§11.4.102 / §11.4.108 / §11.4.115 / §11.4.118 / §11.4.123 / §11.4.135.
+Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-138-PROPAGATION</code> (literal
+<code>11.4.138</code>) + recommended gate
+<code>CM-OPERATOR-ESCAPE-BLUFF-AUDIT</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.138. Non-compliance is a release blocker. No escape hatch — no
+<code>--close-without-bluff-audit</code>,
+<code>--operator-find-is-just-a-bug</code>,
+<code>--skip-permanent-guard</code> flag.</p>
+<p><strong>§11.4.139 — Fresh-process clean-artifact runtime-signature
+mandate (User mandate, 2026-06-08).</strong> Refines §11.4.108. Before
+any post-deploy validation — ESPECIALLY a non-pixel proxy verification
+(the subdebug/accessibility-cue channel used for FLAG_SECURE displays) —
+the harness MUST assert running-artifact == built-artifact: the deploy
+yielded a CLEAN target (mutable-overlay/userdata wiped) OR a
+pre-validation check proves no stale overlay shadows the deployed code
+(e.g. every guarded package — incl. the Presenter that emits the
+subtitle cue — resolves to the system partition, no per-user override).
+A stale shadow of the cue-emitting component (e.g. a Presenter APK
+predating the denylist) makes the proxy report on code that was never
+deployed — any PASS is a §11.4 PASS-bluff. Each fix declares ONE
+machine-checkable runtime signature verified on the clean target (the
+§11.4.108 registry IS the definition of done); for the subtitle class
+the signature is &quot;the shipped Presenter APK contains the denylist
+literal (case-insensitive) AND the subdebug channel emits
+<code>candidate REJECTED reason=chrome-label</code> for a menu label.&quot;
+Composes §11.4.46 / §11.4.108 / §11.4.130 / §11.4.135 / §11.4.137.
+Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-139-PROPAGATION</code> (literal
+<code>11.4.139</code>) + recommended gate
+<code>CM-CLEAN-ARTIFACT-RUNTIME-SIGNATURE</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.139. Non-compliance is a release blocker. No escape hatch — no
+<code>--validate-against-running-state</code>,
+<code>--skip-clean-precondition</code>, <code>--shadow-OK</code>
+flag.</p>
 </body>
 </html>
