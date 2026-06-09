@@ -52,28 +52,49 @@ grammar:
 
 actions:
   - name: BACKGROUND
-    version: 1
+    version: 2
     namespaces: [DEFAULT]                         # which namespaces this action is registered under
     slash_bare: auto                              # bare /BACKGROUND honored unless a host-command collision
     slash_conflicts: []                           # known colliding host slash commands (forces /DEFAULT::BACKGROUND)
     summary: >-
-      Run the remainder of the prompt as a background, subagent-driven work
-      stream in parallel with all main work, producing rock-solid physical proof.
+      Run the remainder of the prompt as a DURABLE (never-lost), background,
+      subagent-driven work stream in parallel with all main work, producing
+      rock-solid physical proof.
     expansion: >-
-      The following prompt that we will provide MUST BE executed in background in
+      BACKGROUND WORK PREFERENCES — DURABILITY (never lost, never forgotten;
+      composes §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 / §11.4.126): the MOMENT
+      this BACKGROUND request is received it MUST be recorded as a durable, tracked
+      work item in the project background-work queue
+      (docs/requests/background_queue.md — with an id, received-timestamp, status,
+      and any blocker) so it can NEVER be lost, dropped, or forgotten. It MUST be
+      executed: if it can run now, run it subagent-driven in parallel with all main
+      work streams; if it is currently BLOCKED (subagent dispatch unavailable, a
+      build/flash in flight, an operator-gated decision, or any other external
+      dependency), it MUST stay QUEUED with its blocker recorded and be re-attempted
+      automatically at the next opportunity — including the next fresh session — and
+      re-surfaced to the operator every session until it reaches a terminal state
+      (done / operator-cancelled). Silently dropping, or deferring-and-forgetting, a
+      BACKGROUND request is FORBIDDEN. THEN execute the task as follows: The
+      following prompt that we will provide MUST BE executed in background in
       parallel with all main work streams using the subagents-driven development
       approach! All work done MUST PRODUCE rock solid evidence covered with hard
       physical proof(s) that all done is working as expected and as specified
       without any false results and without any bluff!
     rules:
       - "The expansion REPLACES the 'BACKGROUND :: ' prefix; the remainder of the prompt is the actual task to perform."
-      - "Compose with §11.4.70 / §11.4.20 (subagent-driven), §11.4.58 / §11.4.103 (parallel streams), §11.4.89 (background execution), §11.4.5 / §11.4.69 / §11.4.107 (captured physical evidence), §11.4 (anti-bluff)."
+      - "PURPOSE — non-interrupting (v2): a BACKGROUND request runs in PARALLEL with the main work stream and MUST NOT interrupt, block, preempt, or divert it. If no genuine background/parallel capacity exists right now (e.g. subagent dispatch unavailable in the current session), the request stays QUEUED per the durability rule rather than being run inline in the main stream — running it inline would interrupt the main work, which is exactly what BACKGROUND forbids."
+      - "Durability (never-lost, v2): on receipt, record the request in docs/requests/background_queue.md (id + received-timestamp + status + blocker); keep it QUEUED and re-surfaced every session until terminal (done / operator-cancelled); a BACKGROUND request MUST NEVER be silently dropped or deferred-and-forgotten — if blocked now, it is re-attempted at the next opportunity incl. a fresh session."
+      - "Compose with §11.4.70 / §11.4.20 (subagent-driven), §11.4.58 / §11.4.103 (parallel streams), §11.4.89 (background execution), §11.4.87 / §11.4.94 / §11.4.97 / §11.4.126 (endless-loop + zero-idle + default-autonomous-loop — the durable queue is drained continuously), §11.4.5 / §11.4.69 / §11.4.107 (captured physical evidence), §11.4 (anti-bluff)."
     composes_with:
       - "11.4.20"
       - "11.4.58"
       - "11.4.70"
+      - "11.4.87"
       - "11.4.89"
+      - "11.4.94"
+      - "11.4.97"
       - "11.4.103"
+      - "11.4.126"
       - "11.4.5"
       - "11.4.69"
       - "11.4.107"
