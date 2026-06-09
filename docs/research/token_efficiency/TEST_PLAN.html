@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TEST_PLAN</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1
+id="token-efficiency-test-plan-all-supported-test-types">Token-Efficiency
+Test Plan — all supported test types</h1>
+<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
+2026-06-09T08:30:00Z <strong>Status:</strong> design
+<strong>Authority:</strong> constitution submodule, universal
+(§11.4.17). Realises §11.4.4(b) four-layer coverage + §11.4.27 (100%
+test-type coverage) + §1.1 (paired mutation) + §11.4.50 (deterministic
+N-iteration) + §11.4.81 (cross-platform parity) for the §11.4.141
+mandate. Proves three things: (a) the measures WORK (measured
+reduction), (b) NO regression to existing mechanisms/quality
+(compatibility suite), (c) per-agent applicability.</p>
+<hr />
+<h2 id="a.-a-the-measures-work-measured-reduction-tests">A. (a) The
+measures work — measured-reduction tests</h2>
+<h3 id="a1-unit-cost-formula-usage-parser">A1 — Unit: cost formula +
+usage-parser</h3>
+<p>Mocks/stubs PERMITTED (unit only, §11.4.27). Feed synthetic
+<code>usage</code> objects (known <code>input_tokens</code> /
+<code>cache_read_input_tokens</code> /
+<code>cache_creation_input_tokens</code> / <code>output_tokens</code>,
+known per-model prices) into the §MEASUREMENT cost formula; assert the
+computed cost matches the hand-calculated expectation, including the
+0.1×/1.25×/2× cache multipliers and per-model summation for tiering.
+Assert the parser rejects <code>tiktoken</code>-style estimates and the
+client-side <code>total_cost_usd</code> as authoritative.</p>
+<h3 id="a2-integration-real-usage-capture-no-fakes-11.4.27">A2 —
+Integration: real <code>usage</code> capture (no fakes — §11.4.27)</h3>
+<p>Run ONE real workload turn against the live agent; assert the harness
+captured a real <code>usage</code> object with all four fields populated
+and recomputed cost from them. No mock of the API. Evidence: the raw
+<code>usage</code> JSON.</p>
+<h3 id="a3-end-to-end-beforeafter-measured-reduction-the-core-proof">A3
+— End-to-end: BEFORE/AFTER measured reduction (the core proof)</h3>
+<p>Run the frozen deterministic workload (MEASUREMENT §2) on BEFORE
+config (governance inlined, no tiering, no index) and AFTER config
+(M1–M7 applied). Assert <code>AFTER ≤ 0.40 × BEFORE</code> (PASS) OR
+<code>≤ 0.55× BEFORE</code> with cited cold-cache reason (WARN).
+Captured: <code>cycle_report.before.json</code>,
+<code>cycle_report.after.json</code>, <code>verdict.txt</code>. This is
+the §11.4.69 captured-evidence artefact.</p>
+<h3 id="a4-per-lever-attribution">A4 — Per-lever attribution</h3>
+<p>Run the workload with ONLY M1, then M1+M2, then +M4, +M5, +M6, +M3,
++M7 (cumulative). Assert each measured step’s reduction is consistent
+with RESEARCH §4’s ranked estimates (M1 the largest; M2 the largest
+non-cache; etc.). This proves the headline number is built from real
+per-lever contributions, not a single opaque drop.</p>
+<h3 id="a5-deterministic-consistency-11.4.50">A5 — Deterministic
+consistency (§11.4.50)</h3>
+<p>Re-run A3 N=3 (normal) / N=10 (cycle-validation). Assert all N BEFORE
+token-splits identical AND all N AFTER token-splits identical
+(deterministic workload ⇒ identical splits). Any divergence = auto-FAIL
+(fix workload nondeterminism before any cost claim).</p>
+<h2
+id="b.-b-no-regression-compatibility-suite-the-must-not-break-proof">B.
+(b) No regression — compatibility suite (the must-not-break proof)</h2>
+<h3 id="b1-pre-build-full-sweep-parity-11.4.40">B1 — Pre-build full
+sweep parity (§11.4.40)</h3>
+<p>Run <code>pre_build_verification.sh</code>-equivalent on BEFORE and
+AFTER trees; assert identical PASS/FAIL set. Proves no source gate
+broke.</p>
+<h3
+id="b2-meta-test-mutation-sweep-1.1-proves-m3-created-no-bluff-gate">B2
+— Meta-test mutation sweep (§1.1) — proves M3 created no bluff gate</h3>
+<p>Run <code>meta_test_false_positive_proof.sh</code>-equivalent on the
+AFTER tree; assert EVERY gate still FAILs its paired mutation. Critical
+for M3: a rule moved to an index must still have a gate that catches its
+negation. If any gate now passes-under-mutation, M3 turned a rule into a
+bluff → FAIL.</p>
+<h3 id="b3-propagation-gate-parity-literal-anchors-intact-after-m3">B3 —
+Propagation-gate parity (literal anchors intact after M3)</h3>
+<p>Assert every <code>CM-COVENANT-114-N-PROPAGATION</code> gate passes
+on the AFTER consumer files — proves each index line kept its literal
+<code>11.4.N</code> token and the canonical full text is still
+gate-scanned in <code>constitution/Constitution.md</code>. Mutation:
+strip the literal <code>11.4.141</code> from one index line →
+<code>CM-COVENANT-114-141-PROPAGATION</code> FAILs.</p>
+<h3
+id="b4-strong-model-reasoning-path-probe-proves-m2m5-tiered-nothing-that-decides">B4
+— Strong-model reasoning-path probe (proves M2/M5 tiered nothing that
+decides)</h3>
+<p>Run one fixed reasoning/review turn (a known fix-design or
+code-review prompt) on the AFTER config; assert it ran on the strong
+model and produced an equivalent-quality verdict vs the BEFORE run.
+Mutation: tier this reasoning turn down to Haiku → assert the verdict
+quality degrades / the gate flags a forbidden tier-down → FAIL. Proves
+the mechanical-only allowlist is enforced.</p>
+<h3
+id="b5-cache-warm-proof-silent-invalidator-detection-proves-m1-engaged">B5
+— Cache-warm proof + silent-invalidator detection (proves M1
+engaged)</h3>
+<p>Assert <code>cache_read_input_tokens &gt; 0</code> on the
+governance-bearing turns of the AFTER run. This is also the §1.1
+mutation for <code>CM-TOKEN-EFFICIENCY</code>: inject a per-turn
+timestamp/UUID ahead of the cache breakpoint →
+<code>cache_read_input_tokens</code> collapses toward 0 AND the measured
+reduction falls below the bar → gate FAILs; restore the stable prefix →
+PASSes. Proves the harness measures real caching, not a hardcoded
+green.</p>
+<h3 id="b6-rule-reachability-probe-proves-m3-deleted-nothing">B6 —
+Rule-reachability probe (proves M3 deleted nothing)</h3>
+<p>For a sample of anchors moved to the index, assert the full canonical
+body is reachable in one hop
+(<code>Read constitution/Constitution.md</code> at the anchor returns
+the complete text). Mutation: delete the canonical body for one anchor →
+reachability probe FAILs. Proves the index is a pointer to live text,
+not a tombstone.</p>
+<h3 id="b7-anti-bluff-covenant-family-intact">B7 — Anti-bluff covenant
+family intact</h3>
+<p>Assert the AFTER config still produces captured-evidence per
+§11.4.5/§11.4.69 on a representative feature test
+(audio/video/sysfs/sink-probe) — terse output (M5) and output-to-file
+(M2) did not drop the evidence, only the conductor’s narration.
+Mutation: a config that suppresses evidence capture → the feature test’s
+evidence assertion FAILs.</p>
+<h2 id="c.-c-per-agent-applicability-tests">C. (c) Per-agent
+applicability tests</h2>
+<h3 id="c1-claude-code">C1 — Claude Code</h3>
+<p>Assert native governance-prefix caching engages
+(<code>cache_read_input_tokens &gt; 0</code> via cost-tracking JSON) and
+subagent <code>model:</code> tiering routes a mechanical subagent to
+Haiku (observed model in the subagent result). Evidence: cost-tracking
+JSON + subagent model field.</p>
+<h3 id="c2-anthropic-sdk-driver-cursoraidercustom">C2 — Anthropic-SDK
+driver (Cursor/Aider/custom)</h3>
+<p>Assert a <code>cache_control:{type:"ephemeral"}</code> system block
+yields <code>cache_read_input_tokens &gt; 0</code> on the second
+identical-prefix request. Evidence: two consecutive <code>usage</code>
+objects.</p>
+<h3 id="c3-gemini-cli-qwen-code">C3 — Gemini CLI / Qwen Code</h3>
+<p>Assert API-key-auth context caching reduces processed tokens on a
+repeated context (Gemini/Qwen <code>usage</code>/cache-hit telemetry).
+SKIP-with-reason per §11.4.3 if the agent is not configured in the
+project (never a fake PASS).</p>
+<h3 id="c4-cross-platform-parity-11.4.81">C4 — Cross-platform parity
+(§11.4.81)</h3>
+<p>The harness scripts parse under <code>sh -n</code> AND
+<code>bash -n</code> (§11.4.67) and run on every supported host OS;
+SKIP-with-honest-kernel-reason where a platform genuinely cannot run a
+step (§11.4.81(C)).</p>
+<h2 id="d.-helixqa-challenge-11.4.27-11.4.4b-layer-4">D. HelixQA
+Challenge (§11.4.27 / §11.4.4(b) layer 4)</h2>
+<p>A HelixQA Challenge that drives the BEFORE/AFTER harness end-to-end
+and scores PASS only on the captured <code>verdict.txt</code> showing
+the measured reduction ≥ target-or-cited-floor AND the green
+non-regression sweep. A Challenge that scores PASS without the captured
+verdict is itself a §11.4 PASS-bluff.</p>
+<h2 id="e.-stress-chaos-11.4.85">E. Stress + chaos (§11.4.85)</h2>
+<ul>
+<li><strong>Stress:</strong> run the workload N≥100 / ≥30s; assert the
+measured reduction is stable (p50/p95/p99 of per-cycle cost within
+tolerance) — proves the win is not a lucky single run.</li>
+<li><strong>Chaos:</strong> inject cache-cold (kill the cache between
+turns / exceed TTL), network fault, and a subagent process-death
+mid-dispatch; assert the regime DEGRADES GRACEFULLY (falls back to the
+cold-cache floor reduction, never crashes, never silently asserts the
+warm number) and recovers. Cleanup in <code>trap ... EXIT</code>
+(§11.4.14).</li>
+</ul>
+<h2 id="f.-four-layer-coverage-summary-11.4.4b">F. Four-layer coverage
+summary (§11.4.4(b))</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pre-build gate</td>
+<td><code>CM-TOKEN-EFFICIENCY</code> (harness exists + verdict ≥
+bar-or-floor + non-regression green + cache-warm proof) +
+<code>CM-COVENANT-114-141-PROPAGATION</code> (literal anchor across
+fleet)</td>
+</tr>
+<tr>
+<td>Post-build / artifact</td>
+<td>the harness’s <code>cycle_report.*.json</code> are the
+artefact-layer evidence (the measured tokens actually dropped)</td>
+</tr>
+<tr>
+<td>On-device / runtime</td>
+<td>A3/A5 + B5 run against the live agent (LIVE per §11.4.51) producing
+real <code>usage</code> evidence under the project’s
+<code>qa-results/</code></td>
+</tr>
+<tr>
+<td>Meta-test paired mutation</td>
+<td>B5 (cache invalidator), B3 (strip anchor), B4 (tier-down reasoning),
+B6 (delete canonical body) — every gate provably FAILs its negation
+(§1.1)</td>
+</tr>
+<tr>
+<td>HelixQA Challenge</td>
+<td>§D</td>
+</tr>
+</tbody>
+</table>
+<p>No layer may be skipped because “this only touches caching”
+(§11.4.4(b)). The cost win and the no-regression proof ship together or
+not at all.</p>
+</body>
+</html>

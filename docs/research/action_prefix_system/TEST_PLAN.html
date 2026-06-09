@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TEST_PLAN</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1
+id="action-prefix-system-test-plan-all-supported-test-types">Action-Prefix
+System — Test Plan (all supported test types)</h1>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-06-09</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-06-09T00:00:00Z</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>unit + integration + e2e + meta-test (paired §1.1 mutation) for
+§11.4.140</td>
+</tr>
+<tr>
+<td>Inputs</td>
+<td><code>RESEARCH.md</code>, <code>DESIGN.md</code>,
+<code>RULE_DRAFT.md</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Anti-bluff (§11.4 / §11.4.27 / §11.4.107): every test below produces
+a captured-evidence artefact under
+<code>qa-results/action_prefix/&lt;run-id&gt;/</code>. A PASS without
+its cited evidence file is a §11.4 PASS-bluff. No mock outside unit
+tests (§11.4.27): integration + e2e drive the REAL registry + REAL hook
++ a REAL agent invocation.</p>
+</blockquote>
+<hr />
+<h2 id="unit-registry-parse-grammar-matchno-matchescape-the-expander">1.
+UNIT — registry parse + grammar match/no-match/escape (the
+expander)</h2>
+<p>Target: <code>scripts/actions/expand_prefix.sh</code> (the pure
+expander) + the registry. Driver: a bash test harness
+<code>test_action_prefix_unit.sh</code> (sh -n + bash -n clean per
+§11.4.67), N=3 deterministic per §11.4.50.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>Case</th>
+<th>Input prompt (first line)</th>
+<th>Expect</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U1</td>
+<td>registry parses</td>
+<td>—</td>
+<td>YAML loads; schema_version present; BACKGROUND present</td>
+<td><code>registry_parse.json</code></td>
+</tr>
+<tr>
+<td>U2</td>
+<td>exact match</td>
+<td><code>BACKGROUND :: do X</code></td>
+<td>matched=true, action=BACKGROUND, residual=<code>do X</code>,
+expansion==registry verbatim</td>
+<td><code>match_background.json</code></td>
+</tr>
+<tr>
+<td>U3</td>
+<td>lowercase no-match</td>
+<td><code>background :: do X</code></td>
+<td>matched=false (ordinary prompt)</td>
+<td><code>nomatch_lowercase.json</code></td>
+</tr>
+<tr>
+<td>U4</td>
+<td>mid-prose no-match</td>
+<td><code>please BACKGROUND :: do X</code></td>
+<td>matched=false</td>
+<td><code>nomatch_midprose.json</code></td>
+</tr>
+<tr>
+<td>U5</td>
+<td>wrong separator no-match</td>
+<td><code>BACKGROUND::do X</code> / <code>BACKGROUND: do X</code> /
+<code>Foo::Bar</code></td>
+<td>matched=false (no <code>" :: "</code>)</td>
+<td><code>nomatch_separator.json</code></td>
+</tr>
+<tr>
+<td>U6</td>
+<td>escape</td>
+<td><code>\BACKGROUND :: do X</code></td>
+<td>matched=false; emitted prompt=<code>BACKGROUND :: do X</code>
+(backslash stripped, NO expansion)</td>
+<td><code>escape_literal.json</code></td>
+</tr>
+<tr>
+<td>U7</td>
+<td>stacked prefixes</td>
+<td><code>OUTER :: BACKGROUND :: do X</code> (with a second test action
+OUTER)</td>
+<td>both expand outer-to-inner; residual=<code>do X</code></td>
+<td><code>stacked.json</code></td>
+</tr>
+<tr>
+<td>U8</td>
+<td>unknown grammar-shaped token</td>
+<td><code>BACGROUND :: do X</code> (typo)</td>
+<td>matched=false-but-shaped; verdict=ASK (names closest registered
+action); NO invented expansion</td>
+<td><code>unknown_ask.json</code></td>
+</tr>
+<tr>
+<td>U9</td>
+<td>empty / blank prompt</td>
+<td>`<code>/ whitespace | matched=false, no crash |</code>empty.json<code>| | U10 | leading blank lines |</code>::
+do
+X<code>| matched=true (first NON-blank line) |</code>leading_blanks.json<code>| | U11 | BACKGROUND expansion fidelity |</code>BACKGROUND
+::
+x<code>| emitted expansion byte-equals the operator's verbatim text |</code>expansion_fidelity.json`</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>PASS criterion: every case’s actual == expected across N=3 identical
+runs (§11.4.50 evidence-hash identical). Each row writes its JSON
+evidence; the harness asserts presence + content via
+<code>ab_pass_with_evidence</code> (§11.4.69).</p>
+<hr />
+<h2
+id="integration-the-claude-userpromptsubmit-hook-rewrites-correctly">2.
+INTEGRATION — the Claude <code>UserPromptSubmit</code> hook rewrites
+correctly</h2>
+<p>Target: <code>scripts/hooks/action-prefix-expand.sh</code> (the real
+hook, reading the real registry). No mock (§11.4.27). Driver:
+<code>test_action_prefix_hook.sh</code>.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>Case</th>
+<th>Feed on stdin (UserPromptSubmit JSON)</th>
+<th>Expect on stdout</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I1</td>
+<td>match → additionalContext</td>
+<td><code>{"prompt":"BACKGROUND :: build the parser"}</code></td>
+<td>exit 0 + JSON <code>hookSpecificOutput.additionalContext</code>
+containing the BACKGROUND expansion + residual</td>
+<td><code>hook_match.json</code></td>
+</tr>
+<tr>
+<td>I2</td>
+<td>no-match → no-op</td>
+<td><code>{"prompt":"build the parser"}</code></td>
+<td>exit 0 + empty stdout (no injection)</td>
+<td><code>hook_nomatch.txt</code></td>
+</tr>
+<tr>
+<td>I3</td>
+<td>escape → no-op</td>
+<td><code>{"prompt":"\\BACKGROUND :: x"}</code></td>
+<td>exit 0 + empty (literal)</td>
+<td><code>hook_escape.txt</code></td>
+</tr>
+<tr>
+<td>I4</td>
+<td>unknown shaped → clarify note</td>
+<td><code>{"prompt":"BACGROUND :: x"}</code></td>
+<td>exit 0 + additionalContext asks which action (§11.4.66/§11.4.105),
+no invented expansion</td>
+<td><code>hook_unknown.json</code></td>
+</tr>
+<tr>
+<td>I5</td>
+<td>no-jq fallback parity</td>
+<td>I1 with <code>PATH</code> stripped of <code>jq</code></td>
+<td>identical output to I1 (embedded extractor)</td>
+<td><code>hook_nojq.json</code></td>
+</tr>
+<tr>
+<td>I6</td>
+<td>registry path override</td>
+<td><code>HELIX_ACTION_REGISTRY=/tmp/alt.yaml</code> with a custom
+action</td>
+<td>hook expands the custom action (decoupling proof, §11.4.28)</td>
+<td><code>hook_override.json</code></td>
+</tr>
+</tbody>
+</table>
+<p>PASS criterion: stdout JSON validates +
+<code>additionalContext</code> contains the registry-verbatim expansion
+(I1/I5/I6); empty for no-op cases. Hook contract matches RESEARCH.md
+§1.1 (additive <code>additionalContext</code>, exit 0).</p>
+<hr />
+<h2
+id="e2e-a-real-agent-given-a-background-prompt-applies-the-expansion">3.
+E2E — a real agent given a <code>BACKGROUND :: …</code> prompt applies
+the expansion</h2>
+<p>Per §11.4.52 (autonomous) + §11.4.98 (no manual intervention) +
+§11.4.107 (real-content liveness). Two tiers honour the §11.4.3 topology
+split:</p>
+<ul>
+<li><strong>E3a — Claude Code (LAYER 2 mechanical, autonomous):</strong>
+run Claude Code headless (<code>claude -p</code>) with the hook
+installed, feeding
+<code>BACKGROUND :: print the words HELIX_BG_OK to a file</code>. Assert
+(i) the agent’s transcript shows the BACKGROUND expansion was applied
+(it announces/uses the background-subagent + captured-evidence framing),
+and (ii) the residual task ran. Captured evidence: the session
+transcript under <code>docs/qa/&lt;run-id&gt;/e3a_claude/</code> + the
+produced file. This is the autonomous, re-runnable path
+(<code>-count=3</code> per §11.4.98).</li>
+<li><strong>E3b — non-hook agent (LAYER 1, self-applied):</strong> with
+the §11.4.140 mirror block present in the agent’s carrier
+(AGENTS.md/GEMINI.md/QWEN.md), feed the same prompt to a non-Claude
+agent (Gemini CLI or Codex CLI, whichever is installed) and assert the
+agent’s response reflects the expansion (it treats the work as
+background/subagent + evidence-backed). Captured: transcript under
+<code>docs/qa/&lt;run-id&gt;/e3b_&lt;agent&gt;/</code>. Where no second
+agent is installed → SKIP-with-reason
+<code>hardware_not_present</code>/<code>feature_disabled_by_config</code>
+per §11.4.69 + a tracked operator-attended migration item (§11.4.52) —
+NEVER a fake PASS.</li>
+</ul>
+<p><strong>Honest §11.4.6 boundary:</strong> E3b asserts the model
+<em>applies the expansion’s intent</em>, which is a judgement-bearing
+assertion. To keep it anti-bluff, the unknown/escape/no-match control
+prompts (E3c) MUST produce the OPPOSITE behaviour (no background
+framing) — the metamorphic relation (§11.4.107(8)) proving the expansion
+is what caused the behaviour, not a generic prior.</p>
+<hr />
+<h2 id="meta-test-paired-1.1-mutation-the-gate-is-not-a-bluff-gate">4.
+META-TEST — paired §1.1 mutation (the gate is not a bluff gate)</h2>
+<p>Target gate: <code>CM-ACTION-PREFIX-SYSTEM</code>. The gate asserts:
+registry exists + parses; <code>prefix_regex</code> present; the
+BACKGROUND <code>expansion</code> byte-matches the operator verbatim;
+the LAYER-1 mirror block present in all four carriers
+(CLAUDE.md/AGENTS.md/QWEN.md/GEMINI.md); the hook + expander scripts
+exist + executable + <code>sh -n</code>/<code>bash -n</code> clean.</p>
+<p>Paired mutations (each MUST flip the gate to FAIL, then restore to
+PASS):</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>M</th>
+<th>Mutation</th>
+<th>Gate must</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td>corrupt one word of the BACKGROUND <code>expansion</code> in
+<code>registry.yaml</code></td>
+<td>FAIL (<code>expansion</code> fidelity)</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>delete <code>grammar.prefix_regex</code></td>
+<td>FAIL (grammar missing)</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>remove the §11.4.140 mirror block from <code>GEMINI.md</code></td>
+<td>FAIL (carrier coverage incomplete)</td>
+</tr>
+<tr>
+<td>M4</td>
+<td><code>chmod -x scripts/hooks/action-prefix-expand.sh</code></td>
+<td>FAIL (hook not executable)</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>strip the literal <code>11.4.140</code> from one consumer file</td>
+<td><code>CM-COVENANT-114-140-PROPAGATION</code> FAILs</td>
+</tr>
+</tbody>
+</table>
+<p>Plus a behavioural mutation proving the EXPANDER catches its own
+negation: make <code>expand_prefix.sh</code> always return matched=false
+→ unit cases U2/U7/U11 FAIL. And make it expand on lowercase → U3 FAILs.
+Restore after each (§11.4.84 quiescence — mutations serialised, working
+tree clean before any commit).</p>
+<hr />
+<h2 id="evidence-determinism-summary">5. Evidence + determinism
+summary</h2>
+<ul>
+<li>Every unit/integration/e2e case writes a captured-evidence artefact
+under <code>qa-results/action_prefix/&lt;run-id&gt;/</code>
+(unit/integration) or <code>docs/qa/&lt;run-id&gt;/</code> (e2e), cited
+by the PASS line via <code>ab_pass_with_evidence</code> (§11.4.69).</li>
+<li>All harnesses are <code>sh -n</code> + <code>bash -n</code> clean
+(§11.4.67), run N=3 with identical exit codes + evidence-hashes
+(§11.4.50), and self-clean (§11.4.14, trap EXIT).</li>
+<li>The e2e tier is fully automated + re-runnable <code>-count=3</code>
+(§11.4.98); the non-Claude tier SKIPs honestly with a tracked migration
+item when no second agent is installed (§11.4.3 / §11.4.52) — never a
+fake PASS.</li>
+<li>This four-type coverage (unit + integration + e2e + meta-test
+mutation) is the §11.4.4(b) four-layer floor for §11.4.140; the HelixQA
+Challenge-bank entry (a <code>CME-ACTION-PREFIX-001</code> Challenge
+dispatching to E3a/E3b) is the user-visible layer 4 (§11.4.27).</li>
+</ul>
+</body>
+</html>

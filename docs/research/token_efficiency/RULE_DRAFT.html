@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>RULE_DRAFT</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="anchor-draft-token-efficiency-mandate">§11.4.141 Anchor Draft —
+Token-efficiency mandate</h1>
+<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
+2026-06-09T08:30:00Z <strong>Status:</strong> draft (for conductor to
+land in <code>Constitution.md</code> + mirror into CLAUDE.md / AGENTS.md
+/ QWEN.md) <strong>Anchor slot:</strong> §11.4.141 (verified free
+2026-06-09; §11.4.140 reserved by
+<code>action_prefix_system</code>).</p>
+<blockquote>
+<p>Two blocks below: (A) the canonical anchor for
+<code>constitution/Constitution.md</code>, and (B) the consumer-side
+mirror block for every consumer CLAUDE.md / AGENTS.md / QWEN.md
+(identical content discipline per §11.4.35; the consumer block adds the
+project instantiation pointer).</p>
+</blockquote>
+<hr />
+<h2 id="a-canonical-anchor-for-constitutionconstitution.md">(A)
+Canonical anchor — for <code>constitution/Constitution.md</code></h2>
+<h3
+id="token-efficiency-mandate-research-derived-operator-mandate-2026-06-09">§11.4.141
+— Token-efficiency mandate (research-derived + operator mandate,
+2026-06-09)</h3>
+<p><strong>Forensic anchor (operator mandate, 2026-06-09):</strong> the
+AI coding agent’s token spend (input AND output) is dominated by an
+enormous always-loaded governance context — the consumer
+CLAUDE.md/AGENTS.md/QWEN.md plus the constitution submodule (measured
+~170,000 tokens of static governance re-sent on EVERY turn: consumer
+<code>CLAUDE.md</code> ~90.5K + <code>constitution/CLAUDE.md</code>
+~79.6K, a 112-row Applied-Fixes table plus verbatim §11.4.X anchor
+restatements) — compounded by 350–520K-token subagent transcripts,
+verbose status, full-file re-reads, and full-file loads where retrieval
+would do. The same pattern is externally documented as a scaling defect
+(Claude Code issue #24147 — “Cache read tokens consume 99.93% of usage
+quota - architectural scaling issue with CLAUDE.md re-reads”). Operator
+mandate: cut token spend to <strong>30–40% of current (a 60–70%
+reduction)</strong> WITHOUT degrading quality, performance, or safety,
+and WITHOUT breaking any existing mechanism.</p>
+<p>Every project worked on by AI coding agents MUST adopt a
+token-efficiency regime composed of the following measures, ranked by
+safety and impact, and MUST PROVE the reduction with a measured
+anti-bluff harness — never an asserted number (§11.4.6 / §11.4.123). The
+headline 60–70% is the warm-cache target; the rule requires the
+<em>measured</em> best-safe reduction with cited evidence, never the
+estimate.</p>
+<p><strong>The measures (composable, each preserving every existing
+rule):</strong></p>
+<ol type="1">
+<li><p><strong>Prompt-cache the static governance prefix (PRIMARY — the
+single biggest lever).</strong> The always-loaded governance MUST form a
+byte-stable prefix with a cache breakpoint at its end, with nothing
+volatile rendered ahead of it. Cache reads cost ~0.1× base input price
+(a 90% discount); writes 1.25× (5-min TTL) / 2× (1-hour). The discount
+applies to the dominant cost component. <strong>Caching is transparent —
+the model sees byte-identical input cached or not — so it CANNOT remove
+a rule, weaken a gate, lower quality, or change a verdict; it changes
+only billing.</strong> The only failure mode is a <em>silent
+invalidator</em> (timestamp/UUID/unsorted-JSON ahead of the breakpoint),
+which costs money but never corrupts, and is detectable via
+<code>cache_read_input_tokens</code>. Claude Code caches natively; SDK
+callers use <code>cache_control:{type:"ephemeral"}</code>; Gemini/Qwen
+use their context cache via API-key auth.</p></li>
+<li><p><strong>Subagent model-tiering + output-to-file (SECONDARY —
+biggest non-cache win).</strong> Route MECHANICAL, NON-JUDGMENT subagent
+work (search, grep, status, doc-export, file-presence, read-only probes)
+to a cheaper/smaller model (Haiku-class); RESERVE the strong model for
+ALL reasoning, fix-design (§11.4.102), verdicts, code-review
+(§11.4.125), and demotion-evidence (§11.4.7). Subagents persist large
+output to a file and return a pointer instead of a 350–520K-token inline
+transcript. <strong>The strong model owns every decision and every
+PASS/FAIL — the cheap model never emits a verdict — so §11.4.50
+determinism and the anti-bluff covenant are untouched; quality cannot
+degrade.</strong> Bounded by §12.6 (60% memory) and the
+§11.4.58/§11.4.103 stream caps.</p></li>
+<li><p><strong>Thin always-loaded INDEX + on-demand detail (progressive
+disclosure).</strong> Restructure the consumer governance so the
+always-loaded file is a concise index (one line per fix / per anchor)
+and the full bodies are fetched on demand. <strong>Three invariants keep
+every gate green and every rule reachable: (a) each index line carries
+the literal <code>11.4.N</code> anchor token so the
+<code>CM-COVENANT-114-N-PROPAGATION</code> literal-anchor scans still
+pass; (b) the canonical full text stays in the tracked, gate-scanned
+<code>constitution/Constitution.md</code> — no rule is deleted, only
+de-duplicated out of the consumer; (c) the full body is reachable in one
+hop.</strong> This realises §11.4.35’s consumer-thin /
+submodule-canonical split at the byte level — a de-duplication, never a
+deletion.</p></li>
+<li><p><strong>Retrieval / CodeGraph-first over full-file
+loading.</strong> Structural questions (where is X / what calls Y / what
+would break) → CodeGraph (§11.4.78/§11.4.79, already mandated +
+installed) or semantic search; region questions → grep-scoped read;
+never re-read a harness-tracked file. Read-only, already-trusted
+(§11.4.78) — no behaviour change.</p></li>
+<li><p><strong>Output-token reduction.</strong> Terse conductor status
+(no restatement of unchanged governance); <code>effort:"low"</code> on
+the mechanical-subagent allowlist only; structured output where a sink
+consumes it. Output is ~5× input price, so this is cost-leveraged.
+Presentation-only — captured-evidence artefacts (§11.4.5/§11.4.69)
+unchanged.</p></li>
+<li><p><strong>Tool-call efficiency.</strong> Batch independent tool
+calls in one block; reuse harness-tracked file state; reuse persisted
+tool outputs.</p></li>
+<li><p><strong>Compaction / context-editing for long sessions
+(defensive).</strong> Prune stale tool-results / old thinking so a 100+
+turn cycle doesn’t re-pay for an ever-growing transcript; never touches
+the governance prefix or on-disk evidence.</p></li>
+</ol>
+<p><strong>Mandatory measured proof (anti-bluff —
+§11.4.6/§11.4.50/§11.4.69/§11.4.123):</strong> the reduction MUST be
+proven by a token-accounting harness measuring
+tokens-per-development-cycle BEFORE vs AFTER on a frozen deterministic
+workload, split into <code>input_tokens</code> /
+<code>cache_read_input_tokens</code> /
+<code>cache_creation_input_tokens</code> / <code>output_tokens</code>
+from the authoritative Anthropic <code>usage</code> object (NEVER
+<code>tiktoken</code>; NEVER the client-side <code>total_cost_usd</code>
+estimate — recompute cost from raw token fields with the published
+prices), reproduced N times to identical verdict (§11.4.50). Pass =
+AFTER ≤ 40% of BEFORE (target) OR the measured best-safe reduction with
+a cited cold-cache reason. The AFTER run MUST ALSO show ZERO regression
+on the pre-build full sweep, the meta-test mutation sweep (every gate
+still FAILs its paired mutation — proves M3 did not turn any rule into a
+bluff), every propagation gate (literal anchors intact), a strong-model
+reasoning-path probe (proves M2/M5 tiered nothing that decides), and a
+cache-warm proof (<code>cache_read_input_tokens &gt; 0</code>). Cost
+reduction with quality/safety regression is a §11.4 FAIL, not a win.</p>
+<p><strong>No measure may break or degrade any existing mechanism — and
+the rule is structured so none can:</strong> caching is transparent
+(M1); tiering and low-effort are confined to mechanical non-judgment
+work (M2/M5); indexing preserves the full rules by reference with
+literal anchors so the propagation gates pass and the canonical text
+stays gate-scanned (M3); retrieval uses already-trusted read-only
+infrastructure (M4). The §11.4 anti-bluff covenant family, §11.4.50
+deterministic consistency, §11.4.125 code-review, §11.4.40 full-suite
+retest, and §12.6 memory ceiling are all unconditionally preserved.</p>
+<p>Composes with §11.4.5 / §11.4.6 / §11.4.20 / §11.4.40 / §11.4.50 /
+§11.4.58 / §11.4.69 / §11.4.70 / §11.4.78 / §11.4.79 / §11.4.80 /
+§11.4.103 / §11.4.106 / §11.4.123 / §11.4.125 / §11.4.128 / §12.6 /
+§1.1. Classification: universal (§11.4.17) — the consuming project
+supplies its model IDs, its mechanical-subagent allowlist, its
+governance files, its structural-index tool, and its frozen workload per
+§11.4.35. Propagation gate <code>CM-COVENANT-114-141-PROPAGATION</code>
+(literal <code>11.4.141</code> across the consumer fleet) + recommended
+gate <code>CM-TOKEN-EFFICIENCY</code> (the measured BEFORE/AFTER harness
+exists + produced a verdict ≥ target-or-cited-floor + the non-regression
+sweep is green + cache-warm proof present) + paired §1.1 meta-test
+mutation (inject a per-turn volatile token ahead of the governance cache
+breakpoint → <code>cache_read_input_tokens</code> collapses → measured
+reduction falls below the bar → gate FAILs; restore → PASSes — proves
+the harness measures real caching, not a hardcoded green). Gate-code =
+separate work item.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.141.
+Research + design + measurement:
+<code>docs/research/token_efficiency/{RESEARCH,DESIGN,MEASUREMENT,TEST_PLAN}.md</code>.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--skip-token-efficiency</code>,
+<code>--no-cache-governance</code>,
+<code>--assert-reduction-without-measuring</code>,
+<code>--tier-down-reasoning</code>,
+<code>--inline-all-governance</code>,
+<code>--tiktoken-estimate-OK</code> flag exists.</p>
+<hr />
+<h2
+id="b-consumer-side-mirror-block-for-every-consumer-claude.md-agents.md-qwen.md">(B)
+Consumer-side mirror block — for every consumer CLAUDE.md / AGENTS.md /
+QWEN.md</h2>
+<p><strong>§11.4.141 — Token-efficiency mandate (research-derived +
+operator mandate, 2026-06-09).</strong> Every project worked on by AI
+coding agents MUST cut token spend (input AND output) toward
+<strong>30–40% of current (a 60–70% reduction)</strong> WITHOUT
+degrading quality/performance/safety or breaking any existing mechanism,
+via a composable, safety-ranked measure set: (1) <strong>prompt-cache
+the static governance prefix</strong> — the always-loaded governance
+forms a byte-stable cache-breakpointed prefix with no volatile bytes
+ahead of it; cache reads cost ~0.1× base input (the dominant cost driver
+— measured ~170K tokens of governance re-sent every turn, externally
+corroborated by Claude Code issue #24147); caching is transparent so it
+removes no rule, weakens no gate, changes no verdict — only billing
+(PRIMARY, biggest + safest lever); (2) <strong>subagent model-tiering +
+output-to-file</strong> — mechanical non-judgment work
+(search/grep/status/doc-export/read-only probes) to a Haiku-class model,
+the strong model RESERVED for all reasoning/verdicts/fix-design
+(§11.4.102)/code-review (§11.4.125)/demotion (§11.4.7), large output
+persisted to a file not an inline 350–520K-token transcript; the cheap
+model never emits a PASS so §11.4.50 + anti-bluff are untouched; (3)
+<strong>thin always-loaded INDEX + on-demand detail</strong> — concise
+index (one line per fix/anchor, EACH carrying the literal
+<code>11.4.N</code> token so propagation gates pass) with the canonical
+full text kept gate-scanned in <code>constitution/Constitution.md</code>
+and reachable in one hop — a de-duplication realising §11.4.35, never a
+deletion; (4) <strong>CodeGraph/retrieval-first over full-file
+loading</strong> (§11.4.78/§11.4.79); (5) <strong>output-token
+reduction</strong> — terse status + <code>effort:"low"</code> on the
+mechanical allowlist only; (6) <strong>tool-call batching + no
+re-reads</strong>; (7) <strong>compaction/context-editing for long
+sessions</strong>. <strong>Mandatory measured proof:</strong> a
+token-accounting harness measures tokens-per-development-cycle BEFORE vs
+AFTER on a frozen deterministic workload from the authoritative
+<code>usage</code> object (input/cache_read/cache_creation/output split;
+NEVER <code>tiktoken</code>, NEVER the client-side cost estimate),
+reproduced N times (§11.4.50), pass = AFTER ≤ 40% of BEFORE OR the
+measured best-safe reduction with a cited cold-cache reason; the AFTER
+run MUST show ZERO regression on the pre-build sweep + meta-test
+mutation sweep + propagation gates + a strong-model reasoning probe + a
+cache-warm proof (<code>cache_read_input_tokens &gt; 0</code>) — cost
+reduction with quality regression is a §11.4 FAIL. The headline number
+is the <em>measured</em> reduction, never the design estimate
+(§11.4.6/§11.4.123). No measure may break/degrade any existing
+mechanism, and the rule is structured so none can. Composes
+§11.4.5/.6/.20/.40/.50/.58/.69/.70/.78/.79/.80/.103/.106/.123/.125/.128/§12.6/§1.1.
+Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-141-PROPAGATION</code> (literal
+<code>11.4.141</code>) + recommended gate
+<code>CM-TOKEN-EFFICIENCY</code> + paired §1.1 mutation (inject a
+pre-breakpoint volatile token → cache collapses → measured reduction
+falls below bar → gate FAILs). <strong>Canonical authority:</strong>
+constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.141. <strong>Project instantiation (§11.4.35):</strong>
+[ATMOSphere consumer fills in: confirm the Claude Code governance-prefix
+cache is warm + free of pre-breakpoint volatiles; tier the §11.4.96-SAFE
+mechanical subagents (search/grep/status/doc-export) to Haiku with
+output-to-file under <code>qa-results/</code>; replace the consumer
+<code>CLAUDE.md</code> 112-row Applied-Fixes inline table + verbatim
+anchor restatements with a literal-anchor index pointing at
+<code>constitution/Constitution.md</code>; keep CodeGraph/lumen-first
+navigation; run the harness BEFORE/AFTER to prove the measured
+reduction.] Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-token-efficiency</code>,
+<code>--no-cache-governance</code>,
+<code>--assert-reduction-without-measuring</code>,
+<code>--tier-down-reasoning</code>,
+<code>--inline-all-governance</code>,
+<code>--tiktoken-estimate-OK</code> flag.</p>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>RULE_DRAFT</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="draft-anchor-text-consumer-mirror">§11.4.140 — Draft anchor text
++ consumer mirror</h1>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-06-09</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-06-09T00:00:00Z</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>draft (for operator review before landing in Constitution.md)</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>full §11.4.140 anchor + shorter
+CLAUDE.md/AGENTS.md/QWEN.md/GEMINI.md consumer mirror</td>
+</tr>
+<tr>
+<td>Inputs</td>
+<td><code>RESEARCH.md</code>, <code>DESIGN.md</code> (this
+directory)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>NOTE: this is DRAFT text written to research/ per the task scope. It
+is NOT applied to <code>Constitution.md</code> / <code>CLAUDE.md</code>
+/ <code>AGENTS.md</code> / <code>QWEN.md</code> in this run (no
+commit/push/edit of the live governance files). The operator lands it
+via the §11.4.26 constitution-update pipeline.</p>
+</blockquote>
+<hr />
+<h2
+id="a.-full-anchor-to-add-as-a-new-11.4.140-section-in-constitution.md">A.
+FULL anchor — to add as a new <code>### §11.4.140 …</code> section in
+<code>Constitution.md</code></h2>
+<h3
+id="universal-action-prefix-system-action_name-user-mandate-2026-06-09">§11.4.140
+— Universal action-prefix system (<code>ACTION_NAME ::</code>) (User
+mandate, 2026-06-09)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-09):</strong></p>
+<blockquote>
+<p>“When a user prompt STARTS with <code>ACTION_NAME ::</code>
+(e.g. <code>BACKGROUND :: IMPORTANT: do X...</code>) the agent MUST
+replace the <code>ACTION_NAME ::</code> prefix with that action’s
+registered expansion text, then execute the rest. For
+<code>BACKGROUND ::</code> the expansion is: ‘The following prompt that
+we will provide MUST BE executed in background in parallel with all main
+work streams using the subagents-driven development approach! All work
+done MUST PRODUCE rock solid evidence covered with hard physical
+proof(s) that all done is working as expected and as specified without
+any false results and without any bluff!’. The mechanism MUST be
+UNIVERSAL/extensible — more actions will be added later, each with its
+own expansion + rules. It MUST work with EVERY CLI agent, be fully
+decoupled + reusable by every project that includes the constitution
+submodule, and load + execute out of the box.”</p>
+</blockquote>
+<p>Every project under this Constitution MUST support a universal,
+extensible <strong>action-prefix system</strong>: when a user prompt’s
+FIRST non-blank line starts with an uppercase action token followed by
+<code>" :: "</code> (grammar <code>^([A-Z][A-Z0-9_]*) ::</code> —
+anchored at line start, UPPERCASE-only token, exactly one space on each
+side of <code>::</code>), the agent MUST (1) look the token up in the
+shared <strong>action registry</strong> (tracked data file
+<code>constitution/actions/registry.yaml</code>, or
+<code>$HELIX_ACTION_REGISTRY</code>); (2) if the token is a registered
+action, REPLACE the <code>ACTION_NAME ::</code> prefix with that
+action’s registered <code>expansion</code> text and apply its
+<code>rules</code>; (3) execute the REMAINDER of the prompt under the
+expanded instruction. The system is the C-preprocessor
+expand-then-rescan model applied to prompts (a line-anchored
+single-token macro): detect → substitute the registered expansion →
+execute the residual.</p>
+<p><strong>Two-layer architecture (both mandatory; LAYER 1 is the
+universal floor).</strong> (LAYER 1 — universal, always-on,
+out-of-the-box) the action-prefix recognition instruction MUST be
+mirrored into EVERY agent context carrier the constitution maintains
+(<code>CLAUDE.md</code>, <code>AGENTS.md</code>, <code>QWEN.md</code>,
+<code>GEMINI.md</code> per §11.4.35) so the agent itself recognises and
+applies the prefix on every CLI agent — Claude Code, Gemini CLI, Qwen
+Code, OpenAI Codex CLI, GitHub Copilot CLI, Cursor, Aider, Cline,
+Continue, Roo Code, and any future agent that reads one of those
+carriers. (LAYER 2 — mechanical, where the agent exposes a pre-submit
+seam) a prompt-preprocessing hook reading the SAME registry applies the
+expansion deterministically (Claude Code <code>UserPromptSubmit</code> /
+<code>UserPromptExpansion</code> hook injecting the expansion via
+<code>additionalContext</code>; per-agent slash-command equivalents
+generated from the registry for Gemini/Qwen/Codex). LAYER 2 is the
+§11.4.109 anti-forgetting upgrade applied to prompt prefixes — the
+expansion holds even if model recall lapses; LAYER 1 guarantees the
+system works everywhere with zero extra setup. Honest §11.4.3 boundary
+(§11.4.6): transparent mechanical free-form <code>^PREFIX ::</code>
+interception is genuinely available ONLY on Claude Code today; on every
+other agent the free-form form is honoured by LAYER 1 (the agent
+self-applies) and the slash-command equivalent is the mechanical
+convenience — this split is documented, never papered over.</p>
+<p><strong>Grammar (mandatory, all hold).</strong> (1) Anchored at the
+start of the first non-blank line ONLY; mid-prose tokens never match.
+(2) UPPERCASE-only token <code>[A-Z][A-Z0-9_]*</code>; lowercase never
+matches. (3) Separator is exactly <code>" :: "</code>
+(space-colon-colon-space) — avoids C++ <code>Foo::Bar</code>, YAML
+<code>key: value</code>, URLs. (4) Stacked prefixes
+(<code>A :: B :: rest</code>) apply outer-to-inner, left-to-right
+(expand A, rescan, expand B, then the residual is the task). (5) A
+leading <code>\</code> escapes the prefix (literal, no expansion) so
+action names can be discussed. (6) An unknown token that matches the
+grammar shape but is NOT registered is NEVER silently expanded or
+silently dropped — the agent asks which registered action was meant
+(§11.4.66 + §11.4.105) or treats it literally; it NEVER invents an
+expansion (§11.4.6). (7) Any prompt not satisfying the grammar is an
+ordinary prompt; the system is a no-op.</p>
+<p><strong>Registry is the single source of truth + the extension
+contract.</strong> Adding a new action = adding ONE
+<code>actions[]</code> row (<code>name</code>, <code>version</code>,
+<code>summary</code> ≥6 words per §11.4.91, <code>expansion</code>,
+optional <code>rules</code> + <code>composes_with</code>) — no code
+change in either layer (the registry is data, not code). Both layers
+read the same file (§11.4.93-style single-source-of-truth). The first
+registry entry is <code>BACKGROUND</code> with the operator’s verbatim
+expansion above; it composes §11.4.20/§11.4.70 (subagent-driven),
+§11.4.58/§11.4.103 (parallel streams), §11.4.89 (background execution),
+and §11.4.5/§11.4.69/§11.4.107 (captured physical evidence) + §11.4
+(anti-bluff). Decoupled + reusable (§11.4.28): the registry + hook +
+expander carry zero project-specific data and are consumed by reference
+(the §11.4.80 <code>codegraph_*</code> pattern); a consuming project
+ships its own registry or inherits the constitution default. Loads
+out-of-the-box via the §11.4.75 install seam.</p>
+<p>Classification: universal (§11.4.17). Composes §11.4 / §11.4.5 /
+§11.4.6 / §11.4.17 / §11.4.20 / §11.4.28 / §11.4.35 / §11.4.58 /
+§11.4.66 / §11.4.69 / §11.4.70 / §11.4.75 / §11.4.80 / §11.4.89 /
+§11.4.91 / §11.4.93 / §11.4.103 / §11.4.105 / §11.4.107 / §11.4.109.
+Propagation gate <code>CM-COVENANT-114-140-PROPAGATION</code> (literal
+<code>11.4.140</code> across the consumer fleet) + recommended gate
+<code>CM-ACTION-PREFIX-SYSTEM</code> (registry exists + parses + the
+grammar regex matches/no-matches the canonical fixtures + the LAYER-1
+mirror block is present in CLAUDE.md/AGENTS.md/QWEN.md/GEMINI.md + the
+BACKGROUND expansion text matches the registry verbatim + the Claude
+<code>UserPromptSubmit</code> hook + expander script exist and are
+executable) + paired §1.1 meta-test mutation (corrupt the BACKGROUND
+expansion in the registry OR strip the <code>prefix_regex</code> OR
+remove the LAYER-1 mirror block from one carrier → the gate FAILs; strip
+the literal <code>11.4.140</code> → the propagation gate FAILs;
+gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.140.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-action-prefix</code>, <code>--ignore-prefix</code>,
+<code>--no-registry</code>, <code>--invent-expansion-OK</code>,
+<code>--single-layer-only</code> flag.</p>
+<hr />
+<h2
+id="b.-shorter-consumer-mirror-to-add-to-claude.md-agents.md-qwen.md-gemini.md">B.
+SHORTER consumer mirror — to add to <code>CLAUDE.md</code> /
+<code>AGENTS.md</code> / <code>QWEN.md</code> /
+<code>GEMINI.md</code></h2>
+<p>(One block, identical text in all four carriers — that identity IS
+the LAYER-1 universality. Verbatim BACKGROUND expansion is inlined so
+the most-used action works out-of-the-box even without registry-file
+access.)</p>
+<blockquote>
+<p><strong>§11.4.140 — Universal action-prefix system
+(<code>ACTION_NAME ::</code>) (User mandate, 2026-06-09).</strong> When
+a user prompt’s FIRST non-blank line starts with an uppercase action
+token followed by <code>" :: "</code> (grammar
+<code>^([A-Z][A-Z0-9_]*) ::</code>), you MUST: (1) look the token up in
+the action registry <code>constitution/actions/registry.yaml</code> (or
+<code>$HELIX_ACTION_REGISTRY</code>); (2) if it is a registered action,
+REPLACE the <code>ACTION_NAME ::</code> prefix with that action’s
+<code>expansion</code> text and apply its <code>rules</code>; (3)
+execute the remainder of the prompt under the expanded instruction.
+Grammar: anchored at the first non-blank line only; UPPERCASE-only
+token; separator exactly <code>" :: "</code>; stacked prefixes
+(<code>A :: B :: rest</code>) apply outer-to-inner; a leading
+<code>\</code> escapes the prefix (literal, no expansion); an unknown
+grammar-shaped token is NEVER silently expanded or dropped — ask which
+registered action was meant (§11.4.66 / §11.4.105) or treat it
+literally, NEVER invent an expansion (§11.4.6). The registered action
+<strong><code>BACKGROUND</code></strong> expands to: <em>“The following
+prompt that we will provide MUST BE executed in background in parallel
+with all main work streams using the subagents-driven development
+approach! All work done MUST PRODUCE rock solid evidence covered with
+hard physical proof(s) that all done is working as expected and as
+specified without any false results and without any bluff!”</em>
+(composes §11.4.20 / §11.4.70 subagent-driven, §11.4.58 / §11.4.103
+parallel streams, §11.4.89 background execution, §11.4.5 / §11.4.69 /
+§11.4.107 captured physical evidence, §11.4 anti-bluff). The system is
+UNIVERSAL (every CLI agent reads this block via its context carrier per
+§11.4.35), extensible (new action = new registry row), decoupled +
+reusable (§11.4.28), and loads out-of-the-box. Classification: universal
+(§11.4.17). <strong>Canonical authority:</strong> constitution submodule
+<a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.140. Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-action-prefix</code>, <code>--ignore-prefix</code>,
+<code>--no-registry</code>, <code>--invent-expansion-OK</code>,
+<code>--single-layer-only</code> flag.</p>
+</blockquote>
+<hr />
+<h2 id="c.-landing-checklist-for-the-operator-via-11.4.26-pipeline">C.
+Landing checklist (for the operator, via §11.4.26 pipeline)</h2>
+<ol type="1">
+<li><code>git fetch</code> + <code>git pull --ff-only</code> in the
+constitution submodule (§11.4.26 step 1 / §11.4.37).</li>
+<li>Add §11.4.140 (Part A) to <code>Constitution.md</code>; add the
+mirror (Part B) to <code>CLAUDE.md</code>, <code>AGENTS.md</code>,
+<code>QWEN.md</code>, and a new <code>GEMINI.md</code> (the GEMINI.md
+carrier is added by this anchor so Gemini CLI gets the LAYER-1
+floor).</li>
+<li>Land <code>actions/registry.yaml</code> +
+<code>actions/SCHEMA.md</code> +
+<code>scripts/hooks/action-prefix-expand.sh</code> +
+<code>scripts/actions/expand_prefix.sh</code>
+<ul>
+<li><code>scripts/actions/gen_agent_commands.sh</code> per DESIGN.md
+§2.</li>
+</ul></li>
+<li>Wire <code>CM-COVENANT-114-140-PROPAGATION</code> +
+<code>CM-ACTION-PREFIX-SYSTEM</code> gates + the §1.1 paired mutations
+(TEST_PLAN.md).</li>
+<li>Re-export <code>.html</code>/<code>.pdf</code>/<code>.docx</code>
+siblings per §11.4.65; bump revision header per §11.4.44; sync the
+consumer fleet per §11.4.35.</li>
+<li>Commit + push to ALL upstreams per §11.4.26 step 4 / §2.1 (no
+force-push per §11.4.113).</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>MEASUREMENT</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1
+id="token-efficiency-measurement-rock-solid-anti-bluff-proof-methodology">Token-Efficiency
+Measurement — rock-solid anti-bluff proof methodology</h1>
+<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
+2026-06-09T08:30:00Z <strong>Status:</strong> design
+<strong>Authority:</strong> constitution submodule, universal
+(§11.4.17). Composes with §11.4.5 / §11.4.6 (no-guessing — measured,
+never asserted) / §11.4.50 (deterministic consistency) / §11.4.69
+(captured-evidence taxonomy) / §1.1 (paired mutation). The headline
+60–70% number is NEVER claimed without this harness producing the
+captured proof.</p>
+<hr />
+<h2 id="the-anti-bluff-bar">0. The anti-bluff bar</h2>
+<p>Per §11.4.6 and §11.4.123, the token-efficiency claim is itself
+subject to the anti-bluff covenant: a “60–70% reduction” statement is a
+<strong>bluff</strong> unless it is backed by a captured
+<code>tokens-per-development-cycle</code> measurement on a fixed
+workload, BEFORE vs AFTER, with the input/output/cached split, produced
+by a repeatable harness, and reproduced N times (§11.4.50) to identical
+verdict. The pass criterion is mechanical: <strong>AFTER total cost ≤
+40% of BEFORE total cost</strong> (target) OR the measured best-safe
+reduction with a cited reason it cannot reach 40% (cold-cache floor per
+RESEARCH §5).</p>
+<h2 id="the-ground-truth-token-source">1. The ground-truth token
+source</h2>
+<p><strong>Only the Anthropic <code>usage</code> object and
+<code>count_tokens</code> endpoint are authoritative.</strong>
+<code>tiktoken</code> is forbidden (undercounts Claude 15–20%+ —
+<code>shared/token-counting.md</code>). The per-request
+<code>usage</code> object gives the exact split:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+<th>Price multiplier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>input_tokens</code></td>
+<td>uncached input</td>
+<td>1.0×</td>
+</tr>
+<tr>
+<td><code>cache_creation_input_tokens</code></td>
+<td>written to cache this request</td>
+<td>1.25× (5m) / 2× (1h)</td>
+</tr>
+<tr>
+<td><code>cache_read_input_tokens</code></td>
+<td>served from cache</td>
+<td>0.1×</td>
+</tr>
+<tr>
+<td><code>output_tokens</code></td>
+<td>generated</td>
+<td>5× input price (Opus)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cost formula (per request), using the model’s input price
+<code>Pin</code> and output price <code>Pout</code> from
+<code>shared/models.md</code>:</strong></p>
+<pre><code>cost = Pin × (input_tokens
+             + 0.1 × cache_read_input_tokens
+             + 1.25 × cache_creation_input_tokens_5m
+             + 2.0  × cache_creation_input_tokens_1h)
+     + Pout × output_tokens</code></pre>
+<p>(Opus 4.8: Pin = $5/1M, Pout = $25/1M. Sonnet 4.6: $3/$15. Haiku 4.5:
+$1/$5.) For multi-model cycles (subagent tiering), sum per-model with
+that model’s prices — this is how M2’s savings show up.</p>
+<h2 id="the-fixed-measurement-workload-the-development-cycle">2. The
+fixed measurement workload (the “development cycle”)</h2>
+<p>A <strong>frozen, scripted, deterministic</strong> workload so BEFORE
+and AFTER are comparable (§11.4.50). Recommended cycle = a
+representative slice of real project work, fixed and version-pinned: 1.
+Session start (governance loaded). 2. N1 structural-navigation turns
+(e.g. “where is X / what calls Y”) — exercises M4. 3. N2 file-read +
+small-edit turns — exercises M3/M6. 4. N3 mechanical-subagent dispatches
+(search/grep/status/doc-export) — exercises M2/M5. 5. N4
+reasoning/review turns (strong model) — exercises that the strong path
+is untouched. 6. Session end.</p>
+<p>The workload is captured as a script (fixed prompts, fixed file
+targets, fixed expected actions) so it replays identically. It is
+committed under
+<code>constitution/docs/research/token_efficiency/workload/</code> (or
+the consuming project’s equivalent) so any agent can re-run it.</p>
+<h2 id="the-harness">3. The harness</h2>
+<p><code>token_accounting.sh</code> (or a small Go/Python program —
+universal, project supplies model IDs): 1. Runs the fixed workload
+against the agent. 2. Captures every request’s <code>usage</code> object
+(via the SDK <code>usage</code> field, or Claude Code’s
+<code>--output-format json</code> / cost-tracking surface —
+<code>https://code.claude.com/docs/en/agent-sdk/cost-tracking</code>;
+note <code>total_cost_usd</code> is a client-side estimate, so the
+harness recomputes cost from the raw token fields with the price table,
+never trusts the estimate). 3. Aggregates per cycle:
+<code>Σ input_tokens</code>, <code>Σ cache_read_input_tokens</code>,
+<code>Σ cache_creation_input_tokens</code>,
+<code>Σ output_tokens</code>, and the computed <code>cost</code> (§1
+formula), split by model. 4. Emits <code>cycle_report.json</code>
+(captured-evidence artefact per §11.4.69 — feature class implied:
+<code>token_efficiency</code>).</p>
+<h2 id="baseline-capture-before">4. Baseline capture (BEFORE)</h2>
+<p>Run the harness on the <strong>current</strong> configuration
+(governance inlined, no tiering, no index) N=3 times (§11.4.50). Record
+<code>BEFORE = mean(cost)</code> and assert the 3 runs’ token splits are
+identical (deterministic workload ⇒ identical splits; any divergence is
+a workload-nondeterminism bug to fix first). Commit
+<code>cycle_report.before.json</code>.</p>
+<h2 id="after-capture-pass-criterion">5. After capture + pass
+criterion</h2>
+<p>Apply the M1–M7 measures, re-run the harness N=3, record
+<code>AFTER = mean(cost)</code>, assert the 3 AFTER runs identical
+(§11.4.50). Then:</p>
+<pre><code>reduction = 1 - (AFTER / BEFORE)
+PASS  if  AFTER ≤ 0.40 × BEFORE        (≥ 60% reduction — target met)
+WARN  if  0.40×BEFORE &lt; AFTER ≤ 0.55×BEFORE  AND  cache-cold reason cited (RESEARCH §5 floor)
+FAIL  otherwise (or if any quality/safety regression — see §6)</code></pre>
+<p>Commit <code>cycle_report.after.json</code> + a one-line
+<code>verdict.txt</code> citing the measured <code>reduction</code>, the
+<code>cache_read_input_tokens</code> warm-proof, and the per-model split
+that shows the tiering saving. <strong>The number in any
+report/commit/anchor MUST equal the measured <code>reduction</code>,
+never the design estimate</strong> (§11.4.6).</p>
+<h2 id="the-non-regression-qualitysafety-companion-mandatory">6. The
+non-regression (quality/safety) companion — mandatory</h2>
+<p>Cost reduction with quality regression is a §11.4 FAIL, not a win.
+The AFTER run MUST ALSO show <strong>zero regression</strong> against
+BEFORE on: - <strong>Pre-build full sweep</strong>
+(<code>pre_build_verification.sh</code> equivalent) — same PASS/FAIL set
+(§11.4.40). - <strong>Meta-test mutation sweep</strong> — every gate
+still FAILs its paired mutation (§1.1) — proves no gate became a bluff
+because its rule text moved to an index (M3 safety). -
+<strong>Propagation gates</strong> — every
+<code>CM-COVENANT-114-N-PROPAGATION</code> still passes (literal anchors
+intact after M3). - <strong>A reasoning-path probe</strong> — one fixed
+reasoning/review turn produces an equivalent-quality verdict on the
+strong model (proves M2/M5 did not tier-down a decision path). -
+<strong>Cache-warm proof</strong> —
+<code>cache_read_input_tokens &gt; 0</code> on the governance-bearing
+turns (proves M1 engaged, not silently invalidated).</p>
+<p>If any of these regress, the cost win is rejected (FAIL) regardless
+of the cost number.</p>
+<h2 id="repeatability-determinism-11.4.50">7. Repeatability /
+determinism (§11.4.50)</h2>
+<p>The whole BEFORE/AFTER measurement is itself wrapped in the project’s
+<code>ab_run_n_times</code>-style N-iteration check: same workload +
+same model + same config ⇒ identical token splits and identical verdict
+across N runs. A divergent run is auto-FAIL (the workload must be
+deterministic before any cost claim is valid). Default N=3;
+cycle-validation N=10.</p>
+<h2 id="paired-1.1-mutation-proves-the-harness-is-not-a-bluff">8. Paired
+§1.1 mutation (proves the harness is not a bluff)</h2>
+<p>The recommended <code>CM-TOKEN-EFFICIENCY</code> gate’s paired
+mutation: <strong>inject a per-turn timestamp/UUID into the governance
+prefix ahead of the cache breakpoint</strong> (a real silent
+invalidator). The harness MUST then observe
+<code>cache_read_input_tokens</code> collapse toward 0 and the measured
+<code>reduction</code> fall below the pass bar → the gate FAILs.
+Restoring the stable prefix → gate PASSes. This proves the harness
+actually measures caching, not a hardcoded green.</p>
+<h2 id="what-rock-solid-proof-means-here">9. What “rock-solid proof”
+means here</h2>
+<p>The claim ships with: <code>cycle_report.before.json</code>,
+<code>cycle_report.after.json</code>, <code>verdict.txt</code> (measured
+reduction + warm-cache evidence + per-model split), the N-iteration
+determinism log, the non-regression sweep result, and the
+paired-mutation demonstration. No estimate, no <code>tiktoken</code>, no
+trusting the client-side <code>total_cost_usd</code> — only the raw
+<code>usage</code> token fields, recomputed with the published prices,
+on a frozen workload, reproduced N times. That is the §11.4.6 /
+§11.4.123 bar.</p>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a
+href="https://platform.claude.com/docs/en/build-with-claude/token-counting">Token
+counting — Claude API Docs</a></li>
+<li><a
+href="https://code.claude.com/docs/en/agent-sdk/cost-tracking">Track
+cost and usage — Claude Agent SDK</a></li>
+<li><code>claude-api</code> skill <code>shared/prompt-caching.md</code>
+(usage-field semantics, 0.1×/1.25×/2× multipliers, silent-invalidator
+detection via <code>cache_read_input_tokens</code>),
+<code>shared/token-counting.md</code> (tiktoken forbidden;
+<code>count_tokens</code> authoritative), <code>shared/models.md</code>
+(per-model input/output prices).</li>
+</ul>
+</body>
+</html>

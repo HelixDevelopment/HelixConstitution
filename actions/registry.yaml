@@ -1,0 +1,79 @@
+# Helix Constitution — Action-Prefix Registry (§11.4.140)
+#
+# Single source of truth for the universal "ACTION_NAME ::" prompt-prefix system.
+#
+# Both LAYER 1 (agent self-recognition via CLAUDE.md / AGENTS.md / GEMINI.md /
+# QWEN.md per §11.4.35) and LAYER 2 (the Claude Code UserPromptSubmit hook
+# scripts/hooks/action_prefix_expand.sh + the generated per-agent slash commands)
+# read THIS file. Adding a new action = adding one `actions[]` row — NO code
+# change in either layer (the registry is data, not code).
+#
+# Decoupling (§11.4.28): this registry carries NO project-specific data. A
+# consuming project ships its OWN actions/registry.yaml (or inherits this default
+# by reference, like the §11.4.80 codegraph_* scripts). The scripts read the
+# registry path from $HELIX_ACTION_REGISTRY (default: this file).
+#
+# Grammar (precise spec, §11.4.140 + GRAMMAR_ADDENDUM 2026-06-09): every
+# registered action is invocable in FOUR equivalent forms — same action, same
+# expansion, same execution — anchored to the prompt's first non-blank line:
+#   (1) `ACTION :: <rest>`            bare `::` form (default namespace)
+#   (2) `PREFIX::ACTION :: <rest>`    namespaced `::` form
+#   (3) `/ACTION <rest>`             bare slash form (honored unless host-command collision)
+#   (4) `/PREFIX::ACTION <rest>`     namespaced slash form (ALWAYS unambiguous)
+# The token is UPPERCASE-only ([A-Z][A-Z0-9_]*). `PREFIX` is an action NAMESPACE;
+# the reserved default namespace is `DEFAULT`. The namespace separator `::` inside
+# the token carries NO surrounding spaces (`PREFIX::ACTION`) — DISTINCT from the
+# action-body separator ` :: ` (one ASCII space on each side) used in forms 1/2
+# between the token and `<rest>`, and the slash-body separator ` ` (one space)
+# used in forms 3/4. A leading backslash escapes the prefix (literal, no
+# expansion) for BOTH `::` and slash forms (`\BACKGROUND :: x`, `\/BACKGROUND x`).
+# Stacked prefixes ("A :: B :: rest") apply outer-to-inner. An unknown
+# grammar-shaped token is NEVER silently expanded or dropped — ask which
+# registered action was meant (§11.4.66 / §11.4.105), never invent an expansion
+# (§11.4.6). Token/namespace are UPPERCASE; FILE/DIR names stay lowercase
+# snake_case (§11.4.29).
+
+schema_version: 1
+
+grammar:
+  # ── `::` form (forms 1 + 2) ──────────────────────────────────────────────
+  prefix_regex: '^([A-Z][A-Z0-9_]*) :: '        # legacy bare-`::` anchor (form 1); kept for back-compat
+  colon_form_regex: '^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*) :: (.*)$'  # forms 1+2: g1=optional PREFIX, g2=ACTION, g3=rest
+  # ── slash form (forms 3 + 4) ─────────────────────────────────────────────
+  slash_form_regex: '^/(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*)\s+(.*)$'   # forms 3+4: g1=optional PREFIX, g2=ACTION, g3=rest
+  default_namespace: DEFAULT                     # reserved default-namespace literal
+  namespace_separator: '::'                      # inside the token, NO surrounding spaces
+  body_separator: ' :: '                         # token <-> rest, spaces both sides ('::' form)
+  slash_prefix: '/'                              # slash-form leader
+  slash_body_separator: ' '                      # token <-> rest (slash form)
+  case_sensitive: true                           # action names are UPPERCASE-only
+  multiple_prefixes: stack                       # "A :: B :: rest" applies A then B
+  escape: '\'                                    # "\BACKGROUND :: x" / "\/BACKGROUND x" → literal, no expansion
+
+actions:
+  - name: BACKGROUND
+    version: 1
+    namespaces: [DEFAULT]                         # which namespaces this action is registered under
+    slash_bare: auto                              # bare /BACKGROUND honored unless a host-command collision
+    slash_conflicts: []                           # known colliding host slash commands (forces /DEFAULT::BACKGROUND)
+    summary: >-
+      Run the remainder of the prompt as a background, subagent-driven work
+      stream in parallel with all main work, producing rock-solid physical proof.
+    expansion: >-
+      The following prompt that we will provide MUST BE executed in background in
+      parallel with all main work streams using the subagents-driven development
+      approach! All work done MUST PRODUCE rock solid evidence covered with hard
+      physical proof(s) that all done is working as expected and as specified
+      without any false results and without any bluff!
+    rules:
+      - "The expansion REPLACES the 'BACKGROUND :: ' prefix; the remainder of the prompt is the actual task to perform."
+      - "Compose with §11.4.70 / §11.4.20 (subagent-driven), §11.4.58 / §11.4.103 (parallel streams), §11.4.89 (background execution), §11.4.5 / §11.4.69 / §11.4.107 (captured physical evidence), §11.4 (anti-bluff)."
+    composes_with:
+      - "11.4.20"
+      - "11.4.58"
+      - "11.4.70"
+      - "11.4.89"
+      - "11.4.103"
+      - "11.4.5"
+      - "11.4.69"
+      - "11.4.107"

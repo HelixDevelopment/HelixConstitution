@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>USER_GUIDE</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="action-prefix-system-user-guide">Action-Prefix System — User
+Guide</h1>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-06-09</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-06-09T00:00:00Z</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>end-user guide to the universal <code>ACTION_NAME ::</code>
+prompt-prefix system (§11.4.140)</td>
+</tr>
+<tr>
+<td>Audience</td>
+<td>end users of any CLI agent that includes the constitution
+submodule</td>
+</tr>
+<tr>
+<td>Inputs</td>
+<td><code>docs/research/action_prefix_system/{DESIGN.md,GRAMMAR_ADDENDUM.md,IMPLEMENTATION_REPORT.md}</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Anti-bluff (§11.4.6): this guide documents only what the design + the
+verified implementation actually do. Where a feature is designed but not
+yet implemented, that is stated explicitly as
+<strong>(spec-only)</strong> — never implied to work. The honest §11.4.3
+per-agent support boundary is in §6.</p>
+</blockquote>
+<hr />
+<h2 id="what-the-action-prefix-system-is">1. What the action-prefix
+system is</h2>
+<p>The action-prefix system lets you put a short, UPPERCASE
+<strong>action keyword</strong> at the very start of your prompt to
+apply a registered behaviour to the rest of it — without retyping a long
+instruction every time.</p>
+<p>When your prompt’s first non-blank line starts with an action keyword
+followed by <code>::</code> (one space, two colons, one space), the
+agent looks the keyword up in a shared <strong>action registry</strong>,
+replaces the <code>ACTION_NAME ::</code> prefix with that action’s full
+<strong>expansion text</strong>, and then executes the rest of your
+prompt under that expanded instruction.</p>
+<p>Example. You type:</p>
+<pre><code>BACKGROUND :: Investigate the audio-routing regression on D3 and propose a fix.</code></pre>
+<p>The agent expands <code>BACKGROUND ::</code> into the registered
+BACKGROUND instruction (run as a background, subagent-driven, parallel
+work stream that produces rock-solid physical proof — see §3) and then
+performs your actual task (<em>“Investigate the audio-routing regression
+on D3 and propose a fix”</em>) under that instruction.</p>
+<p>The system is <strong>universal</strong> (works across every
+supported CLI agent), <strong>extensible</strong> (new actions are added
+by editing one data file, never code — see the <a
+href="MANUAL.md">Manual</a>), and <strong>loads out-of-the-box</strong>
+once the constitution submodule is included in a project (see §7).</p>
+<p>Canonical authority: constitution submodule §11.4.140
+(<code>Constitution.md</code>).</p>
+<hr />
+<h2 id="the-four-equivalent-invocation-forms">2. The four equivalent
+invocation forms</h2>
+<p>Every registered action is <strong>designed</strong> to be invocable
+in four equivalent forms — same action, same expansion, same execution.
+The first non-blank line of your prompt is what is matched.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>Form</th>
+<th>Example</th>
+<th>Notes</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>ACTION_NAME :: &lt;rest&gt;</code></td>
+<td><code>BACKGROUND :: Do X</code></td>
+<td>bare <code>::</code> form (no namespace)</td>
+<td><strong>Implemented</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>PREFIX::ACTION_NAME :: &lt;rest&gt;</code></td>
+<td><code>DEFAULT::BACKGROUND :: Do X</code></td>
+<td>namespaced <code>::</code> form</td>
+<td><strong>Implemented</strong> (grammar 91/0; see §8)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>/ACTION_NAME &lt;rest&gt;</code></td>
+<td><code>/BACKGROUND Do X</code></td>
+<td>bare slash form — ONLY if <code>/ACTION_NAME</code> does NOT collide
+with an existing/built-in slash command of the host agent</td>
+<td><strong>Implemented</strong> (generated slash command; see §6)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>/PREFIX::ACTION_NAME &lt;rest&gt;</code></td>
+<td><code>/DEFAULT::BACKGROUND Do X</code></td>
+<td>namespaced slash form — disambiguates from any existing
+<code>/ACTION_NAME</code>; ALWAYS safe</td>
+<td><strong>Implemented</strong> (hook E2E 10/0; see §8)</td>
+</tr>
+</tbody>
+</table>
+<p>These four forms are equivalent by design:</p>
+<pre><code>BACKGROUND ::  ≡  DEFAULT::BACKGROUND ::  ≡  /BACKGROUND  ≡  /DEFAULT::BACKGROUND</code></pre>
+<blockquote>
+<p><strong>Honest status note (§11.4.6).</strong> All four forms are
+implemented today and work end-to-end. Forms <strong>2 and 4</strong>
+(the <code>DEFAULT::</code> namespace) are now wired into the registry,
+the expander library, and the slash-command generator, and are verified
+(grammar suite 91/0, hook E2E 10/0) — see §8. Any of the four forms can
+be used today.</p>
+</blockquote>
+<h3 id="the-separators-do-not-confuse-them">2.1 The separators (do not
+confuse them)</h3>
+<ul>
+<li><strong>Namespace separator</strong> — <code>::</code> with
+<strong>no surrounding spaces</strong>, used INSIDE the token:
+<code>PREFIX::ACTION_NAME</code> (forms 2 and 4).</li>
+<li><strong>Action-body separator</strong> — <code>::</code> with
+<strong>a space on each side</strong>, used between the token and the
+rest of your task in the <code>::</code> forms (forms 1 and 2).</li>
+<li><strong>Slash-form body separator</strong> — a single space, between
+the slashed token and the rest (forms 3 and 4):
+<code>/BACKGROUND Do X</code>.</li>
+</ul>
+<p>The exact <code>::</code> (space-colon-colon-space) separator in
+forms 1 and 2 is chosen deliberately so the prefix never collides with
+C++ <code>Foo::Bar</code>, YAML <code>key: value</code>, URLs, or
+<code>12::34</code>-style typos.</p>
+<hr />
+<h2 id="the-background-actions-effect">3. The <code>BACKGROUND</code>
+action’s effect</h2>
+<p><code>BACKGROUND</code> is the first registered action. Its expansion
+text (verbatim from the registry) is:</p>
+<blockquote>
+<p><em>“The following prompt that we will provide MUST BE executed in
+background in parallel with all main work streams using the
+subagents-driven development approach! All work done MUST PRODUCE rock
+solid evidence covered with hard physical proof(s) that all done is
+working as expected and as specified without any false results and
+without any bluff!”</em></p>
+</blockquote>
+<p>In plain terms, prefixing your task with <code>BACKGROUND ::</code>
+tells the agent to:</p>
+<ul>
+<li>run the task as a <strong>background work stream</strong> in
+parallel with other work,</li>
+<li>drive it via the <strong>subagent-driven</strong> approach,</li>
+<li>and produce <strong>rock-solid physical proof</strong> that the
+result really works — no false results, no bluff.</li>
+</ul>
+<p>It composes with the constitution’s subagent-driven (§11.4.20 /
+§11.4.70), parallel-stream (§11.4.58 / §11.4.103), background-execution
+(§11.4.89), and captured-evidence (§11.4.5 / §11.4.69 / §11.4.107) +
+anti-bluff (§11.4) anchors.</p>
+<p>More actions can be added later; each gets its own keyword, expansion
+text, and optional rules. See the <a href="MANUAL.md">Manual</a> §“How
+to add a new action”.</p>
+<hr />
+<h2 id="the-escape-discussing-an-action-without-triggering-it">4. The
+escape — discussing an action without triggering it</h2>
+<p>If you want to <em>write about</em> an action keyword without
+triggering its expansion (for example, to ask a question about it), put
+a single backslash <code>\</code> at the very start of the line:</p>
+<pre><code>\BACKGROUND :: x</code></pre>
+<p>The agent strips the leading backslash and treats the line as the
+ordinary prompt <code>BACKGROUND :: x</code> — <strong>no expansion
+happens</strong>. The same escape applies to the slash forms:
+<code>\/BACKGROUND x</code> is literal.</p>
+<hr />
+<h2 id="other-grammar-rules-you-should-know">5. Other grammar rules you
+should know</h2>
+<p>These rules keep the system predictable and prevent accidental
+triggers:</p>
+<ol type="1">
+<li><strong>Anchored at the first non-blank line only.</strong> The
+keyword must be the very start of your prompt’s first non-blank line.
+<code>please BACKGROUND :: x</code> does <strong>not</strong> trigger —
+the keyword is not at line start, so it is an ordinary prompt. Leading
+blank lines before the keyword are allowed.</li>
+<li><strong>UPPERCASE only.</strong> Action keywords are
+<code>[A-Z][A-Z0-9_]*</code>. <code>background :: x</code> (lowercase)
+does <strong>not</strong> trigger — this makes the keyword visually
+unmistakable and avoids matching ordinary prose.</li>
+<li><strong>Exact separator.</strong> The <code>::</code> forms require
+exactly <code>::</code> (one space each side).
+<code>BACKGROUND::do X</code> (no spaces) does <strong>not</strong>
+trigger.</li>
+<li><strong>Stacked keywords.</strong>
+<code>OUTER :: INNER :: do X</code> applies outer-to-inner,
+left-to-right: expand <code>OUTER</code>, re-scan the remainder, expand
+<code>INNER</code>, then <code>do X</code> is the task. Both expansions
+apply. <em>(In practice only <code>BACKGROUND</code> is registered
+today, so stacking is available but rarely used until more actions
+land.)</em></li>
+<li><strong>Unknown keyword — never guessed.</strong> If your first-line
+token looks like an action (<code>SOMETHING :: …</code>) but is
+<strong>not</strong> in the registry, the agent will
+<strong>not</strong> silently expand it or silently drop it. It asks
+which registered action you meant (per §11.4.66 / §11.4.105), or treats
+your line literally — it never invents an expansion (§11.4.6). So a typo
+like <code>BACKROUND :: x</code> gets a clarifying question naming the
+closest registered action, not a guess.</li>
+<li><strong>No-op when nothing matches.</strong> Any prompt that does
+not satisfy the grammar is just an ordinary prompt; the system does
+nothing.</li>
+</ol>
+<hr />
+<h2 id="per-agent-support-matrix">6. Per-agent support matrix</h2>
+<p>The system is built in two layers (full architecture in the <a
+href="MANUAL.md">Manual</a>):</p>
+<ul>
+<li><strong>LAYER 1 (always-on, every agent):</strong> a recognition
+instruction is embedded in every agent context carrier
+(<code>CLAUDE.md</code>, <code>AGENTS.md</code>, <code>QWEN.md</code>,
+<code>GEMINI.md</code>). The agent reads it on every prompt and applies
+the free-form prefix <strong>itself</strong>. This is the universal
+floor — it works on every agent with zero extra setup.</li>
+<li><strong>LAYER 2 (mechanical, where the agent exposes a pre-submit
+seam):</strong> on Claude Code a <code>UserPromptSubmit</code> hook
+rewrites/injects the expansion deterministically before the model sees
+the prompt; on Gemini/Qwen/Codex a generated <strong>slash
+command</strong> (<code>/background</code>) is the mechanical
+convenience.</li>
+</ul>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Free-form <code>BACKGROUND :: …</code> (form 1)</th>
+<th>Mechanical interception</th>
+<th>Slash command (form 3)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>LAYER 1 + LAYER 2 hook (transparent)</td>
+<td><strong>YES</strong> — <code>UserPromptSubmit</code> hook rewrites
+before the model sees it</td>
+<td>(hook covers it)</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>LAYER 1 (agent self-applies)</td>
+<td>NO transparent rewrite</td>
+<td><code>/background</code> (generated
+<code>.gemini/commands/background.toml</code>)</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>LAYER 1 (agent self-applies)</td>
+<td>NO transparent rewrite</td>
+<td><code>/background</code> (generated
+<code>.qwen/commands/background.toml</code>)</td>
+</tr>
+<tr>
+<td><strong>OpenAI Codex CLI</strong></td>
+<td>LAYER 1 via <code>AGENTS.md</code></td>
+<td>NO transparent rewrite</td>
+<td><code>/prompts:background</code> (generated
+<code>prompts/background.md</code>)</td>
+</tr>
+<tr>
+<td><strong>GitHub Copilot CLI</strong></td>
+<td>LAYER 1 via <code>AGENTS.md</code> +
+<code>copilot-instructions.md</code></td>
+<td>NO</td>
+<td>(custom agent optional)</td>
+</tr>
+<tr>
+<td><strong>Cursor</strong></td>
+<td>LAYER 1 via <code>.cursor/rules</code> + <code>AGENTS.md</code></td>
+<td>NO</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>LAYER 1 via <code>CONVENTIONS.md</code> /
+<code>AGENTS.md</code></td>
+<td>NO</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Cline / Continue / Roo</strong></td>
+<td>LAYER 1 via <code>.clinerules</code> / <code>.continue/rules</code>
+/ <code>AGENTS.md</code></td>
+<td>NO</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="honest-11.4.3-boundary-claude-code-only-mechanical-rewrite">6.1
+Honest §11.4.3 boundary — Claude-Code-only mechanical rewrite</h3>
+<p><strong>Transparent, mechanical free-form interception</strong> — the
+<code>BACKGROUND :: …</code> string being rewritten <em>before the model
+ever sees it</em> — is genuinely available <strong>ONLY on Claude
+Code</strong>, because Claude Code is the only agent (verified against
+its official hooks documentation) that exposes a pre-submit
+<code>UserPromptSubmit</code> seam.</p>
+<p>This is <strong>not a gap</strong>:</p>
+<ul>
+<li>On every other agent the free-form form still works — LAYER 1 makes
+the agent recognise and apply the prefix itself (it reads the
+recognition instruction from its context carrier).</li>
+<li>The generated <strong>slash command</strong>
+(<code>/background</code>, form 3) is the mechanical convenience on the
+agents that support generated commands (Gemini, Qwen, Codex).</li>
+</ul>
+<p>So: <strong>form 1 (free-form) works everywhere via LAYER 1;
+mechanical rewrite is a Claude-Code upgrade; the slash command is the
+convenience elsewhere.</strong> The slash generators are a nicety, not
+the load-bearing path.</p>
+<hr />
+<h2 id="quick-start-how-it-loads-out-of-the-box">7. Quick-start — how it
+loads out-of-the-box</h2>
+<p>You do not install anything per-prompt. Once a project includes the
+constitution submodule, the system is available:</p>
+<ol type="1">
+<li><strong>LAYER 1 is automatic.</strong> The recognition instruction
+lives in the project’s <code>CLAUDE.md</code> / <code>AGENTS.md</code> /
+<code>QWEN.md</code> / <code>GEMINI.md</code> (propagated per §11.4.35).
+Every agent loads its carrier with every prompt, so it already knows the
+prefix grammar and the <code>BACKGROUND</code> expansion — even without
+registry-file access (the <code>BACKGROUND</code> expansion is inlined
+into the carrier block).</li>
+<li><strong>LAYER 2 is wired by the installer.</strong> Running the
+project setup invokes <code>scripts/install_action_prefix.sh</code> (by
+reference, per §11.4.80), which:
+<ul>
+<li>merges the Claude Code <code>UserPromptSubmit</code> hook entry into
+the project’s <code>.claude/settings.json</code> (idempotent — no
+duplicate on re-run, pre-existing hooks preserved,
+<code>settings.json</code> backed up first), and</li>
+<li>runs the slash-command generator so <code>/background</code> exists
+for the other agents.</li>
+</ul></li>
+<li><strong>Use it.</strong> Start a prompt with
+<code>BACKGROUND :: &lt;your task&gt;</code> (form 1) on any agent, or
+<code>/background &lt;your task&gt;</code> (form 3) on
+Gemini/Qwen/Codex.</li>
+</ol>
+<p>To verify the system is live, see the <a href="MANUAL.md">Manual</a>
+§“Troubleshooting”.</p>
+<hr />
+<h2 id="what-is-implemented-read-before-relying-on-a-form">8. What is
+implemented (read before relying on a form)</h2>
+<p>Per §11.4.6 this is stated as fact, not implied:</p>
+<p><strong>Implemented + verified working (per the Implementation
+Report):</strong></p>
+<ul>
+<li>Form 1 — <code>ACTION_NAME :: &lt;rest&gt;</code> — end-to-end:
+registry → expander library → LAYER-1 recognition instruction → LAYER-2
+Claude Code hook.</li>
+<li>Form 2 — <code>PREFIX::ACTION_NAME :: &lt;rest&gt;</code>
+(e.g. <code>DEFAULT::BACKGROUND :: …</code>) — namespaced
+<code>::</code> form (grammar suite 91/0).</li>
+<li>Form 3 — <code>/ACTION_NAME &lt;rest&gt;</code> — the generated bare
+slash command (<code>/background</code>) for Gemini
+(<code>.toml</code>), Qwen (<code>.toml</code>), Codex
+(<code>prompts/</code>).</li>
+<li>Form 4 — <code>/PREFIX::ACTION_NAME &lt;rest&gt;</code>
+(e.g. <code>/DEFAULT::BACKGROUND …</code>) — namespaced slash form,
+always-unambiguous (hook E2E 10/0).</li>
+<li>The <code>DEFAULT</code> namespace and the registry keys that drive
+forms 2/4 (<code>grammar.default_namespace</code>,
+<code>grammar.namespace_separator</code>,
+<code>grammar.slash_prefix</code>, per-action <code>namespaces</code>,
+<code>slash_bare</code>, <code>slash_conflicts</code>), the
+conflict-aware bare-slash rule (<code>slash_bare: auto</code>), and the
+<code>/default::background</code> namespaced slash artefact.</li>
+<li>The <code>BACKGROUND</code> action with the operator’s verbatim
+expansion.</li>
+<li>The escape (<code>\</code>), stacked-prefix (outer-to-inner),
+unknown-token-ask, and no-op rules of §5.</li>
+</ul>
+<p>All four forms are verified end-to-end (grammar suite 91/0, hook E2E
+10/0). The registry declares the full namespaced grammar and the
+expander library’s <code>apx_parse_prefix</code> recognises all four
+forms; there is no remaining spec-only gap in the grammar.</p>
+<hr />
+<h2 id="related-documents">9. Related documents</h2>
+<ul>
+<li><a href="MANUAL.md">MANUAL.md</a> — developer/maintainer manual
+(architecture, registry schema, adding a new action, conflict rule,
+troubleshooting).</li>
+<li><a href="DIAGRAMS.md">DIAGRAMS.md</a> — Mermaid diagrams of the
+expansion flow, the two-layer architecture, the 4-form grammar decision
+tree, and the add-a-new-action sequence.</li>
+<li>Source design:
+<code>docs/research/action_prefix_system/{RESEARCH.md, DESIGN.md, GRAMMAR_ADDENDUM.md, IMPLEMENTATION_REPORT.md, RULE_DRAFT.md}</code>.</li>
+<li>Canonical authority: <code>Constitution.md</code> §11.4.140.</li>
+</ul>
+</body>
+</html>

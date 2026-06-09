@@ -1,0 +1,44 @@
+# Helix Constitution — Subagent Model-Tiering Registry (§11.4.141 Measure M2)
+#
+# Single source of truth mapping a subagent TASK CLASS → its model tier. Both the
+# rule (subagent_model_tiering.md) and the resolver (scripts/subagent_tier.sh)
+# read THIS file. Adding a task class = adding one `classes[]` row — NO code change.
+#
+# Decoupling (§11.4.28): this registry carries NO project-specific data. A
+# consuming project ships its OWN actions/subagent_tiering.yaml (or inherits this
+# default by reference, like the §11.4.80 codegraph_* scripts). The resolver reads
+# the registry path from $HELIX_SUBAGENT_TIERING (default: this file).
+#
+# THE BRIGHT LINE (§11.4.141): the cheap/mechanical model NEVER emits a verdict.
+# Every PASS/FAIL/WARN/SKIP decision, every fix-design / root-cause (§11.4.102),
+# every code-review (§11.4.125), every demotion-evidence judgment (§11.4.7), and
+# every captured-evidence interpretation is JUDGMENT tier (strong model only).
+# scripts/subagent_tier.sh REFUSES (exit 1) to route a judgment class to the
+# mechanical model — that refusal is what makes the bright line mechanical, and
+# is the §1.1 paired mutation seam.
+
+# Model tier names. The consuming project maps these to real model ids per agent:
+#   mechanical_model — a cheaper/smaller model (Haiku-class) for legwork only.
+#   judgment_model   — the strong model (Opus-class / the conductor's own model)
+#                      for ALL decisions. "inherit" = use the conductor's model.
+mechanical_model: haiku
+judgment_model: inherit
+
+# Task classes. tier ∈ { mechanical | judgment }.
+classes:
+  # ── MECHANICAL (safe to tier down — pure legwork, no decision) ──────────────
+  - { name: code_search,       tier: mechanical, desc: "code/log search, grep, glob" }
+  - { name: status_probe,      tier: mechanical, desc: "read-only dumpsys/getprop//proc//sys probes (§11.4.96 SAFE)" }
+  - { name: doc_export,        tier: mechanical, desc: "pandoc/weasyprint export + markdown sync" }
+  - { name: file_presence,     tier: mechanical, desc: "path / file-existence checks" }
+  - { name: parse_lint,        tier: mechanical, desc: "parse / lint / format-only edits" }
+  - { name: simple_edit,       tier: mechanical, desc: "mechanical rename / find-replace (no logic change)" }
+  - { name: mechanical_rename, tier: mechanical, desc: "deterministic mechanical rename" }
+
+  # ── JUDGMENT (strong model ONLY — NEVER tier down) ──────────────────────────
+  - { name: pass_fail_verdict, tier: judgment, desc: "any PASS/FAIL/WARN/SKIP verdict (§11.4 anti-bluff)" }
+  - { name: fix_design,        tier: judgment, desc: "fix design / root-cause (§11.4.102)" }
+  - { name: code_review,       tier: judgment, desc: "code review (§11.4.125)" }
+  - { name: demotion_evidence, tier: judgment, desc: "demotion-evidence judgment (§11.4.7)" }
+  - { name: evidence_interp,   tier: judgment, desc: "captured-evidence interpretation (is this audio glitchy?)" }
+  - { name: blast_radius,      tier: judgment, desc: "architectural / blast-radius analysis (§11.4.92)" }

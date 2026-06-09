@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>DIAGRAMS</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="action-prefix-system-diagrams">Action-Prefix System —
+Diagrams</h1>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-06-09</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-06-09T00:00:00Z</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>Mermaid diagrams for the §11.4.140 action-prefix system</td>
+</tr>
+<tr>
+<td>Audience</td>
+<td>maintainers + engineers (companion to USER_GUIDE.md +
+MANUAL.md)</td>
+</tr>
+<tr>
+<td>Inputs</td>
+<td><code>docs/research/action_prefix_system/{DESIGN.md,GRAMMAR_ADDENDUM.md,IMPLEMENTATION_REPORT.md}</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Anti-bluff (§11.4.6): the diagrams depict only the design + the
+verified implementation. All four forms — including the
+<code>DEFAULT::</code> namespace forms 2/4 — are now implemented and
+verified (grammar suite 91/0, hook E2E 10/0); none remain spec-only.</p>
+</blockquote>
+<hr />
+<h2
+id="expansion-flow-prompt-prefix-match-registry-lookup-expand-execute">1.
+Expansion flow (prompt → prefix match → registry lookup → expand →
+execute)</h2>
+<p>How a single prompt is processed: detect the prefix on the first
+non-blank line, handle the escape, look the token up in the registry,
+replace the prefix with the expansion, then execute the residual task.
+This is the C-preprocessor expand-then-rescan model applied to prompts
+(DESIGN.md §4).</p>
+<pre class="mermaid"><code>flowchart TD
+    A([User prompt]) --&gt; B[Take first non-blank line]
+    B --&gt; C{Leading &#39;\\&#39; escape?}
+    C -- yes --&gt; C1[Strip one backslash → literal prompt, NO expansion] --&gt; Z([Execute ordinary prompt])
+    C -- no --&gt; D{&quot;Matches grammar?\n^[A-Z][A-Z0-9_]* :: &quot;}
+    D -- no --&gt; Z
+    D -- yes --&gt; E[Extract ACTION_NAME token]
+    E --&gt; F{Token in registry?}
+    F -- &quot;no (grammar-shaped, unregistered)&quot; --&gt; G[&quot;ASK which registered action was meant\n(§11.4.66 / §11.4.105) — NEVER invent (§11.4.6)&quot;]
+    G --&gt; Z2([Await clarification / treat literally])
+    F -- yes --&gt; H[Replace &#39;ACTION_NAME :: &#39; prefix\nwith registry &#39;expansion&#39; text]
+    H --&gt; I{More stacked prefixes\non the residual?}
+    I -- &quot;yes (A :: B :: rest)&quot; --&gt; E
+    I -- no --&gt; J[Apply action &#39;rules&#39;]
+    J --&gt; K([Execute residual task\nunder the expanded instruction])</code></pre>
+<hr />
+<h2 id="two-layer-architecture-across-cli-agents">2. Two-layer
+architecture across CLI agents</h2>
+<p>One shared registry feeds both layers. LAYER 1 (the recognition
+instruction in every context carrier) is the universal floor; LAYER 2 is
+the mechanical upgrade where an agent exposes a pre-submit seam. Only
+Claude Code has transparent mechanical free-form interception (the
+honest §11.4.3 boundary).</p>
+<pre class="mermaid"><code>flowchart TB
+    REG[&quot;actions/registry.yaml\n(single source of truth — data, not code)&quot;]
+
+    subgraph L1[&quot;LAYER 1 — universal floor (agent self-applies, §11.4.35)&quot;]
+      RI[&quot;recognition_instruction.md\n(verbatim block, identical in all carriers)&quot;]
+      CM[&quot;CLAUDE.md&quot;]
+      AM[&quot;AGENTS.md&quot;]
+      QM[&quot;QWEN.md&quot;]
+      GM[&quot;GEMINI.md&quot;]
+      RI --&gt; CM &amp; AM &amp; QM &amp; GM
+    end
+
+    subgraph L2[&quot;LAYER 2 — mechanical (where a pre-submit seam exists)&quot;]
+      HOOK[&quot;scripts/hooks/action_prefix_expand.sh\nClaude Code UserPromptSubmit hook\n→ additionalContext&quot;]
+      GEN[&quot;scripts/generate_agent_prefix_commands.sh\n→ /background slash commands&quot;]
+      LIB[&quot;scripts/action_prefix_lib.sh\n(shared pure expander — apx_*)&quot;]
+      LIB --&gt; HOOK
+      LIB --&gt; GEN
+    end
+
+    REG --&gt; RI
+    REG --&gt; LIB
+
+    CC[&quot;Claude Code&quot;]
+    GQ[&quot;Gemini CLI / Qwen Code / Codex CLI&quot;]
+    OTH[&quot;Cursor / Aider / Cline / Continue / Roo / Copilot&quot;]
+
+    CM --&gt; CC
+    HOOK -. &quot;transparent rewrite (Claude-only)&quot; .-&gt; CC
+    AM &amp; QM &amp; GM --&gt; GQ
+    GEN -. &quot;/background convenience&quot; .-&gt; GQ
+    AM --&gt; OTH
+    OTH -. &quot;LAYER 1 only (no L2 seam)&quot; .-&gt; OTH2([free-form via self-apply])</code></pre>
+<hr />
+<h2 id="the-4-form-grammar-decision-tree">3. The 4-form grammar decision
+tree</h2>
+<p>Which form of the first non-blank line was used. All four forms are
+<strong>implemented</strong> and verified (grammar suite 91/0, hook E2E
+10/0) per the GRAMMAR_ADDENDUM; forms 2 and 4 (the
+<code>DEFAULT::</code> namespace) are no longer spec-only. All four
+resolve to the same action + expansion by design.</p>
+<pre class="mermaid"><code>flowchart TD
+    S([First non-blank line]) --&gt; ESC{Leading &#39;\\&#39; ?}
+    ESC -- yes --&gt; LIT([Literal — strip backslash, no expansion])
+    ESC -- no --&gt; SL{Starts with &#39;/&#39; ?}
+
+    SL -- no --&gt; NS{&quot;Token has &#39;::&#39; namespace?\nPREFIX::ACTION&quot;}
+    NS -- no --&gt; F1[&quot;FORM 1: ACTION_NAME :: rest\n(bare &#39;::&#39;)&quot;]
+    NS -- yes --&gt; F2[&quot;FORM 2: PREFIX::ACTION_NAME :: rest\n(namespaced &#39;::&#39;)&quot;]
+
+    SL -- yes --&gt; SLN{&quot;Slashed token has &#39;::&#39; namespace?\n/PREFIX::ACTION&quot;}
+    SLN -- no --&gt; F3[&quot;FORM 3: /ACTION_NAME rest\n(bare slash — only if no host-command collision)&quot;]
+    SLN -- yes --&gt; F4[&quot;FORM 4: /PREFIX::ACTION_NAME rest\n(namespaced slash — always safe)&quot;]
+
+    F1 --&gt; R[Resolve ACTION_NAME in registry → expansion]
+    F2 --&gt; R
+    F3 --&gt; R
+    F4 --&gt; R
+    R --&gt; EQ([&quot;All four forms ≡ same action, same expansion, same execution&quot;])</code></pre>
+<blockquote>
+<p>Legend: all nodes/edges = implemented + verified (forms 1, 2, 3, 4;
+grammar suite 91/0, hook E2E 10/0). The <code>DEFAULT::</code> namespace
+registry keys
+(<code>default_namespace</code>/<code>namespace_separator</code>/<code>slash_prefix</code>/<code>namespaces</code>/
+<code>slash_bare</code>) are present and <code>apx_parse_prefix</code>
+returns <code>matched_form</code> for all four forms. See MANUAL.md §4.3
+/ §7.</p>
+</blockquote>
+<hr />
+<h2 id="add-a-new-action-sequence">4. Add-a-new-action sequence</h2>
+<p>Adding an action is a one-row registry edit plus a generator re-run —
+no code change in either layer. (DESIGN.md §9 / MANUAL.md §6.)</p>
+<pre class="mermaid"><code>sequenceDiagram
+    actor Dev as Maintainer
+    participant Reg as actions/registry.yaml
+    participant Gen as generate_agent_prefix_commands.sh
+    participant Out as actions/generated/*
+    participant Lib as action_prefix_lib.sh
+    participant Test as unit test + §1.1 mutation
+    participant Doc as docs (§11.4.44 / §11.4.65)
+
+    Dev-&gt;&gt;Reg: add one actions[] row\n(name, version, summary≥6 words §11.4.91, expansion, rules?, composes_with?)
+    Dev-&gt;&gt;Gen: bash scripts/generate_agent_prefix_commands.sh
+    Gen-&gt;&gt;Lib: apx_validate_registry + apx_lookup_expansion(NEWACTION)
+    Lib--&gt;&gt;Gen: expansion (verbatim)
+    Gen-&gt;&gt;Out: write gemini/newaction.toml, qwen/newaction.toml, codex/newaction.md\n(/newaction = form 3)
+    Note over Reg,Out: No edit to the hook OR the library — registry is data, not code.\nLAYER 1 already knows to consult the registry.
+    Dev-&gt;&gt;Test: add unit test (parses + grammar match + expansion correct)\n+ paired mutation (corrupt expansion → gate FAILs)
+    Dev-&gt;&gt;Doc: bump revision header; export .html/.pdf at commit time (conductor)
+    Note over Dev: Optional — inline the expansion in the LAYER-1 block\nONLY if it must work without registry-file access (like BACKGROUND).</code></pre>
+<hr />
+<h2 id="related-documents">5. Related documents</h2>
+<ul>
+<li><a href="USER_GUIDE.md">USER_GUIDE.md</a> — end-user guide.</li>
+<li><a href="MANUAL.md">MANUAL.md</a> — developer/maintainer
+manual.</li>
+<li><code>docs/research/action_prefix_system/{RESEARCH.md, DESIGN.md, GRAMMAR_ADDENDUM.md, IMPLEMENTATION_REPORT.md, RULE_DRAFT.md}</code>
+— source design.</li>
+<li>Canonical authority: <code>Constitution.md</code> §11.4.140.</li>
+</ul>
+</body>
+</html>

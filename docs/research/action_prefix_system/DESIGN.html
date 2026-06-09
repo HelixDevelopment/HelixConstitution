@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>DESIGN</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1
+id="action-prefix-system-universal-architecture-design">Action-Prefix
+System — Universal Architecture Design</h1>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-06-09</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-06-09T00:00:00Z</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>Universal “ACTION_NAME ::” prompt-prefix system → constitution
+anchor §11.4.140</td>
+</tr>
+<tr>
+<td>Inputs</td>
+<td><code>RESEARCH.md</code> (this directory)</td>
+</tr>
+<tr>
+<td>Authority</td>
+<td>design source for <code>RULE_DRAFT.md</code> +
+<code>TEST_PLAN.md</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Anti-bluff (§11.4.6): the LAYER-2 mechanical interception is
+confirmed ONLY for Claude Code (see RESEARCH.md §1.1 + §4). Every other
+agent is covered by LAYER 1 (the instruction-context carrier it already
+reads). This document states that split as fact, never papers over
+it.</p>
+</blockquote>
+<hr />
+<h2 id="architecture-in-one-paragraph-recommended">1. Architecture in
+one paragraph (recommended)</h2>
+<p>A <strong>two-layer</strong> system over <strong>one shared action
+registry</strong>. The registry (<code>actions/registry.yaml</code>,
+tracked, in the constitution submodule) is the single source of truth:
+each entry maps an <code>ACTION_NAME</code> to its
+<code>expansion</code> text plus optional rules. <strong>LAYER 1
+(universal, always works, out-of-the-box):</strong> a short
+“Action-Prefix Recognition” instruction block is mirrored into every
+agent context carrier the constitution already maintains
+(<code>CLAUDE.md</code>, <code>AGENTS.md</code>, <code>QWEN.md</code>,
+and a new <code>GEMINI.md</code> mirror). It tells the agent itself:
+<em>when a user prompt’s first non-blank line starts with
+<code>ACTION_NAME ::</code>, look up <code>ACTION_NAME</code> in the
+registry, replace the <code>ACTION_NAME ::</code> prefix with that
+action’s <code>expansion</code>, then execute the rest of the prompt
+under the action’s rules.</em> Because that instruction is loaded with
+every prompt on every agent (CLAUDE.md / AGENTS.md / GEMINI.md / QWEN.md
+per §11.4.35), the system works on all of them with zero extra setup.
+<strong>LAYER 2 (mechanical, where the agent exposes a pre-submit seam —
+today only Claude Code):</strong> a <code>UserPromptSubmit</code> hook
+(<code>scripts/hooks/action-prefix-expand.sh</code>) reads the SAME
+registry, detects the prefix, and injects the expansion
+deterministically via <code>additionalContext</code>, so the expansion
+is applied even if the model’s recall lapses (the §11.4.109
+anti-forgetting pattern applied to prompt prefixes). Adding a new action
+= adding one registry row; both layers pick it up with no code
+change.</p>
+<hr />
+<h2 id="component-inventory-all-in-the-constitution-submodule">2.
+Component inventory (all in the constitution submodule)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Path</th>
+<th>Role</th>
+<th>Layer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>actions/registry.yaml</code></td>
+<td>single source of truth: action → expansion + rules</td>
+<td>shared</td>
+</tr>
+<tr>
+<td><code>actions/SCHEMA.md</code></td>
+<td>registry schema + grammar spec (human + machine ref)</td>
+<td>shared</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code> §11.4.140 mirror</td>
+<td>LAYER-1 recognition instruction (Claude Code)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code> §11.4.140 mirror</td>
+<td>LAYER-1 recognition instruction
+(Codex/Copilot/Cursor/Aider/Cline/Continue/Roo)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>QWEN.md</code> §11.4.140 mirror</td>
+<td>LAYER-1 recognition instruction (Qwen Code)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>GEMINI.md</code> §11.4.140 mirror (new)</td>
+<td>LAYER-1 recognition instruction (Gemini CLI)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>scripts/hooks/action-prefix-expand.sh</code></td>
+<td><code>UserPromptSubmit</code> hook reading the registry</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>scripts/actions/expand_prefix.sh</code></td>
+<td>pure CLI expander (registry + prompt → expanded prompt); reused by
+hook, tests, and per-agent slash-command generators</td>
+<td>2 + tests</td>
+</tr>
+<tr>
+<td><code>scripts/actions/gen_agent_commands.sh</code></td>
+<td>generate per-agent slash-command equivalents from the registry
+(<code>.gemini/commands/*.toml</code>,
+<code>.qwen/commands/*.toml</code>, Codex <code>prompts/</code>)</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Decoupling (§11.4.28): registry + scripts carry NO project-specific
+data. A consuming project ships its OWN
+<code>actions/registry.yaml</code> (or inherits the constitution’s
+default by reference, like the §11.4.80 <code>codegraph_*</code>
+scripts). The scripts read the registry path from
+<code>$HELIX_ACTION_REGISTRY</code> (default:
+<code>constitution/actions/registry.yaml</code>), never a hardcoded
+project path.</p>
+</blockquote>
+<hr />
+<h2 id="the-registry-schema">3. The registry schema</h2>
+<p><code>actions/registry.yaml</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Helix Constitution — Action-Prefix Registry (§11.4.140)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Single source of truth for the &quot;ACTION_NAME ::&quot; prompt-prefix system.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Both LAYER 1 (agent self-recognition via CLAUDE.md/AGENTS.md/GEMINI.md/QWEN.md)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># and LAYER 2 (UserPromptSubmit hook) read THIS file. Add a row → new action.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">schema_version</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grammar</span><span class="kw">:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">prefix_regex</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;^([A-Z][A-Z0-9_]*) :: &#39;</span><span class="co">   # anchored, uppercase, &quot; :: &quot; separator</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">case_sensitive</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">                       # action names are UPPERCASE-only</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">multiple_prefixes</span><span class="kw">:</span><span class="at"> stack</span><span class="co">                   # &quot;A :: B :: rest&quot; applies A then B</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">escape</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;\\&#39;</span><span class="co">                               # &quot;\\BACKGROUND :: x&quot; → literal, no expansion</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">actions</span><span class="kw">:</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> BACKGROUND</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">    summary</span><span class="kw">: </span><span class="ch">&gt;-</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      Run the remainder of the prompt as a background, subagent-driven work</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      stream in parallel with all main work, producing rock-solid physical proof.</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">    expansion</span><span class="kw">: </span><span class="ch">&gt;-</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      The following prompt that we will provide MUST BE executed in background</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>      in parallel with all main work streams using the subagents-driven</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>      development approach! All work done MUST PRODUCE rock solid evidence</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>      covered with hard physical proof(s) that all done is working as expected</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>      and as specified without any false results and without any bluff!</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">rules</span><span class="kw">:</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;Compose with §11.4.70 / §11.4.20 (subagent-driven), §11.4.58 / §11.4.103 (parallel streams), §11.4.89 (background execution), §11.4.5 / §11.4.69 / §11.4.107 (captured evidence), §11.4 (anti-bluff).&quot;</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;The expansion REPLACES the &#39;BACKGROUND :: &#39; prefix; the remainder of the prompt is the actual task.&quot;</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">composes_with</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;11.4.20&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;11.4.58&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;11.4.70&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;11.4.89&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;11.4.103&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;11.4.5&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;11.4.69&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;11.4.107&quot;</span><span class="kw">]</span></span></code></pre></div>
+<p><strong>Field semantics:</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>schema_version</code></td>
+<td>yes</td>
+<td>integer; bumps on incompatible schema change</td>
+</tr>
+<tr>
+<td><code>grammar.prefix_regex</code></td>
+<td>yes</td>
+<td>the anchored match (see §4); SAME string used by both layers</td>
+</tr>
+<tr>
+<td><code>grammar.case_sensitive</code></td>
+<td>yes</td>
+<td><code>true</code> — action names are UPPERCASE only</td>
+</tr>
+<tr>
+<td><code>grammar.multiple_prefixes</code></td>
+<td>yes</td>
+<td><code>stack</code> — apply outer-to-inner left-to-right</td>
+</tr>
+<tr>
+<td><code>grammar.escape</code></td>
+<td>yes</td>
+<td>leading <code>\</code> makes the prefix literal (no expansion)</td>
+</tr>
+<tr>
+<td><code>actions[].name</code></td>
+<td>yes</td>
+<td><code>^[A-Z][A-Z0-9_]*$</code> — the trigger token</td>
+</tr>
+<tr>
+<td><code>actions[].version</code></td>
+<td>yes</td>
+<td>per-action monotonic integer (audit + change tracking)</td>
+</tr>
+<tr>
+<td><code>actions[].summary</code></td>
+<td>yes</td>
+<td>one-line human description (≥6 words per §11.4.91)</td>
+</tr>
+<tr>
+<td><code>actions[].expansion</code></td>
+<td>yes</td>
+<td>the verbatim text that REPLACES the prefix</td>
+</tr>
+<tr>
+<td><code>actions[].rules</code></td>
+<td>no</td>
+<td>free-text behavioural constraints applied after expansion</td>
+</tr>
+<tr>
+<td><code>actions[].composes_with</code></td>
+<td>no</td>
+<td>constitution clauses the action binds (audit)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-prefix-grammar-precise-spec">4. The prefix grammar (precise
+spec)</h2>
+<pre><code>PREFIX     := UPPER_TOKEN  WS  &quot;::&quot;  WS
+UPPER_TOKEN:= [A-Z] [A-Z0-9_]*
+WS         := &quot; &quot;    (exactly one ASCII space on each side of &quot;::&quot;)
+match      := /^([A-Z][A-Z0-9_]*) :: /   (anchored at start of FIRST non-blank line)</code></pre>
+<p><strong>Rules:</strong></p>
+<ol type="1">
+<li><strong>Anchoring.</strong> The prefix matches ONLY at the very
+start of the prompt’s first non-blank line.
+<code>please BACKGROUND :: x</code> does NOT match (the token is not at
+line start) — it is an ordinary prompt.</li>
+<li><strong>Case.</strong> Action names are UPPERCASE only
+(<code>[A-Z][A-Z0-9_]*</code>). <code>background ::</code> does NOT
+match. This deliberately makes the trigger visually unmistakable and
+avoids accidental matches on ordinary prose.</li>
+<li><strong>Separator.</strong> Exactly <code>space :: space</code>
+(<code>" :: "</code>). This avoids colliding with C++
+<code>Foo::Bar</code>, YAML <code>key: value</code>, URLs, and time
+<code>12::34</code>-style typos.</li>
+<li><strong>Multiple / stacked prefixes</strong>
+(<code>grammar.multiple_prefixes: stack</code>).
+<code>OUTER :: INNER :: do X</code> is processed left-to-right, outer
+first: expand <code>OUTER</code>, then re-scan the remainder
+(<code>INNER :: do X</code>), expand <code>INNER</code>, then the
+residual (<code>do X</code>) is the task. Both expansions apply.
+(C-preprocessor expand-then-rescan model — RESEARCH.md §3.) If an
+unknown token appears in a stacked position, see rule 6.</li>
+<li><strong>Escape (literal use).</strong> A leading backslash makes the
+prefix literal: <code>\BACKGROUND :: x</code> is treated as the ordinary
+prompt <code>BACKGROUND :: x</code> (the backslash is stripped, NO
+expansion). This lets a user discuss the action names without triggering
+them.</li>
+<li><strong>Unknown action.</strong> If the first-line token matches the
+grammar shape (<code>^[A-Z][A-Z0-9_]* ::</code>) but is NOT in the
+registry, the agent MUST NOT silently expand or silently drop it. Per
+§11.4.105 (intent recognition) + §11.4.66 (interactive clarification):
+treat it as a possible typo of a registered action — reply naming the
+closest registered action(s) and ask, OR (if clearly not an action)
+proceed with the literal prompt. NEVER invent an expansion (§11.4.6
+no-guessing).</li>
+<li><strong>No match.</strong> Anything that does not satisfy rules 1–3
+is an ordinary prompt; the system is a no-op.</li>
+</ol>
+<hr />
+<h2
+id="the-universal-layer-1-recognition-instruction-verbatim-text-to-embed">5.
+The universal LAYER-1 recognition instruction (verbatim text to
+embed)</h2>
+<p>This block is mirrored into <code>CLAUDE.md</code>,
+<code>AGENTS.md</code>, <code>QWEN.md</code>, <code>GEMINI.md</code>
+(the §11.4.140 consumer mirror — see RULE_DRAFT.md). It is the always-on
+floor:</p>
+<blockquote>
+<p><strong>Action-Prefix Recognition (§11.4.140).</strong> When a user
+prompt’s FIRST non-blank line starts with an uppercase action token
+followed by <code>" :: "</code> (grammar
+<code>^([A-Z][A-Z0-9_]*) ::</code>), you MUST: (1) read the action
+registry at <code>constitution/actions/registry.yaml</code> (or
+<code>$HELIX_ACTION_REGISTRY</code>); (2) if the token is a registered
+action, REPLACE the <code>ACTION_NAME ::</code> prefix with that
+action’s <code>expansion</code> text and apply its <code>rules</code>;
+(3) execute the remainder of the prompt under the expanded instruction.
+A leading <code>\</code> escapes the prefix (treat literally, no
+expansion). Stacked prefixes (<code>A :: B :: rest</code>) apply
+outer-to-inner. An unknown uppercase-<code>::</code> token is NOT
+silently expanded or dropped — ask which registered action was meant
+(§11.4.66/§11.4.105) or treat it as a literal prompt; never invent an
+expansion (§11.4.6). The registered action <code>BACKGROUND</code>
+expands to: “The following prompt that we will provide MUST BE executed
+in background in parallel with all main work streams using the
+subagents-driven development approach! All work done MUST PRODUCE rock
+solid evidence covered with hard physical proof(s) that all done is
+working as expected and as specified without any false results and
+without any bluff!”</p>
+</blockquote>
+<p>This is self-contained: even an agent with NO registry-file access
+still has the <code>BACKGROUND</code> expansion inline (so it works
+out-of-the-box on the most-used action), while the registry remains the
+extensible source of truth for the rest.</p>
+<hr />
+<h2 id="the-layer-2-mechanical-hook-claude-code">6. The LAYER-2
+mechanical hook (Claude Code)</h2>
+<p><code>scripts/hooks/action-prefix-expand.sh</code> — a
+<code>UserPromptSubmit</code> hook (contract per RESEARCH.md §1.1):</p>
+<ul>
+<li>reads the event JSON on stdin, extracts <code>.prompt</code> (no-jq
+fallback like the existing
+<code>guard-forbidden-commands.sh</code>);</li>
+<li>runs <code>scripts/actions/expand_prefix.sh</code> against the
+prompt + registry;</li>
+<li>if the prompt matches a registered action, prints
+<code>{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"&lt;expansion + rules&gt;"}}</code>
+on stdout and exits 0 — Claude receives the expansion as injected
+context and obeys it (the spec-guaranteed additive behaviour,
+RESEARCH.md §1.1);</li>
+<li>if no match, exits 0 with empty output (no-op);</li>
+<li>on unknown-but-grammar-matching token, injects an
+<code>additionalContext</code> note asking the model to clarify per
+§11.4.66/§11.4.105 (never invents expansion).</li>
+</ul>
+<p>Wired in <code>settings.json</code> (or
+<code>.claude/settings.json</code>) under
+<code>hooks.UserPromptSubmit</code>. Installed by the existing
+<code>scripts/install_git_hooks.sh</code> / setup path so it loads
+out-of-the-box (the §11.4.75 mechanical-install pattern).</p>
+<p><code>scripts/actions/expand_prefix.sh</code> is the pure,
+agent-agnostic expander
+(<code>registry + prompt → {matched?, action, expansion, residual}</code>).
+It is reused by (a) the Claude hook, (b) the TEST_PLAN unit/integration
+tests, and (c) the per-agent slash-command generator — one tested
+implementation, three consumers.</p>
+<hr />
+<h2 id="per-agent-integration-matrix-which-layer-each-agent-uses">7.
+Per-agent integration matrix (which layer each agent uses)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Agent</th>
+<th>LAYER 1 (always)</th>
+<th>LAYER 2 (mechanical)</th>
+<th>Net result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>CLAUDE.md mirror</td>
+<td><code>UserPromptSubmit</code> hook
+(<code>action-prefix-expand.sh</code>)</td>
+<td>transparent free-form <code>^PREFIX ::</code> interception</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>GEMINI.md mirror</td>
+<td>generated <code>.gemini/commands/background.toml</code>
+(<code>/background {{args}}</code>)</td>
+<td>free-form via Layer 1; slash <code>/background</code> via Layer
+2</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>QWEN.md mirror</td>
+<td>generated <code>.qwen/commands/background.toml</code></td>
+<td>free-form via Layer 1; slash via Layer 2</td>
+</tr>
+<tr>
+<td><strong>OpenAI Codex CLI</strong></td>
+<td>AGENTS.md mirror</td>
+<td>generated <code>prompts/background.md</code>
+(<code>/prompts:background</code>)</td>
+<td>free-form via Layer 1; slash via Layer 2</td>
+</tr>
+<tr>
+<td><strong>GitHub Copilot CLI</strong></td>
+<td>AGENTS.md mirror</td>
+<td>(custom agent optional)</td>
+<td>free-form via Layer 1</td>
+</tr>
+<tr>
+<td><strong>Cursor</strong></td>
+<td><code>.cursor/rules</code> + AGENTS.md mirror</td>
+<td>—</td>
+<td>free-form via Layer 1</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>CONVENTIONS.md/AGENTS.md mirror</td>
+<td>—</td>
+<td>free-form via Layer 1</td>
+</tr>
+<tr>
+<td><strong>Cline / Continue / Roo</strong></td>
+<td><code>.clinerules</code> / <code>.continue/rules</code> / AGENTS.md
+mirror</td>
+<td>—</td>
+<td>free-form via Layer 1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Honest §11.4.3 SKIP:</strong> transparent <em>mechanical</em>
+free-form interception (string rewritten before the model sees it) is
+genuinely only available on Claude Code. On every other agent the
+free-form <code>BACKGROUND :: …</code> form is honoured by LAYER 1 (the
+agent reads the recognition instruction and applies the expansion
+itself), and the slash-command equivalent (<code>/background …</code>)
+is the mechanical convenience where the agent supports generated
+commands. This split is NOT a gap — LAYER 1 makes the free-form form
+work everywhere; LAYER 2 is the upgrade. The slash generators are a
+nicety, not the load-bearing path.</p>
+<hr />
+<h2 id="decoupling-reuse-story-11.4.28-11.4.35">8. Decoupling + reuse
+story (§11.4.28 / §11.4.35)</h2>
+<ul>
+<li>Registry + scripts live in the constitution submodule, carry zero
+project-specific data, and are consumed <strong>by reference</strong>
+(the §11.4.80 <code>codegraph_*</code> pattern): a consuming project
+either uses the constitution’s default registry or ships its own
+<code>actions/registry.yaml</code> and points
+<code>$HELIX_ACTION_REGISTRY</code> at it.</li>
+<li>The LAYER-1 mirror block is propagated into the consuming project’s
+<code>CLAUDE.md</code>/<code>AGENTS.md</code>/<code>QWEN.md</code>/<code>GEMINI.md</code>
+by the existing §11.4.35 propagation machinery — exactly how every other
+§11.4.x anchor reaches the consumer fleet.</li>
+<li>The hook installs via the existing §11.4.75
+<code>install_git_hooks.sh</code> / setup seam, so it loads
+out-of-the-box with no per-project wiring.</li>
+</ul>
+<hr />
+<h2 id="extension-procedure-adding-a-new-action">9. Extension procedure
+(adding a new action)</h2>
+<ol type="1">
+<li>Add one <code>actions[]</code> row to
+<code>actions/registry.yaml</code> (<code>name</code>,
+<code>version: 1</code>, <code>summary</code>, <code>expansion</code>,
+optional <code>rules</code> + <code>composes_with</code>).</li>
+<li>Run <code>scripts/actions/gen_agent_commands.sh</code> to regenerate
+the per-agent slash equivalents (Gemini/Qwen/Codex) — optional but
+recommended.</li>
+<li>If the new action’s expansion needs to be inline-available
+out-of-the-box (like BACKGROUND), add a one-line mention to the
+§11.4.140 mirror block; otherwise the registry alone suffices (the
+recognition instruction tells the agent to consult it).</li>
+<li>Add a unit test (registry parses, grammar matches, expansion
+correct) + the §1.1 paired mutation (see TEST_PLAN.md). No change to
+either layer’s code is required — the registry is data, not code.</li>
+</ol>
+<p>That is the whole extensibility contract: <strong>new action = new
+registry row.</strong></p>
+</body>
+</html>

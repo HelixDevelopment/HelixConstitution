@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>recognition_instruction</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1
+id="action-prefix-recognition-instruction-11.4.140-layer-1-carrier-block">Action-Prefix
+Recognition Instruction (§11.4.140) — LAYER-1 carrier block</h1>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-06-09</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-06-09T00:00:00Z</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>the reusable verbatim instruction block embedded into every agent
+context carrier</td>
+</tr>
+<tr>
+<td>Authority</td>
+<td>DESIGN.md §5 + RULE_DRAFT.md Part B (this directory)</td>
+</tr>
+</tbody>
+</table>
+<p>This file holds the <strong>single canonical LAYER-1
+recognition-instruction block</strong>. The conductor (or the §11.4.35
+propagation machinery) embeds the block between the two markers below —
+VERBATIM, identical text — into every agent context carrier the
+constitution maintains (<code>CLAUDE.md</code>, <code>AGENTS.md</code>,
+<code>QWEN.md</code>, <code>GEMINI.md</code>). That textual identity
+across all four carriers IS the LAYER-1 universality: every CLI agent
+reads the same instruction via its own carrier and applies the prefix
+expansion itself (per §11.4.35), so the system works on every agent with
+zero extra setup.</p>
+<p>The block is self-contained: even an agent with NO registry-file
+access still has the most-used <code>BACKGROUND</code> expansion inline,
+while the registry (<code>actions/registry.yaml</code>) remains the
+extensible source of truth for every other action.</p>
+<blockquote>
+<p>NOTE: this is the canonical block text. It is NOT applied to the live
+governance files (<code>CLAUDE.md</code> / <code>AGENTS.md</code> /
+<code>QWEN.md</code> / <code>GEMINI.md</code>) by this machinery — those
+are conductor-owned (§11.4.58 contention paths). The operator lands it
+via the §11.4.26 constitution-update pipeline.</p>
+</blockquote>
+<!-- action-prefix-recognition:begin -->
+<blockquote>
+<p><strong>§11.4.140 — Universal action-prefix system
+(<code>ACTION_NAME ::</code>) (User mandate, 2026-06-09;
+GRAMMAR_ADDENDUM 2026-06-09).</strong> When a user prompt’s FIRST
+non-blank line starts with a recognised action prefix, you MUST: (1)
+look the action token up in the action registry
+<code>constitution/actions/registry.yaml</code> (or
+<code>$HELIX_ACTION_REGISTRY</code>); (2) if it is a registered action,
+REPLACE the prefix with that action’s <code>expansion</code> text and
+apply its <code>rules</code>; (3) execute the remainder of the prompt
+under the expanded instruction. <strong>Four EQUIVALENT forms</strong> —
+same action, same expansion, same execution: (1)
+<code>ACTION_NAME :: &lt;rest&gt;</code> (bare <code>::</code>), (2)
+<code>PREFIX::ACTION_NAME :: &lt;rest&gt;</code> (namespaced
+<code>::</code>), (3) <code>/ACTION_NAME &lt;rest&gt;</code> (bare
+slash), (4) <code>/PREFIX::ACTION_NAME &lt;rest&gt;</code> (namespaced
+slash). Thus <code>BACKGROUND :: x</code> ≡
+<code>DEFAULT::BACKGROUND :: x</code> ≡ <code>/BACKGROUND x</code> ≡
+<code>/DEFAULT::BACKGROUND x</code>. <code>PREFIX</code> is an action
+NAMESPACE; the reserved default namespace is
+<strong><code>DEFAULT</code></strong>, and an action runs WITH or
+WITHOUT the prefix. Grammar (all hold): anchored at the FIRST non-blank
+line only (mid-prose tokens never match); the action token AND the
+namespace are UPPERCASE-only <code>[A-Z][A-Z0-9_]*</code> (lowercase
+never matches); the namespace separator <code>::</code> inside the token
+carries NO surrounding spaces (<code>PREFIX::ACTION_NAME</code>),
+DISTINCT from the action-body separator <code>" :: "</code> (one ASCII
+space on each side of <code>::</code> — avoids C++
+<code>Foo::Bar</code>, YAML <code>key: value</code>, URLs) in forms 1/2
+and the slash-body separator (one space) in forms 3/4; stacked prefixes
+(<code>A :: B :: rest</code>) apply outer-to-inner, left-to-right
+(expand <code>A</code>, re-scan, expand <code>B</code>, then the
+residual is the task); a leading <code>\</code> escapes the prefix for
+BOTH the <code>::</code> and the slash form
+(<code>\BACKGROUND :: x</code>, <code>\/BACKGROUND x</code> — treat
+literally, strip the backslash, NO expansion) so action names can be
+discussed. <strong>Conflict rule (slash form):</strong>
+<code>/ACTION_NAME</code> (form 3) is honored as the action ONLY when
+<code>ACTION_NAME</code> (case-folded) does not collide with a
+built-in/host slash command (registry <code>slash_bare: auto</code> +
+<code>slash_conflicts: [..]</code>); form 4
+(<code>/PREFIX::ACTION_NAME</code>) is ALWAYS unambiguous and always
+honored. An unknown token that matches the grammar shape (any of the 4
+forms) but is NOT registered is NEVER silently expanded or silently
+dropped — ask which registered action was meant (§11.4.66 / §11.4.105)
+or treat it as a literal prompt, NEVER invent an expansion (§11.4.6);
+any prompt not satisfying the grammar is an ordinary prompt and the
+system is a no-op. The registered action
+<strong><code>BACKGROUND</code></strong> expands to: <em>“The following
+prompt that we will provide MUST BE executed in background in parallel
+with all main work streams using the subagents-driven development
+approach! All work done MUST PRODUCE rock solid evidence covered with
+hard physical proof(s) that all done is working as expected and as
+specified without any false results and without any bluff!”</em>
+(composes §11.4.20 / §11.4.70 subagent-driven, §11.4.58 / §11.4.103
+parallel streams, §11.4.89 background execution, §11.4.5 / §11.4.69 /
+§11.4.107 captured physical evidence, §11.4 anti-bluff). The system is
+UNIVERSAL (every CLI agent reads this block via its context carrier per
+§11.4.35), extensible (new action = new registry row), decoupled +
+reusable (§11.4.28), and loads out-of-the-box. Classification: universal
+(§11.4.17). <strong>Canonical authority:</strong> constitution submodule
+<a href="Constitution.md"><code>Constitution.md</code></a> §11.4.140.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-action-prefix</code>, <code>--ignore-prefix</code>,
+<code>--no-registry</code>, <code>--invent-expansion-OK</code>,
+<code>--single-layer-only</code> flag.
+<!-- action-prefix-recognition:end --></p>
+</blockquote>
+</body>
+</html>

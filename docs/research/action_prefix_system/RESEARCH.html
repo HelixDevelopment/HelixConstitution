@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>RESEARCH</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="action-prefix-system-deep-web-research">Action-Prefix System —
+Deep Web Research</h1>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revision</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-06-09</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>2026-06-09T00:00:00Z</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>active</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>Universal “ACTION_NAME ::” prompt-prefix system for the Helix
+Constitution (new anchor §11.4.140)</td>
+</tr>
+<tr>
+<td>Authority</td>
+<td>research input for <code>DESIGN.md</code> +
+<code>RULE_DRAFT.md</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Anti-bluff (§11.4.6): every claim below cites at least one source
+URL. Where a mechanism could NOT be confirmed for an agent, it is marked
+<code>UNCONFIRMED:</code> or an honest SKIP per §11.4.3. No mechanism is
+asserted as fact without a cited primary source.</p>
+</blockquote>
+<hr />
+<h2 id="research-question">0. Research question</h2>
+<p>Design a UNIVERSAL, extensible prompt-prefix system in which a user
+prompt that STARTS with <code>ACTION_NAME ::</code>
+(e.g. <code>BACKGROUND :: IMPORTANT: do X</code>) causes the agent to
+(a) replace the <code>ACTION_NAME ::</code> prefix with that action’s
+registered expansion text, then (b) execute the rest of the prompt. It
+must work with EVERY CLI coding agent (not just Claude Code), be fully
+decoupled + reusable by every project that includes the constitution
+submodule, and load + execute out of the box.</p>
+<p>Two sub-questions drive the research:</p>
+<ol type="1">
+<li><strong>What prompt-interception / preprocessing mechanism does each
+major CLI agent expose?</strong> (the LAYER-2 mechanical seam)</li>
+<li><strong>What is the universal always-on instruction-context carrier
+each agent reads?</strong> (the LAYER-1 self-applied seam — the floor
+that works even when no mechanical hook exists)</li>
+</ol>
+<hr />
+<h2 id="per-agent-prompt-interception-instruction-context-matrix">1.
+Per-agent prompt-interception + instruction-context matrix</h2>
+<h3 id="claude-code-anthropic">1.1 Claude Code (Anthropic)</h3>
+<p><strong>LAYER 2 (mechanical) — STRONG. Two relevant
+hooks.</strong></p>
+<p>Claude Code exposes a <code>UserPromptSubmit</code> hook that “fires
+before the agent sees your prompt and the hook can rewrite the prompt,
+append context, or block submission … runs right after you hit Enter and
+before Claude sees the prompt” (<a
+href="https://egghead.io/lessons/rewrite-prompts-on-the-fly-with-user-prompt-submit-hooks~76rrt">egghead.io
+UserPromptSubmit lesson</a>; <a
+href="https://code.claude.com/docs/en/hooks-guide">Claude Code Hooks
+guide</a>).</p>
+<p>The official hooks guide confirms the lifecycle event table includes
+BOTH:</p>
+<ul>
+<li><code>UserPromptSubmit</code> — “When you submit a prompt, before
+Claude processes it.”</li>
+<li><code>UserPromptExpansion</code> — “When a user-typed command
+expands into a prompt, before it reaches Claude. Can block the
+expansion.”</li>
+</ul>
+<p>(<a href="https://code.claude.com/docs/en/hooks-guide">Claude Code
+Hooks guide event table</a>)</p>
+<p><strong>Hook I/O contract (cited, verbatim from the
+guide):</strong></p>
+<ul>
+<li>The hook is a <code>"type": "command"</code> shell command
+configured under a <code>hooks</code> block in a settings file
+(<code>settings.json</code> / <code>.claude/settings.json</code> /
+<code>.claude/settings.local.json</code>).</li>
+<li>The command receives the event JSON on <strong>stdin</strong>. For
+<code>UserPromptSubmit</code> the payload carries the
+<code>prompt</code> text (per the guide: “<code>UserPromptSubmit</code>
+hooks get the <code>prompt</code> text”).</li>
+<li><strong>Exit-code semantics:</strong> “For
+<code>UserPromptSubmit</code>, <code>UserPromptExpansion</code>, and
+<code>SessionStart</code> hooks, anything you write to
+<strong>stdout</strong> is added to Claude’s context” (exit 0). Exit 2
+blocks the prompt and feeds stderr back to Claude.</li>
+<li><strong>Structured output:</strong> “For
+<code>UserPromptSubmit</code> hooks, use <code>additionalContext</code>
+instead to inject text into Claude’s context” — i.e.
+<code>{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": "…"}}</code>.</li>
+</ul>
+<p>(<a href="https://code.claude.com/docs/en/hooks-guide">Claude Code
+Hooks guide — Hook output / Structured JSON output sections</a>)</p>
+<p><strong>Important nuance for our design (honest, per
+§11.4.6):</strong> the <em>documented, guaranteed-stable</em> contract
+for <code>UserPromptSubmit</code> is <strong>additive</strong> — stdout
+/ <code>additionalContext</code> is <em>added to</em> Claude’s context,
+not a guaranteed <em>replacement</em> of the literal prompt text. Some
+community write-ups describe “rewriting”/“transforming” the prompt (e.g.
+<a
+href="https://egghead.io/lessons/rewrite-prompts-on-the-fly-with-user-prompt-submit-hooks~76rrt">egghead</a>,
+<a
+href="https://www.developersdigest.tech/guides/user-prompt-submit-hook">Developers
+Digest UserPromptSubmit guide</a>), and the guide itself warns “Heavy
+transformations confuse users when the model responds to something they
+didn’t type — keep transforms visible.” The robust, spec-guaranteed
+behaviour we can rely on is: <strong>the hook detects the
+<code>ACTION_NAME ::</code> prefix and injects the registered expansion
+as <code>additionalContext</code></strong> (an instruction the model
+then obeys), rather than silently mutating the prompt string. This is
+the same end-user effect (the expansion is applied) with a contract the
+docs guarantee.</p>
+<ul>
+<li><strong>LAYER 1 carrier:</strong> <code>CLAUDE.md</code> (+
+<code>.claude/rules/*.md</code>) — the <code>InstructionsLoaded</code>
+event in the guide confirms “When a CLAUDE.md or
+<code>.claude/rules/*.md</code> file is loaded into context.” So even
+with NO hook, the recognition instruction embedded in
+<code>CLAUDE.md</code> is always loaded.</li>
+<li><strong>Skills / plugins / MCP</strong> are additional Layer-2
+surfaces but are task-triggered, not prompt-prefix-triggered, so they
+are secondary here.</li>
+</ul>
+<blockquote>
+<p><strong>Verdict — Claude Code: LAYER 1 (CLAUDE.md) + LAYER 2
+(UserPromptSubmit / UserPromptExpansion hook). Mechanical interception
+available.</strong></p>
+</blockquote>
+<h3 id="gemini-cli-google">1.2 Gemini CLI (Google)</h3>
+<p><strong>LAYER 2 (mechanical) — PARTIAL.</strong> Gemini CLI’s nearest
+analogue to a prompt-rewrite seam is <strong>custom commands</strong>
+(TOML files under <code>~/.gemini/commands/</code> or
+<code>&lt;project&gt;/.gemini/commands/</code>). A command file has a
+<code>prompt</code> field, and “If your prompt contains the special
+placeholder <code>{{args}}</code>, the CLI will replace that placeholder
+with the text the user typed after the command name.” File-content
+injection (<code>@{...}</code>) and shell injection
+(<code>!{...}</code>) are processed before argument substitution (<a
+href="https://geminicli.com/docs/cli/custom-commands/">Gemini CLI custom
+commands</a>; <a
+href="https://cloud.google.com/blog/topics/developers-practitioners/gemini-cli-custom-slash-commands">Google
+Cloud blog — custom slash commands</a>).</p>
+<p>This is a <strong>slash-command</strong> router, not a generic
+<code>^PREFIX ::</code> interceptor — it fires on <code>/command</code>,
+not on an arbitrary anchored uppercase prefix. So Gemini’s mechanical
+seam can host an <em>equivalent</em> (e.g. a <code>/background</code>
+command whose <code>{{args}}</code> expansion equals the BACKGROUND
+text), but it cannot transparently rewrite a free-form
+<code>BACKGROUND :: …</code> line. <code>UNCONFIRMED:</code> whether
+Gemini CLI exposes a pre-submit hook equivalent to Claude’s
+<code>UserPromptSubmit</code> — the custom-commands + GEMINI.md docs do
+not describe one.</p>
+<ul>
+<li><strong>LAYER 1 carrier:</strong> <code>GEMINI.md</code> context
+files — “loads various context files from several locations,
+concatenates the contents of all found files, and sends them to the
+model with every prompt” (<a
+href="https://geminicli.com/docs/cli/gemini-md/">Gemini CLI GEMINI.md
+docs</a>). This is the always-on seam: the recognition instruction in
+<code>GEMINI.md</code> is sent with every prompt.</li>
+</ul>
+<blockquote>
+<p><strong>Verdict — Gemini CLI: LAYER 1 (GEMINI.md) primary + LAYER 2
+(custom slash-command equivalent, NOT transparent
+prefix-rewrite).</strong></p>
+</blockquote>
+<h3 id="qwen-code-alibaba-qwenlm">1.3 Qwen Code (Alibaba / QwenLM)</h3>
+<p>Qwen Code “is forked from Gemini CLI … adapted specifically for use
+with the Qwen3-Coder model” and “Both tools share Gemini CLI’s custom
+slash commands and shell integration.” The only structural difference is
+the config directory (<code>.qwen/</code>) and context file
+(<code>QWEN.md</code>, configurable via <code>context.fileName</code>)
+(<a
+href="https://elite-ai-assisted-coding.dev/p/qwen-code-tool-review">Qwen
+Code review — elite-ai-assisted-coding</a>; <a
+href="https://www.zdoc.app/en/QwenLM/qwen-code/blob/main/docs/cli/configuration.md">Qwen
+Code configuration — zdoc</a>; <a
+href="https://github.com/QwenLM/qwen-code">Qwen Code repo</a>).</p>
+<ul>
+<li><strong>LAYER 1 carrier:</strong> <code>QWEN.md</code> (same
+concatenate-and-send semantics as Gemini’s <code>GEMINI.md</code>).</li>
+<li><strong>LAYER 2:</strong> same TOML custom-command slash-command
+equivalent as Gemini.</li>
+</ul>
+<blockquote>
+<p><strong>Verdict — Qwen Code: identical to Gemini CLI (LAYER 1 QWEN.md
++ LAYER 2 custom slash-command equivalent).</strong></p>
+</blockquote>
+<h3 id="openai-codex-cli">1.4 OpenAI Codex CLI</h3>
+<p><strong>LAYER 1 carrier — STRONG, standard.</strong> Codex reads
+<code>AGENTS.md</code> (and <code>AGENTS.override.md</code>) walking
+from the project root down to the cwd, concatenating, with closer files
+overriding (<a
+href="https://developers.openai.com/codex/guides/agents-md">Codex
+AGENTS.md guide</a>; <a
+href="https://developers.openai.com/codex/config-reference">Codex config
+reference</a>).</p>
+<p><strong>LAYER 2 — PARTIAL.</strong> Codex has <strong>custom
+prompts</strong> stored in a <code>prompts/</code> directory, surfaced
+via the <code>/prompts:</code> slash menu (<a
+href="https://developers.openai.com/codex/cli/features">Codex CLI
+features</a>) and <code>config.toml</code> under <code>~/.codex/</code>.
+As with Gemini, this is a slash-command-style surface, not a transparent
+free-form <code>^PREFIX ::</code> interceptor. <code>UNCONFIRMED:</code>
+whether Codex exposes a pre-submit prompt-rewrite hook.</p>
+<blockquote>
+<p><strong>Verdict — Codex CLI: LAYER 1 (AGENTS.md) primary + LAYER 2
+(custom-prompt slash equivalent).</strong></p>
+</blockquote>
+<h3 id="github-copilot-cli">1.5 GitHub Copilot CLI</h3>
+<p><strong>LAYER 1 carrier — STRONG, standard.</strong> Copilot CLI
+reads <code>.github/copilot-instructions.md</code> at repo root AND
+<code>AGENTS.md</code> files (root, cwd, or paths in
+<code>COPILOT_CUSTOM_INSTRUCTIONS_DIRS</code>), plus path-specific
+<code>*.instructions.md</code> under <code>.github/instructions/</code>.
+“Instructions are automatically added to requests that you submit to
+Copilot” (<a
+href="https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions">GitHub
+Docs — add custom instructions for Copilot CLI</a>; <a
+href="https://github.blog/changelog/2025-08-28-copilot-coding-agent-now-supports-agents-md-custom-instructions/">GitHub
+Changelog — Copilot coding agent AGENTS.md</a>).</p>
+<p><strong>LAYER 2 — PARTIAL.</strong> Custom agents + the Copilot CLI
+skill tool exist (<a
+href="https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli">GitHub
+Docs — create custom agents for CLI</a>), but <code>UNCONFIRMED:</code>
+whether any transparent pre-submit prompt-rewrite hook exists.</p>
+<blockquote>
+<p><strong>Verdict — Copilot CLI: LAYER 1 (AGENTS.md +
+copilot-instructions.md) primary + LAYER 2 (custom-agent / skill
+equivalent).</strong></p>
+</blockquote>
+<h3 id="cursor">1.6 Cursor</h3>
+<p><strong>LAYER 1 carrier — STRONG.</strong> Cursor reads
+<code>.cursor/rules/*.mdc</code> rule files; a rule with
+<code>alwaysApply: true</code> “loads for every single conversation
+regardless of context” — it is converted into a system prompt for the
+agent (<a href="https://cursor.com/docs/rules">Cursor Rules docs</a>; <a
+href="https://www.vibecodingacademy.ai/blog/cursor-rules-complete-guide">Vibe
+Coding Academy — Cursor Rules guide</a>). Cursor is also a documented
+<code>AGENTS.md</code> consumer (<a
+href="https://agents.md/">agents.md</a>).</p>
+<p><strong>LAYER 2 — none documented as a transparent free-form prefix
+interceptor.</strong></p>
+<blockquote>
+<p><strong>Verdict — Cursor: LAYER 1 (.cursor/rules
+<code>alwaysApply: true</code>, and/or AGENTS.md) only.</strong>
+Mechanical free-form interception not available → honest SKIP of Layer
+2; Layer 1 fully covers it.</p>
+</blockquote>
+<h3 id="aider">1.7 Aider</h3>
+<p><strong>LAYER 1 carrier — present.</strong> Aider loads a conventions
+file via <code>/read CONVENTIONS.md</code> or
+<code>aider --read CONVENTIONS.md</code>, or persistently via
+<code>read: CONVENTIONS.md</code> in <code>.aider.conf.yml</code>;
+“aider will forward these conventions to the currently used LLM” (<a
+href="https://aider.chat/docs/usage/conventions.html">Aider — specifying
+coding conventions</a>; <a
+href="https://aider.chat/docs/config/aider_conf.html">Aider YAML
+config</a>). Aider is also a documented <code>AGENTS.md</code> consumer
+(<a href="https://agents.md/">agents.md</a>).</p>
+<p><strong>LAYER 2 — none documented as a transparent prefix
+interceptor.</strong></p>
+<blockquote>
+<p><strong>Verdict — Aider: LAYER 1 (CONVENTIONS.md via
+<code>.aider.conf.yml read:</code>, and/or AGENTS.md) only.</strong></p>
+</blockquote>
+<h3 id="cline-continue-roo-code">1.8 Cline / Continue / Roo Code</h3>
+<p><strong>LAYER 1 carrier — present.</strong> Cline reads
+<code>.clinerules/*.md</code> (merged) and the cross-tool global
+<code>~/.agents/AGENTS.md</code>; AGENTS.md root support is requested/
+tracked (<a
+href="https://docs.cline.bot/customization/cline-rules">Cline Rules
+docs</a>; <a
+href="https://github.com/cline/cline/issues/5033">cline/cline#5033
+AGENTS.md</a>). Continue reads <code>.continue/rules/</code>
+(Markdown/YAML) and tracks AGENTS.md support (<a
+href="https://github.com/continuedev/continue/issues/6716">continuedev/continue#6716</a>).
+Roo Code has custom-instructions files (<a
+href="https://docs.roocode.com/features/custom-instructions">Roo Code
+custom instructions</a>).</p>
+<p><strong>LAYER 2 — none documented as a transparent prefix
+interceptor.</strong></p>
+<blockquote>
+<p><strong>Verdict — Cline/Continue/Roo: LAYER 1 (.clinerules /
+.continue/rules / AGENTS.md) only.</strong></p>
+</blockquote>
+<hr />
+<h2 id="agents.md-the-universal-layer-1-carrier">2. AGENTS.md — the
+universal LAYER-1 carrier</h2>
+<p><code>AGENTS.md</code> is “a simple, open format for guiding coding
+agents, used by over 60k open-source projects,” that “emerged from
+collaborative efforts across … OpenAI Codex, Amp, Jules from Google,
+Cursor, and Factory” and is now “stewarded by the Agentic AI Foundation
+under the Linux Foundation.” It “works across tools like Cursor,
+Windsurf, Aider, and Jules,” with documented support from GitHub
+Copilot, OpenAI Codex, Google, Amp, Factory, RooCode, Zed, and Warp (<a
+href="https://agents.md/">agents.md</a>; <a
+href="https://www.infoq.com/news/2025/08/agents-md/">InfoQ — AGENTS.md
+open standard</a>; <a
+href="https://github.com/agentsmd/agents.md">agentsmd/agents.md
+repo</a>).</p>
+<p>Notably: “Claude Code has not yet adopted AGENTS.md” as a first-class
+native file (<a
+href="https://www.infoq.com/news/2025/08/agents-md/">agents.md adoption
+note</a>), which is exactly why the Helix Constitution maintains BOTH
+<code>CLAUDE.md</code> (Claude Code’s native carrier) AND
+<code>AGENTS.md</code> / <code>QWEN.md</code> / <code>GEMINI.md</code> —
+the established multi-file propagation pattern (§11.4.35) already solves
+the “different agent reads a different file” problem.</p>
+<p><strong>Consequence for our design:</strong> the LAYER-1 recognition
+instruction must be mirrored into every carrier the constitution already
+maintains (<code>CLAUDE.md</code> + <code>AGENTS.md</code> +
+<code>QWEN.md</code> + a <code>GEMINI.md</code> mirror). That set
+already covers every agent above as the floor.</p>
+<hr />
+<h2
+id="open-source-building-blocks-for-prompt-prefix-macro-router-systems">3.
+Open-source building blocks for prompt-prefix / macro / router
+systems</h2>
+<p>The closest reusable prior art:</p>
+<ul>
+<li><strong>Slash-command routers</strong> are the de-facto pattern
+every agent ships (Claude Code skills/commands, Gemini/Qwen TOML custom
+commands, Codex <code>prompts/</code>, Copilot custom agents). They map
+a <em>literal command token</em> → <em>expansion text with
+<code>{{args}}</code> substitution</em> (<a
+href="https://geminicli.com/docs/cli/custom-commands/">Gemini custom
+commands</a>; <a
+href="https://developers.openai.com/codex/cli/features">Codex
+features</a>). Our action registry is the same model with the trigger
+generalised from <code>/command</code> to
+<code>^ACTION_NAME ::</code>.</li>
+<li><strong>Macro-expansion / preprocessor model</strong> (the C
+preprocessor mental model): a <em>directive</em> at line start is
+<em>replaced by its registered definition</em>, then the result is
+<em>rescanned</em> and executed. ppstep documents the canonical
+expand→rescan steps (<a
+href="https://github.com/notfoundry/ppstep">ppstep</a>; <a
+href="https://gcc.gnu.org/onlinedocs/cppinternals/Macro-Expansion.html">GNU
+cpp macro expansion</a>). Our <code>ACTION_NAME ::</code> prefix is a
+single-token, line-anchored macro: detect → substitute the registered
+expansion → execute the remainder. This is the authoritative semantic
+precedent for “replace prefix with expansion then run the rest.”</li>
+<li><strong>Prompt-template engines</strong> (OpenPrompt;
+embedded-directive template engines) establish the
+registry-of-named-templates + variable-substitution pattern we reuse for
+the registry data file (<a
+href="https://arxiv.org/pdf/2111.01998">OpenPrompt</a>).</li>
+<li><strong>UserPromptSubmit hook write-ups</strong> establish the
+concrete “detect a suffix/ prefix token and rewrite/expand it before the
+model sees it” recipe on Claude Code (e.g. <code>:plan</code> → “Create
+a detailed step-by-step plan for: {task}”) (<a
+href="https://egghead.io/lessons/rewrite-prompts-on-the-fly-with-user-prompt-submit-hooks~76rrt">egghead
+UserPromptSubmit</a>; <a
+href="https://www.developersdigest.tech/guides/user-prompt-submit-hook">Developers
+Digest</a>).</li>
+</ul>
+<p><strong>Conclusion:</strong> there is NO single off-the-shelf
+cross-agent “prefix-action” package. The reusable building blocks are
+(a) the slash-command/registry model (every agent), (b) the
+C-preprocessor expand-then-rescan semantics (mental model + grammar),
+and (c) Claude Code’s
+<code>UserPromptSubmit</code>/<code>UserPromptExpansion</code> hooks
+(the one agent with a robust mechanical pre-submit seam). The Helix
+system is therefore an ORIGINAL composition of these blocks (cite per
+§11.4.8: “NO single external prefix-action package found — original
+composition of the slash-command registry model + C-preprocessor
+expand-then-rescan semantics + Claude Code UserPromptSubmit hook”).</p>
+<hr />
+<h2 id="per-agent-integration-mechanism-summary-table">4. Per-agent
+integration-mechanism summary table</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Agent</th>
+<th>LAYER 1 carrier (always-on, self-applied)</th>
+<th>LAYER 2 mechanical pre-submit seam</th>
+<th>Transparent <code>^PREFIX ::</code> interception?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td><code>CLAUDE.md</code> + <code>.claude/rules/*.md</code></td>
+<td><code>UserPromptSubmit</code> / <code>UserPromptExpansion</code>
+hook (stdin JSON, <code>additionalContext</code>)</td>
+<td><strong>YES (hook)</strong></td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td><code>GEMINI.md</code> (concat + sent every prompt)</td>
+<td>TOML custom command (<code>{{args}}</code>), slash-triggered</td>
+<td>NO (slash equivalent only)</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td><code>QWEN.md</code> (Gemini fork)</td>
+<td>TOML custom command (<code>{{args}}</code>), slash-triggered</td>
+<td>NO (slash equivalent only)</td>
+</tr>
+<tr>
+<td><strong>OpenAI Codex CLI</strong></td>
+<td><code>AGENTS.md</code> / <code>AGENTS.override.md</code></td>
+<td><code>prompts/</code> custom prompts (<code>/prompts:</code>),
+slash-triggered</td>
+<td>NO (slash equivalent only)</td>
+</tr>
+<tr>
+<td><strong>GitHub Copilot CLI</strong></td>
+<td><code>AGENTS.md</code> +
+<code>.github/copilot-instructions.md</code></td>
+<td>custom agents / skill tool</td>
+<td>NO</td>
+</tr>
+<tr>
+<td><strong>Cursor</strong></td>
+<td><code>.cursor/rules/*.mdc</code> (<code>alwaysApply:true</code>) +
+AGENTS.md</td>
+<td>—</td>
+<td>NO (Layer 1 only)</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td><code>CONVENTIONS.md</code> (<code>.aider.conf.yml read:</code>) +
+AGENTS.md</td>
+<td>—</td>
+<td>NO (Layer 1 only)</td>
+</tr>
+<tr>
+<td><strong>Cline</strong></td>
+<td><code>.clinerules/*.md</code> +
+<code>~/.agents/AGENTS.md</code></td>
+<td>—</td>
+<td>NO (Layer 1 only)</td>
+</tr>
+<tr>
+<td><strong>Continue</strong></td>
+<td><code>.continue/rules/</code> + AGENTS.md (tracked)</td>
+<td>—</td>
+<td>NO (Layer 1 only)</td>
+</tr>
+<tr>
+<td><strong>Roo Code</strong></td>
+<td>custom-instructions files + AGENTS.md</td>
+<td>—</td>
+<td>NO (Layer 1 only)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Honest §11.4.3 SKIP statement:</strong> transparent,
+mechanical free-form <code>^ACTION_NAME ::</code> <em>string
+interception before the model sees it</em> is genuinely available ONLY
+on Claude Code (via
+<code>UserPromptSubmit</code>/<code>UserPromptExpansion</code>). For
+every other agent the equivalent is either (a) a slash-command the user
+must type instead of the free-form prefix, OR (b) LAYER 1 only — the
+agent itself recognises the prefix because the constitution’s
+instruction-context file told it to. LAYER 1 is therefore the universal
+floor that makes the system work out-of-the-box on EVERY agent; LAYER 2
+is the mechanical upgrade where the agent exposes a pre-submit seam.</p>
+<hr />
+<h2 id="key-reusable-conclusion-for-design.md">5. Key reusable
+conclusion for DESIGN.md</h2>
+<ol type="1">
+<li><strong>Two-layer architecture is correct and necessary.</strong> No
+single mechanism is universal; the only universal seam is the
+instruction-context file every agent reads (LAYER 1). The mechanical
+hook (LAYER 2) is a strict, agent-specific upgrade.</li>
+<li><strong>One shared data registry</strong> (a tracked
+<code>actions/registry.yaml</code>) is the single source of truth both
+layers read — the LAYER-1 instruction tells the agent to consult it; the
+LAYER-2 hook parses it deterministically. This keeps the system
+decoupled (§11.4.28) and extensible (add a registry row → new action, no
+code change in either layer).</li>
+<li><strong>The grammar is a line-anchored single-token macro</strong>
+(C-preprocessor precedent): <code>^([A-Z][A-Z0-9_]*) ::</code> → replace
+with registered expansion → execute the remainder. Multiple stacked
+prefixes and a literal-escape rule are required (Section grammar in
+DESIGN.md).</li>
+<li><strong><code>BACKGROUND ::</code> is the first registry
+entry</strong>, with the operator’s verbatim expansion text.</li>
+</ol>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/hooks-guide">Claude Code
+Hooks guide</a></li>
+<li><a
+href="https://egghead.io/lessons/rewrite-prompts-on-the-fly-with-user-prompt-submit-hooks~76rrt">egghead
+— Rewrite Prompts with UserPromptSubmit Hooks</a></li>
+<li><a
+href="https://www.developersdigest.tech/guides/user-prompt-submit-hook">Developers
+Digest — UserPromptSubmit Hook</a></li>
+<li><a href="https://geminicli.com/docs/cli/custom-commands/">Gemini CLI
+— Custom commands</a></li>
+<li><a href="https://geminicli.com/docs/cli/gemini-md/">Gemini CLI —
+GEMINI.md context files</a></li>
+<li><a
+href="https://cloud.google.com/blog/topics/developers-practitioners/gemini-cli-custom-slash-commands">Google
+Cloud blog — Gemini CLI custom slash commands</a></li>
+<li><a href="https://github.com/QwenLM/qwen-code">Qwen Code
+repo</a></li>
+<li><a
+href="https://www.zdoc.app/en/QwenLM/qwen-code/blob/main/docs/cli/configuration.md">Qwen
+Code configuration — zdoc</a></li>
+<li><a
+href="https://elite-ai-assisted-coding.dev/p/qwen-code-tool-review">Qwen
+Code review — elite-ai-assisted-coding</a></li>
+<li><a href="https://developers.openai.com/codex/guides/agents-md">Codex
+— AGENTS.md guide</a></li>
+<li><a href="https://developers.openai.com/codex/cli/features">Codex —
+CLI features</a></li>
+<li><a href="https://developers.openai.com/codex/config-reference">Codex
+— config reference</a></li>
+<li><a
+href="https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions">GitHub
+Docs — Copilot CLI custom instructions</a></li>
+<li><a
+href="https://github.blog/changelog/2025-08-28-copilot-coding-agent-now-supports-agents-md-custom-instructions/">GitHub
+Changelog — Copilot coding agent AGENTS.md</a></li>
+<li><a href="https://cursor.com/docs/rules">Cursor — Rules docs</a></li>
+<li><a
+href="https://www.vibecodingacademy.ai/blog/cursor-rules-complete-guide">Vibe
+Coding Academy — Cursor Rules guide</a></li>
+<li><a href="https://aider.chat/docs/usage/conventions.html">Aider —
+Specifying coding conventions</a></li>
+<li><a href="https://aider.chat/docs/config/aider_conf.html">Aider —
+YAML config</a></li>
+<li><a href="https://docs.cline.bot/customization/cline-rules">Cline —
+Rules docs</a></li>
+<li><a
+href="https://github.com/cline/cline/issues/5033">cline/cline#5033 —
+AGENTS.md support</a></li>
+<li><a
+href="https://github.com/continuedev/continue/issues/6716">continuedev/continue#6716
+— AGENTS.md support</a></li>
+<li><a href="https://docs.roocode.com/features/custom-instructions">Roo
+Code — custom instructions</a></li>
+<li><a href="https://agents.md/">agents.md — open standard</a></li>
+<li><a href="https://www.infoq.com/news/2025/08/agents-md/">InfoQ —
+AGENTS.md open standard</a></li>
+<li><a href="https://github.com/agentsmd/agents.md">agentsmd/agents.md
+repo</a></li>
+<li><a href="https://github.com/notfoundry/ppstep">ppstep — preprocessor
+macro debugger</a></li>
+<li><a
+href="https://gcc.gnu.org/onlinedocs/cppinternals/Macro-Expansion.html">GNU
+cpp — Macro Expansion internals</a></li>
+<li><a href="https://arxiv.org/pdf/2111.01998">OpenPrompt — open-source
+prompt-learning framework</a></li>
+</ul>
+</body>
+</html>

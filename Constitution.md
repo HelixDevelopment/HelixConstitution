@@ -8981,6 +8981,131 @@ Classification: universal (§11.4.17). Composes §11.4.46 / §11.4.108 / §11.4.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.139. Non-compliance is a release blocker. No escape hatch — no `--validate-against-running-state`, `--skip-clean-precondition`, `--shadow-OK` flag.
 
+### §11.4.140 — Universal action-prefix system (`ACTION_NAME ::`) (User mandate, 2026-06-09)
+
+**Forensic anchor — verbatim user mandate (2026-06-09):**
+
+> "When a user prompt STARTS with `ACTION_NAME ::` (e.g. `BACKGROUND :: IMPORTANT: do X...`) the agent MUST replace the `ACTION_NAME ::` prefix with that action's registered expansion text, then execute the rest. For `BACKGROUND ::` the expansion is: 'The following prompt that we will provide MUST BE executed in background in parallel with all main work streams using the subagents-driven development approach! All work done MUST PRODUCE rock solid evidence covered with hard physical proof(s) that all done is working as expected and as specified without any false results and without any bluff!'. The mechanism MUST be UNIVERSAL/extensible — more actions will be added later, each with its own expansion + rules. It MUST work with EVERY CLI agent, be fully decoupled + reusable by every project that includes the constitution submodule, and load + execute out of the box."
+
+Every project under this Constitution MUST support a universal, extensible
+**action-prefix system**: when a user prompt's FIRST non-blank line starts with
+an uppercase action token followed by `" :: "` (grammar
+`^([A-Z][A-Z0-9_]*) :: ` — anchored at line start, UPPERCASE-only token,
+exactly one space on each side of `::`), the agent MUST (1) look the token up in
+the shared **action registry** (tracked data file
+`constitution/actions/registry.yaml`, or `$HELIX_ACTION_REGISTRY`); (2) if the
+token is a registered action, REPLACE the `ACTION_NAME :: ` prefix with that
+action's registered `expansion` text and apply its `rules`; (3) execute the
+REMAINDER of the prompt under the expanded instruction. The system is the
+C-preprocessor expand-then-rescan model applied to prompts (a line-anchored
+single-token macro): detect → substitute the registered expansion → execute the
+residual.
+
+**Two-layer architecture (both mandatory; LAYER 1 is the universal floor).**
+(LAYER 1 — universal, always-on, out-of-the-box) the action-prefix recognition
+instruction MUST be mirrored into EVERY agent context carrier the constitution
+maintains (`CLAUDE.md`, `AGENTS.md`, `QWEN.md`, `GEMINI.md` per §11.4.35) so the
+agent itself recognises and applies the prefix on every CLI agent — Claude Code,
+Gemini CLI, Qwen Code, OpenAI Codex CLI, GitHub Copilot CLI, Cursor, Aider,
+Cline, Continue, Roo Code, and any future agent that reads one of those carriers.
+(LAYER 2 — mechanical, where the agent exposes a pre-submit seam) a
+prompt-preprocessing hook reading the SAME registry applies the expansion
+deterministically (Claude Code `UserPromptSubmit` / `UserPromptExpansion` hook
+injecting the expansion via `additionalContext`; per-agent slash-command
+equivalents generated from the registry for Gemini/Qwen/Codex). LAYER 2 is the
+§11.4.109 anti-forgetting upgrade applied to prompt prefixes — the expansion
+holds even if model recall lapses; LAYER 1 guarantees the system works
+everywhere with zero extra setup. Honest §11.4.3 boundary (§11.4.6): transparent
+mechanical free-form `^PREFIX ::` interception is genuinely available ONLY on
+Claude Code today; on every other agent the free-form form is honoured by
+LAYER 1 (the agent self-applies) and the slash-command equivalent is the
+mechanical convenience — this split is documented, never papered over.
+
+**Grammar (mandatory, all hold).** (1) Anchored at the start of the first
+non-blank line ONLY; mid-prose tokens never match. (2) UPPERCASE-only token
+`[A-Z][A-Z0-9_]*`; lowercase never matches. (3) Separator is exactly `" :: "`
+(space-colon-colon-space) — avoids C++ `Foo::Bar`, YAML `key: value`, URLs.
+(4) Stacked prefixes (`A :: B :: rest`) apply outer-to-inner, left-to-right
+(expand A, rescan, expand B, then the residual is the task). (5) A leading `\`
+escapes the prefix (literal, no expansion) so action names can be discussed.
+(6) An unknown token that matches the grammar shape but is NOT registered is
+NEVER silently expanded or silently dropped — the agent asks which registered
+action was meant (§11.4.66 + §11.4.105) or treats it literally; it NEVER invents
+an expansion (§11.4.6). (7) Any prompt not satisfying the grammar is an ordinary
+prompt; the system is a no-op. The carrier-block GRAMMAR_ADDENDUM (2026-06-09)
+additionally recognises three EQUIVALENT forms of every action —
+`PREFIX::ACTION_NAME :: <rest>` (namespaced `::`), `/ACTION_NAME <rest>` (bare
+slash), `/PREFIX::ACTION_NAME <rest>` (namespaced slash) — where `PREFIX` is an
+action NAMESPACE (reserved default `DEFAULT`) and the namespace separator `::`
+carries NO surrounding spaces (distinct from the action-body `" :: "`); forms
+3/4 are honoured with the same expansion/execution, the bare slash form yielding
+to a colliding built-in/host slash command while the namespaced slash form is
+always unambiguous.
+
+**Registry is the single source of truth + the extension contract.** Adding a
+new action = adding ONE `actions[]` row (`name`, `version`, `summary` ≥6 words
+per §11.4.91, `expansion`, optional `rules` + `composes_with`) — no code change
+in either layer (the registry is data, not code). Both layers read the same
+file (§11.4.93-style single-source-of-truth). The first registry entry is
+`BACKGROUND` with the operator's verbatim expansion above; it composes
+§11.4.20/§11.4.70 (subagent-driven), §11.4.58/§11.4.103 (parallel streams),
+§11.4.89 (background execution), and §11.4.5/§11.4.69/§11.4.107 (captured
+physical evidence) + §11.4 (anti-bluff). Decoupled + reusable (§11.4.28): the
+registry + hook + expander carry zero project-specific data and are consumed by
+reference (the §11.4.80 `codegraph_*` pattern); a consuming project ships its own
+registry or inherits the constitution default. Loads out-of-the-box via the
+§11.4.75 install seam.
+
+Classification: universal (§11.4.17). Composes §11.4 / §11.4.5 / §11.4.6 /
+§11.4.17 / §11.4.20 / §11.4.28 / §11.4.35 / §11.4.58 / §11.4.66 / §11.4.69 /
+§11.4.70 / §11.4.75 / §11.4.80 / §11.4.89 / §11.4.91 / §11.4.93 / §11.4.103 /
+§11.4.105 / §11.4.107 / §11.4.109. Propagation gate
+`CM-COVENANT-114-140-PROPAGATION` (literal `11.4.140` across the consumer fleet)
++ recommended gate `CM-ACTION-PREFIX-SYSTEM` (registry exists + parses + the
+grammar regex matches/no-matches the canonical fixtures + the LAYER-1 mirror
+block is present in CLAUDE.md/AGENTS.md/QWEN.md/GEMINI.md + the BACKGROUND
+expansion text matches the registry verbatim + the Claude `UserPromptSubmit`
+hook + expander script exist and are executable) + paired §1.1 meta-test
+mutation (corrupt the BACKGROUND expansion in the registry OR strip the
+`prefix_regex` OR remove the LAYER-1 mirror block from one carrier → the gate
+FAILs; strip the literal `11.4.140` → the propagation gate FAILs; gate-code =
+separate work item).
+
+**Canonical authority:** constitution submodule
+[`Constitution.md`](Constitution.md) §11.4.140. Non-compliance is a release
+blocker. No escape hatch — no `--skip-action-prefix`, `--ignore-prefix`,
+`--no-registry`, `--invent-expansion-OK`, `--single-layer-only` flag.
+
+### §11.4.141 — Token-efficiency mandate (research-derived + operator mandate, 2026-06-09)
+
+**Forensic anchor (operator mandate, 2026-06-09):** the AI coding agent's token spend (input AND output) is dominated by an enormous always-loaded governance context — the consumer CLAUDE.md/AGENTS.md/QWEN.md plus the constitution submodule (measured ~170,000 tokens of static governance re-sent on EVERY turn: consumer `CLAUDE.md` ~90.5K + `constitution/CLAUDE.md` ~79.6K, a 112-row Applied-Fixes table plus verbatim §11.4.X anchor restatements) — compounded by 350–520K-token subagent transcripts, verbose status, full-file re-reads, and full-file loads where retrieval would do. The same pattern is externally documented as a scaling defect (Claude Code issue #24147 — "Cache read tokens consume 99.93% of usage quota - architectural scaling issue with CLAUDE.md re-reads"). Operator mandate: cut token spend to **30–40% of current (a 60–70% reduction)** WITHOUT degrading quality, performance, or safety, and WITHOUT breaking any existing mechanism.
+
+Every project worked on by AI coding agents MUST adopt a token-efficiency regime composed of the following measures, ranked by safety and impact, and MUST PROVE the reduction with a measured anti-bluff harness — never an asserted number (§11.4.6 / §11.4.123). The headline 60–70% is the warm-cache target; the rule requires the *measured* best-safe reduction with cited evidence, never the estimate.
+
+**The measures (composable, each preserving every existing rule):**
+
+1. **Prompt-cache the static governance prefix (PRIMARY — the single biggest lever).** The always-loaded governance MUST form a byte-stable prefix with a cache breakpoint at its end, with nothing volatile rendered ahead of it. Cache reads cost ~0.1× base input price (a 90% discount); writes 1.25× (5-min TTL) / 2× (1-hour). The discount applies to the dominant cost component. **Caching is transparent — the model sees byte-identical input cached or not — so it CANNOT remove a rule, weaken a gate, lower quality, or change a verdict; it changes only billing.** The only failure mode is a *silent invalidator* (timestamp/UUID/unsorted-JSON ahead of the breakpoint), which costs money but never corrupts, and is detectable via `cache_read_input_tokens`. The operative discipline: **batch governance edits and keep CLAUDE.md + the constitution byte-stable mid-session** — every governance edit busts the prompt cache (BASELINE.md finding), so all governance changes in a working window are landed together rather than dribbled across turns. Claude Code caches natively; SDK callers use `cache_control:{type:"ephemeral"}`; Gemini/Qwen use their context cache via API-key auth.
+
+2. **Subagent model-tiering + output-to-file (SECONDARY — biggest non-cache win).** Route MECHANICAL, NON-JUDGMENT subagent work (search, grep, status, doc-export, file-presence, read-only probes) to a cheaper/smaller model (Haiku-class); RESERVE the strong model for ALL reasoning, fix-design (§11.4.102), verdicts, code-review (§11.4.125), and demotion-evidence (§11.4.7). Subagents persist large output to a file and return a pointer instead of a 350–520K-token inline transcript. **The strong model owns every decision and every PASS/FAIL — the cheap model never emits a verdict — so §11.4.50 determinism and the anti-bluff covenant are untouched; quality cannot degrade.** Bounded by §12.6 (60% memory) and the §11.4.58/§11.4.103 stream caps.
+
+3. **Thin always-loaded INDEX + on-demand detail (progressive disclosure).** Restructure the consumer governance so the always-loaded file is a concise index (one line per fix / per anchor) and the full bodies are fetched on demand. **Three invariants keep every gate green and every rule reachable: (a) each index line carries the literal `11.4.N` anchor token so the `CM-COVENANT-114-N-PROPAGATION` literal-anchor scans still pass; (b) the canonical full text stays in the tracked, gate-scanned `constitution/Constitution.md` — no rule is deleted, only de-duplicated out of the consumer; (c) the full body is reachable in one hop.** This realises §11.4.35's consumer-thin / submodule-canonical split at the byte level — a de-duplication, never a deletion.
+
+4. **Retrieval / CodeGraph-first over full-file loading.** Structural questions (where is X / what calls Y / what would break) → CodeGraph (§11.4.78/§11.4.79, already mandated + installed) or semantic search; region questions → grep-scoped read; never re-read a harness-tracked file. Read-only, already-trusted (§11.4.78) — no behaviour change.
+
+5. **Output-token reduction.** Terse conductor status (no restatement of unchanged governance); `effort:"low"` on the mechanical-subagent allowlist only; structured output where a sink consumes it. Output is ~5× input price, so this is cost-leveraged. Presentation-only — captured-evidence artefacts (§11.4.5/§11.4.69) unchanged.
+
+6. **Tool-call efficiency.** Batch independent tool calls in one block; reuse harness-tracked file state; reuse persisted tool outputs.
+
+7. **Compaction / context-editing for long sessions (defensive).** Prune stale tool-results / old thinking so a 100+ turn cycle doesn't re-pay for an ever-growing transcript; never touches the governance prefix or on-disk evidence.
+
+**Mandatory measured proof (anti-bluff — §11.4.6/§11.4.50/§11.4.69/§11.4.123):** the reduction MUST be proven by a token-accounting harness measuring tokens-per-development-cycle BEFORE vs AFTER on a frozen deterministic workload, split into `input_tokens` / `cache_read_input_tokens` / `cache_creation_input_tokens` / `output_tokens` from the authoritative Anthropic `usage` object (NEVER `tiktoken`; NEVER the client-side `total_cost_usd` estimate — recompute cost from raw token fields with the published prices), reproduced N times to identical verdict (§11.4.50). Pass = AFTER ≤ 40% of BEFORE (target) OR the measured best-safe reduction with a cited cold-cache reason. The AFTER run MUST ALSO show ZERO regression on the pre-build full sweep, the meta-test mutation sweep (every gate still FAILs its paired mutation — proves M3 did not turn any rule into a bluff), every propagation gate (literal anchors intact), a strong-model reasoning-path probe (proves M2/M5 tiered nothing that decides), and a cache-warm proof (`cache_read_input_tokens > 0`). Cost reduction with quality/safety regression is a §11.4 FAIL, not a win.
+
+**No measure may break or degrade any existing mechanism — and the rule is structured so none can:** caching is transparent (M1); tiering and low-effort are confined to mechanical non-judgment work (M2/M5); indexing preserves the full rules by reference with literal anchors so the propagation gates pass and the canonical text stays gate-scanned (M3); retrieval uses already-trusted read-only infrastructure (M4). The §11.4 anti-bluff covenant family, §11.4.50 deterministic consistency, §11.4.125 code-review, §11.4.40 full-suite retest, and §12.6 memory ceiling are all unconditionally preserved.
+
+Composes with §11.4.5 / §11.4.6 / §11.4.20 / §11.4.40 / §11.4.50 / §11.4.58 / §11.4.69 / §11.4.70 / §11.4.78 / §11.4.79 / §11.4.80 / §11.4.103 / §11.4.106 / §11.4.123 / §11.4.125 / §11.4.128 / §12.6 / §1.1. Classification: universal (§11.4.17) — the consuming project supplies its model IDs, its mechanical-subagent allowlist, its governance files, its structural-index tool, and its frozen workload per §11.4.35. Propagation gate `CM-COVENANT-114-141-PROPAGATION` (literal `11.4.141` across the consumer fleet) + recommended gate `CM-TOKEN-EFFICIENCY` (the measured BEFORE/AFTER harness exists + produced a verdict ≥ target-or-cited-floor + the non-regression sweep is green + cache-warm proof present) + paired §1.1 meta-test mutation (inject a per-turn volatile token ahead of the governance cache breakpoint → `cache_read_input_tokens` collapses → measured reduction falls below the bar → gate FAILs; restore → PASSes — proves the harness measures real caching, not a hardcoded green). Gate-code = separate work item.
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.141. Research + design + measurement: `docs/research/token_efficiency/{RESEARCH,DESIGN,MEASUREMENT,TEST_PLAN}.md`. Non-compliance is a release blocker regardless of context. No escape hatch — no `--skip-token-efficiency`, `--no-cache-governance`, `--assert-reduction-without-measuring`, `--tier-down-reasoning`, `--inline-all-governance`, `--tiktoken-estimate-OK` flag exists.
+
 ---
 
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN
