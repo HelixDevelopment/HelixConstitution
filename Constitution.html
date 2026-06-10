@@ -248,7 +248,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 <tbody>
 <tr>
 <td>Revision</td>
-<td>23</td>
+<td>25</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -256,7 +256,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-10T18:00:00Z</td>
+<td>2026-06-10T22:30:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -264,367 +264,41 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.145 — Independent multi-angle impact-research per change
-(User mandate 2026-06-10): for EVERY fix/change/new-feature INDEPENDENT
-impact-research agents (subagent-driven §11.4.70/.20, structurally
-separate from the author — adversarial &quot;refute-the-change&quot; stance
-defeating the documented LLM confirmation-bias failure mode) MUST
-research the change AND its connected/dependent features across a CLOSED
-SET OF EIGHT ANGLES — (1) correctness/logic, (2) regression (what
-existing working feature could break — call-graph impact), (3)
-latent/dangerous-code THE RECENTS CLASS (runtime-only failure,
-interface/ABI/contract mismatch, concurrency/data-race, resource
-lifecycle), (4) security, (5) performance, (6) host/data/target-hardware
-safety §12/§9/.133, (7) cross-feature interaction, (8) business-logic
-conformance; forensic anchor (FACT) the recents/3-button-nav path
-shipped a latent AIDL-contract mismatch that PASSED code review yet
-ANR&#39;d at RUNTIME ONLY (the §11.4.108
-SOURCE→ARTIFACT→RUNTIME→USER-VISIBLE gap) → §11.4.145 shifts
-blast-radius discovery LEFT; each angle names the TOOL(S) + obtains the
-required DEPTH (diff + full unit + declared contract + spec + every
-connected feature, NEVER diff-lines-alone) + emits captured-evidence
-(§11.4.5/.69, &quot;looks fine&quot; forbidden §11.4.1), N/A angle =
-<code>NOT_APPLICABLE:&lt;reason&gt;</code> §11.4.6 never silently
-skipped; output = a per-change impact-research REPORT (one
-section/angle: tool+evidence+verdict) + a single GO/NO-GO BLOCKING
-acceptance/commit/build on ANY unmitigated risk, iterating to CLEAN GO
-§11.4.134 before the §11.4.125 gate; honest boundary §11.4.6 — does NOT
-replace §11.4.108/.40, the FIRST of MULTIPLE STRONG LAYERS. Composes
-§11.4.92/.125/.108/.110/.134/.78/.79/.107/.85/.133/§12/§9/.99/.6/§1.1.
-Propagation gate <code>CM-COVENANT-114-145-PROPAGATION</code> +
-recommended gate <code>CM-IMPACT-RESEARCH-PER-CHANGE</code> (gate-code =
-separate work item). Classification: universal (§11.4.17). CLAUDE.md +
-AGENTS.md + QWEN.md mirrors updated in lockstep. Added §11.4.146 —
-Reproduce-first test + same-test-confirms-fix + mandatory
-extend-to-all-cases workflow (User mandate 2026-06-10): every reported
-problem MUST be handled by a NAMED three-step test workflow (§11.4.146
-NAMES + BINDS existing disciplines, adds ONLY two emphases) — STEP 1
-REPRODUCE-FIRST+INVESTIGATE: author the §11.4.43 RED test as a §11.4.115
-RED-baseline-on-the-broken-artifact (capture defect-present physical
-evidence §11.4.5/.69/.107) + NEW EMPHASIS D1 the same RED test is ALSO a
-deliberate investigation instrument §11.4.102(A) gathering ADDITIONAL
-forensic data characterising the defect
-(triggers/boundaries/scope/adjacent failure modes) feeding BOTH the fix
-design AND the STEP-3 extend scope; STEP 2 SAME-TEST-CONFIRMS-FIX: the
-SAME source (§11.4.115 polarity <code>RED_MODE=1→0</code>) confirms
-ABSENT on a clean target §11.4.108/.139, validate-fix-first §11.4.130,
-deterministic §11.4.50, no separate happy-path substitute; STEP 3
-EXTEND-TO-ALL-CASES (NEW EMPHASIS D2, mandatory per-fix): FAN OUT across
-the full case-space of the SAME functionality — all flows +
-valid/invalid/boundary (§11.4.85) + concurrent (§11.4.85) + chaos
-(§11.4.85) + topology (§11.4.3) — enumerated per §11.4.118 (never &quot;no
-other issues found&quot;), each user-visible case physical-evidence §11.4.123
-+ registered into the §11.4.135 standing suite, a new fan-out defect
-triggers §11.4.4 + re-enters STEP 1; NOT deferred to a release-cycle
-sweep, NOT reduced to a single guard. Composes
-§11.4.43/.115/.102/.130/.108/.139/.50/.85/.118/.135/.3/.123/.5/.69/.107/.138/.4/§107/§1.1.
-Propagation gate <code>CM-COVENANT-114-146-PROPAGATION</code> +
-recommended gate <code>CM-REPRODUCE-FIRST-THEN-EXTEND</code> (gate-code
-= separate work item). Classification: universal (§11.4.17). CLAUDE.md +
-AGENTS.md + QWEN.md mirrors updated in lockstep. Prior round: Added
-§11.4.144 — Tracked/recorded-device availability-following mandate (User
-mandate 2026-06-10): every device the project is tracking / following /
-recording (test / debug / manual-testing, across every reachable
-transport — USB / wireless ADB / SSH / serial / network introspection
-API) MUST be availability-FOLLOWED — its connection state continuously
-monitored, any drop handled, never silently abandoned and never
-presented as a continuous recording; the §11.4.128 always-on recorder
-KNOWS a tracked device is absent (its loop guards on the reachable
-state) but, lacking a following discipline, merely spins idle (no data
-captured, no offline event, no resume, no escalation), so the corpus
-shows a continuous timeline with a silent hole — a §11.4 PASS-bluff at
-the recording-integrity layer. On a drop the system MUST automatically
-(a) DETECT + log an honest offline event (§11.4.6 fabricated-continuity
-bluff; §11.4.128 always-on gap), (b) WAIT using the project&#39;s
-ALREADY-DEFINED reconnection timings — never invented numbers (§11.4.6),
-the SAME grace/reconnect/poll budgets the recovery path already uses,
-(c) RE-ATTACH + log an honest online/resume event the moment the device
-returns, (d) ESCALATE to the sanctioned device-recovery path (per
-§11.4.69 feature class <code>device_recovery</code>) if the device does
-not return within the defined timeout — through the sanctioned,
-authorization-gated recovery entry point ONLY, never bypassing its gate,
-never performing a destructive recovery (power-cycle) autonomously
-without that authorization (§11.4.21/.101 — high-blast-radius recovery
-is gated; while blocked keep following + log the blocked-escalation
-honestly). Composes §11.4.128/.69/.6/.14/.21/.101. Propagation gate
-<code>CM-COVENANT-114-144-PROPAGATION</code> + recommended gate
-<code>CM-DEVICE-AVAILABILITY-FOLLOWED</code> (gate-code = separate work
-item). Classification: universal (§11.4.17). CLAUDE.md + AGENTS.md +
-QWEN.md mirrors updated in lockstep. Prior round: Added §11.4.143 —
-Real-user-journey mandate for video-streaming-app full-automation tests
-(User mandate 2026-06-10, verbatim &quot;All video streaming apps ... require
-to choose some title and to press proper UI button to start or resume
-playing! Proper UI interaction to play exact show with proper content
-and subtitles is MANDATORY! Without it we just eventually play on 2nd
-display sample, and that&#39;s it mostly! THIS MUST BE ADDED as MANDATORY
-RULE regarding testing of any video streaming app in general with full
-automation tests! Universal in root constitution + ATMOSphere project
-extensions.&quot;): any full-automation test asserting a video player /
-streaming app plays content MUST drive the REAL end-user journey through
-the app&#39;s OWN UI — launch → BROWSE the actual catalog → choose a
-SPECIFIC title → press the real Play/Resume button → confirm THAT chosen
-content plays with its correct subtitles on the intended routing target
-— NEVER a sample / demo / loop-clip / deep-link /
-<code>am start -a VIEW</code> / synthetic shortcut (those validate
-ROUTING only, not real chosen-content playback → a §11.4 PASS-bluff at
-the user-journey layer, the operator&#39;s &quot;we just eventually play on 2nd
-display sample&quot; gap); non-introspectable streaming UIs use the §11.4.117
-CV/OCR pixel oracle; login via the §11.4.10 credential single-source;
-chosen-content confirmation via §11.4.107 liveness + §11.4.136
-real-content + §11.4.137 subtitle correctness; honest
-<code>operator_attended</code> SKIP-with-reason per §11.4.52/.3 ONLY
-where autonomous is genuinely infeasible (hard login / geo-block /
-secure-surface blanking) — NEVER a faked routing-only PASS. Composes
-§11.4.48/.107/.117/.136/.137/.52/.3/§107/§1.1. Propagation gate
-<code>CM-COVENANT-114-143-PROPAGATION</code> + recommended gate
-<code>CM-VIDEO-REAL-JOURNEY-TEST</code> (gate-code = separate work
-item). Classification: universal (§11.4.17). CLAUDE.md + AGENTS.md +
-QWEN.md mirrors updated in lockstep. Prior round: Added §11.4.142 —
-Universal code-review mandate — every change reviewed, always, no
-exception (User mandate 2026-06-09, verbatim &quot;ALL changes we do MUST
-pass through the code review step!!! ALWAYS!!!&quot;): EVERY change to ANY
-governed repository — without exception (source, fixes, tests, gates,
-meta-test mutations, docs, doc-tooling, build/CI scripts, config,
-governance files, conductor main-stream edits, sub-agent output,
-refactors, single-line edits) — MUST pass an INDEPENDENT code-review
-step BEFORE acceptance/commit/build; the ABSOLUTE form of §11.4.125
-(strips every implicit scoping — no &quot;just a doc edit&quot;, no &quot;just a
-one-liner&quot;, no &quot;self-review (§11.4.92) suffices&quot;, no &quot;trivial change&quot;
-carve-out); independence is load-bearing (reviewer structurally
-separated from the author — dedicated review agent subagent-driven per
-§11.4.70/.20 or distinct human, NEVER author re-reading own work;
-§11.4.92 self-review PRECEDES never satisfies); the review is itself
-anti-bluff (§11.4/.1 — a rubber-stamp is not a review; conclusions
-captured-evidence per §11.4.5/.69) and iterates to a clean GO per
-§11.4.134 (any finding/warning re-arms; acceptance on ZERO findings +
-ZERO warnings); honest boundary §11.4.6 — does NOT replace §11.4.108
-runtime-signature verification nor §11.4.40 full-suite retest, it is the
-FIRST of MULTIPLE STRONG LAYERS every change crosses. Composes
-§11.4.1/.4/.5/.6/.20/.40/.69/.70/.92/.108/.110/.125/.134/§107/§1.1.
-Propagation gate <code>CM-COVENANT-114-142-PROPAGATION</code> +
-recommended gate <code>CM-EVERY-CHANGE-REVIEWED</code> (gate-code =
-separate work item). Classification: universal (§11.4.17). CLAUDE.md +
-AGENTS.md + QWEN.md mirrors updated in lockstep. Prior round: Added
-§11.4.125 Code-review-agent gate before pre-build + main build
-(mandatory multi-layer review) (User mandate 2026-06-04, verbatim &quot;After
-all fixes/changes/implementations are done, BEFORE running pre-build
-tests and the main build, dispatch code-review agent(s) that analyze all
-work done + all existing data/facts + the existing codebase + current
-git history to determine quality, safety, and whether the fixes/changes
-will REALLY work; they MUST validate and verify that every test covering
-the fixes/changes genuinely validates the work with NO chance of false
-results or bluff of any kind. Any finding MUST be fixed, polished,
-improved, and covered with additional tests before the build proceeds.
-Multiple strong layers of checks.&quot;): after all batch
-fixes/changes/implementations are done and BEFORE the pre-build test
-sweep + the main (artifact) build, the agent MUST dispatch dedicated
-code-review agent(s) (subagent-driven per §11.4.70/.20) that (1) analyze
-all batch work, (2) all existing data/facts/captured-evidence, (3) the
-existing codebase + blast radius, (4) current git history, (5) determine
-quality + safety + will-it-REALLY-work, (6) validate+verify every
-covering test genuinely exercises the work-under-test and catches its
-negation with ZERO false-result/bluff possibility; any finding (defect /
-error-prone change / safety risk / will-not-work / bluff-capable test /
-coverage gap) MUST be fixed+polished+improved+test-covered (four-layer
-§11.4.4(b), TDD-RED-first §11.4.43/.115) BEFORE the build proceeds;
-review iterates until no blocking findings; one of MULTIPLE STRONG
-LAYERS complementing (never replacing) the pre-build sweep + §11.4.92
-multi-pass (author-side) + §11.4.108 + §11.4.110. Composes
-§11.4/.1/.4/.6/.40/.43/.50/.70/.20/.92/.102/.107/.108/.110. Propagation
-gate <code>CM-COVENANT-114-125-PROPAGATION</code> + recommended gate
-<code>CM-CODE-REVIEW-GATE-BEFORE-BUILD</code> (gate-code = separate work
-item). Classification: universal (§11.4.17). CLAUDE.md + AGENTS.md +
-QWEN.md mirrors updated in lockstep. Prior round: Added §11.4.124
-Dead/unwired-code investigate-before-remove mandate (User mandate
-2026-06-04, verbatim &quot;Before removing any seemingly-dead (zero-importer
-/ unwired) codebase, we MUST investigate via git history where/how it
-was originally used and how it became dead. Removal is permitted ONLY
-when we have captured PROOF it is genuinely no longer needed — and that
-removal MUST be its own separate commit with a proper descriptive
-message. If there is no such proof, the code MUST be investigated for
-where/how it should be wired in properly, and any missing or unwired
-tests MUST be added. We MUST ALWAYS be extra careful with any codebase
-removal.&quot;): &quot;zero importers ⇒ dead ⇒ delete&quot; is a guess (§11.4.6), never
-a finding — before removing ANY seemingly-dead element (zero-importer /
-never-called / unwired
-function/type/file/module/package/asset/config/build-target) the agent
-MUST FIRST investigate via git history (<code>git log --follow</code>,
-<code>-S</code>/<code>-G</code> pickaxe, blame on the deleted call-site)
-and capture as FACT where/how it was wired in, when/how it became dead,
-and whether &quot;no references&quot; is real or a hidden reference the static
-tool cannot see (reflection/DI/build-tags/codegen/plugin/FFI/config);
-removal is permitted ONLY with captured PROOF it is genuinely unneeded
-AND MUST be its own separate descriptive commit citing the git-history
-evidence (+ §11.4.122 operator-confirmation for end-user capabilities;
-tracked via §11.4.90 Obsolete); with NO such proof the element MUST NOT
-be removed — instead wire it in properly (restore a mistakenly-deleted
-call-site per §11.4.114; finish never-completed wiring) and add any
-missing/unwired tests (§11.4.27/.43/.115); ALWAYS be extra careful —
-when uncertain, default to NOT removing per §11.4.6/.101/.122. Composes
-§11.4.6/.8/.84/.90/.92/.101/.114/.122/.27/.43/.115. Propagation gate
-<code>CM-COVENANT-114-124-PROPAGATION</code> + recommended gate
-<code>CM-DEAD-CODE-INVESTIGATE-BEFORE-REMOVE</code> (gate-code =
-separate work item). Classification: universal (§11.4.17). CLAUDE.md +
-AGENTS.md + QWEN.md mirrors updated in lockstep. Prior round: Added
-§11.4.123 Rock-solid-proof-or-deep-research mandate (User mandate
-2026-06-03, verbatim &quot;Every single reported issue MUST BE fully and 100%
-validated with rock solid proofs! Nothing can be considered fixed or
-completed without hard evidence! No false results or bluff(s) of any
-kind is allowed! If we are not sure on how to achieve full testing,
-validation and verification of something we MUST ALWAYS perform deep web
-research ... which produces rock-solid evidence(s) and leaves no space
-for false results or any kind of bluff!&quot;): every reported issue / fix /
-claimed completion MUST be 100% validated with rock-solid CAPTURED proof
-(§11.4.5/.69/.107) before it is marked fixed/implemented/completed
-(§11.4.33); metadata-only / config-only / absence-of-error /
-grep-without-runtime PASS forbidden (§11.4/.1); when UNSURE how to
-validate (no evidence-producing method, or only metadata/config
-evidence) the agent MUST ALWAYS first perform deep web research per
-§11.4.8+§11.4.99 to discover or build an evidence-producing validation
-method — declaring &quot;untestable&quot; or accepting a metadata-only PASS
-WITHOUT exhausting that research is itself a §11.4.123 violation; only
-after the research genuinely fails may the item be
-<code>PENDING_FORENSICS:</code>/<code>Operator-blocked</code>
-(§11.4.21)/<code>structurally-impossible</code> won&#39;t-fix (§11.4.112),
-with the cited research as earned evidence. Forensic case study (FACT):
-in the 1.1.8-dev remediation the validation method for FLAG_SECURE
-secondary-display capture + non-introspectable streaming-app UIs was
-unclear; deep web research
-(<code>docs/research/testing_frameworks_20260603/</code>) yielded the
-CV/OCR/liveness/sink-probe oracle stack (§11.4.107/.112/.117), making
-rock-solid evidence possible. Composes
-§11.4.5/.6/.8/.52/.69/.99/.107/.118/.21/.112. Propagation gate
-<code>CM-COVENANT-114-123-PROPAGATION</code> + recommended gate
-<code>CM-ROCK-SOLID-PROOF-OR-RESEARCH</code> (gate-code = separate work
-item). Classification: universal (§11.4.17). CLAUDE.md + AGENTS.md +
-QWEN.md mirrors updated in lockstep. Prior round: Added §11.4.122
-No-silent-removal-of-existing-components-without-operator-confirmation
-mandate (User mandate 2026-06-03, verbatim &quot;Never ever remove any
-application, system component or service from already existing codebase
-/ System without interactively asked question to us! THIS IS MANDATORY
-RULE / CONSTRAINT!&quot;; forensic case study — F2 Apple-TV-class app + F4
-Huawei HMS component removed in the 1.1.8-dev burn-down WITHOUT asking,
-operator reversed both): no
-application/component/service/package/feature/driver/module/library/prebuilt
-— any already-existing end-user capability — may be removed from the
-existing codebase/System without FIRST interactively asking the operator
-(§11.4.66 mechanism, never silent, never autonomous) and receiving an
-EXPLICIT keep-or-remove decision; a silent removal is a release blocker
-regardless of rationale; tracked DROP path is ask→operator-approves→mark
-<code>Obsolete (→ Fixed.md)</code> reason
-<code>feature-removed</code>+operator-approval citation (§11.4.90)→then
-remove. Composes §11.4.66/.101/.90/.112/.6/.40/.42. Propagation gate
-<code>CM-COVENANT-114-122-PROPAGATION</code> + recommended gate
-<code>CM-NO-SILENT-COMPONENT-REMOVAL</code> (gate-code = separate work
-item). Classification: universal (§11.4.17). CLAUDE.md + AGENTS.md +
-QWEN.md mirrors updated in lockstep. Prior round: Added
-§11.4.114–§11.4.121 (eight new universal anchors from the 1.1.8-dev
-live-defect remediation, 2026-06-03): §11.4.114 last-known-good-tag
-regression isolation (diff the broken state against the known-good tag
-FIRST — the tagged-good version is the regression oracle; surgical
-forward-fix over wholesale revert); §11.4.115
-RED-baseline-on-the-broken-artifact + polarity-switch (one test
-reproduces the defect on the pre-fix artifact then flips
-<code>RED_MODE=0</code> to GREEN-guard — refines §11.4.43&#39;s RED step);
-§11.4.116 real-time conductor↔︎autonomous-test-framework sync channel
-(append-only JSONL event stream + atomically-rewritten status snapshot
-the orchestrator tails live; every verdict event carries its evidence
-path, project-neutral per §11.4.28); §11.4.117 CV/OCR pixel-oracle
-fallback for non-introspectable UIs (drive + assert via pixels when the
-accessibility tree is blank — TV-Compose / leanback / canvas / games;
-refines §11.4.48/.52/.107); §11.4.118 discovery-pressure to confirm
-known-issue-set completeness (fixing the reported set is
-necessary-not-sufficient; provable enumerated discovery coverage, not
-&quot;found nothing else&quot;); §11.4.119 single-resource-owner partitioning for
-parallel hardware testing (exactly ONE stream owns each device&#39;s
-exclusive resource, others read-only — refines §11.4.58/.103 for
-hardware contention); §11.4.120 fix-breaks-its-own-gate reconciliation
-(the gate FAIL is the correct signal the fix worked — rewrite the gate
-to assert the NEW mechanism + update its mutation; never fake-pass,
-never revert the fix); §11.4.121
-no-commit-while-build-writes-tracked-artifacts (defer commit to build
-completion so partial/stale artifacts never land in VCS — build-output
-analogue of §11.4.84). All eight Classification: universal (§11.4.17).
-CLAUDE.md + AGENTS.md + QWEN.md mirrors updated in lockstep. Prior
-round: §11.4.108 Four-layer fix-verification +
-runtime-signature-as-definition-of-done mandate (systematic-debugging
-Phase 4.5, 2026-06-03). A fix crosses FOUR distinct layers — SOURCE
-(committed) → ARTIFACT (bytes landed in the produced artifact) →
-RUNTIME-ON-CLEAN-TARGET (active on a clean/fresh deployment) →
-USER-VISIBLE (works for the end user) — and &quot;fixed&quot; at one layer does
-NOT imply fixed at the next; source-green is the cheapest
-least-conclusive signal. Every fix declares ONE machine-checkable
-runtime signature verified on a clean target; this per-fix
-runtime-signature registry is the SINGLE SOURCE OF TRUTH for &quot;fixed&quot;,
-REPLACING &quot;a gate greps the source&quot;. Gates span all four layers
-(artifact gate asserts BYTES landed, not merely that the source still
-contains the change). Eliminate the stale-deployment/shadow layer by
-construction — deployment MUST yield a clean state (wipe the mutable
-overlay) OR pre-validation MUST prove running-artifact ==
-built-artifact; validation against possibly-stale state is INVALID.
-Meta-rule: ≥3 &quot;fixed-but-not-working&quot; discoveries in one cycle = ONE
-architectural VERIFICATION flaw (not independent bugs) → STOP patching
-symptoms, fix the pipeline, re-certify every item on a clean target. A
-batch is validated only after comprehensive per-item runtime-signature
-verification on a clean baseline. Composes
-§11.4.1/.2/.4/.5/.6/.27/.40/.46/.50/.52/.69/.102. Propagation gate
-<code>CM-COVENANT-114-108-PROPAGATION</code> + recommended per-fix gate
-<code>CM-RUNTIME-SIGNATURE-REGISTRY</code> (gate-code = separate work
-item). Classification: universal. CLAUDE.md + AGENTS.md + QWEN.md
-mirrors updated in lockstep. Prior round: §11.4.107 Anti-bluff
-AV/test-validation techniques mandate (User-driven research,
-2026-06-02). A single captured frame is NOT proof of playback — prove
-live advancing frames via a freeze-detection oracle (near-duplicate /
-perceptual-hash adjacent-frame distance, NOT byte-identical) + an
-independent frame-advance counter from the platform compositor/decoder
-telemetry; loading/buffering is a distinct state (wait for genuine
-playback-start, never false-FAIL a still-loading stream nor false-PASS a
-spinner); not-stale-from-previous cross-check; no-flash-on-wrong-output
-high-frequency sampling during routing transitions; feed/UI-driven (not
-deep-link) test method; metamorphic relations for the oracle problem on
-un-owned streamed content; full-reference quality metrics
-(SSIM/VMAF/ΔE2000) vs golden source for owned content; mutation-test
-every analyzer with a golden-good + golden-bad fixture pair so the
-analyzer itself cannot bluff; per-channel audio loudness (EBU R128) +
-XRUN census; confidence-floored ROI OCR; thresholds calibrated on the
-project&#39;s own fixtures (§11.4.6). Composes §11.4.5/.6/.50/.68/.69/.85.
-Classification: universal. CLAUDE.md + AGENTS.md + QWEN.md mirrors
-updated in lockstep. Prior round: §11.4.103 Continuous parallel-stream
-working routine (User mandate 2026-05-29) — parallel-stream floor raised
-≥2 → <strong>≥3</strong> + <strong>auto-backfill rule</strong> (the
-moment a stream is fully done, a new one immediately takes its place;
-count never drops below 3 while actionable items remain; idle below 3
-only when no remaining items OR all externally blocked). Original: the
-proven multi-stream operating pattern promoted to the project&#39;s standing
-default working routine: main work stream stays FREE (ALL commit AND
-push detached, never blocking); ≥3 parallel subagent-driven background
-streams whenever non-contending actionable work exists; most-critical +
-most-visible first with audio always top (§11.4.72); §11.4.96
-safe-during-build scope only (NO second
-gradle/<code>m -j</code>/containerised build while the 42 GB AOSP
-rebuild runs, §12.8); heavy anti-bluff on every closure
-(§11.4.5/.6/.50/.69/.102); idle ONLY when genuinely externally blocked
-(§11.4.94/.97). Composes
-§11.4.58/.70/.72/.87/.88/.89/.94/.96/.97/.101/.102. Propagation gate
-<code>CM-COVENANT-114-103-PROPAGATION</code> (gate-code = separate work
-item). Classification: universal. CLAUDE.md + AGENTS.md + QWEN.md
-mirrors updated in lockstep. Prior round: §11.4.102 Mandatory
-systematic-debugging activation + always-loaded skill-discovery +
-plugin-dependency availability (User mandate 2026-05-29). On ANY spotted
-issue/bug/test-failure/misalignment/inconsistency the agent MUST launch
-<code>superpowers:systematic-debugging</code> (or platform-equivalent)
-BEFORE proposing any fix — Iron Law &quot;NO FIXES WITHOUT ROOT CAUSE
-INVESTIGATION FIRST&quot;, full 4-phase arc;
-<code>superpowers:using-superpowers</code> skill-discovery ALWAYS loaded
-+ consulted before any task (any ≥1%-applicable skill MUST be invoked);
-every mandated skill plugin/dependency MUST be installed + loadable
-(missing = release-blocker). Composes
-§11.4.4/.6/.7/.8/.43/.70/.82(A)/.92. Propagation gate
-<code>CM-COVENANT-114-102-PROPAGATION</code> (gate-code = separate work
-item). Classification: universal. CLAUDE.md + AGENTS.md + QWEN.md
-mirrors updated in lockstep. Prior round: §11.4.101
-Autonomous-decision-over-blocking mandate (User mandate
-2026-05-28).</td>
+<td>Added §11.4.148 + §11.4.149 — workable-item integrity +
+testing-diary family (User mandate 2026-06-10). §11.4.148 Workable-item
+integrity (status+type+id) + comprehensive structured description +
+bidirectional external-tracker sync + BLOCKED unblock-choices: BINDS +
+STRENGTHENS §11.4.15/.16/.21/.54/.91/.93/.95/.106 into ONE integrity
+contract spanning DB ↔︎ docs ↔︎ external tracker — (D1) no item without a
+valid status + valid type + stable id on ALL three surfaces; (D2)
+comprehensive structured description (what/manifest/repro/acceptance) in
+DB + docs + tracker, never a stub; (D3) BLOCKED items carry WHY +
+enumerated unblock CHOICES (tightens §11.4.21, mirrors §11.4.66
+2–4-option shape; <code>Blocked</code>/<code>BLOCKED</code> = documented
+alias of canonical <code>Operator-blocked</code>); (D4) regular
+never-missed bidirectional DB↔︎docs↔︎tracker sync, §11.4.86
+fingerprint-gated + §11.4.106 docs_chain-bound; (D5) generic
+external-tracker push carries statuses (collapsed per
+§11.4.33/.112)/types/assignee (§11.4.104, default-from-env-var, never
+logged §11.4.10)/sub-tasks, idempotent dry-run-then-real
+match-by-stable-key, sink-side <code>created/updated/failed</code> proof
+§11.4.69, machinery project-agnostic §11.4.28. Composes
+§11.4.15/.16/.21/.33/.34/.54/.66/.86/.91/.93/.95/.104/.106/.112/.123/.10/.28/.69/.6/§1.1.
+Propagation gate <code>CM-COVENANT-114-148-PROPAGATION</code> +
+recommended gates
+<code>CM-ITEM-INTEGRITY-STATUS-TYPE-ID</code>/<code>CM-ITEM-COMPREHENSIVE-DESCRIPTION</code>/<code>CM-BLOCKED-UNBLOCK-CHOICES</code>/<code>CM-TRACKER-SYNC-IDEMPOTENT</code>
+(gate-code = separate work item). §11.4.149 Per-workable-item
+testing-diary: every item carries an append-only TESTING DIARY
+(date/time + tested-by + result + in-depth observations +
+action-taken+why), distinct from §11.4.93 item_history (state) +
+§11.4.55 Reopens (cycles) — it records TEST EXECUTIONS — (a)
+<code>test_diary</code> table in the §11.4.93/.95 SQLite SSoT with a
+schema constraint making a PASS-without-evidence-path impossible
+§11.4.69; (b) in-depth diary + derived at-a-glance summary VIEW feeding
+§11.4.132 risk-ordering; (c) four-format per-item
+<code>Diary</code>/<code>Diary_Summary</code> exports §11.4.65 +
+§11.4.86-fingerprinted + §11.4.106 docs_chain-bound (never missed); (d)
+external-tracker SUB-TASK model with `{TODO</td>
 </tr>
 <tr>
 <td>Issues</td>
@@ -16158,6 +15832,372 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--defer-extend-to-release-sweep</code>,
 <code>--single-guard-suffices</code>,
 <code>--no-defect-characterisation</code> flag.</p>
+<h3 id="114147--crashed-agent-respawn-until-complete--no-work-loss-registry-mandate-user-mandate-2026-06-10">§11.4.147
+— Crashed-agent respawn-until-complete + no-work-loss registry mandate
+(User mandate, 2026-06-10)</h3>
+<p><strong>Forensic anchor — verbatim operator intent
+(2026-06-10):</strong> &quot;any agent that crashed because of something MUST
+BE respawned and finish its work at some point! We MUST NOT lose any
+work, forget about or have it corrupted!&quot; Forensic case study (FACT,
+this session): dispatched subagents died on <strong>transient</strong>
+causes — <code>API Error: Server is temporarily limiting requests</code>
+(rate-limit) killed 5 at once,
+<code>API Error: socket connection closed unexpectedly</code> killed 2,
+and one left PARTIAL edits (two source files written, the dependent
+SystemUI sliders + doc + test NOT done). Each was re-dispatched by pure
+conductor vigilance with <strong>no mechanical guarantee</strong> — the
+moment conductor context is lost / compacted / the conductor itself
+crashes, an in-flight-but-dead work unit is silently dropped: work lost
+/ forgotten / corrupted.</p>
+<p>Every agent/subagent dispatched to perform a work unit MUST be
+tracked through its full lifecycle so that a crash NEVER loses, forgets,
+or corrupts its work. A crashed agent is <strong>NOT</strong> a
+completed agent (§11.4.6 — &quot;it probably finished before dying&quot; is a
+forbidden guess; an abnormal termination is positive evidence the work
+unit is OPEN). The mandate (ALL hold):</p>
+<p><strong>(a) Mandatory work-unit / agent REGISTRY.</strong> Every
+dispatched agent/subagent MUST have a durable, append-only,
+machine-readable registry entry carrying at minimum: a stable
+agent/work-unit id, its task + file-scope (§11.4.58 PWU manifest), its
+declared output path(s) + captured-evidence dir (§11.4.5/§11.4.69), its
+dispatch timestamp, and a status from the CLOSED SET
+<code>{dispatched | in-flight | crashed | respawned | complete}</code>.
+The registry reuses the §11.4.116 sync substrate (append-only JSONL
+event stream + atomically-rewritten status snapshot) — agent-lifecycle
+transitions are events; the §11.4.116 integrity property holds (&quot;an
+entry with no dispatch-event cannot show <code>complete</code>&quot;). The
+registry is the SINGLE SOURCE OF TRUTH for &quot;is this work owed?&quot; — an
+unregistered dispatch is itself a §11.4.147 violation (an untracked
+agent cannot be respawned).</p>
+<p><strong>(b) Mechanical CRASH-DETECTION +
+RESPAWN-until-complete.</strong> Any abnormal agent termination —
+transient API/rate-limit error
+(<code>Server is temporarily limiting requests</code>), socket-close
+(<code>socket connection closed unexpectedly</code>), any non-completion
+exit, OR a terminal error after the runtime&#39;s own retries are exhausted
+— MUST flip the registry entry to <code>crashed</code> and keep the work
+unit OPEN. An OPEN unit MUST be respawned (a fresh agent claims the same
+id + scope + preserved state) and re-respawned until an agent reaches
+<code>complete</code>. Respawn is the safe, reversible,
+bounded-blast-radius decision the conductor takes autonomously per
+§11.4.101 (never blocks the loop waiting for a human). Transient causes
+use the project&#39;s ALREADY-DEFINED backoff/retry budgets — never invented
+numbers (§11.4.6); a genuinely-non-transient terminal error
+(deterministically reproducible after respawn) is investigated per
+§11.4.102 before further respawn, never spun in a blind retry loop.</p>
+<p><strong>(c) PARTIAL-STATE handling — preserve, then
+resume-or-clean-restart.</strong> A crashed agent&#39;s uncommitted edits +
+output doc MUST be PRESERVED (never silently discarded → work lost;
+never blindly committed → corruption). Before resuming, the respawn MUST
+run the §11.4.84 quiescence check on the preserved tree (every modified
+file accounted-for against the unit&#39;s scope; no
+mutation/<code>// always pass</code>/<code>_mutated_*</code> residue; no
+half-written/torn artifact). Then EITHER (i) <strong>RESUME
+idempotently</strong> from the preserved partial when it passes the
+check (consistent + complete-enough to continue), OR (ii)
+<strong>CLEAN-RESTART</strong> the unit from a known-good base (§9.2
+pre-op backup, reversible per §11.4.101) when the partial is
+inconsistent / incomplete-unsafely / fails the §11.4.84 check. Either
+path guarantees nothing is lost and nothing is corrupted. Per-agent
+<code>git worktree</code> isolation (§11.4.58 L4 / §11.4.84) keeps a
+crashed unit&#39;s partial tree from contaminating other streams.</p>
+<p><strong>(d) COMPLETION criterion.</strong> A work unit is DONE
+<strong>only</strong> when an agent reaches <code>complete</code> with
+its required captured evidence/output landed (§11.4.5/§11.4.69 + the
+§11.4.116 verdict-carries-evidence-path rule). The endless-loop
+done-condition (§11.4.87 / §11.4.94 / §11.4.97 / §11.4.126) MUST NOT
+read as satisfied while any registry entry is <code>dispatched</code> /
+<code>in-flight</code> / <code>crashed</code> /
+<code>respawned</code>-not-yet-<code>complete</code>; the zero-idle
+survey (§11.4.94) MUST treat every non-<code>complete</code> entry as an
+OPEN actionable item to reclaim. A registry showing
+<code>complete</code> without the landed evidence is a §11.4 PASS-bluff
+at the agent-lifecycle layer.</p>
+<p>Honest boundary (§11.4.6): the registry + respawn guarantee that work
+is <em>not lost or corrupted</em>; it does NOT itself prove the work is
+<em>correct</em> — the respawned unit&#39;s output still crosses §11.4.108
+four-layer verification, the §11.4.125/§11.4.142 code-review gate, and
+§11.4.40 full-suite retest. §11.4.147 is the durability layer beneath
+those, not a substitute. §11.4.147 is the agent-side analogue of
+§11.4.144 (device availability-following): same detect-drop →
+wait/backoff → re-attach/respawn → escalate-if-non-transient shape —
+devices for §11.4.144, dispatched agents for §11.4.147.</p>
+<p>Classification: universal (§11.4.17) — the consuming project supplies
+its concrete registry path/format, its crash-detection signal source
+(runtime exit codes / sync-stream error events), its respawn-dispatch
+mechanism, and its already-defined backoff budgets per §11.4.35.
+Composes §11.4.6 (no-guessing — crash ≠ done) / §11.4.58 (PWU = the work
+unit + worktree isolation) / §11.4.84 (partial-state quiescence check
+before resume) / §11.4.87 + §11.4.94 + §11.4.97 + §11.4.126 (loop
+done-condition + zero-idle reclaim) / §11.4.101 (autonomous
+respawn-vs-restart decision, reversible-with-backup) / §11.4.116
+(registry reuses the sync-channel substrate) / §11.4.102 (non-transient
+terminal error → systematic-debugging before blind respawn) / §11.4.108
++ §11.4.125 + §11.4.142 + §11.4.40 (the respawned output still crosses
+every downstream verification layer) / §9.2 (clean-restart pre-op
+backup) / §11.4.128 + §11.4.144 (the recording/device-following siblings
+— same detect→wait→re-attach→escalate shape, agent-side here).
+Propagation gate <code>CM-COVENANT-114-147-PROPAGATION</code> (literal
+<code>11.4.147</code> across the consumer fleet) + recommended gate
+<code>CM-CRASHED-AGENT-RESPAWN-TRACKED</code> (every dispatched agent
+has a registry entry; every <code>crashed</code> entry is
+respawned-until-<code>complete</code>; the loop done-condition reads no
+non-<code>complete</code> entries; partial state preserved +
+§11.4.84-checked before resume) + paired §1.1 meta-test mutation (strip
+the literal → propagation gate FAILs; mark a <code>crashed</code> entry
+as the loop&#39;s done-condition <code>complete</code> without landed
+evidence, OR drop a dispatched agent without a registry entry →
+<code>CM-CRASHED-AGENT-RESPAWN-TRACKED</code> FAILs; gate-code =
+separate work item).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.147.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-agent-registry</code>, <code>--crash-equals-done</code>,
+<code>--no-respawn</code>, <code>--discard-partial-state</code>,
+<code>--blind-commit-partial</code>, <code>--forget-dead-agent</code>,
+<code>--loop-done-with-crashed-entries</code> flag.</p>
+<h3 id="114148--workable-item-integrity-statustypeid--comprehensive-structured-description--bidirectional-external-tracker-sync--blocked-unblock-choices-mandate-user-mandate-2026-06-10">§11.4.148
+— Workable-item integrity (status+type+id) + comprehensive structured
+description + bidirectional external-tracker sync + BLOCKED
+unblock-choices mandate (User mandate, 2026-06-10)</h3>
+<p><strong>Forensic anchor — direct operator mandate
+(2026-06-10):</strong> every workable item MUST carry a VALID status, a
+VALID type, and a stable unique identifier at all times (never one
+without all three); every item MUST carry a comprehensive, structured,
+self-explanatory description (what it is, how it manifests, how to
+reproduce, acceptance criteria); a <code>BLOCKED</code> item MUST state
+WHY it is blocked AND the choices that would unblock it; the single
+source of truth (the SQLite workable-items DB), the rendered docs, and
+the external tracker (e.g. ClickUp) MUST be regularly, never-missed,
+fully synchronized in BOTH directions through the mechanical docs-sync
+engine; the external-tracker push MUST carry statuses, types, assignee,
+and sub-tasks, default an unset assignee from an env var, and be
+idempotent.</p>
+<p>This anchor BINDS + STRENGTHENS the existing workable-item discipline
+(§11.4.15 status / §11.4.16 type / §11.4.54 ATM-NNN id / §11.4.21
+Operator-blocked / §11.4.91 description-clarity / §11.4.93 + §11.4.95
+SQLite SSoT / §11.4.106 docs_chain) into ONE integrity contract spanning
+the three surfaces — DB ↔︎ docs ↔︎ external tracker — and adds the
+operator&#39;s three new emphases (D1 the no-item-without-all-three
+invariant, D2 the comprehensive structured description, D3 the BLOCKED
+unblock-CHOICES tightening), citing rather than re-authoring its
+components. The mandate (ALL hold):</p>
+<p><strong>(D1) No item without a valid status + valid type + stable id
+— across ALL three surfaces.</strong> Every workable item, at every
+moment, MUST carry (i) a <code>**Status:**</code> from the §11.4.15 /
+§11.4.21 / §11.4.90 closed set, (ii) a <code>**Type:**</code> from the
+§11.4.16 closed set <code>{Bug | Feature | Task}</code>, and (iii) a
+stable, unique, monotonic, append-only <code>[&lt;ID-NNN&gt;]</code>
+identifier per §11.4.54. An item missing ANY of the three in the DB, in
+the rendered docs, OR in the external tracker is a §11.4.148 violation —
+the validator FAILs (non-zero exit, release-blocker). The id is the
+binding key that keeps the same item identifiable across DB rows, doc
+headings, and tracker tasks; an id present on one surface but absent on
+another is a sync-integrity failure.</p>
+<p><strong>(D2) Comprehensive structured description per item.</strong>
+Every item MUST carry a comprehensive, self-contained, structured
+description — at minimum WHAT it is (the §11.4.91 ≥6-word / ≥40-char
+clear meaning), HOW it manifests (observed user-visible / system
+behaviour), HOW to reproduce (deterministic steps where applicable,
+§11.4.115 / §11.4.146 reproduce-first), and ACCEPTANCE CRITERIA (the
+captured-evidence verdict that closes it per §11.4.123 / §11.4.69). The
+description lives in the §11.4.93 DB <code>description</code> column AND
+renders into the docs AND pushes to the external tracker — never a
+one-liner stub, never a §11.4.91 anti-pattern fragment. A
+&quot;fix-it-later&quot;/placeholder description is a §11.4 PASS-bluff at the
+planning layer (the operator / a future agent / a teammate cannot
+understand the item).</p>
+<p><strong>(D3) BLOCKED items carry WHY + the unblock CHOICES.</strong>
+Tightens §11.4.21: every item whose status is
+<code>Operator-blocked</code> (incl. any
+<code>Blocked</code>/<code>BLOCKED</code> input alias normalised to the
+canonical <code>Operator-blocked</code> value — documented alias, never
+a silent fork, §11.4.6) MUST carry, beyond the §11.4.21
+<code>Operator-Block-Details</code> WHAT/WHY/WHO, an enumerated set of
+UNBLOCK CHOICES — the closed list of decisions/actions that would
+unblock it (e.g.
+<code>[A] grant access X · [B] approve removal of Y · [C] provide credential Z</code>,
+mirroring the §11.4.66 2–4-option interactive-clarification shape). The
+validator FAILs a BLOCKED item whose unblock field is empty OR carries
+no enumerated choice marker — &quot;blocked, no way forward stated&quot; is
+forbidden, the agent / operator must always know the choices that clear
+the block.</p>
+<p><strong>(D4) Bidirectional DB ↔︎ docs ↔︎ external-tracker sync, never
+missed, docs_chain-bound.</strong> The §11.4.93 / §11.4.95 git-tracked
+SQLite DB is the SINGLE SOURCE OF TRUTH; the rendered docs (Issues /
+Issues_Summary / Fixed / Fixed_Summary / per-item docs + their §11.4.65
+/ §11.4.106 exports) and the external tracker are its DERIVED surfaces.
+A full synchronization pass MUST run regularly and on every state change
+so no surface drifts: DB→docs (<code>db-to-md</code>), docs→DB
+(<code>md-to-db</code>, both byte-identical round-trip per §11.4.93),
+DB→external-tracker push, with a drift-proof §11.4.86 fingerprint
+(sha256 of the sorted item keyset, NOT mtime) gating freshness so a
+forgotten sync FAILs a pre-build gate. The sync is bound into the
+§11.4.106 docs_chain engine as a registered consumer context (never an
+ad-hoc parallel script) so drift is mechanically caught, never
+vigilance-dependent.</p>
+<p><strong>(D5) Generic external-tracker sync —
+statuses/types/assignee/sub-tasks, default-assignee env var,
+idempotent.</strong> The external-tracker push MUST carry: each item&#39;s
+status (collapsed onto the tracker&#39;s native status set per §11.4.33 when
+the tracker&#39;s status vocabulary is fixed — the
+API-cannot-create-statuses case is a §11.4.112 structural constraint,
+the precise value preserved in a description header, never lost), its
+type, its assignee (a §11.4.104 participant handle —
+<code>created_by</code> / <code>assigned_to</code>), and its sub-tasks.
+An UNSET assignee defaults from a project-supplied env var (the
+§11.4.104 operator-username pattern), never hardcoded, never logged
+(§11.4.10). The push MUST be IDEMPOTENT — a dry-run-then-real,
+match-by-stable-key (<code>[&lt;ID&gt;]</code> name prefix / id
+custom-field) plan, present⇒UPDATE / absent⇒CREATE, rate-limited,
+credential-redacted, with a captured sink-side
+<code>created=N updated=M failed=0</code> proof per §11.4.69. The
+tracker-sync MACHINERY stays project-agnostic (§11.4.28) — the consumer
+registers its concrete tracker (service, list/board id, field map) at
+runtime via the public API; the constitution names the discipline, not
+the vendor.</p>
+<p>Anti-bluff (§11.4): every sync run + every validator pass carries
+captured evidence per §11.4.5 / §11.4.69 (the round-trip diff, the
+fingerprint match, the tracker <code>created/updated/failed</code> line
+under <code>qa-results/</code>); a sync claimed-run with no growing
+evidence trail, a <code>complete</code>/<code>Fixed</code> item with no
+acceptance-criteria description, or a BLOCKED item with no unblock
+choices are all PASS-bluffs at the workable-item-integrity layer. Honest
+boundary (§11.4.6): the integrity contract guarantees every item is
+well-formed + the three surfaces agree, NOT that the item&#39;s underlying
+work is correct — that still crosses §11.4.108 / §11.4.40 /
+§11.4.123.</p>
+<p>Classification: universal (§11.4.17) — the consuming project supplies
+its concrete DB path, id prefix, external-tracker service + list/board
+id + field map + default-assignee env var, and docs_chain context per
+§11.4.35. Composes §11.4.15 / §11.4.16 / §11.4.21 / §11.4.33 / §11.4.34
+/ §11.4.54 / §11.4.66 / §11.4.86 / §11.4.91 / §11.4.93 / §11.4.95 /
+§11.4.104 / §11.4.106 / §11.4.112 / §11.4.123 / §11.4.10 / §11.4.28 /
+§11.4.69 / §11.4.6 / §1.1. Propagation gate
+<code>CM-COVENANT-114-148-PROPAGATION</code> (literal
+<code>11.4.148</code>) + recommended gates
+<code>CM-ITEM-INTEGRITY-STATUS-TYPE-ID</code> (every item carries valid
+status+type+id on every surface) /
+<code>CM-ITEM-COMPREHENSIVE-DESCRIPTION</code> (every item&#39;s description
+has the WHAT/manifest/repro/acceptance structure) /
+<code>CM-BLOCKED-UNBLOCK-CHOICES</code> (every BLOCKED item enumerates
+unblock choices) / <code>CM-TRACKER-SYNC-IDEMPOTENT</code> (the
+external-tracker push is bidirectional-fingerprinted + idempotent +
+docs_chain-bound) + paired §1.1 meta-test mutations (strip the literal →
+propagation gate FAILs; drop an item&#39;s type / id / description-structure
+/ unblock-choices, OR break the tracker-sync idempotency key → the
+respective gate FAILs; gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.148.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--item-without-status</code>, <code>--item-without-type</code>,
+<code>--item-without-id</code>, <code>--stub-description-OK</code>,
+<code>--blocked-without-choices</code>,
+<code>--skip-tracker-sync</code>, <code>--one-way-sync-OK</code>,
+<code>--non-idempotent-tracker-push</code>,
+<code>--hardcode-assignee</code> flag.</p>
+<h3 id="114149--per-workable-item-testing-diary-mandate-user-mandate-2026-06-10">§11.4.149
+— Per-workable-item testing-diary mandate (User mandate,
+2026-06-10)</h3>
+<p><strong>Forensic anchor — direct operator mandate
+(2026-06-10):</strong> every workable item MUST carry a TESTING DIARY —
+a chronological, append-only record of every test run against it, each
+entry capturing date/time, who tested (tested-by), the result, in-depth
+observations (the technical background a future fix needs), and the
+action taken + why (whether the run changed the item&#39;s status, and the
+reasoning); both an in-depth diary AND an at-a-glance summary; modelled
+on the external tracker as a sub-task of the item with a
+<code>{TODO | In-progress | Completed}</code> lifecycle; persisted in
+the SQLite single source of truth + exported to all required formats +
+pushed to the external tracker; bound into the mechanical docs-sync
+engine so it is never missed; minimal-LLM (deterministic tooling, the
+prose authored by whoever ran the test); under 100% test-coverage
+discipline.</p>
+<p>The testing diary is the evidentiary HISTORY layer for a workable
+item — distinct from the §11.4.93 <code>item_history</code> (which
+records lifecycle STATE transitions) and from the §11.4.55 Reopens.md
+(which aggregates reopen cycles): the diary records TEST EXECUTIONS,
+each of which may or may not cause a state transition. The mandate (ALL
+hold):</p>
+<p><strong>(a) Append-only per-item diary table in the SQLite
+SSoT.</strong> A <code>test_diary</code> table (additive to the §11.4.93
+/ §11.4.95 schema, never a competing source) records one row per test
+run, soft-keyed to the item&#39;s stable id, with at minimum: ISO-8601-UTC
+<code>date_time</code> (sortable, deterministic §11.4.50);
+<code>tested_by</code> from a closed set (e.g.
+<code>User | Operator | AI-agent | HelixQA</code>); <code>result</code>
+from the §11.4.45 closed verdict vocabulary
+<code>{PASS | FAIL | SKIP}</code> + a short detail; in-depth
+<code>observations</code> (long markdown — facts or explicit
+<code>UNCONFIRMED:</code>/<code>PENDING_FORENSICS:</code> per §11.4.6,
+never &quot;likely&quot;; this is the background a future fix relies on);
+<code>action_taken</code> + a <code>status_changed</code> flag + from/to
+(did this run change the item&#39;s status, and WHY/why-not); and a §11.4.69
+<code>evidence_path</code> + <code>feature_class</code> — with a
+structural constraint that a <code>PASS</code> row WITHOUT a non-empty
+evidence path is impossible (a PASS-bluff is rejected by the schema
+itself).</p>
+<p><strong>(b) In-depth diary + at-a-glance summary.</strong> Per item,
+BOTH an in-depth diary document (one section per run, full observations
++ action + evidence link) AND a derived at-a-glance summary (a rollup
+VIEW — total/pass/fail/skip runs, last verdict, last run, status-change
+count, distinct testers, distinct feature-classes — DERIVED, never a
+duplicate source per §11.4.93). The summary feeds the §11.4.132
+risk-ordering inputs (fail-runs / status-changes / last-result) without
+re-reading every observations blob.</p>
+<p><strong>(c) Four-format per-item exports, docs_chain-bound, never
+missed.</strong> Each item&#39;s <code>Diary</code> +
+<code>Diary_Summary</code> render to the project&#39;s full export-format
+set (§11.4.65 + any project-added format) with the freshness invariant
+(derived-format mtime ≥ source mtime), wired through the §11.4.106
+docs_chain engine as a registered consumer context with a §11.4.86
+drift-proof fingerprint (sha256 of the sorted diary keyset, NOT mtime)
+so a diary row added but not exported/pushed FAILs a pre-build gate —
+the never-missed mechanism.</p>
+<p><strong>(d) External-tracker sub-task model with lifecycle.</strong>
+On the external tracker, the workable-item task keeps its description =
+the item (§11.4.148 D2 — NOT polluted with diary text); each diary run
+is a CHILD SUB-TASK of that task (type <code>task</code>), carrying a
+<code>{TODO | In-progress | Completed}</code> lifecycle status
+(collapsed onto the tracker&#39;s native status set per §11.4.33 / §11.4.112
+when the tracker&#39;s vocabulary is fixed), its observations + action + an
+Evidence: line (the path, not the raw artefact — §11.4.10 / §11.4.13),
+and a stable diary-entry idempotency key. The push reuses the §11.4.148
+D5 idempotent, rate-limited, credential-redacted, sink-side-proven
+discipline; the sub-task mapper stays project-agnostic (§11.4.28).</p>
+<p><strong>(e) Minimal-LLM, anti-bluff, 100% test-covered.</strong> The
+diary tooling (add / export / tracker-sync / validate) is deterministic
+bash/Go with ZERO LLM in the data path — the <code>observations</code>
+prose is authored by whoever ran the test; the tooling only
+stores/renders/pushes/validates it. The diary is covered per §11.4.27 by
+every applicable test type (unit + integration-against-the-real-tracker
+with an honest §11.4.3 SKIP-when-token-absent, never a faked PASS +
+export + HelixQA Challenge + paired §1.1 mutation) so a diary PASS-bluff
+is mechanically impossible. Honest boundary (§11.4.6): the diary
+guarantees a complete, auditable test-history per item, NOT that any
+single run&#39;s verdict is correct — that rests on the run&#39;s own captured
+evidence per §11.4.69 / §11.4.107 / §11.4.123.</p>
+<p>Classification: universal (§11.4.17) — the consuming project supplies
+its concrete DB path, diary doc layout, export formats, external-tracker
+sub-task field map, and docs_chain context per §11.4.35. Composes
+§11.4.6 / §11.4.27 / §11.4.45 / §11.4.50 / §11.4.55 / §11.4.65 /
+§11.4.69 / §11.4.86 / §11.4.93 / §11.4.95 / §11.4.106 / §11.4.107 /
+§11.4.123 / §11.4.132 / §11.4.148 / §11.4.10 / §11.4.13 / §11.4.28 /
+§11.4.33 / §11.4.112 / §1.1. Propagation gate
+<code>CM-COVENANT-114-149-PROPAGATION</code> (literal
+<code>11.4.149</code>) + recommended gates
+<code>CM-TEST-DIARY-SYNC</code> (the diary fingerprint gate — a diary
+row not exported/pushed FAILs) /
+<code>CM-DIARY-PASS-REQUIRES-EVIDENCE</code> (a PASS diary row carries a
+non-empty evidence path) + paired §1.1 meta-test mutations (strip the
+literal → propagation gate FAILs; strip the evidence-required constraint
+OR the sub-task lifecycle / fingerprint → the respective gate FAILs;
+gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.149.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-testing-diary</code>,
+<code>--diary-without-evidence</code>, <code>--no-diary-summary</code>,
+<code>--diary-without-tracker-subtask</code>,
+<code>--llm-in-diary-data-path</code>,
+<code>--diary-export-optional</code> flag.</p>
 <hr />
 <h2 id="12-host-session-safety--directly-or-indirectly-signing-the-user-out-is-forbidden">§12.
 Host-session safety — directly OR indirectly signing the user out is
