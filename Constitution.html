@@ -248,7 +248,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 <tbody>
 <tr>
 <td>Revision</td>
-<td>20</td>
+<td>21</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -256,7 +256,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-09T14:00:00Z</td>
+<td>2026-06-10T12:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -264,26 +264,55 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.142 — Universal code-review mandate — every change
-reviewed, always, no exception (User mandate 2026-06-09, verbatim &quot;ALL
-changes we do MUST pass through the code review step!!! ALWAYS!!!&quot;):
-EVERY change to ANY governed repository — without exception (source,
-fixes, tests, gates, meta-test mutations, docs, doc-tooling, build/CI
-scripts, config, governance files, conductor main-stream edits,
-sub-agent output, refactors, single-line edits) — MUST pass an
-INDEPENDENT code-review step BEFORE acceptance/commit/build; the
-ABSOLUTE form of §11.4.125 (strips every implicit scoping — no &quot;just a
-doc edit&quot;, no &quot;just a one-liner&quot;, no &quot;self-review (§11.4.92) suffices&quot;,
-no &quot;trivial change&quot; carve-out); independence is load-bearing (reviewer
-structurally separated from the author — dedicated review agent
-subagent-driven per §11.4.70/.20 or distinct human, NEVER author
-re-reading own work; §11.4.92 self-review PRECEDES never satisfies); the
-review is itself anti-bluff (§11.4/.1 — a rubber-stamp is not a review;
-conclusions captured-evidence per §11.4.5/.69) and iterates to a clean
-GO per §11.4.134 (any finding/warning re-arms; acceptance on ZERO
-findings + ZERO warnings); honest boundary §11.4.6 — does NOT replace
-§11.4.108 runtime-signature verification nor §11.4.40 full-suite retest,
-it is the FIRST of MULTIPLE STRONG LAYERS every change crosses. Composes
+<td>Added §11.4.143 — Real-user-journey mandate for video-streaming-app
+full-automation tests (User mandate 2026-06-10, verbatim &quot;All video
+streaming apps ... require to choose some title and to press proper UI
+button to start or resume playing! Proper UI interaction to play exact
+show with proper content and subtitles is MANDATORY! Without it we just
+eventually play on 2nd display sample, and that&#39;s it mostly! THIS MUST
+BE ADDED as MANDATORY RULE regarding testing of any video streaming app
+in general with full automation tests! Universal in root constitution +
+ATMOSphere project extensions.&quot;): any full-automation test asserting a
+video player / streaming app plays content MUST drive the REAL end-user
+journey through the app&#39;s OWN UI — launch → BROWSE the actual catalog →
+choose a SPECIFIC title → press the real Play/Resume button → confirm
+THAT chosen content plays with its correct subtitles on the intended
+routing target — NEVER a sample / demo / loop-clip / deep-link /
+<code>am start -a VIEW</code> / synthetic shortcut (those validate
+ROUTING only, not real chosen-content playback → a §11.4 PASS-bluff at
+the user-journey layer, the operator&#39;s &quot;we just eventually play on 2nd
+display sample&quot; gap); non-introspectable streaming UIs use the §11.4.117
+CV/OCR pixel oracle; login via the §11.4.10 credential single-source;
+chosen-content confirmation via §11.4.107 liveness + §11.4.136
+real-content + §11.4.137 subtitle correctness; honest
+<code>operator_attended</code> SKIP-with-reason per §11.4.52/.3 ONLY
+where autonomous is genuinely infeasible (hard login / geo-block /
+secure-surface blanking) — NEVER a faked routing-only PASS. Composes
+§11.4.48/.107/.117/.136/.137/.52/.3/§107/§1.1. Propagation gate
+<code>CM-COVENANT-114-143-PROPAGATION</code> + recommended gate
+<code>CM-VIDEO-REAL-JOURNEY-TEST</code> (gate-code = separate work
+item). Classification: universal (§11.4.17). CLAUDE.md + AGENTS.md +
+QWEN.md mirrors updated in lockstep. Prior round: Added §11.4.142 —
+Universal code-review mandate — every change reviewed, always, no
+exception (User mandate 2026-06-09, verbatim &quot;ALL changes we do MUST
+pass through the code review step!!! ALWAYS!!!&quot;): EVERY change to ANY
+governed repository — without exception (source, fixes, tests, gates,
+meta-test mutations, docs, doc-tooling, build/CI scripts, config,
+governance files, conductor main-stream edits, sub-agent output,
+refactors, single-line edits) — MUST pass an INDEPENDENT code-review
+step BEFORE acceptance/commit/build; the ABSOLUTE form of §11.4.125
+(strips every implicit scoping — no &quot;just a doc edit&quot;, no &quot;just a
+one-liner&quot;, no &quot;self-review (§11.4.92) suffices&quot;, no &quot;trivial change&quot;
+carve-out); independence is load-bearing (reviewer structurally
+separated from the author — dedicated review agent subagent-driven per
+§11.4.70/.20 or distinct human, NEVER author re-reading own work;
+§11.4.92 self-review PRECEDES never satisfies); the review is itself
+anti-bluff (§11.4/.1 — a rubber-stamp is not a review; conclusions
+captured-evidence per §11.4.5/.69) and iterates to a clean GO per
+§11.4.134 (any finding/warning re-arms; acceptance on ZERO findings +
+ZERO warnings); honest boundary §11.4.6 — does NOT replace §11.4.108
+runtime-signature verification nor §11.4.40 full-suite retest, it is the
+FIRST of MULTIPLE STRONG LAYERS every change crosses. Composes
 §11.4.1/.4/.5/.6/.20/.40/.69/.70/.92/.108/.110/.125/.134/§107/§1.1.
 Propagation gate <code>CM-COVENANT-114-142-PROPAGATION</code> +
 recommended gate <code>CM-EVERY-CHANGE-REVIEWED</code> (gate-code =
@@ -15699,6 +15728,92 @@ hatch — no <code>--skip-review</code>, <code>--no-review</code>,
 <code>--trivial-change-exempt</code>, <code>--doc-edit-exempt</code>,
 <code>--self-review-suffices</code>, <code>--review-after-commit</code>
 flag exists.</p>
+<h3 id="114143--real-user-journey-mandate-for-video-streaming-app-full-automation-tests-user-mandate-2026-06-10">§11.4.143
+— Real-user-journey mandate for video-streaming-app full-automation
+tests (User mandate, 2026-06-10)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-10):</strong></p>
+<blockquote>
+<p>&quot;All video streaming apps ... require to choose some title and to
+press proper UI button to start or resume playing! Proper UI interaction
+to play exact show with proper content and subtitles is MANDATORY!
+Without it we just eventually play on 2nd display sample, and that&#39;s it
+mostly! THIS MUST BE ADDED as MANDATORY RULE regarding testing of any
+video streaming app in general with full automation tests! Universal in
+root constitution + ATMOSphere project extensions.&quot;</p>
+</blockquote>
+<p>Any full-automation test that asserts a video player / streaming
+application plays content MUST drive the REAL end-user journey through
+the app&#39;s OWN user interface — launch the app → BROWSE the actual
+catalog → choose a SPECIFIC title → press the real Play / Resume button
+→ confirm THAT chosen content is genuinely playing, with its correct
+subtitles, on the intended routing target. A test that bypasses the
+journey with a sample / demo / built-in-loop clip, a deep-link /
+<code>am start -a VIEW</code> / intent shortcut, a synthetic or
+pre-staged stream, or any path that does NOT exercise the app&#39;s own
+browse-select-play UI is a §11.4 PASS-bluff at the user-journey layer:
+it validates ROUTING (that <em>something</em> reaches the display) while
+leaving the user-visible behaviour the operator actually cares about —
+&quot;the show I picked actually plays&quot; — unproven. Such shortcuts exercise
+neither the catalog/auth/title-resolution path nor the real Play-button
+→ decoder → routing transition where the end-user defects live (the
+operator&#39;s &quot;we just eventually play on 2nd display sample, and that&#39;s it
+mostly&quot; is exactly this gap).</p>
+<p>The mandate (ALL must hold): (1) <strong>Real journey, not a
+shortcut</strong> — the test drives launch → catalog browse →
+specific-title selection → real Play/Resume press through the app&#39;s own
+UI (§11.4.48 UI-driven), NEVER a deep-link / intent / sample / loop-clip
+shortcut; (2) <strong>Chosen-content confirmation</strong> — the PASS
+proves the SPECIFIC selected title is playing (not merely that pixels
+move on the target), via the §11.4.107 liveness battery (live advancing
+frames + frame-advance counter + not-stale-from-previous) on the
+§11.4.136 real-content path, plus the §11.4.137 subtitle
+content-correctness oracle for the chosen title&#39;s captions (a present
+cue is NOT a correct cue); (3) <strong>Non-introspectable UIs use the
+pixel oracle</strong> — when the app&#39;s accessibility/semantic hierarchy
+is blank or unreliable (TV-Compose / leanback / canvas / GL streaming
+UIs), the test DRIVES input + ASSERTS content via the §11.4.117 CV/OCR
+pixel oracle (template-match the Play control + ROI-OCR the
+title/caption), never a hierarchy-only tool; (4) <strong>Login via the
+credential single source</strong> — apps requiring sign-in authenticate
+from the project&#39;s credential single-source-of-truth (§11.4.10), never
+hardcoded, never logged; (5) <strong>Honest SKIP, never a faked
+PASS</strong> — where the autonomous journey is genuinely infeasible
+(hard human-only login / CAPTCHA, geo-block per §11.4.3, secure-surface
+pixel-blanking per §11.4.112) the test is <code>operator_attended</code>
+SKIP-with-reason per §11.4.52 + §11.4.3 with a tracked migration item
+(§11.4.15 / §11.4.16) — NEVER a metadata-only / sample-played /
+routing-only PASS. Honest boundary (§11.4.6): &quot;the routing fired so the
+title is playing&quot; is a guess — only the chosen-content liveness +
+subtitle oracle on the real journey proves it; a SKIP for genuine
+infeasibility is correct, a PASS that never pressed the real Play button
+on the real title is the bluff this anchor forbids.</p>
+<p>Classification: universal (§11.4.17) — a platform-neutral
+end-user-journey discipline reusable by ANY project that ships or
+integrates video-streaming applications; the consuming project supplies
+its concrete app roster, login-credential source, routing target, and
+UI-driving / pixel-oracle harness per §11.4.35. Composes §11.4.48
+(UI-driven traversal of the real journey) / §11.4.107 (liveness — the
+chosen content actually advances) / §11.4.117 (CV/OCR pixel oracle for
+non-introspectable streaming UIs) / §11.4.136 (real-content end-to-end
+playback) / §11.4.137 (subtitle content-correctness for the chosen
+title) / §11.4.52 (autonomous-first; operator-attended only when
+genuinely infeasible) / §11.4.3 (topology / geo SKIP-with-reason) / §107
+(end-user usability is the bar) / §1.1. Propagation gate
+<code>CM-COVENANT-114-143-PROPAGATION</code> (literal
+<code>11.4.143</code> across the consumer fleet) + recommended gate
+<code>CM-VIDEO-REAL-JOURNEY-TEST</code> (every video-streaming-app
+playback test drives the real browse-select-play journey + confirms the
+chosen content + subtitles, or SKIPs-with-reason) + paired §1.1
+meta-test mutation (replace a real-journey test&#39;s browse-select-play
+path with a deep-link / sample shortcut → gate FAILs; strip the literal
+→ propagation gate FAILs; gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.143.
+Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--sample-playback-ok</code>,
+<code>--skip-real-journey</code>, <code>--deep-link-suffices</code>,
+<code>--routing-only-pass</code>, <code>--no-title-selection</code> flag
+exists.</p>
 <hr />
 <h2 id="12-host-session-safety--directly-or-indirectly-signing-the-user-out-is-forbidden">§12.
 Host-session safety — directly OR indirectly signing the user out is
