@@ -249,7 +249,7 @@ Universal AGENTS.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>25</td>
+<td>27</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -257,7 +257,7 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-10T12:00:00Z</td>
+<td>2026-06-10T18:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -265,22 +265,47 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.143 mirror — Real-user-journey mandate for
-video-streaming-app full-automation tests (User mandate 2026-06-10,
-verbatim &quot;All video streaming apps ... require to choose some title and
-to press proper UI button to start or resume playing! Proper UI
-interaction to play exact show with proper content and subtitles is
-MANDATORY! Without it we just eventually play on 2nd display sample, and
-that&#39;s it mostly!&quot;): any full-automation test asserting a video player /
-streaming app plays content MUST drive the REAL end-user journey through
-the app&#39;s OWN UI — launch → BROWSE the actual catalog → choose a
-SPECIFIC title → press the real Play/Resume button → confirm THAT chosen
-content plays with its correct subtitles on the intended routing target
-— NEVER a sample / demo / loop-clip / deep-link /
-<code>am start -a VIEW</code> / synthetic shortcut (those validate
-ROUTING only, not real chosen-content playback → a §11.4 PASS-bluff at
-the user-journey layer); non-introspectable streaming UIs use the
-§11.4.117 CV/OCR pixel oracle; login via the §11.4.10 credential
+<td>Added §11.4.144 mirror — Tracked/recorded-device
+availability-following mandate (User mandate 2026-06-10): every device
+the project is tracking / following / recording (test / debug /
+manual-testing, across every reachable transport — USB / wireless ADB /
+SSH / serial / network introspection API) MUST be availability-FOLLOWED
+— connection state continuously monitored, any drop handled, never
+silently abandoned and never presented as a continuous recording; the
+§11.4.128 always-on recorder KNOWS a tracked device is absent (its loop
+guards on the reachable state) but, lacking a following discipline,
+merely spins idle (no data, no offline event, no resume, no escalation)
+→ silent corpus hole = §11.4 PASS-bluff at the recording-integrity
+layer. On a drop the system MUST automatically (a) DETECT + log an
+honest offline event (§11.4.6 fabricated-continuity bluff; §11.4.128
+always-on gap), (b) WAIT using the project&#39;s ALREADY-DEFINED
+reconnection timings — never invented (§11.4.6), the SAME
+grace/reconnect/poll budgets the recovery path already uses, (c)
+RE-ATTACH + log an honest online/resume event the moment the device
+returns, (d) ESCALATE to the sanctioned device-recovery path (per
+§11.4.69 feature class <code>device_recovery</code>) if the device does
+not return within the defined timeout — through the sanctioned,
+authorization-gated recovery entry point ONLY, never bypassing its gate,
+never performing a destructive recovery (power-cycle) autonomously
+without that authorization (§11.4.21/.101 — high-blast-radius recovery
+is gated; while blocked keep following + log the blocked-escalation
+honestly). Composes §11.4.128/.69/.6/.14/.21/.101. Classification:
+universal (§11.4.17). Prior round: Added §11.4.143 mirror —
+Real-user-journey mandate for video-streaming-app full-automation tests
+(User mandate 2026-06-10, verbatim &quot;All video streaming apps ... require
+to choose some title and to press proper UI button to start or resume
+playing! Proper UI interaction to play exact show with proper content
+and subtitles is MANDATORY! Without it we just eventually play on 2nd
+display sample, and that&#39;s it mostly!&quot;): any full-automation test
+asserting a video player / streaming app plays content MUST drive the
+REAL end-user journey through the app&#39;s OWN UI — launch → BROWSE the
+actual catalog → choose a SPECIFIC title → press the real Play/Resume
+button → confirm THAT chosen content plays with its correct subtitles on
+the intended routing target — NEVER a sample / demo / loop-clip /
+deep-link / <code>am start -a VIEW</code> / synthetic shortcut (those
+validate ROUTING only, not real chosen-content playback → a §11.4
+PASS-bluff at the user-journey layer); non-introspectable streaming UIs
+use the §11.4.117 CV/OCR pixel oracle; login via the §11.4.10 credential
 single-source; chosen-content confirmation via §11.4.107 liveness +
 §11.4.136 real-content + §11.4.137 subtitle correctness; honest
 <code>operator_attended</code> SKIP-with-reason per §11.4.52/.3 ONLY
@@ -4943,5 +4968,187 @@ authority:</strong> constitution submodule <a href="constitution/Constitution.md
 <code>--sample-playback-ok</code>, <code>--skip-real-journey</code>,
 <code>--deep-link-suffices</code>, <code>--routing-only-pass</code>,
 <code>--no-title-selection</code> flag.</p>
+<p><strong>§11.4.144 — Tracked/recorded-device availability-following
+mandate (User mandate, 2026-06-10).</strong> Direct operator mandate:
+every device the project is tracking / following / recording (test /
+debug / manual-testing device, across every reachable transport — USB /
+wireless ADB / SSH / serial / network introspection API) MUST be
+availability-FOLLOWED — its connection state continuously monitored, any
+drop handled, never silently abandoned and never presented as a
+continuous recording. The §11.4.128 always-on recorder KNOWS a tracked
+device is absent (its per-device loop guards on the reachable state)
+but, lacking a following discipline, merely spins idle — no data
+captured, no offline event logged, no resume, no escalation — so the
+recording corpus presents a continuous timeline with a silent hole, a
+§11.4 PASS-bluff at the recording-integrity layer (it claims continuous
+capture while no data exists for the gap). On a tracked device leaving
+its reachable state the system MUST, automatically: (a)
+<strong>DETECT</strong> the drop and <strong>log an honest offline
+event</strong> into the recording corpus (§11.4.6 — a silent gap
+presented as continuous capture is a fabricated-continuity bluff;
+§11.4.128 — a silent recording gap defeats always-on recording); (b)
+<strong>WAIT</strong> for the device to return using the project&#39;s
+ALREADY-DEFINED reconnection timings — never invented numbers (§11.4.6),
+the SAME grace / reconnect / poll budgets the project&#39;s recovery path
+already uses; (c) <strong>RE-ATTACH</strong> — resume recording /
+tracking the moment the device returns and log an honest online / resume
+event; (d) <strong>ESCALATE</strong> to the project&#39;s sanctioned
+device-recovery path (per §11.4.69 feature class
+<code>device_recovery</code>) if the device does not return within the
+defined timeout — through the sanctioned, authorization-gated recovery
+entry point ONLY, never bypassing its gate and never performing a
+destructive recovery (e.g. a power-cycle) autonomously without that
+authorization (§11.4.21 / §11.4.101 — high-blast-radius recovery is
+gated; while blocked the system keeps following the device, logging the
+blocked-escalation honestly). A tracked-device drop that produces a
+silent corpus hole, a never-resumed recording, or a never-escalated
+permanent absence is the bluff this anchor forbids. Composes §11.4.128
+(always-on recording — §11.4.144 closes its drop-handling gap) /
+§11.4.69 (<code>device_recovery</code> sink-side positive evidence) /
+§11.4.6 (honest offline / online events, reused-not-invented timings) /
+§11.4.14 (watchdog children reaped on stop) / §11.4.21 + §11.4.101
+(gated, non-autonomous escalation). Classification: universal (§11.4.17)
+— the consuming project supplies its concrete tracking transport, device
+set, already-defined reconnection timings, and sanctioned recovery entry
+point per §11.4.35. Propagation gate
+<code>CM-COVENANT-114-144-PROPAGATION</code> (literal
+<code>11.4.144</code>) + recommended gate
+<code>CM-DEVICE-AVAILABILITY-FOLLOWED</code> + paired §1.1 meta-test
+mutation (strip the watchdog wiring / let an absence go unlogged → gate
+FAILs; strip the literal → propagation gate FAILs; gate-code = separate
+work item). <strong>Canonical authority:</strong> constitution submodule
+<a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.144. Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-availability-following</code>,
+<code>--silent-recording-gap-OK</code>,
+<code>--no-reconnect-wait</code>,
+<code>--invent-reconnect-timing</code>,
+<code>--skip-recovery-escalation</code>,
+<code>--autonomous-power-cycle-OK</code> flag.</p>
+<p><strong>§11.4.145 — Independent multi-angle impact-research per
+change (User mandate, 2026-06-10).</strong> For EVERY fix / change / new
+feature, INDEPENDENT impact-research agents (subagent-driven
+§11.4.70/§11.4.20, structurally separate from the author — §11.4.92
+self-eval PRECEDES, never satisfies — adversarial &quot;refute-the-change&quot;
+stance to defeat the documented LLM confirmation-bias failure mode) MUST
+research the change AND its connected/dependent features across a CLOSED
+SET OF EIGHT ANGLES — (1) correctness/logic, (2) regression (what
+existing working feature could break — via call-graph impact enumerating
+every direct + transitive caller and contract-dependent feature, each
+mapped to its test), (3) latent/dangerous-code — the recents class
+(runtime-only failure, interface/ABI/contract mismatch,
+concurrency/data-race, resource lifecycle), (4) security
+(taint/injection/secret/unsafe-API), (5) performance
+(latency/memory/thermal under load vs baseline), (6)
+host/data/target-hardware safety per §12/§9/§11.4.133, (7) cross-feature
+interaction (shared state/timing/hardware contention), (8)
+business-logic conformance (matches the spec AND the connected features&#39;
+contracts, not merely compiles). Forensic anchor (FACT,
+project-internal): the recents / 3-button-nav path shipped a latent
+AIDL-interface-contract mismatch that PASSED code review yet failed at
+RUNTIME ONLY (ANR on a recents-reaping gesture) because no review angle
+interrogated the interface contract / concurrency-lifecycle /
+silently-broken connected feature — the §11.4.108
+SOURCE→ARTIFACT→RUNTIME→USER-VISIBLE gap caught only after the fact;
+§11.4.145 shifts that discovery LEFT. Each angle MUST name the TOOL(S)
+used + obtain the required DEPTH (the diff, the full changed unit, its
+declared contract, the spec section, every connected feature — NEVER the
+diff lines alone) + emit a captured-evidence conclusion per
+§11.4.5/§11.4.69 (&quot;looks fine&quot; forbidden, §11.4.1); a genuinely-N/A
+angle is recorded <code>NOT_APPLICABLE: &lt;reason&gt;</code> per
+§11.4.6, never silently skipped. Output = a per-change impact-research
+REPORT (one section per angle: tool + evidence path + verdict) + a
+single GO/NO-GO that BLOCKS acceptance/commit/build on ANY unmitigated
+risk in ANY angle; the change is fixed/mitigated + affected angles
+re-researched, iterating to a CLEAN GO (zero unmitigated risk + zero
+warning) per §11.4.134 before the §11.4.125 review gate. Honest boundary
+(§11.4.6): a GO proves cross-angle internal-consistency + bounded
+blast-radius — it does NOT replace §11.4.108 runtime-signature
+verification nor §11.4.40 full-suite retest; it is one of MULTIPLE
+STRONG LAYERS, the FIRST research pass every change crosses.
+Composes/strengthens
+§11.4.92/.125/.108/.110/.134/.78/.79/.107/.85/.133/§12/§9/.99/.6/§1.1.
+Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-145-PROPAGATION</code> (literal
+<code>11.4.145</code>) + recommended gate
+<code>CM-IMPACT-RESEARCH-PER-CHANGE</code> + paired §1.1 meta-test
+mutation (strip the literal → propagation gate FAILs; accept a change
+with a report missing an angle or an unmitigated NO-GO →
+<code>CM-IMPACT-RESEARCH-PER-CHANGE</code> FAILs; gate-code = separate
+work item). <strong>Canonical authority:</strong> constitution submodule
+<a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.145. Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-impact-research</code>,
+<code>--single-angle-suffices</code>,
+<code>--author-researches-own-change</code>,
+<code>--diff-skim-OK</code>, <code>--no-go-overridable</code>,
+<code>--trivial-change-no-research</code> flag.</p>
+<p><strong>§11.4.146 — Reproduce-first test + same-test-confirms-fix +
+mandatory extend-to-all-cases workflow (User mandate,
+2026-06-10).</strong> Every reported problem MUST be handled by a NAMED
+three-step test workflow — §11.4.146 does NOT re-author its component
+disciplines, it NAMES + BINDS them into the operator&#39;s exact per-defect
+sequence and adds ONLY the two emphases the components leave implicit.
+<strong>(STEP 1 — REPRODUCE-FIRST + INVESTIGATE)</strong> before any
+fix, author the §11.4.43 RED test as a §11.4.115
+RED-baseline-on-the-broken-artifact (reproduce the defect on the CURRENT
+pre-fix artifact, capture defect-present physical evidence per
+§11.4.5/§11.4.69/§11.4.107); NEW EMPHASIS (D1) that same RED test is
+ALSO a deliberate investigation instrument per §11.4.102(A) — it MUST
+gather ADDITIONAL forensic data characterising the defect (triggers,
+boundaries, input/topology scope, adjacent failure modes) that feeds
+BOTH the fix design AND the STEP-3 extend scope; a RED test used only as
+a binary present/absent gate with no characterisation satisfies
+§11.4.115 but NOT §11.4.146 STEP 1. <strong>(STEP 2 —
+SAME-TEST-CONFIRMS-FIX)</strong> after the fix the SAME test source (the
+§11.4.115 polarity switch flipped <code>RED_MODE=1→0</code>) confirms
+the defect ABSENT — RED-on-broken then GREEN-on-fixed, both captured, on
+a clean target per §11.4.108/§11.4.139, validated-first-after-redeploy
+per §11.4.130, deterministic per §11.4.50; no separate happy-path test
+substitutes (the §11.4.43/§11.4.115 PASS-bluff). <strong>(STEP 3 —
+EXTEND-TO-ALL-CASES, mandatory per-fix)</strong> NEW EMPHASIS (D2)
+immediately after STEP 2 the test MUST be FANNED OUT across the full
+case-space of the SAME functionality — all flows, valid + invalid +
+boundary (§11.4.85 empty/max/off-by-one) + concurrent (§11.4.85
+contention) + failure-injection (§11.4.85 chaos) + topology variants
+(§11.4.3) — confirming no issue of any kind, with PROVABLE enumerated
+coverage per §11.4.118 (a listed case-set with per-case outcome, never
+&quot;no other issues found&quot;); a REQUIRED step, NOT deferred to a
+release-cycle discovery sweep and NOT reduced to a single guard; each
+user-visible case carries rock-solid physical evidence per §11.4.123 +
+is registered into the §11.4.135 standing regression-guard suite; a
+newly-discovered fan-out defect triggers §11.4.4 test-interrupt +
+re-enters STEP 1. (ANTI-BLUFF, all steps) every PASS is rock-solid
+CAPTURED physical evidence per §11.4.123 (§11.4.5/§11.4.69/§11.4.107) —
+metadata-only / config-only / absence-of-error / grep-without-runtime
+PASS forbidden (§11.4/§11.4.1); unclear validation method ⇒
+deep-research-before-declaring-untestable per
+§11.4.123/§11.4.8/§11.4.99; an operator-found defect the green suite
+missed triggers §11.4.138. Honest boundary (§11.4.6): STEP 3 reduces the
+unknown-unknown surface but does not prove zero remaining defects
+(§11.4.118) — un-exercised cases stated as honest gaps, never silently
+implied clean. Composes
+§11.4.43/.115/.102/.130/.108/.139/.50/.85/.118/.135/.3/.123/.5/.69/.107/.138/.4/§107/§1.1.
+Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-146-PROPAGATION</code> (literal
+<code>11.4.146</code>) + recommended gate
+<code>CM-REPRODUCE-FIRST-THEN-EXTEND</code> (every closed defect&#39;s fix
+carries a §11.4.115 reproduce-first polarity test with captured
+defect-characterisation [STEP 1] + its <code>RED_MODE=0</code> GREEN
+confirmation [STEP 2] + an enumerated per-functionality extend case-set
+registered into the §11.4.135 suite [STEP 3]; a closure with the
+reproduce→confirm pair but NO enumerated extend case-set FAILs) + paired
+§1.1 meta-test mutation (strip the literal → propagation gate FAILs;
+close a defect with only the reproduce→confirm pair and no
+extend-case-set → <code>CM-REPRODUCE-FIRST-THEN-EXTEND</code> FAILs;
+gate-code = separate work item). <strong>Canonical authority:</strong>
+constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.146. Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-reproduce-first</code>, <code>--fix-without-red</code>,
+<code>--skip-extend-to-all-cases</code>,
+<code>--reproduce-confirm-suffices</code>,
+<code>--defer-extend-to-release-sweep</code>,
+<code>--single-guard-suffices</code>,
+<code>--no-defect-characterisation</code> flag.</p>
 </body>
 </html>
