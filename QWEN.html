@@ -237,9 +237,6 @@
   </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">QWEN</h1>
-</header>
 <h1 id="helix-constitution-universal-qwen.md">Helix Constitution —
 Universal QWEN.md</h1>
 <table>
@@ -256,7 +253,7 @@ Universal QWEN.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>28</td>
+<td>29</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -264,7 +261,7 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-13T00:00:00Z</td>
+<td>2026-06-15T00:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -3983,5 +3980,65 @@ href="constitution/Constitution.md"><code>Constitution.md</code></a>
 <code>--resolve-without-regression-test</code>,
 <code>--console-mark-is-fixed</code>, <code>--monitor-once</code>,
 <code>--mute-without-rationale</code> flag.</p>
+<p><strong>§11.4.153 — Comprehensive per-feature Status + Status_Summary
+document set with mandatory video-recording confirmation (User mandate,
+2026-06-15).</strong> Every project MUST maintain, under
+<code>docs/features/</code>, a comprehensive feature Status document set
+(<code>Status.md</code> + its §11.4.56 <code>Status_Summary.md</code>
+companion) enumerating EVERY system component, EVERY client
+app/binary/surface (TUI / CLI / Web / desktop / mobile / API / gRPC /
+library / submodule / infrastructure), and EVERY feature — including
+features ported from any incorporated CLI-agent / submodule catalogue
+(§11.4.74) — with NO single feature left out. (1) <strong>Total
+categorized coverage</strong> — per-feature table organized
+Component→Category, reconciled against the actual codebase (a
+code-present feature missing from the table, or a row with no code, is a
+§11.4.6/§11.4.118 bluff). (2) <strong>Per-feature fields</strong> —
+Component / Feature / Category / Implementation / Wiring (genuinely
+end-user-reachable, not merely compiled, §11.4.108) / Real-use /
+Tests-coverage (four-layer §11.4.4(b)) / Validation (PASS / FAIL / SKIP
+/ PENDING_FORENSICS / OPERATOR-BLOCKED per §11.4.45) /
+<strong>Video-recording confirmation</strong> (path to the real-use
+video or honest gap marker). (3) <strong>Mandatory per-feature real-use
+video</strong> — every user-visible “confirmed” claim backed by a
+recorded real-use video of a genuine end-user scenario (real prompts →
+real LLM/service responses → real results), NEVER a frozen/stale frame
+(§11.4.107), NEVER faked/mocked/demo-loop/bluff response or LLM error
+passed off as success (§11.4.2/§11.4.5), stored at the project-declared
+recording path (§11.4.35); a confirmed row with no real video or a bluff
+video = §11.4 PASS-bluff; autonomous-infeasible ⇒ honest
+§11.4.3/§11.4.52 SKIP + tracked migration item, NEVER a faked
+confirmation. (4) <strong>Video-analysis remediation loop</strong> —
+every video analysed; any defect it surfaces triggers §11.4.102
+systematic-debug → fix → §11.4.146 retest → re-record → clean GO per
+§11.4.134 before “confirmed” (a video exposing a broken feature is a
+§11.4.4 test-interrupt). (5) <strong>Always-in-sync</strong> —
+§11.4.45-class roster/corpus-backed, §11.4.106 docs_chain-bound +
+§11.4.86 drift-proof fingerprint (sha256 of sorted feature-key roster
+AND sorted video-artefact roster, NOT mtime), re-syncs out-of-the-box;
+stale = violation. (6) <strong>Four-format export</strong> — HTML + PDF
++ <strong>DOCX</strong> (this doc class ADDS DOCX to the §11.4.65
+HTML+PDF set; other classes unchanged), in sync per §11.4.60. (7)
+Follows §11.4.44/.45/.56/.57/.59/.60. Honest boundary §11.4.6 —
+guarantees a complete video-confirmed always-synced ledger, NOT
+per-feature correctness (rests on each row’s §11.4.69/.107/.123
+evidence) and NOT a §11.4.40 retest substitute. Classification:
+universal (§11.4.17). Composes
+§11.4.2/.5/.44/.45/.52/.56/.57/.59/.60/.65/.86/.102/.106/.107/.108/.118/.123/.134/.146/§1.1.
+Propagation gate <code>CM-COVENANT-114-153-PROPAGATION</code> (literal
+<code>11.4.153</code>) + recommended gates
+<code>CM-FEATURE-STATUS-COMPLETE</code> +
+<code>CM-FEATURE-STATUS-VIDEO-CONFIRMED</code> + paired §1.1
+mutation.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.153. Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-feature-status</code>,
+<code>--feature-without-video</code>, <code>--frozen-video-OK</code>,
+<code>--bluff-response-video-OK</code>,
+<code>--skip-video-analysis</code>,
+<code>--feature-ledger-incomplete-OK</code>,
+<code>--no-docx-export</code>, <code>--allow-feature-ledger-drift</code>
+flag.</p>
 </body>
 </html>
