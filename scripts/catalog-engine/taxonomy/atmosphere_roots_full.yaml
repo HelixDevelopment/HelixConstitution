@@ -1,0 +1,46 @@
+# catalog-engine roots — ATMOSphere PROJECT INJECTION, FULL CORPUS (§11.4.28).
+# P1b scope = the complete scoped ATMOSphere test corpus (P0 §1):
+#   on-device test_*.sh (458) + ui_driven/** (43) + host scripts/testing/*.sh
+#   (133) + pre-build CM-* gates (510 def-lines) + §1.1 paired mutations
+#   (570 def-blocks) + the 4 ATMOSphere HelixQA banks (93 test_cases).
+# The HelixQA submodule corpus (tools/helixqa/HelixQA/**.yaml — 73 files) is a
+# DIFFERENT owned submodule and is OUT of the ATMOSphere catalog scope (§11.4.28).
+# Cross-ref: docs/research/test_catalog/P0_design.md §1 + P1_generator_report.md.
+
+roots:
+  # ---- on-device test scripts (top-level) ----
+  - root: device/rockchip/rk3588/tests
+    parser: shell
+    type: on_device
+    glob: test_*.sh
+    maxdepth: 1
+
+  # ---- ui_driven drivers + scenarios (recurse) ----
+  - root: device/rockchip/rk3588/tests/ui_driven
+    parser: shell
+    type: on_device
+    glob: '*.sh'
+
+  # ---- host-side test scripts ----
+  - root: scripts/testing
+    parser: shell
+    type: host
+    glob: '*.sh'
+    maxdepth: 1
+
+  # ---- pre-build CM-* gates (single file, one record per gate) ----
+  - file: device/rockchip/rk3588/tests/pre_build_verification.sh
+    parser: gate
+    type: pre-build-gate
+
+  # ---- §1.1 paired mutations (single file, one record per mutation block) ----
+  - file: scripts/testing/meta_test_false_positive_proof.sh
+    parser: mutation
+    type: meta-test-mutation
+
+  # ---- ATMOSphere HelixQA banks (project-owned, consumer-injected) ----
+  - root: tools/helixqa/banks
+    parser: helixqa
+    type: helixqa-challenge
+    glob: 'atmosphere*.yaml'
+    maxdepth: 1

@@ -1,0 +1,10 @@
+# catalog-engine roots — ATMOSphere PROJECT INJECTION, P1 SUBSET (§11.4.28).
+# P1 scope = on-device test_*.sh only (~458 files). P1b follow-up adds the host
+# scripts/testing/*.sh + pre-build gates + meta-mutations + HelixQA banks.
+# Cross-ref: docs/research/test_catalog/P0_design.md §1 corpus enumeration.
+
+roots:
+  - root: device/rockchip/rk3588/tests
+    type: on_device
+    glob: test_*.sh
+    maxdepth: 1

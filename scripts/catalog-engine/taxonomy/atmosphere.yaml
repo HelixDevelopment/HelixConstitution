@@ -1,0 +1,76 @@
+# catalog-engine taxonomy — ATMOSphere PROJECT INJECTION (§11.4.28).
+# The generic engine knows NO clusters; this consumer-owned config supplies the
+# keyword->cluster map. Longest-keyword-wins (e.g. video_routing beats video).
+# Cross-ref: docs/research/test_catalog/P0_design.md §4 hierarchy.
+
+clusters:
+  - audio
+  - video_routing
+  - subtitle
+  - display
+  - wifi
+  - bt
+  - boot
+  - drm
+  - codec
+  - power
+  - kernel
+  - app_compat
+  - governance
+  - host_safety
+
+keyword_cluster:
+  multichannel: audio
+  audio_output: audio
+  hdmi_audio: audio
+  es8388: audio
+  ac3: audio
+  dolby: audio
+  arvus: audio
+  audio: audio
+  video_routing: video_routing
+  secondary_display: video_routing
+  video_display: video_routing
+  mirror: video_routing
+  video: video_routing
+  subtitle_render: subtitle
+  subtitle: subtitle
+  caption: subtitle
+  display_topology: display
+  brightness: display
+  dimming: display
+  orientation: display
+  touch: display
+  display: display
+  wifi_link: wifi
+  wifi_throughput: wifi
+  wifi: wifi
+  bluetooth_a2dp: bt
+  a2dp: bt
+  bluetooth: bt
+  boot_service: boot
+  boot: boot
+  captive_portal: boot
+  drm_playback: drm
+  widevine: drm
+  drm: drm
+  mediacodec_decode: codec
+  mediacodec_encode: codec
+  encoder: codec
+  decoder: codec
+  codec: codec
+  power_save: power
+  power: power
+  ethernet_link: wifi
+  ethernet: wifi
+  fscrypt: kernel
+  kernel: kernel
+  smarttube: app_compat
+  torrserve: app_compat
+  lampa: app_compat
+  kinopoisk: app_compat
+  prebuilt: app_compat
+  covenant: governance
+  propagation: governance
+  governance: governance
+  host_safety: host_safety
