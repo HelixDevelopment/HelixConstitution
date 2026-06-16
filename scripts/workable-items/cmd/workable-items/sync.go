@@ -156,12 +156,16 @@ func validateCmd(args []string) int {
 	var violations []string
 	seen := map[string]bool{}
 	for _, it := range items {
-		// §11.4.54 — duplicate (atm_id, location). The composite PRIMARY KEY
-		// makes this impossible at the storage layer (the same id MAY appear
-		// once per tracker), but we assert it explicitly for clarity.
-		key := it.AtmID + "\x00" + it.CurrentLocation
+		// §11.4.54 — duplicate (atm_id, location, representation). The composite
+		// PRIMARY KEY makes this impossible at the storage layer (the same id MAY
+		// appear once per tracker, AND once per representation within a tracker —
+		// a pipe-table 'table' row + an H2 'section' block, GAP A / HXC-044), but
+		// we assert it explicitly for clarity. The key MUST include representation
+		// so the legitimate dual-representation case is not a false duplicate.
+		key := it.AtmID + "\x00" + it.CurrentLocation + "\x00" + it.repOrDefault()
 		if seen[key] {
-			violations = append(violations, fmt.Sprintf("duplicate atm_id in %s: %s", it.CurrentLocation, it.AtmID))
+			violations = append(violations, fmt.Sprintf("duplicate atm_id in %s [%s]: %s",
+				it.CurrentLocation, it.repOrDefault(), it.AtmID))
 		}
 		seen[key] = true
 

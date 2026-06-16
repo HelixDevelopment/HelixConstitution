@@ -4,14 +4,14 @@
 // surface from the DB single-source-of-truth:
 //
 //   - Issues.md + Fixed.md         — the byte-identical round-trip docs (same as
-//                                    `sync db-to-md`).
+//     `sync db-to-md`).
 //   - Issues_Summary.md            — §11.4.12 open-only Type×Status tally + per-
-//                                    item one-line rows.
+//     item one-line rows.
 //   - Fixed_Summary.md             — §11.4.53 closed-only Type×ClosureStatus tally
-//                                    + per-item one-line rows.
+//   - per-item one-line rows.
 //   - <doc>.html / .pdf / .docx    — §11.4.65 multi-format siblings for every
-//                                    emitted .md, produced via pandoc when the
-//                                    tool is present.
+//     emitted .md, produced via pandoc when the
+//     tool is present.
 //
 // §6.J / §11.4.6 anti-bluff: the pandoc / weasyprint steps are GATED on tool
 // presence (`exec.LookPath`). When the tool is absent the .md is still emitted
@@ -272,6 +272,42 @@ func renderItemRows(items []item) string {
 			it.AtmID, it.Type, it.Status, sev, summaryDescription(it))
 	}
 	return b.String()
+}
+
+// fixedPipeTableHeader is the canonical Fixed.md closure-table header (GAP B),
+// matching the live docs/Fixed.md:
+//
+//	| Closure | Title | Type | Status | Round | Commit(s) | Evidence |
+//	|---|---|---|---|---|---|---|
+const fixedPipeTableHeader = "| Closure | Title | Type | Status | Round | Commit(s) | Evidence |\n" +
+	"|---|---|---|---|---|---|---|\n"
+
+// renderClosurePipeRow (GAP B) SYNTHESIZES a single Fixed.md pipe-table closure
+// row from an item's stored DB fields — the db→md direction that lets the binary
+// regenerate a pipe row that exists in the DB but has no raw body_md to replay
+// (the conductor's reconcile path for the ~74 missing pipe rows). Cells are the
+// §11.4.93 closure metadata; the Title cell follows the live `<ID>: <title>`
+// convention; the Evidence cell uses the closure_criteria when present. Pipes in
+// any cell are escaped so the table stays well-formed.
+//
+// The trailing newline makes the row directly concatenable under
+// fixedPipeTableHeader. A field absent in the DB renders as the em-dash
+// placeholder the live docs use, never an empty cell that breaks column count.
+func renderClosurePipeRow(it item) string {
+	cell := func(s string) string {
+		s = strings.ReplaceAll(s, "\n", " ")
+		s = strings.ReplaceAll(s, "|", "\\|")
+		s = strings.TrimSpace(s)
+		if s == "" {
+			return "—"
+		}
+		return s
+	}
+	titleCell := it.AtmID + ": " + strings.TrimSpace(it.Title)
+	evidence := it.ClosureCriteria
+	return fmt.Sprintf("| %s | %s | %s | %s | %s | %s | %s |\n",
+		cell(it.ClosureDate), cell(titleCell), cell(it.Type), cell(it.Status),
+		cell(it.Round), cell(it.CommitRef), cell(evidence))
 }
 
 // summaryDescription returns a §11.4.91-clarity one-line description (single line,

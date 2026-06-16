@@ -39,6 +39,14 @@ func openDB(path string) (*sql.DB, error) {
 		db.Close()
 		return nil, fmt.Errorf("apply schema: %w", err)
 	}
+	// GAP A (v4→v5): rebuild items + doc_segments to the 3-tuple PK + the
+	// representation discriminator. MUST run BEFORE migrateColumns so the
+	// rebuilt items table is the target of the subsequent ADD COLUMN steps.
+	// Idempotent (no-op once `representation` exists), lossless.
+	if err := migrateRepresentationColumn(db); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("migrate representation: %w", err)
+	}
 	// Forward-compatible migrations for DBs created by an OLDER schema. CREATE
 	// TABLE IF NOT EXISTS never alters an existing table, so columns added after
 	// a DB was first materialised must be ADDed here. Each step is idempotent
@@ -78,6 +86,12 @@ func migrateColumns(db *sql.DB) error {
 		// legacy row with NULL parent_atm_id is correctly a top-level item.
 		{"parent_atm_id", `ALTER TABLE items ADD COLUMN parent_atm_id TEXT`},
 		{"session_ref", `ALTER TABLE items ADD COLUMN session_ref TEXT`},
+		// GAP B (v4→v5): per-item closure metadata parsed from Fixed.md pipe-table
+		// rows, so db→md can synthesize a pipe row from DB fields. NULLABLE (no
+		// DEFAULT): legacy rows + every H2-only item carry NULL and are unaffected.
+		{"closure_date", `ALTER TABLE items ADD COLUMN closure_date TEXT`},
+		{"round", `ALTER TABLE items ADD COLUMN round TEXT`},
+		{"commit_ref", `ALTER TABLE items ADD COLUMN commit_ref TEXT`},
 	}
 	for _, c := range wanted {
 		if have[c.name] {
@@ -95,12 +109,156 @@ func migrateColumns(db *sql.DB) error {
 		return fmt.Errorf("create idx_items_parent: %w", err)
 	}
 	// Keep the schema_version meta marker honest after a successful migration: a
-	// DB materialised under an older schema (2 or 3) is now at v4. Lexical string
-	// compare is safe for single-digit versions ('2' < '3' < '4').
-	if _, err := db.Exec(`UPDATE meta SET value='4' WHERE key='schema_version' AND value < '4'`); err != nil {
+	// DB materialised under an older schema (2/3/4) is now at v5. Lexical string
+	// compare is safe for single-digit versions ('2' < '3' < '4' < '5').
+	if _, err := db.Exec(`UPDATE meta SET value='5' WHERE key='schema_version' AND value < '5'`); err != nil {
 		return err
 	}
 	return nil
+}
+
+// migrateRepresentationColumn (GAP A, v4→v5) rebuilds the `items` and
+// `doc_segments` tables when their PRIMARY KEY / shape predates the
+// `representation` discriminator. SQLite cannot ALTER a PRIMARY KEY, and a plain
+// `ALTER TABLE … ADD COLUMN representation` would leave the old 2-tuple PK
+// `(atm_id, current_location)` in force — so HXC-044-style dual representation
+// (a pipe-table row AND an H2 section for the SAME id in the SAME tracker) would
+// still collide. The rebuild is detected by column presence (no representation
+// column ⇒ old shape), is lossless (every existing row copied with
+// representation='section', the only value a pre-v5 DB could have held), and is
+// idempotent (a no-op once the column exists). Mirrors migrateObsoleteReasonCheck.
+//
+// MUST run BEFORE migrateColumns's ADD COLUMN steps so those columns survive on
+// the rebuilt table; openDB orders the calls accordingly.
+func migrateRepresentationColumn(db *sql.DB) error {
+	have, err := itemColumns(db)
+	if err != nil {
+		return err
+	}
+	if have["representation"] {
+		return nil // already current
+	}
+
+	// Discover the EXACT current column set of items so the rebuild copies every
+	// column a prior migration may have already ADDed (created_by/assigned_to/
+	// parent_atm_id/session_ref/version_tags), never dropping data. The rebuilt
+	// table is created by the embedded schema's CREATE TABLE (already exec'd in
+	// openDB) — but that no-ops on an existing table, so we build the new table
+	// explicitly here with the full v5 column set + the 3-tuple PK.
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// 1) Rebuild items with the 3-tuple PK + representation column. The GAP-B
+	//    closure-metadata columns are added by migrateColumns's ADD-COLUMN steps
+	//    AFTER this rebuild, so they are intentionally absent here. version_tags
+	//    is preserved-if-present (it is added lazily by versionTagsCmd, so a DB
+	//    that already ran that path would otherwise lose it across this rebuild).
+	if _, err := tx.Exec(`CREATE TABLE items_new (
+    atm_id           TEXT NOT NULL,
+    type             TEXT NOT NULL,
+    status           TEXT NOT NULL,
+    severity         TEXT,
+    title            TEXT NOT NULL,
+    description      TEXT NOT NULL,
+    forensic_anchor  TEXT,
+    closure_criteria TEXT,
+    composes_with    TEXT,
+    created_by       TEXT NOT NULL DEFAULT '',
+    assigned_to      TEXT NOT NULL DEFAULT '',
+    current_location TEXT NOT NULL DEFAULT 'Issues',
+    body_md          TEXT,
+    representation   TEXT NOT NULL DEFAULT 'section'
+                     CHECK (representation IN ('section', 'table')),
+    parent_atm_id    TEXT,
+    session_ref      TEXT,
+    version_tags     TEXT,
+    created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+    last_modified    TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (atm_id, current_location, representation)
+)`); err != nil {
+		return fmt.Errorf("create items_new: %w", err)
+	}
+	// Copy every column, defending against optional columns that may or may not
+	// exist depending on how old the DB is. created_by/assigned_to were added by
+	// the §11.4.104 migration, so a v2-era DB may lack them too — colOrDefaultStr
+	// emits the column when present else the empty-string literal (the NOT NULL
+	// DEFAULT '' semantics). parent_atm_id/session_ref/version_tags are nullable,
+	// so colOrNull. migrateColumns then backfills any still-missing column.
+	if _, err := tx.Exec(`INSERT INTO items_new
+		(atm_id, type, status, severity, title, description, forensic_anchor,
+		 closure_criteria, composes_with, created_by, assigned_to,
+		 current_location, body_md, parent_atm_id, session_ref, version_tags,
+		 created_at, last_modified)
+		SELECT atm_id, type, status, severity, title, description, forensic_anchor,
+		 closure_criteria, composes_with, ` +
+		colOrDefaultStr(have, "created_by") + `, ` + colOrDefaultStr(have, "assigned_to") + `,
+		 current_location, body_md, ` + colOrNull(have, "parent_atm_id") + `, ` +
+		colOrNull(have, "session_ref") + `, ` + colOrNull(have, "version_tags") + `,
+		 created_at, last_modified
+		FROM items`); err != nil {
+		return fmt.Errorf("copy items rows: %w", err)
+	}
+	if _, err := tx.Exec(`DROP TABLE items`); err != nil {
+		return fmt.Errorf("drop old items: %w", err)
+	}
+	if _, err := tx.Exec(`ALTER TABLE items_new RENAME TO items`); err != nil {
+		return fmt.Errorf("rename items_new: %w", err)
+	}
+
+	// 2) Rebuild doc_segments with the representation column (default 'section'
+	//    preserves every existing segment's meaning — a pre-v5 DB had at most one
+	//    representation per id, the section form).
+	if _, err := tx.Exec(`CREATE TABLE doc_segments_new (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    document    TEXT NOT NULL CHECK (document IN ('Issues', 'Fixed')),
+    seq         INTEGER NOT NULL,
+    kind        TEXT NOT NULL CHECK (kind IN ('item', 'raw')),
+    atm_id      TEXT,
+    representation TEXT NOT NULL DEFAULT 'section',
+    raw         TEXT,
+    UNIQUE(document, seq)
+)`); err != nil {
+		return fmt.Errorf("create doc_segments_new: %w", err)
+	}
+	if _, err := tx.Exec(`INSERT INTO doc_segments_new
+		(id, document, seq, kind, atm_id, raw)
+		SELECT id, document, seq, kind, atm_id, raw FROM doc_segments`); err != nil {
+		return fmt.Errorf("copy doc_segments rows: %w", err)
+	}
+	if _, err := tx.Exec(`DROP TABLE doc_segments`); err != nil {
+		return fmt.Errorf("drop old doc_segments: %w", err)
+	}
+	if _, err := tx.Exec(`ALTER TABLE doc_segments_new RENAME TO doc_segments`); err != nil {
+		return fmt.Errorf("rename doc_segments_new: %w", err)
+	}
+	if _, err := tx.Exec(`CREATE INDEX IF NOT EXISTS idx_doc_segments_document ON doc_segments(document)`); err != nil {
+		return fmt.Errorf("recreate idx_doc_segments_document: %w", err)
+	}
+	return tx.Commit()
+}
+
+// colOrNull returns the bare column name when present on the source table, else
+// the literal NULL — so the rebuild's SELECT compiles whether or not an optional
+// column was ever ADDed to the pre-v5 items table.
+func colOrNull(have map[string]bool, name string) string {
+	if have[name] {
+		return name
+	}
+	return "NULL"
+}
+
+// colOrDefaultStr returns the bare column name when present, else the empty
+// string literal — for NOT NULL DEFAULT ” columns (created_by/assigned_to) that
+// a v2-era pre-attribution items table may lack, so the rebuild's SELECT
+// compiles and the rebuilt NOT NULL column receives ” rather than NULL.
+func colOrDefaultStr(have map[string]bool, name string) string {
+	if have[name] {
+		return name
+	}
+	return "''"
 }
 
 // migrateObsoleteReasonCheck rebuilds the obsolete_details table when its live
@@ -201,16 +359,39 @@ type item struct {
 	AssignedTo      string // §11.4.104 canonical handle the item is assigned to ("" = legacy)
 	CurrentLocation string // "Issues" | "Fixed"
 	BodyMD          string
+	Representation  string // GAP A: "section" (H2 block, default) | "table" (pipe-table row)
+	ClosureDate     string // GAP B: pipe-table "Closure" cell ("" = none)
+	Round           string // GAP B: pipe-table "Round" cell ("" = none)
+	CommitRef       string // GAP B: pipe-table "Commit(s)" cell ("" = none)
+}
+
+// repOrDefault normalises an item's Representation, defaulting an empty value to
+// "section" so callers (CRUD, tests) that don't set it stay correct.
+func (it item) repOrDefault() string {
+	if it.Representation == "" {
+		return "section"
+	}
+	return it.Representation
 }
 
 // segment is one ordered piece of a source document: either an item reference
 // or verbatim raw prose.
 type segment struct {
-	Document string // "Issues" | "Fixed"
-	Seq      int
-	Kind     string // "item" | "raw"
-	AtmID    string // when Kind=="item"
-	Raw      string // when Kind=="raw"
+	Document       string // "Issues" | "Fixed"
+	Seq            int
+	Kind           string // "item" | "raw"
+	AtmID          string // when Kind=="item"
+	Representation string // when Kind=="item": "section" | "table" (GAP A); "" => "section"
+	Raw            string // when Kind=="raw"
+}
+
+// repOrDefault normalises a segment's Representation, defaulting empty to
+// "section" (raw segments + callers that don't set it).
+func (s segment) repOrDefault() string {
+	if s.Representation == "" {
+		return "section"
+	}
+	return s.Representation
 }
 
 // replaceDocument wipes prior state for a document and persists the freshly
@@ -236,8 +417,9 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 	insItem, err := tx.Prepare(`INSERT INTO items
 		(atm_id, type, status, severity, title, description,
 		 forensic_anchor, closure_criteria, composes_with,
-		 created_by, assigned_to, current_location, body_md)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+		 created_by, assigned_to, current_location, body_md,
+		 representation, closure_date, round, commit_ref)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
 	if err != nil {
 		return err
 	}
@@ -248,13 +430,14 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 			nullable(it.Severity), it.Title, it.Description,
 			nullable(it.ForensicAnchor), nullable(it.ClosureCriteria),
 			nullable(it.ComposesWith), it.CreatedBy, it.AssignedTo,
-			it.CurrentLocation, it.BodyMD); err != nil {
-			return fmt.Errorf("insert item %s: %w", it.AtmID, err)
+			it.CurrentLocation, it.BodyMD, it.repOrDefault(),
+			nullable(it.ClosureDate), nullable(it.Round), nullable(it.CommitRef)); err != nil {
+			return fmt.Errorf("insert item %s [%s]: %w", it.AtmID, it.repOrDefault(), err)
 		}
 	}
 
 	insSeg, err := tx.Prepare(`INSERT INTO doc_segments
-		(document, seq, kind, atm_id, raw) VALUES (?,?,?,?,?)`)
+		(document, seq, kind, atm_id, representation, raw) VALUES (?,?,?,?,?,?)`)
 	if err != nil {
 		return err
 	}
@@ -262,7 +445,7 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 
 	for _, s := range segs {
 		if _, err := insSeg.Exec(s.Document, s.Seq, s.Kind,
-			nullable(s.AtmID), nullableRaw(s.Raw, s.Kind)); err != nil {
+			nullable(s.AtmID), s.repOrDefault(), nullableRaw(s.Raw, s.Kind)); err != nil {
 			return fmt.Errorf("insert segment %s#%d: %w", s.Document, s.Seq, err)
 		}
 	}
@@ -299,8 +482,10 @@ func loadItems(db *sql.DB) ([]item, error) {
 		COALESCE(forensic_anchor,''), COALESCE(closure_criteria,''),
 		COALESCE(composes_with,''),
 		COALESCE(created_by,''), COALESCE(assigned_to,''),
-		current_location, COALESCE(body_md,'')
-		FROM items ORDER BY atm_id`)
+		current_location, COALESCE(body_md,''),
+		COALESCE(representation,'section'), COALESCE(closure_date,''),
+		COALESCE(round,''), COALESCE(commit_ref,'')
+		FROM items ORDER BY atm_id, current_location, representation`)
 	if err != nil {
 		return nil, err
 	}
@@ -312,7 +497,8 @@ func loadItems(db *sql.DB) ([]item, error) {
 			&it.Title, &it.Description, &it.ForensicAnchor,
 			&it.ClosureCriteria, &it.ComposesWith,
 			&it.CreatedBy, &it.AssignedTo, &it.CurrentLocation,
-			&it.BodyMD); err != nil {
+			&it.BodyMD, &it.Representation, &it.ClosureDate,
+			&it.Round, &it.CommitRef); err != nil {
 			return nil, err
 		}
 		out = append(out, it)
@@ -323,28 +509,32 @@ func loadItems(db *sql.DB) ([]item, error) {
 // renderDocument reassembles a document's source text from doc_segments +
 // items.body_md, walked in seq order — the byte-identical-round-trip path.
 func renderDocument(db *sql.DB, document string) (string, error) {
-	// Body lookup scoped to THIS document — the same atm_id may exist in both
-	// trackers (Issues tombstone + Fixed closure), so keying on atm_id alone
-	// would cross-wire the bodies.
-	bodyByID := map[string]string{}
-	brows, err := db.Query(`SELECT atm_id, COALESCE(body_md,'') FROM items WHERE current_location = ?`, document)
+	// Body lookup scoped to THIS document AND keyed by (atm_id, representation):
+	// the same atm_id may exist in both trackers (Issues tombstone + Fixed
+	// closure) AND, within ONE tracker, under BOTH a pipe-table row + an H2
+	// section (GAP A — HXC-044). Keying on atm_id alone would cross-wire the two
+	// representations' bodies; the segment carries which representation it points
+	// to, so the lookup key is atm_id + "\x00" + representation.
+	bodyByKey := map[string]string{}
+	brows, err := db.Query(`SELECT atm_id, representation, COALESCE(body_md,'')
+		FROM items WHERE current_location = ?`, document)
 	if err != nil {
 		return "", err
 	}
 	for brows.Next() {
-		var id, body string
-		if err := brows.Scan(&id, &body); err != nil {
+		var id, rep, body string
+		if err := brows.Scan(&id, &rep, &body); err != nil {
 			brows.Close()
 			return "", err
 		}
-		bodyByID[id] = body
+		bodyByKey[id+"\x00"+rep] = body
 	}
 	brows.Close()
 	if err := brows.Err(); err != nil {
 		return "", err
 	}
 
-	rows, err := db.Query(`SELECT seq, kind, COALESCE(atm_id,''), COALESCE(raw,'')
+	rows, err := db.Query(`SELECT seq, kind, COALESCE(atm_id,''), representation, COALESCE(raw,'')
 		FROM doc_segments WHERE document = ? ORDER BY seq`, document)
 	if err != nil {
 		return "", err
@@ -354,17 +544,20 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 	var sb []byte
 	for rows.Next() {
 		var seq int
-		var kind, atmID, raw string
-		if err := rows.Scan(&seq, &kind, &atmID, &raw); err != nil {
+		var kind, atmID, rep, raw string
+		if err := rows.Scan(&seq, &kind, &atmID, &rep, &raw); err != nil {
 			return "", err
 		}
 		switch kind {
 		case "raw":
 			sb = append(sb, raw...)
 		case "item":
-			body, ok := bodyByID[atmID]
+			if rep == "" {
+				rep = "section"
+			}
+			body, ok := bodyByKey[atmID+"\x00"+rep]
 			if !ok {
-				return "", fmt.Errorf("segment references unknown item %q", atmID)
+				return "", fmt.Errorf("segment references unknown item %q [%s]", atmID, rep)
 			}
 			sb = append(sb, body...)
 		}
