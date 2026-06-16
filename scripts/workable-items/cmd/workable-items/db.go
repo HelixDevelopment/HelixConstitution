@@ -74,6 +74,10 @@ func migrateColumns(db *sql.DB) error {
 	wanted := []colDef{
 		{"created_by", `ALTER TABLE items ADD COLUMN created_by TEXT NOT NULL DEFAULT ''`},
 		{"assigned_to", `ALTER TABLE items ADD COLUMN assigned_to TEXT NOT NULL DEFAULT ''`},
+		// §11.4.148/§11.4.149 v4 sub-task hierarchy. NULLABLE (no DEFAULT): a
+		// legacy row with NULL parent_atm_id is correctly a top-level item.
+		{"parent_atm_id", `ALTER TABLE items ADD COLUMN parent_atm_id TEXT`},
+		{"session_ref", `ALTER TABLE items ADD COLUMN session_ref TEXT`},
 	}
 	for _, c := range wanted {
 		if have[c.name] {
@@ -83,8 +87,17 @@ func migrateColumns(db *sql.DB) error {
 			return fmt.Errorf("add column %s: %w", c.name, err)
 		}
 	}
-	// Keep the schema_version meta marker honest after a successful migration.
-	if _, err := db.Exec(`UPDATE meta SET value='3' WHERE key='schema_version' AND value < '3'`); err != nil {
+	// idx_items_parent is created here (NOT in the embedded schema) because the
+	// schema is exec'd BEFORE this migration: a pre-v4 items table would not yet
+	// have parent_atm_id when the embedded CREATE INDEX ran. By this point the
+	// column is guaranteed present (added above or already there).
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_parent ON items(parent_atm_id)`); err != nil {
+		return fmt.Errorf("create idx_items_parent: %w", err)
+	}
+	// Keep the schema_version meta marker honest after a successful migration: a
+	// DB materialised under an older schema (2 or 3) is now at v4. Lexical string
+	// compare is safe for single-digit versions ('2' < '3' < '4').
+	if _, err := db.Exec(`UPDATE meta SET value='4' WHERE key='schema_version' AND value < '4'`); err != nil {
 		return err
 	}
 	return nil

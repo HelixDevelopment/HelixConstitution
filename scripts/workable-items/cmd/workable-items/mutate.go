@@ -442,3 +442,37 @@ func insertMetaLine(body, metaLine string) string {
 	}
 	return out.String()
 }
+
+// hasEnumeratedUnblockChoices reports whether an unblock_condition string
+// enumerates the §11.4.148 D3 closed list of decisions/actions that would
+// unblock an Operator-blocked item — `[A]…·[B]…`, `[1]…·[2]…`, or a
+// dash/asterisk bullet list. Bare prose (a single un-enumerated sentence) and
+// empty/whitespace input are rejected: a BLOCKED item with no enumerated unblock
+// CHOICES is a §11.4.148 D3 PASS-bluff (the operator has no enumerated way to
+// clear the block). Deterministic, no regexp — scans for the marker shapes.
+func hasEnumeratedUnblockChoices(s string) bool {
+	if strings.TrimSpace(s) == "" {
+		return false
+	}
+	// (1) Bracketed choice markers `[A]` / `[a]` / `[1]` anywhere in the text.
+	for i := 0; i+2 < len(s); i++ {
+		if s[i] != '[' || s[i+2] != ']' {
+			continue
+		}
+		c := s[i+1]
+		if (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') {
+			return true
+		}
+	}
+	// (2) Bullet-list markers: a line beginning (after optional leading
+	//     whitespace) with "- " or "* ". Require ≥2 bullets so a single dashed
+	//     prose line is not mistaken for an enumeration.
+	bullets := 0
+	for _, ln := range strings.Split(s, "\n") {
+		t := strings.TrimLeft(ln, " \t")
+		if strings.HasPrefix(t, "- ") || strings.HasPrefix(t, "* ") {
+			bullets++
+		}
+	}
+	return bullets >= 2
+}

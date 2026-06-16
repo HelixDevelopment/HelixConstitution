@@ -75,6 +75,14 @@ CREATE TABLE IF NOT EXISTS items (
     -- doc_segments raw prose) to reproduce the source byte-for-byte.
     body_md          TEXT,
 
+    -- §11.4.148/§11.4.149 sub-task hierarchy. A testing session against a parent
+    -- item is itself a first-class workable item distinguished by a non-NULL
+    -- parent_atm_id (the parent's id). session_ref is the human session label.
+    -- NULL parent_atm_id = a top-level item. Back-compat: rows materialised under
+    -- an older schema have these columns ADDed by migrateColumns (NULL = top-level).
+    parent_atm_id    TEXT,
+    session_ref      TEXT,
+
     -- Timestamps
     created_at       TEXT NOT NULL DEFAULT (datetime('now')),
     last_modified    TEXT NOT NULL DEFAULT (datetime('now')),
@@ -82,6 +90,10 @@ CREATE TABLE IF NOT EXISTS items (
     -- Composite identity: a ticket may be present in both trackers at once.
     PRIMARY KEY (atm_id, current_location)
 );
+
+-- NOTE: idx_items_parent (on items.parent_atm_id) is created in migrateColumns
+-- AFTER the parent_atm_id column is ensured present — a CREATE INDEX here would
+-- reference a not-yet-added column when an older (pre-v4) items table is opened.
 
 -- ============================================================
 -- §11.4.93 — item_history: append-only audit log
@@ -196,6 +208,61 @@ CREATE TABLE IF NOT EXISTS doc_segments (
 CREATE INDEX IF NOT EXISTS idx_doc_segments_document ON doc_segments(document);
 
 -- ============================================================
+-- §11.4.149 — test_diary: append-only per-item testing diary.
+--
+-- One row per TEST RUN against an item / ATM-NNN-SSS sub-task. Distinct from
+-- item_history (lifecycle STATE transitions): the diary records test EXECUTIONS
+-- (which may or may not change status). The diary is the in-depth forensic
+-- record; test_diary_summary is the DERIVED at-a-glance rollup (never a second
+-- source of truth — §11.4.93).
+--
+-- §11.4.149 PASS-requires-evidence: the CHECK makes a PASS row with an empty /
+-- NULL evidence_path IMPOSSIBLE at the storage layer — a PASS-bluff is rejected
+-- by the schema itself, independent of any CLI guard.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS test_diary (
+    entry_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    atm_id         TEXT NOT NULL,
+    date_time      TEXT NOT NULL,            -- ISO-8601 UTC
+    tested_by      TEXT NOT NULL CHECK (tested_by IN ('User', 'Operator', 'AI-agent', 'HelixQA')),
+    result         TEXT NOT NULL CHECK (result IN ('PASS', 'FAIL', 'SKIP')),
+    result_detail  TEXT,
+    observations   TEXT NOT NULL,
+    action_taken   TEXT NOT NULL,
+    status_changed INTEGER NOT NULL DEFAULT 0,
+    status_from    TEXT,
+    status_to      TEXT,
+    evidence_path  TEXT,                     -- §11.4.69 captured-evidence path
+    feature_class  TEXT,                     -- §11.4.69 sink-side feature class
+    created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+    -- §11.4.149: a PASS run MUST cite captured evidence.
+    CHECK (result <> 'PASS' OR (evidence_path IS NOT NULL AND evidence_path <> ''))
+);
+
+CREATE INDEX IF NOT EXISTS idx_test_diary_atm_id ON test_diary(atm_id);
+
+-- Derived at-a-glance rollup per item (§11.4.149(b)). last_result is the result
+-- of the newest run (by date_time, then entry_id).
+CREATE VIEW IF NOT EXISTS test_diary_summary AS
+SELECT
+    d.atm_id                                                   AS atm_id,
+    COUNT(*)                                                   AS total_runs,
+    SUM(CASE WHEN d.result = 'PASS' THEN 1 ELSE 0 END)         AS pass_runs,
+    SUM(CASE WHEN d.result = 'FAIL' THEN 1 ELSE 0 END)         AS fail_runs,
+    SUM(CASE WHEN d.result = 'SKIP' THEN 1 ELSE 0 END)         AS skip_runs,
+    MAX(d.date_time)                                           AS last_run,
+    (SELECT l.result FROM test_diary l WHERE l.atm_id = d.atm_id
+        ORDER BY l.date_time DESC, l.entry_id DESC LIMIT 1)    AS last_result,
+    SUM(d.status_changed)                                      AS status_changes,
+    (SELECT GROUP_CONCAT(t) FROM (SELECT DISTINCT tested_by AS t
+        FROM test_diary WHERE atm_id = d.atm_id ORDER BY t))   AS testers,
+    (SELECT GROUP_CONCAT(c) FROM (SELECT DISTINCT feature_class AS c
+        FROM test_diary WHERE atm_id = d.atm_id AND feature_class IS NOT NULL
+        AND feature_class <> '' ORDER BY c))                   AS feature_classes
+FROM test_diary d
+GROUP BY d.atm_id;
+
+-- ============================================================
 -- meta: schema version + sync state
 -- ============================================================
 CREATE TABLE IF NOT EXISTS meta (
@@ -204,8 +271,13 @@ CREATE TABLE IF NOT EXISTS meta (
     last_modified        TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-INSERT OR REPLACE INTO meta(key, value) VALUES
-    ('schema_version', '3'),
+-- INSERT OR IGNORE (NOT OR REPLACE): the schema is re-exec'd on every openDB, so
+-- OR REPLACE would clobber live sync state ('last_sync_direction' etc.) back to
+-- the seed values on every re-open. OR IGNORE seeds these keys ONLY when absent
+-- (first materialisation), preserving subsequent sync updates. migrateColumns
+-- advances 'schema_version' to '4' on an older DB; a fresh DB is seeded '4' here.
+INSERT OR IGNORE INTO meta(key, value) VALUES
+    ('schema_version', '4'),
     ('last_sync_direction', 'none'),
     ('last_sync_timestamp', ''),
     ('integrity_hash', '');

@@ -5,6 +5,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"os"
@@ -176,6 +177,28 @@ func validateCmd(args []string) int {
 		if wordCount(it.Description) < 6 && len(it.Description) < 40 {
 			violations = append(violations, fmt.Sprintf("%s: description too short (%d words / %d chars): %q",
 				it.AtmID, wordCount(it.Description), len(it.Description), it.Description))
+		}
+		// §11.4.148 D3 — every Operator-blocked item MUST carry an
+		// operator_block_details row whose unblock_condition enumerates the
+		// closed list of decisions/actions that would unblock it ([A]…·[B]…).
+		// A missing details row OR a bare-prose unblock condition (no enumerated
+		// CHOICES) is a §11.4.148 D3 PASS-bluff.
+		if it.Status == "Operator-blocked" {
+			var unblock sql.NullString
+			err := db.QueryRow(`SELECT unblock_condition FROM operator_block_details WHERE atm_id=?`,
+				it.AtmID).Scan(&unblock)
+			switch {
+			case err == sql.ErrNoRows:
+				violations = append(violations, fmt.Sprintf(
+					"%s: Operator-blocked with no operator_block_details row (§11.4.148 D3)", it.AtmID))
+			case err != nil:
+				violations = append(violations, fmt.Sprintf(
+					"%s: operator_block_details query: %v", it.AtmID, err))
+			case !hasEnumeratedUnblockChoices(unblock.String):
+				violations = append(violations, fmt.Sprintf(
+					"%s: Operator-blocked unblock_condition has no enumerated unblock CHOICES (§11.4.148 D3): %q",
+					it.AtmID, unblock.String))
+			}
 		}
 	}
 

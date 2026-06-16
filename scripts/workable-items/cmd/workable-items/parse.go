@@ -423,6 +423,11 @@ func normalizeStatus(v string) string {
 		return "Fixed (→ Fixed.md)"
 	case strings.Contains(lv, "operator"):
 		return "Operator-blocked"
+	case strings.Contains(lv, "blocked"):
+		// §11.4.148 D3: `Blocked` / `BLOCKED` / `blocked` is the documented alias
+		// of the canonical `Operator-blocked` value — normalised here, NOT a
+		// silent fork (§11.4.6).
+		return "Operator-blocked"
 	case strings.Contains(lv, "reopen"):
 		return "Reopened"
 	case strings.Contains(lv, "in testing"):
