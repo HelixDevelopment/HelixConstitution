@@ -126,12 +126,16 @@ CREATE TABLE IF NOT EXISTS obsolete_details (
     since                   TEXT NOT NULL,
 
     -- §11.4.90 closed-set Reason vocabulary
+    -- 'not-reproducible' = a reported defect that does NOT reproduce on the
+    -- canonical tree/baseline (environment / isolated-worktree artifact), not a
+    -- real product defect; triple_check_evidence captures the non-reproduction.
     reason                  TEXT NOT NULL CHECK (reason IN (
                                 'superseded-by-design-change',
                                 'superseded-by-later-mandate',
                                 'feature-removed',
                                 'duplicate-of',
-                                'unsupported-topology'
+                                'unsupported-topology',
+                                'not-reproducible'
                             )),
 
     -- §-letter / ATM-NNN reference of the work that obsoleted this item

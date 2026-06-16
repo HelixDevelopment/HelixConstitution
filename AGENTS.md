@@ -1925,7 +1925,7 @@ Non-compliance is a release blocker. No escape hatch beyond explicit per-invocat
 
 ### §11.4.90 — Obsolete status + per-item obsolescence audit (User mandate, 2026-05-27)
 
-§11.4.15 Status closed-set extended with terminal `Obsolete (→ Fixed.md)` (orthogonal to Type). Reasons (closed): `superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology`. Every Obsolete heading carries `**Obsolete-Details:**` (Since + Reason + Superseding-item + Triple-check evidence). Colorizer `cell-status-obsolete` = `#E0E0E0` background + strikethrough. Audit cadence per §11.4.40 + §11.4.42. Triple-check non-negotiable. Pre-build gates `CM-COVENANT-114-90-PROPAGATION` + `CM-ITEM-OBSOLETE-DETAILS` + `CM-OBSOLETE-COLORIZER-WIRED` + paired §1.1 mutations.
+§11.4.15 Status closed-set extended with terminal `Obsolete (→ Fixed.md)` (orthogonal to Type). Reasons (closed): `superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology | not-reproducible` (`not-reproducible` = a reported defect that does NOT reproduce on the canonical tree/baseline — an environment/isolated-worktree artifact, not a real product defect). Every Obsolete heading carries `**Obsolete-Details:**` (Since + Reason + Superseding-item + Triple-check evidence). Colorizer `cell-status-obsolete` = `#E0E0E0` background + strikethrough. Audit cadence per §11.4.40 + §11.4.42. Triple-check non-negotiable. Pre-build gates `CM-COVENANT-114-90-PROPAGATION` + `CM-ITEM-OBSOLETE-DETAILS` + `CM-OBSOLETE-COLORIZER-WIRED` + paired §1.1 mutations.
 
 **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.90. Non-compliance is a release blocker.
 

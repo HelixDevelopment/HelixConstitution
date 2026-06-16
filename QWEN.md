@@ -311,7 +311,7 @@ Forensic anchor 2026-05-27: conductor invoked long pre_build synchronously, bloc
 
 ### §11.4.90 — Obsolete status + obsolescence audit (User mandate, 2026-05-27)
 
-§11.4.15 Status closed-set + terminal `Obsolete (→ Fixed.md)`. Reasons: `superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology`. `**Obsolete-Details:**` line mandatory (Since + Reason + Superseding-item + Triple-check evidence). Colorizer `cell-status-obsolete` = light-gray + strikethrough. Audit cadence per §11.4.40 + §11.4.42. Triple-check non-negotiable.
+§11.4.15 Status closed-set + terminal `Obsolete (→ Fixed.md)`. Reasons: `superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology | not-reproducible` (`not-reproducible` = a reported defect that does NOT reproduce on the canonical tree/baseline — an environment/isolated-worktree artifact, not a real product defect). `**Obsolete-Details:**` line mandatory (Since + Reason + Superseding-item + Triple-check evidence). Colorizer `cell-status-obsolete` = light-gray + strikethrough. Audit cadence per §11.4.40 + §11.4.42. Triple-check non-negotiable.
 
 **Canonical authority:** [`Constitution.md`](Constitution.md) §11.4.90. Release blocker.
 

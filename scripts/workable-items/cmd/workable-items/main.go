@@ -39,6 +39,8 @@ Subcommands:
                                                         Set Status=Operator-blocked with §11.4.21 details.
   close <atm-id> --db <p> --status <fixed|implemented|completed|obsolete> --evidence <p>
                                                         Atomic Issues→Fixed closure (§11.4.19).
+  obsolete-details <atm-id> --db <p> --since <ISO> --reason <r> --superseding <s> --evidence <p>
+                                                        Write the §11.4.90 obsolete_details row for an Obsolete item.
   report --db <p> [--by-type|--by-status|--by-severity|--by-assigned|--by-creator|--obsolete-audit]
                                                         Read-only grouped tally / §11.4.90 audit.
   export --db <p> [--out-dir <d>] [--issues <p>] [--fixed <p>] [--out-issues <p>] [--out-fixed <p>]
@@ -75,6 +77,8 @@ func main() {
 		runBlock(args[1:])
 	case "close":
 		runClose(args[1:])
+	case "obsolete-details":
+		runObsoleteDetails(args[1:])
 	case "report":
 		runReport(args[1:])
 	case "export":

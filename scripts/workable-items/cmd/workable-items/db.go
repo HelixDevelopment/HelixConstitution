@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -46,6 +47,16 @@ func openDB(path string) (*sql.DB, error) {
 		db.Close()
 		return nil, fmt.Errorf("migrate columns: %w", err)
 	}
+	// §11.4.90 — a DB materialised before `not-reproducible` joined the closed-set
+	// reason vocabulary carries the OLD 5-value CHECK constraint on
+	// obsolete_details.reason. SQLite cannot ALTER a CHECK, and CREATE TABLE IF
+	// NOT EXISTS never replaces an existing table, so the new value would be
+	// rejected. Rebuild the table (lossless, idempotent) when the old CHECK is
+	// detected.
+	if err := migrateObsoleteReasonCheck(db); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("migrate obsolete_details CHECK: %w", err)
+	}
 	return db, nil
 }
 
@@ -77,6 +88,64 @@ func migrateColumns(db *sql.DB) error {
 		return err
 	}
 	return nil
+}
+
+// migrateObsoleteReasonCheck rebuilds the obsolete_details table when its live
+// CHECK constraint predates the §11.4.90 `not-reproducible` reason value. The
+// constraint text is read from sqlite_master; if it already mentions
+// 'not-reproducible' the migration is a no-op. Otherwise the table is rebuilt
+// preserving every existing row (the standard SQLite "create new, copy, drop,
+// rename" pattern), so the new closed-set value becomes insertable on a DB that
+// was first materialised under the old 5-value vocabulary.
+func migrateObsoleteReasonCheck(db *sql.DB) error {
+	var ddl sql.NullString
+	if err := db.QueryRow(
+		`SELECT sql FROM sqlite_master WHERE type='table' AND name='obsolete_details'`,
+	).Scan(&ddl); err != nil {
+		if err == sql.ErrNoRows {
+			return nil // schema not yet applied (cannot happen post-openDB), nothing to migrate
+		}
+		return err
+	}
+	if !ddl.Valid || strings.Contains(ddl.String, "not-reproducible") {
+		return nil // already current
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(`CREATE TABLE obsolete_details_new (
+    atm_id                  TEXT PRIMARY KEY,
+    since                   TEXT NOT NULL,
+    reason                  TEXT NOT NULL CHECK (reason IN (
+                                'superseded-by-design-change',
+                                'superseded-by-later-mandate',
+                                'feature-removed',
+                                'duplicate-of',
+                                'unsupported-topology',
+                                'not-reproducible'
+                            )),
+    superseding_item        TEXT NOT NULL,
+    triple_check_evidence   TEXT NOT NULL
+)`); err != nil {
+		return fmt.Errorf("create rebuilt table: %w", err)
+	}
+	if _, err := tx.Exec(`INSERT INTO obsolete_details_new
+		(atm_id, since, reason, superseding_item, triple_check_evidence)
+		SELECT atm_id, since, reason, superseding_item, triple_check_evidence
+		FROM obsolete_details`); err != nil {
+		return fmt.Errorf("copy rows: %w", err)
+	}
+	if _, err := tx.Exec(`DROP TABLE obsolete_details`); err != nil {
+		return fmt.Errorf("drop old table: %w", err)
+	}
+	if _, err := tx.Exec(`ALTER TABLE obsolete_details_new RENAME TO obsolete_details`); err != nil {
+		return fmt.Errorf("rename rebuilt table: %w", err)
+	}
+	return tx.Commit()
 }
 
 // itemColumns returns the set of column names currently present on the `items`

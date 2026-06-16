@@ -7570,7 +7570,7 @@ The §11.4.15 Status closed-set is extended with a 4th terminal value `Obsolete 
 **Mandatory obsolescence audit metadata** — every `Obsolete (→ Fixed.md)` heading MUST carry, within 8 non-blank lines of the heading, an `**Obsolete-Details:**` line capturing four sub-facts (mirroring §11.4.21 + §11.4.34 audit-line patterns):
 
 - **Since:** ISO date (`YYYY-MM-DD`).
-- **Reason:** one-line cause from the closed vocabulary `{ superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology }`.
+- **Reason:** one-line cause from the closed vocabulary `{ superseded-by-design-change | superseded-by-later-mandate | feature-removed | duplicate-of | unsupported-topology | not-reproducible }`. (`not-reproducible` = a reported defect that does NOT reproduce on the canonical tree / baseline — an environment / isolated-worktree artifact (PATH / shell / missing-checkout), not a real product defect; the triple-check evidence MUST capture the canonical-tree non-reproduction, per §11.4.6 no-guessing + §11.4.7 demotion-evidence.)
 - **Superseding-item:** §-letter reference or User-mandate verbatim quote anchor citing the work that obsoleted it.
 - **Triple-check evidence:** path to captured evidence (git log, code grep, runtime behaviour) confirming the item is genuinely no longer valid. Per operator mandate "There MUST NOT be any mistake" — bare assertion is forbidden; positive captured evidence per §11.4.6 is mandatory.
 
