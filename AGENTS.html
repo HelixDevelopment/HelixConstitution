@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>HelixConstitution AGENTS</title>
+  <title>AGENTS</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -238,7 +238,7 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">HelixConstitution AGENTS</h1>
+<h1 class="title">AGENTS</h1>
 </header>
 <h1 id="helix-constitution-universal-agents.md">Helix Constitution —
 Universal AGENTS.md</h1>
@@ -5910,11 +5910,14 @@ AND sorted video-artefact roster, NOT mtime), re-syncs out-of-the-box;
 stale = violation. (6) <strong>Four-format export</strong> — HTML + PDF
 + <strong>DOCX</strong> (this doc class ADDS DOCX to the §11.4.65
 HTML+PDF set; other classes unchanged), in sync per §11.4.60. (7)
-Follows §11.4.44/.45/.56/.57/.59/.60. Honest boundary §11.4.6 —
-guarantees a complete video-confirmed always-synced ledger, NOT
-per-feature correctness (rests on each row’s §11.4.69/.107/.123
-evidence) and NOT a §11.4.40 retest substitute. Classification:
-universal (§11.4.17). Composes
+Follows §11.4.44/.45/.56/.57/.59/.60. (8) <strong>MP4 format
+REQUIRED.</strong> All video confirmations MUST be in <code>.mp4</code>
+format (H.264). Window-specific capture ONLY (§11.4.159(A)). Vision
+validation REQUIRED (§11.4.159(D)). <code>.cast</code> files are
+supplementary only. Honest boundary §11.4.6 — guarantees a complete
+video-confirmed always-synced ledger, NOT per-feature correctness (rests
+on each row’s §11.4.69/.107/.123 evidence) and NOT a §11.4.40 retest
+substitute. Classification: universal (§11.4.17). Composes
 §11.4.2/.5/.44/.45/.52/.56/.57/.59/.60/.65/.86/.102/.106/.107/.108/.118/.123/.134/.146/§1.1.
 Propagation gate <code>CM-COVENANT-114-153-PROPAGATION</code> (literal
 <code>11.4.153</code>) + recommended gates
@@ -5969,7 +5972,11 @@ href="constitution/Constitution.md"><code>Constitution.md</code></a>
 <code>--whole-screen-capture-OK</code>,
 <code>--skip-window-scope</code>, <code>--keep-stale-recordings</code>,
 <code>--no-corpus-rotation</code>, <code>--full-desktop-recording</code>
-flag.</p>
+flag. <strong>(C) MP4 auto-conversion REQUIRED.</strong> Any
+<code>.cast</code> file produced MUST be auto-converted to
+<code>.mp4</code> via <code>agg</code> + <code>ffmpeg</code> immediately
+after capture. The <code>.mp4</code> is the primary evidence;
+<code>.cast</code> is supplementary only.</p>
 <p><strong>§11.4.155 — Project-name-prefixed feature/QA recording
 filenames (User mandate, 2026-06-15).</strong> Verbatim: “All recorded
 videos MUST START with prefix: the PROJECT NAME (ALWAYS USE THE PROJECT
@@ -6126,7 +6133,11 @@ only on a read-confirmed genuine result + captured artefact path
 (host user’s home Downloads, resolved at runtime never hardcoded) unless
 a project declares an override per §11.4.35; §11.4.155 project-prefix +
 §11.4.154 window-scope/rotation + §11.4.128 git-ignored raw corpus +
-§11.4.83 curated docs/qa evidence apply. Composes
+§11.4.83 curated docs/qa evidence apply. <strong>Vision analysis
+MANDATORY for every recording</strong> — after every recording, the
+agent MUST read the terminal output / video content and verify the
+feature actually works. A recording without a vision-confirmed verdict
+is a §11.4.158 violation. Composes
 §11.4.2/.5/.25/.27/.52/.69/.83/.85/.107/.108/.117/.118/.128/.137/.138/.153/.154/.155/§1.1.
 Classification: universal (§11.4.17). Propagation gate
 <code>CM-COVENANT-114-158-PROPAGATION</code> (literal
@@ -6142,5 +6153,84 @@ href="constitution/Constitution.md"><code>Constitution.md</code></a>
 <code>--recording-path-anywhere</code>,
 <code>--unread-recording-OK</code>, <code>--skip-helixqa-read</code>
 flag.</p>
+<p><strong>§11.4.159 — Mandatory window-specific video recording +
+vision validation mandate (User mandate, 2026-06-20).</strong> Every
+feature test, validation, verification, challenge, and QA session that
+produces video evidence MUST comply with ALL of the following:
+<strong>(A) Window-specific recording ONLY</strong> — every video MUST
+record ONLY the target application window (Terminal pane, TUI app,
+browser tab, emulator frame), NEVER the whole desktop/monitor screen;
+use macOS <code>screencapture -l&lt;window_id&gt;</code>, Linux
+<code>xdotool</code>+<code>ffmpeg</code>, or equivalent; whole-desktop
+capture leaks operator-private content (§11.4.10), dilutes the §11.4.107
+liveness oracle, and breaks §11.4.137 OCR/ROI; platform genuinely cannot
+capture below whole-screen =&gt; honest §11.4.3 SKIP + tracked migration
+item. <strong>(B) MP4 format REQUIRED</strong> — <code>.mp4</code>
+(H.264, <code>movflags +faststart</code>, <code>pix_fmt yuv420p</code>);
+<code>.cast</code> files are supplementary only; auto-convert via
+<code>agg</code>+<code>ffmpeg</code> per §11.4.154(C). <strong>(C)
+Project-name prefix REQUIRED</strong> — filename MUST start with project
+name in snake_case from <code>HELIX_RELEASE_PREFIX</code> in
+<code>.env</code> (§11.4.151) or lowercased project root dir name
+(§11.4.29); format
+<code>&lt;project_name&gt;-&lt;feature&gt;-&lt;timestamp&gt;.mp4</code>;
+unprefixed = violation. <strong>(D) Mandatory vision validation</strong>
+— after EVERY recording, the agent MUST read the terminal output / video
+content and verify: (i) feature ACTUALLY WORKS, (ii) LLM responses are
+REAL, (iii) all tests show PASS, (iv) no “TODO implement” / “simulate” /
+“for now” patterns, (v) output demonstrates end-user working feature;
+MUST produce a verdict (PASS/FAIL) with evidence path (§11.4.69).
+<strong>(E) Terminal window cleanup</strong> — after each recording,
+dismiss/close ONLY the Terminal window used for that recording
+(window-specific close via <code>osascript</code>/<code>xdotool</code>);
+MUST NOT close windows belonging to other processes. <strong>(F) Real
+results ONLY</strong> — every recording MUST show REAL working features;
+errors/empty output/simulated responses trigger fix→retest→re-record.
+<strong>(G) Re-runnable evidence</strong> — the command shown MUST be
+re-runnable to produce the same results. <strong>(H) Fresh-corpus
+rotation</strong> — remove agent’s own prior in-scope stale recordings
+FIRST (§11.4.154). <strong>(I) Content verification MANDATORY — not
+duration-based</strong> — the value of a recording is NOT its duration
+but its CONTENT; a recording MUST demonstrate the ACTUAL feature being
+used with REAL results; before accepting ANY recording, the agent MUST
+verify: expected output patterns ARE present (e.g., test PASS lines, API
+response data, feature-specific output), the feature ACTUALLY WORKS as
+demonstrated (not just “something ran”), LLM responses are REAL content
+(not simulated, not placeholder, not empty), every claim of “working” is
+backed by visible evidence; a 5-second recording showing a feature
+working correctly is MORE valuable than a 60-second recording of empty
+terminal; duration is NOT a proxy for quality. <strong>(J)
+Expected-content specification REQUIRED</strong> — before recording, the
+agent MUST specify what content SHOULD appear (expected patterns,
+expected test results, expected API responses); after recording, the
+agent MUST verify these patterns ARE present; if expected content is
+MISSING, the recording is REJECTED regardless of duration. <strong>(K)
+Content-verification recording workflow</strong> — mandated workflow:
+(1) SPECIFY expected content patterns, (2) RECORD the feature execution,
+(3) EXTRACT all text from the recording, (4) VERIFY expected patterns
+are present, (5) CHECK for simulated/placeholder content, (6) ACCEPT
+only if ALL patterns found AND zero bluffs detected, (7) REJECT and
+re-record if ANY pattern missing or bluff detected. <strong>(L) Root
+cause analysis REQUIRED for rejected recordings</strong> — when a
+recording is rejected (missing expected content, bluff detected, or
+empty capture), the agent MUST investigate WHY before re-recording per
+§11.4.102; determine the root cause (timing issue, wrong command, tool
+failure, etc.) and fix it; simply re-recording without understanding WHY
+the first attempt failed is a §11.4.159 violation. <strong>(M) Real-time
+monitoring RECOMMENDED</strong> — for complex features, use real-time
+monitoring that analyzes output DURING recording (not after); this
+catches issues immediately and allows corrective action before the
+recording completes. Classification: universal (§11.4.17). Composes
+§11.4.2/.3/.5/.10/.29/.69/.83/.107/.111/.128/.137/.151/.153/.154/.155/.158/§1.1.
+Propagation gate <code>CM-COVENANT-114-159-PROPAGATION</code> (literal
+<code>11.4.159</code>) + recommended gate
+<code>CM-WINDOW-VIDEO-VALIDATED</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.159. Non-compliance is a release blocker. No escape hatch — no
+<code>--whole-screen-ok</code>, <code>--cast-only</code>,
+<code>--skip-vision-validation</code>, <code>--no-cleanup</code>,
+<code>--simulated-recording-ok</code>,
+<code>--unprefixed-recording</code> flag.</p>
 </body>
 </html>
