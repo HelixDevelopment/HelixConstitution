@@ -267,6 +267,7 @@ semgrep scan --config auto --json /path/to/testfile.py
 
 | File | Purpose |
 |---|---|
+| `submodules/semgrep` | semgrep OCaml source (git submodule, optional build-from-source) |
 | `scripts/semgrep/semgrep_ci_test.sh` | CI-ready validation test |
 | `scripts/hooks/semgrep_precommit.sh` | Pre-commit hook |
 | `.docs_chain/contexts/semgrep_status.yaml` | docs_chain auto-sync context |
