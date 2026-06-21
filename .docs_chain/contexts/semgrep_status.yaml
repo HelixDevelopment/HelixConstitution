@@ -4,10 +4,15 @@
 # See docs_chain/docs/USE_CASE_CATALOGUE.md for context structure.
 
 name: semgrep_status
-description: Semgrep SAST tool integration status
+description: Semgrep SAST tool integration status and health
 sync:
   source: scripts/semgrep/semgrep_ci_test.sh
   trigger: post-pull
   exports:
-    - docs/codegraph/Status.md
-    - docs/codegraph/Status_Summary.md
+    - docs/semgrep/Status.md
+    - docs/semgrep/Status_Summary.md
+dependencies:
+  - semgrep_precommit.sh
+  - semgrep_setup.sh
+  - semgrep_path.sh
+health_check: scripts/semgrep/semgrep_validate.sh

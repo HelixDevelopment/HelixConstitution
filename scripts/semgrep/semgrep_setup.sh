@@ -149,19 +149,19 @@ semgrep_setup_build() {
         return 2
     fi
 
-    # Check if submodule exists; if not, suggest cloning
-    if [ ! -d "${SEMGREP_SUBMODULE_PATH}" ]; then
-        echo "[semgrep_setup] Submodule not found at ${SEMGREP_SUBMODULE_PATH}."
-        echo "       Cloning semgrep source..."
-        mkdir -p "$(dirname "${SEMGREP_SUBMODULE_PATH}")"
-        git clone --depth 1 git@github.com:semgrep/semgrep.git \
-            "${SEMGREP_SUBMODULE_PATH}" 2>&1 || {
-            _exit=$?
-            echo "ERROR: git clone failed (exit ${_exit})." >&2
-            semgrep_log_event "semgrep clone FAILED" \
-                "- git clone exit: ${_exit}"
-            return 2
-        }
+    # Check if submodule exists at the expected path.
+    # The submodule is registered in .gitmodules at submodules/semgrep.
+    # If the directory is empty, the consumer needs to run
+    # `git submodule update --init` to clone it.
+    if [ ! -d "${SEMGREP_SUBMODULE_PATH}/.git" ] && \
+       [ ! -d "${SEMGREP_SUBMODULE_PATH}/_build" ]; then
+        echo "[semgrep_setup] Submodule not initialized at ${SEMGREP_SUBMODULE_PATH}."
+        echo "       Run 'git submodule update --init ${SEMGREP_SUBMODULE_PATH}' first."
+        echo "       Alternatively, use 'semgrep_setup_install' (pip) for the fast path."
+        semgrep_log_event "semgrep build SKIPPED" \
+            "- submodule not initialized at ${SEMGREP_SUBMODULE_PATH}." \
+            "- run 'git submodule update --init' or use pip install"
+        return 2
     fi
 
     cd "${SEMGREP_SUBMODULE_PATH}" || return 2

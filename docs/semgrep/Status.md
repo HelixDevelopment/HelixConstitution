@@ -1,44 +1,24 @@
-# Semgrep — Status
+# Semgrep Integration Status
 
-| Field | Value |
-|---|---|
-| Revision | 1 |
-| Created | 2026-06-21 |
-| Last modified | 2026-06-21T00:00:00Z |
-| Status | active |
-| Status summary | Append-only ledger of semgrep integration events across consuming projects: installs, builds, validation runs. Per Universal §11.4.80 (sibling pattern) + §11.4.65 (multi-format export). Both `scripts/semgrep/semgrep_setup.sh` and `scripts/semgrep/semgrep_validate.sh` append here automatically. |
-| Issues | none |
-| Issues summary | — |
-| Fixed | (n/a — ledger doc) |
-| Continuation | sibling `Status_Summary.md` carries the operator-readable digest per §11.4.53. |
+**Revision:** 1
+**Last modified:** 2026-06-21T20:00:00Z
+**Description:** Running log of Semgrep SAST tool integration events and health checks across all projects consuming this constitution.
 
-## Table of contents
+## Event Log
 
-- [Cadence + automation](#cadence--automation)
-- [Event ledger](#event-ledger)
+| Date (UTC) | Event | Result | Evidence |
+|------------|-------|--------|----------|
+| 2026-06-21 | Semgrep CI test (eval fixture scan) | PASS (4/4) | qa-results/semgrep_ci_20260621T203243Z/ |
+| 2026-06-21 | Semgrep validate (scan + registry) | PASS | docs/.semgrep/ |
+| 2026-06-21 | Pre-commit hook creation | CREATED | scripts/hooks/semgrep_precommit.sh |
+| 2026-06-21 | §11.4.166 added to constitution | PUBLISHED | Constitution.md, CLAUDE.md, AGENTS.md, QWEN.md, GEMINI.md |
 
-## Cadence + automation
+## Current Status
 
-Every consuming project MUST run `semgrep_setup.sh` once per checkout (or after every constitution pull) to ensure semgrep is installed. `semgrep_validate.sh` runs as part of the pre-build gate suite (per §11.4.110) and optionally as a cron/weekly check per §11.4.45 cadence.
-
-The scripts append entries below automatically; manual entries are also acceptable when an operator runs the commands directly.
-
-## Event ledger
-
-(events appended below by the automation; newest at the bottom)
-
-## 2026-06-21T20:27:28Z — validate check PASSED
-
-- evidence: /run/media/milosvasic/DATA4TB/Projects/Android_15/constitution/docs/.semgrep/scan_2026-06-21T20:27:28Z.json\n- exit code: 0
-
-## 2026-06-21T20:27:28Z — registry check PASSED
-
-- evidence: /run/media/milosvasic/DATA4TB/Projects/Android_15/constitution/docs/.semgrep/registry_2026-06-21T20:27:28Z.txt
-
-## 2026-06-21T20:34:13Z — validate check PASSED
-
-- evidence: /run/media/milosvasic/DATA4TB/Projects/Android_15/constitution/docs/.semgrep/scan_2026-06-21T20:34:13Z.json\n- exit code: 0
-
-## 2026-06-21T20:34:13Z — registry check PASSED
-
-- evidence: /run/media/milosvasic/DATA4TB/Projects/Android_15/constitution/docs/.semgrep/registry_2026-06-21T20:34:13Z.txt
+| Check | Status | Last Verified |
+|-------|--------|---------------|
+| semgrep on PATH | PASS | 2026-06-21 |
+| Known-vuln detection | PASS (1 finding) | 2026-06-21 |
+| Registry reachable | PASS | 2026-06-21 |
+| Pre-commit hook installed | YES | 2026-06-21 |
+| docs_chain context registered | YES | 2026-06-21 |

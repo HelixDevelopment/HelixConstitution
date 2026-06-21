@@ -197,6 +197,37 @@ This proves the gate is NOT a bluff — it genuinely catches violations.
 
 ## 7. Troubleshooting
 
+## 9. Build-From-Source via Git Submodule
+
+The semgrep source repository is registered as a git submodule at `submodules/semgrep` (OCaml project). Building from source is **optional** — the recommended install path remains `pip install --user semgrep` (Section 2). The submodule exists for reference, local inspection, and for operators who wish to build semgrep with the OCaml toolchain enabled.
+
+### 9.1 Initialize the Submodule
+
+```bash
+git submodule update --init submodules/semgrep
+```
+
+### 9.2 Build from Source
+
+```bash
+# Source the setup script for the semgrep_setup_build function
+. scripts/semgrep/semgrep_setup.sh
+semgrep_setup_build
+```
+
+Prerequisites: `ocaml`, `opam`, `make`, `gcc`.
+
+If the OCaml toolchain is unavailable, `semgrep_setup_build` exits with code 2 and advises the pip path.
+
+### 9.3 Submodule Layout
+
+```
+constitution/
+  submodules/semgrep/         # semgrep OCaml source (git submodule)
+  scripts/semgrep/            # Setup, validation, CI scripts
+  docs/semgrep/               # Documentation
+```
+
 ### 7.1 Semgrep Not Found
 
 ```bash

@@ -1,0 +1,3 @@
+[submodule "submodules/semgrep"]
+	path = submodules/semgrep
+	url = git@github.com:semgrep/semgrep.git
