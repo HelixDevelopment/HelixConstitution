@@ -32,6 +32,12 @@ Per-project cadence audit:
 | Herald | `(populated on first codegraph_update.sh run)` | `(populated)` | `(populated)` | TBD |
 | (other consuming projects appended here) | — | — | — | — |
 
+## Semgrep integration status
+
+| Tool | Status | Validation | Last checked |
+|---|---|---|---|
+| Semgrep | semgrep installed on PATH, pre-commit hook wired, CI test passes | PENDING_FORENSICS | 2026-06-21 |
+
 ## Recent significant events
 
 (summarize Status.md's most-impactful events — typically last 10 entries)

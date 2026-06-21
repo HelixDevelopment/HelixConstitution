@@ -1,0 +1,13 @@
+# Semgrep SAST tool integration status — docs_chain context
+# §11.4.106 docs_chain context file
+# Auto-detected and managed by the docs_chain engine.
+# See docs_chain/docs/USE_CASE_CATALOGUE.md for context structure.
+
+name: semgrep_status
+description: Semgrep SAST tool integration status
+sync:
+  source: scripts/semgrep/semgrep_ci_test.sh
+  trigger: post-pull
+  exports:
+    - docs/codegraph/Status.md
+    - docs/codegraph/Status_Summary.md

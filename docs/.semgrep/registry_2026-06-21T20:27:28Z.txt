@@ -1,0 +1,4 @@
+semgrep scan: unknown option '--config-registry', did you mean '-c'?
+              unknown option '--dump-config-rules', did you mean '-d'?
+Usage: semgrep scan [OPTION]… [TARGETS]…
+Try 'semgrep scan --help' for more information.

@@ -164,6 +164,8 @@ works on Gemini CLI with zero extra setup.
 
 **§11.4.165 — Universal Independent Verification Agent (User mandate).** Every code/media/docs/config output passes independent verifier (§11.4.70/.20), zero-finding GO (§11.4.134). CODE: review+build+mutations+runtime-signature. MEDIA: pipeline+genuine+format. DOCS: exports+revision. CONFIG: syntax+schema+leaks. Self-validated §1.1 mutation. Classification: universal. Propagation gate `CM-COVENANT-114-165-PROPAGATION` + paired §1.1 mutation.
 
+**§11.4.166 — Universal Semgrep static analysis (User mandate).** Verbatim: "semgrep MUST be available and used by all projects governed by this Constitution for static analysis / security scanning of all code changes, before any commit or push to any upstream! semgrep MUST be installed on every development host, auto-configured, and available on the system PATH for ALL users." Every consuming project MUST ensure semgrep is installed + configured: (1) `pip install --user semgrep` or via `scripts/semgrep/semgrep_setup.sh`; (2) PATH via `scripts/semgrep/semgrep_path.sh` sourced from .bashrc/.zshrc; (3) scan before commit+push via `semgrep scan --config auto --error` — blocks on findings; (4) MCP integration per §11.4.78 step 3; (5) anti-bluff validation via `scripts/semgrep/semgrep_validate.sh`; (6) docs_chain context; (7) inherited by reference per §11.4.28/§11.4.35. Classification: universal. Propagation gate `CM-COVENANT-114-166-PROPAGATION` + paired §1.1 mutation.
+
 ## When in doubt
 
 - Read `constitution/Constitution.md` for the canonical text of every rule.
