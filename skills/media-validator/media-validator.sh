@@ -88,6 +88,19 @@ main() {
     fi
 
     local file="$1"
+    # Security: resolve real path and validate it is within allowed base dir
+    local real_file
+    real_file="$(realpath "$file" 2>/dev/null || readlink -f "$file" 2>/dev/null || echo "")"
+    if [ -z "$real_file" ]; then
+        fail "Cannot resolve path: $file"
+    fi
+    local allowed_base="${MEDIA_VALIDATOR_ALLOWED_DIR:-$(pwd)}"
+    local real_base
+    real_base="$(realpath "$allowed_base" 2>/dev/null || readlink -f "$allowed_base" 2>/dev/null)"
+    if [[ "$real_file" != "$real_base"/* ]]; then
+        fail "Path traversal detected: $file is outside allowed directory"
+    fi
+    file="$real_file"
     shift
     local patterns=("$@")
 
