@@ -4,3 +4,8 @@ __pycache__/
 
 # Runtime QA output (regenerated per test run)
 qa-results/
+
+# Semgrep validation outputs — transient evidence files, may contain absolute
+# filesystem paths. Regenerable by re-running scripts/semgrep/semgrep_validate.sh.
+# §11.4.77 regen mechanism: re-run semgrep_validate.sh
+docs/.semgrep/
