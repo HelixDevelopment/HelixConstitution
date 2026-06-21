@@ -256,7 +256,7 @@ Universal CLAUDE.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>32</td>
+<td>33</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -264,7 +264,7 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-15T00:00:00Z</td>
+<td>2026-06-21T00:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -272,13 +272,62 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.153 mirror — Comprehensive per-feature Status +
-Status_Summary document set with mandatory video-recording confirmation
-(User mandate 2026-06-15): every project MUST maintain under
-docs/features/ a feature Status set (Status.md + §11.4.56
-Status_Summary.md) enumerating EVERY component/client-app/binary/surface
-+ EVERY feature (incl. ported from cli_agents §11.4.74), NO feature left
-out, reconciled vs codebase (§11.4.6/.118); per-feature fields
+<td>Added §11.4.163 mirror — Universal Media Validation &amp;
+Verification Mandate: every recorded artifact MUST pass MEDIA VALIDATION
+pipeline before acceptance (OCR/transcription/text parsing vs
+SPECIFY-phase patterns, self-validated analyzer §11.4.107(10),
+structured verdict with pinpoint on FAIL, post-recording+real-time
+triggers, paired §1.1 mutation). Added §11.4.164 mirror — Universal
+Constitution Auto-Propagation &amp; Hook System: post_update_hook.sh
+detects/registers/installs changed skills/MCP/hooks/scripts; consumer
+invokes after every constitutional pull. Added §11.4.165 mirror —
+Universal Independent Verification Agent Mandate: every output passes
+INDEPENDENT verifier (§11.4.70/.20), iterates to zero-finding GO
+(§11.4.134). All Classification: universal (§11.4.17). Prior round:
+Added §11.4.162 mirror — OpenDesign UI design system mandate (User
+mandate 2026-06-21): every project producing user-facing interfaces MUST
+use OpenDesign as the mandatory UI design-and-refinement system — NOT
+ad-hoc CSS or one-off design tools; install as a project dependency and
+use its design tokens/themes for color palette (light+dark), typography,
+spacing, and component-level tokens; extend upstream per §11.4.74 for
+missing patterns; every UI component ships light+dark variants with
+project brand colors from canonical assets; elements MUST NOT overlap or
+overlay labels; all UI changes covered by standard test types including
+visual regression. Classification: universal (§11.4.17). Prior round:
+Added §11.4.161 mirror — Rootless container runtime mandate (User
+mandate 2026-06-21): every project MUST use Podman in rootless mode (or
+equivalent rootless container runtime) for ALL containerized workloads —
+Docker in rootful mode, sudo, or any escalation to root is FORBIDDEN
+unless the target platform has no rootless option AND that constraint is
+documented per §11.4.112; the <code>vasic-digital/containers</code>
+submodule (§11.4.76) MUST be used as the sole container orchestration
+layer — no ad-hoc docker/podman commands outside
+<code>pkg/boot</code>/<code>pkg/compose</code>/<code>pkg/health</code>;
+missing capabilities extend the container Submodule upstream per
+§11.4.74; integration tests boot infra on-demand via the Submodule.
+Classification: universal (§11.4.17). Prior round: Added §11.4.160
+mirror — Vision-verified recording + HelixQA bridge mandate (User
+mandate 2026-06-21): every video recording for feature/QA evidence MUST
+be processed through a vision/OCR pipeline that reads on-screen content
+and confirms expected results BEFORE acceptance; the recording system
+MUST provide a bridge feeding captured frames to HelixQA’s test
+infrastructure (or equivalent) for content verification — automated
+read-the-screen against specified expected patterns; the bridge MUST
+capture frames at ≤5s intervals, run OCR/vision analysis with
+self-validated analyzer (§11.4.107(10)), compare against SPECIFY-phase
+patterns, produce per-frame PASS/FAIL with evidence path, surface
+failures immediately for re-record per §11.4.159(L). Honest boundary:
+vision verification confirms on-screen content — does NOT replace
+§11.4.5 quality analysis nor §11.4.108 runtime-signature; FLAG_SECURE
+surfaces use the §11.4.117 proxy oracle. Classification: universal
+(§11.4.17). Prior round: Added §11.4.153 mirror — Comprehensive
+per-feature Status + Status_Summary document set with mandatory
+video-recording confirmation (User mandate 2026-06-15): every project
+MUST maintain under docs/features/ a feature Status set (Status.md +
+§11.4.56 Status_Summary.md) enumerating EVERY
+component/client-app/binary/surface + EVERY feature (incl. ported from
+cli_agents §11.4.74), NO feature left out, reconciled vs codebase
+(§11.4.6/.118); per-feature fields
 Component/Feature/Category/Implementation/Wiring(§11.4.108)/Real-use/Tests-coverage(§11.4.4(b))/Validation(PASS/FAIL/SKIP/PENDING_FORENSICS/OPERATOR-BLOCKED
 §11.4.45)/Video-confirmation; every user-visible confirmed claim backed
 by a recorded REAL-USE video (real prompts→real LLM/service
@@ -7595,5 +7644,143 @@ href="constitution/Constitution.md"><code>Constitution.md</code></a>
 <code>--skip-vision-validation</code>, <code>--no-cleanup</code>,
 <code>--simulated-recording-ok</code>,
 <code>--unprefixed-recording</code> flag.</p>
+<p><strong>§11.4.160 — Vision-verified recording + HelixQA bridge
+mandate (User mandate, 2026-06-21).</strong> Compact summary: every
+video recording for feature/QA evidence MUST be processed through a
+vision/OCR pipeline that reads on-screen content and confirms expected
+results BEFORE acceptance; the recording system MUST provide a bridge
+feeding captured frames to HelixQA’s test infrastructure (or equivalent)
+for automated read-the-screen verification against SPECIFY-phase
+expected patterns (§11.4.159(J)); the bridge MUST capture frames at ≤5s
+intervals, run OCR/vision analysis with a self-validated
+golden-good/golden-bad analyzer (§11.4.107(10)), compare extracted text
+against specified patterns, produce a per-frame PASS/FAIL verdict with
+an evidence path to the frame, and surface failures immediately so the
+recording can be re-done per §11.4.159(L). The capture interval, OCR
+confidence floor, and pattern-matching thresholds are project-configured
+per §11.4.35, calibrated on the project’s own fixtures (§11.4.6). Honest
+boundary (§11.4.6): vision verification confirms the feature produced
+expected on-screen output — it does NOT replace §11.4.5
+captured-evidence quality analysis (audio/video metrics) nor §11.4.108
+runtime-signature verification; FLAG_SECURE/DRM-protected/sink-blanked
+surfaces document the gap per §11.4.112 and use the §11.4.117 proxy
+oracle instead. Classification: universal (§11.4.17). Composes
+§11.4.5/.27/.69/.107(10)/.112/.117/.153/.158/.159(J)/§1.1. Propagation
+gate <code>CM-COVENANT-114-160-PROPAGATION</code> + recommended gate
+<code>CM-VISION-VERIFIED-RECORDING-BRIDGE</code> + paired §1.1
+mutation.</p>
+<p><strong>§11.4.161 — Rootless container runtime mandate (User mandate,
+2026-06-21).</strong> Compact summary: every project MUST use Podman in
+rootless mode (or equivalent rootless container runtime) for ALL
+containerized workloads — Docker in rootful mode, sudo, or any
+escalation to root for container management is STRICTLY FORBIDDEN unless
+the target platform has no rootless option AND that constraint is
+documented per §11.4.112; the <code>vasic-digital/containers</code>
+Submodule (§11.4.76) MUST be used as the sole container orchestration
+layer — no ad-hoc docker/podman commands outside the Submodule’s
+<code>pkg/boot</code>/<code>pkg/compose</code>/<code>pkg/health</code>
+primitives; if a missing capability forces a raw command, the
+<code>containers</code> Submodule MUST be extended upstream per §11.4.74
+rather than worked around; all container-related integration tests MUST
+boot infra on-demand via the Submodule (the on-demand-infra invariant).
+Honest boundary (§11.4.6): rootless execution eliminates the
+container-to-root privilege-escalation vector — it does NOT replace
+§11.4.10 credentials-handling (credentials in containers still require
+leak audits) nor §12.3 container hygiene (memory limits/OOM
+policies/restart backoff still apply). Classification: universal
+(§11.4.17). Composes §11.4.76/.74/.10/.112/§12.3/.6. Propagation gate
+<code>CM-COVENANT-114-161-PROPAGATION</code> + recommended gate
+<code>CM-ROOTLESS-CONTAINER-RUNTIME</code> + paired §1.1 mutation.</p>
+<p><strong>§11.4.162 — OpenDesign UI design system mandate (User
+mandate, 2026-06-21).</strong> Compact summary: every project producing
+user-facing interfaces (web, desktop, mobile, TUI) MUST use OpenDesign
+(https://github.com/nexu-io/open-design) as the mandatory UI
+design-and-refinement system — NOT ad-hoc CSS or one-off design tools;
+install as a project dependency and use its design tokens/themes system
+for: (a) all color palette definitions supporting BOTH light and dark
+themes from project brand assets (§11.4.35), (b) typography scale and
+spacing, (c) component-level design tokens; if a desired UI pattern is
+not supported, extend OpenDesign upstream per §11.4.74
+(extend-don’t-reimplement); every UI component MUST ship light + dark
+theme variants; elements MUST NOT overlap, fonts MUST NOT collide,
+labels MUST NOT overlay labels — any layout regression is a §11.4.162
+violation; all UI changes MUST be covered by the project’s standard test
+types including visual regression tests (before/after screenshots with
+per-pixel or perceptual-diff PASS/FAIL). Honest boundary (§11.4.6):
+OpenDesign governs design tokens and themes — it does NOT replace
+functional testing (§11.4.27), WCAG accessibility assertions
+(§11.4.107), nor the §11.4.48/§11.4.49 UI-driven and dual-approach
+testing methodology. Classification: universal (§11.4.17). Composes
+§11.4.74/.25/.27/.4(b)/.107/.48/.49/.35/.69/§1.1. Propagation gate
+<code>CM-COVENANT-114-162-PROPAGATION</code> + recommended gate
+<code>CM-OPENDESIGN-UI-SYSTEM</code> + paired §1.1 mutation.</p>
+<p><strong>§11.4.163 — Universal Media Validation &amp; Verification
+Mandate (User mandate, 2026-06-21).</strong> Compact summary: every
+recorded artifact (video MP4, audio WAV, screenshots PNG, asciinema
+cast, text output) MUST pass through a MEDIA VALIDATION pipeline before
+acceptance — OCR for video/screenshots with confidence floor
+(§11.4.117/.107(12)), transcription for audio, text parsing for
+asciicast; compare extracted content against SPECIFY-phase expected
+patterns (§11.4.159(J)); self-validated analyzer with
+golden-good/golden-bad fixture pair (§11.4.107(10)) — golden-bad MUST
+FAIL or the pipeline is a bluff gate; produce structured verdict
+(PASS/FAIL + evidence path + matched/unmatched patterns + pinpoint data
+on FAIL — which frame/line/timestamp, expected vs actual); triggerable
+as post-recording AND real-time step (§11.4.159(M)); paired §1.1
+mutation ensures golden-bad fixture produces FAIL. Honest boundary:
+confirms artifact content matches intended patterns — does NOT replace
+§11.4.5 quality analysis, §11.4.107 liveness, nor §11.4.108
+runtime-signature. Classification: universal (§11.4.17). Composes
+§11.4.107(10)/.112/.117/.159(J)/.159(K)/.159(M)/.83/.5/.69/.102/.134/§1.1.
+Propagation gate <code>CM-COVENANT-114-163-PROPAGATION</code> +
+recommended gate <code>CM-MEDIA-VALIDATION-PIPELINE</code> + paired §1.1
+mutation.</p>
+<p><strong>§11.4.164 — Universal Constitution Auto-Propagation &amp;
+Hook System (User mandate, 2026-06-21).</strong> Compact summary: every
+fetch+pull of the constitution submodule MUST trigger
+<code>constitution/scripts/post_update_hook.sh</code> (inherited by
+reference §11.4.28, NEVER copied) that: (a) detects which files changed
+(Constitution.md/CLAUDE/AGENTS/QWEN/GEMINI + scripts/ hooks/ skills/
+mcp/ plugins/) via <code>git diff --name-only</code>; (b) registers
+new/modified skills with the agent’s skill system via consumer’s
+<code>scripts/register_skills.sh</code>; (c) registers new/modified MCP
+servers via consumer’s <code>scripts/register_mcp.sh</code>; (d)
+installs new/modified hooks into <code>.git/hooks/</code>; (e) makes
+scripts executable + validates syntax
+(<code>sh -n</code>/<code>bash -n</code> per §11.4.67); (f) emits a
+summary to stdout + <code>.constitution/state/last_update.log</code>;
+(g) on failure logs exact file:line and continues (§11.4.6); (h) tested
+by §1.1 mutation (add skill → hook detects it). Consumer MUST invoke
+hook after every constitutional pull; failure to invoke is
+non-compliance. Honest boundary: installs components — does NOT
+guarantee consumer runtime acceptance nor replace §11.4.32 validation
+sweep. Classification: universal (§11.4.17). Composes
+§11.4.28/.32/.35/.67/.77/.102(B)/.122/.31/§1.1. Propagation gate
+<code>CM-COVENANT-114-164-PROPAGATION</code> + recommended gate
+<code>CM-CONSTITUTION-AUTO-PROPAGATION</code> + paired §1.1
+mutation.</p>
+<p><strong>§11.4.165 — Universal Independent Verification Agent Mandate
+(User mandate, 2026-06-21).</strong> Compact summary: every code change
+OR recorded media artifact MUST pass an INDEPENDENT verifier
+structurally separate from the author (§11.4.70/.20, NEVER author
+self-review — §11.4.92 PRECEDES, never satisfies), producing structured
+findings with evidence paths and iterating to GO per §11.4.134. (a)
+CODE: §11.4.142 review + build+test diff scope + run paired §1.1
+mutations + verify §11.4.108 runtime-signature registry; (b) MEDIA: run
+§11.4.163 pipeline + confirm genuine content (no mock/stub/placeholder
+§11.4.159(I)) + confirm format (MP4 H.264/WAV/PNG/cast+mp4 §11.4.159(B))
++ cross-check evidence path; (c) DOCS: validate HTML+PDF+DOCX exports
+current §11.4.65 + revision header incremented §11.4.44 + §11.4.86
+fingerprint match; (d) CONFIG: validate YAML/JSON/TOML syntax + schema
+cross-reference + §11.4.10 leak check; (e–f) structured findings,
+iterate to zero-finding GO; (g) verifier self-validated by §1.1 mutation
+(knowingly broken change MUST be caught). Honest boundary: confirms
+source/artifact integrity — does NOT replace §11.4.108 runtime-signature
+nor §11.4.40 full-suite retest. Classification: universal (§11.4.17).
+Composes
+§11.4.142/.163/.44/.65/.86/.108/.125/.134/.10/.40/.92/.70/.20/.102/.159(I)/.159(B)/§1.1.
+Propagation gate <code>CM-COVENANT-114-165-PROPAGATION</code> +
+recommended gate <code>CM-INDEPENDENT-VERIFICATION-AGENT</code> + paired
+§1.1 mutation.</p>
 </body>
 </html>
