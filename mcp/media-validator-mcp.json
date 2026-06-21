@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "media-validator": {
+      "description": "Validate media files (MP4, PNG, TXT) via OCR/metadata/pattern matching for PASS/FAIL with evidence (§11.4.164)",
+      "type": "command",
+      "command": "bash",
+      "args": [
+        "skills/media-validator/media-validator.sh"
+      ],
+      "env": {
+        "MEDIA_VALIDATOR_EVIDENCE_DIR": "qa-results/media-validator"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
