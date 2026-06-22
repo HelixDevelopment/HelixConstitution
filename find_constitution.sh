@@ -27,15 +27,32 @@ find_constitution_root() {
     local start_dir="${1:-$PWD}"
     local cur="${start_dir}"
 
-    # Phase 1: walk up parents looking for a sibling `constitution/`
-    # directory that contains `Constitution.md`.
+    # Phase 0: explicit override — a consuming project may pin the
+    # constitution location via CONSTITUTION_DIR (absolute path).
+    if [[ -n "${CONSTITUTION_DIR:-}" && -f "${CONSTITUTION_DIR}/Constitution.md" ]]; then
+        echo "${CONSTITUTION_DIR}"
+        return 0
+    fi
+
+    # Candidate relative locations of the constitution submodule, in
+    # priority order. The canonical top-level `constitution/` is kept
+    # for backward compatibility; `submodules/constitution/` is the
+    # §11.4.28 dependency-layout form (all owned submodules under a
+    # root `submodules/` directory, §11.4.29 snake_case).
+    local rels=( "constitution" "submodules/constitution" )
+
+    # Phase 1: walk up parents looking for any candidate layout that
+    # contains `Constitution.md`.
     while [[ "${cur}" != "/" ]]; do
-        if [[ -f "${cur}/constitution/Constitution.md" ]]; then
-            echo "${cur}/constitution"
-            return 0
-        fi
+        local rel
+        for rel in "${rels[@]}"; do
+            if [[ -f "${cur}/${rel}/Constitution.md" ]]; then
+                echo "${cur}/${rel}"
+                return 0
+            fi
+        done
         # Also check if we ARE inside `constitution/` already (e.g. a
-        # script inside this submodule).
+        # script inside this submodule), under either layout.
         if [[ "$(basename "${cur}")" == "constitution" && \
               -f "${cur}/Constitution.md" ]]; then
             echo "${cur}"
@@ -52,19 +69,26 @@ find_constitution_root() {
         super="$(git -C "${cur}" rev-parse --show-superproject-working-tree 2>/dev/null || true)"
         if [[ -z "${super}" ]]; then
             # No more parents — we are at the top-level project.
-            # Check one more time for a sibling `constitution/`.
-            local toplevel
+            # Check one more time for any candidate layout.
+            local toplevel rel
             toplevel="$(git -C "${cur}" rev-parse --show-toplevel 2>/dev/null || true)"
-            if [[ -n "${toplevel}" && -f "${toplevel}/constitution/Constitution.md" ]]; then
-                echo "${toplevel}/constitution"
-                return 0
+            if [[ -n "${toplevel}" ]]; then
+                for rel in "${rels[@]}"; do
+                    if [[ -f "${toplevel}/${rel}/Constitution.md" ]]; then
+                        echo "${toplevel}/${rel}"
+                        return 0
+                    fi
+                done
             fi
             break
         fi
-        if [[ -f "${super}/constitution/Constitution.md" ]]; then
-            echo "${super}/constitution"
-            return 0
-        fi
+        local rel
+        for rel in "${rels[@]}"; do
+            if [[ -f "${super}/${rel}/Constitution.md" ]]; then
+                echo "${super}/${rel}"
+                return 0
+            fi
+        done
         cur="${super}"
     done
 

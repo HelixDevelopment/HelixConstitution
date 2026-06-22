@@ -355,7 +355,7 @@ round: Added §11.4.151 — Project-prefixed release-tag/version-naming
 mandate (User mandate 2026-06-12): every release tag AND version name on
 the main repo AND every owned submodule MUST be prefixed
 <code>&lt;PREFIX&gt;-&lt;version&gt;</code>
-(e.g. <code>helix_translate-1.0.0-dev-0.0.1</code>); prefix resolution
+(e.g. <code>myproject-1.0.0-dev-0.0.1</code>); prefix resolution
 order is (1) <code>HELIX_RELEASE_PREFIX</code> from <code>.env</code>
 (authoritative, git-ignored §11.4.30, documented in tracked
 <code>.env.example</code> §11.4.77) else (2) the lowercased snake_case
@@ -17081,7 +17081,7 @@ id="project-prefixed-release-tagversion-naming-mandate-user-mandate-2026-06-12">
 <p>“Every release tag and version name we create — on the main
 repository and on every Submodule we own — MUST be prefixed with the
 project’s release prefix,
-e.g. <code>helix_translate-1.0.0-dev-0.0.1</code>. The prefix MUST come
+e.g. <code>myproject-1.0.0-dev-0.0.1</code>. The prefix MUST come
 from <code>HELIX_RELEASE_PREFIX</code> in our <code>.env</code> if it is
 set, otherwise from the lowercased project root directory name. The SAME
 prefix MUST be used across the main repo and all owned Submodules in one
@@ -17091,7 +17091,7 @@ release so a release is greppable across every repository.”</p>
 repository AND on every owned-by-us submodule (per §11.4.28) MUST be
 prefixed with the project’s release prefix, in the form
 <code>&lt;PREFIX&gt;-&lt;version&gt;</code> (canonical example:
-<code>helix_translate-1.0.0-dev-0.0.1</code>). The prefix makes a
+<code>myproject-1.0.0-dev-0.0.1</code>). The prefix makes a
 release identifiable + greppable across every repository the release
 spans, so a single <code>git tag -l '&lt;PREFIX&gt;-*'</code> (or
 equivalent) enumerates the whole release surface in one query.</p>
