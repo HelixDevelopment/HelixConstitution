@@ -1,177 +1,3 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>AGENT_GUARDRAILS</title>
-  <style>
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
-    html {
-      color: #1a1a1a;
-      background-color: #fdfdfd;
-    }
-    body {
-      margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
-      overflow-wrap: break-word;
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-    @media (max-width: 600px) {
-      body {
-        font-size: 0.9em;
-        padding: 12px;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-    @media print {
-      html {
-        background-color: white;
-      }
-      body {
-        background-color: transparent;
-        color: black;
-        font-size: 12pt;
-      }
-      p, h2, h3 {
-        orphans: 3;
-        widows: 3;
-      }
-      h2, h3, h4 {
-        page-break-after: avoid;
-      }
-    }
-    p {
-      margin: 1em 0;
-    }
-    a {
-      color: #1a1a1a;
-    }
-    a:visited {
-      color: #1a1a1a;
-    }
-    img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.4em;
-    }
-    h5, h6 {
-      font-size: 1em;
-      font-style: italic;
-    }
-    h6 {
-      font-weight: normal;
-    }
-    ol, ul {
-      padding-left: 1.7em;
-      margin-top: 1em;
-    }
-    li > ol, li > ul {
-      margin-top: 0;
-    }
-    blockquote {
-      margin: 1em 0 1em 1.7em;
-      padding-left: 1em;
-      border-left: 2px solid #e6e6e6;
-      color: #606060;
-    }
-    code {
-      white-space: pre-wrap;
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-      font-size: 85%;
-      margin: 0;
-      hyphens: manual;
-    }
-    pre {
-      margin: 1em 0;
-      overflow: auto;
-    }
-    pre code {
-      padding: 0;
-      overflow: visible;
-      overflow-wrap: normal;
-    }
-    .sourceCode {
-     background-color: transparent;
-     overflow: visible;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #1a1a1a;
-      height: 1px;
-      margin: 1em 0;
-    }
-    table {
-      margin: 1em 0;
-      border-collapse: collapse;
-      width: 100%;
-      overflow-x: auto;
-      display: block;
-      font-variant-numeric: lining-nums tabular-nums;
-    }
-    table caption {
-      margin-bottom: 0.75em;
-    }
-    tbody {
-      margin-top: 0.5em;
-      border-top: 1px solid #1a1a1a;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    th {
-      border-top: 1px solid #1a1a1a;
-      padding: 0.25em 0.5em 0.25em 0.5em;
-    }
-    td {
-      padding: 0.125em 0.5em 0.25em 0.5em;
-    }
-    header {
-      margin-bottom: 4em;
-      text-align: center;
-    }
-    #TOC li {
-      list-style: none;
-    }
-    #TOC ul {
-      padding-left: 1.3em;
-    }
-    #TOC > ul {
-      padding-left: 0;
-    }
-    #TOC a:not(:hover) {
-      text-decoration: none;
-    }
-    span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-  </style>
-</head>
-<body>
 <h1 id="agent-guardrails-anti-forgetting-enforcement-11.4.109">Agent
 Guardrails — Anti-Forgetting Enforcement (§11.4.109)</h1>
 <p><strong>Classification:</strong> universal (§11.4.17) — the preamble
@@ -313,6 +139,43 @@ submodule de-init: a hardlinked <code>.git</code> backup was made first
 / hibernate / poweroff / reboot / halt / sign-out (§12 Host-Session
 Safety). This is categorical — no override.</p>
 <hr />
+<h2 id="codegraph-tool-selection-11.4.7811.4.79">CodeGraph tool
+selection (§11.4.78/§11.4.79)</h2>
+<p>When using the CodeGraph MCP server for code intelligence, pick the
+right tool — this is a recurring agent confusion that wastes
+round-trips:</p>
+<ul>
+<li><strong><code>codegraph_search</code></strong> is an FTS5
+<strong>implicit-AND symbol-NAME lookup</strong> — it matches a single
+symbol whose name / qualified-name / signature / docstring contains
+<strong>ALL</strong> the query tokens. Use it ONLY when you can NAME a
+symbol (e.g. <code>OllamaProvider</code>,
+<code>NewOllamaProvider</code>). A natural-language PHRASE like
+<code>provider Generate LLM</code> correctly returns <strong>“No results
+found”</strong> — no single symbol is named that. That empty result is
+<strong>working-as-designed, NOT a broken index</strong> (verified
+2026-06-22).</li>
+<li><strong><code>codegraph_explore</code></strong> is the
+natural-language / multi-symbol / “explore an area” surface — it returns
+the verbatim source of the relevant symbols grouped by file. Use it for
+ANY question, area survey, “how does X work”, or multi-concept
+query.</li>
+</ul>
+<p><strong>Rule of thumb: name a symbol → <code>codegraph_search</code>;
+ask a question → <code>codegraph_explore</code>.</strong></p>
+<p><strong>Exclusion source of truth (§11.4.79):</strong> CodeGraph v1.x
+is zero-config — it derives its index scope from
+<strong><code>.gitignore</code></strong> (+
+<code>.git/info/exclude</code>), <strong>NOT</strong> from
+<code>.codegraph/config.json</code> (which is inert / no longer read). A
+<code>codegraph_validate.sh</code> that checks
+<code>config.json</code>’s include/exclude lists certifies an exclusion
+the tool ignores — that is a §11.4 PASS-bluff. Validators MUST instead
+query the live DB
+(<code>SELECT COUNT(*) FROM files WHERE path LIKE '&lt;excluded&gt;/%'</code>
+MUST be 0). Own-org submodules MUST be INDEXED; third-party + credential
+paths MUST be EXCLUDED via the ignore files (verified absent from the
+live index, not merely listed in the config).</p>
 <h2 id="documented-exception-escape-hatch">Documented-exception escape
 hatch</h2>
 <p>The PreToolUse guard supports ONE escape hatch for genuinely-approved
@@ -335,5 +198,3 @@ its hook in your user / plugin config. The project-scoped
 <code>.claude/settings.json</code> configures ONLY this project’s guard
 hook; it cannot and must not reach into the operator’s global config to
 disable a third-party plugin.</p>
-</body>
-</html>
