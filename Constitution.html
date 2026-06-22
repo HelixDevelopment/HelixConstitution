@@ -343,8 +343,7 @@ regular cadence (the §11.4.47 five-trigger set), no false results, no
 bluff — a console-resolved Crashlytics issue with no falsifiable
 regression test is FORBIDDEN (the silent-recurrence vector).
 STRENGTHENS+COMPLETES §11.4.47 (review/dedup finds it; §11.4.152 fixes
-it + proves it stays fixed). Project-level reference instantiation = the
-Lava client’s §6.O (Crashlytics-Resolved Issue Coverage) + §6.AC
+it + proves it stays fixed). Project-level reference instantiation = a consuming project’s §6.O (Crashlytics-Resolved Issue Coverage) + §6.AC
 (Comprehensive Non-Fatal Telemetry). Composes
 §11.4/.1/.5/.6/.9/.34/.40/.43/.47/.69/.90/.102/.107/.108/.115/.118/.123/.130/.135/.138/.150/§1.1.
 Propagation gate <code>CM-COVENANT-114-152-PROPAGATION</code> +
@@ -416,8 +415,7 @@ recommended gates
 <code>CM-TEST-DIARY-SYNC</code>/<code>CM-DIARY-PASS-REQUIRES-EVIDENCE</code>
 (gate-code = separate work item). Both Classification: universal
 (§11.4.17); project-specific dual per-display
-brightness/auto-dim/font-size defaults landed ONLY in the ATMOSphere
-consumer layer (RK3588/Presenter), NOT here. CLAUDE.md + AGENTS.md +
+brightness/auto-dim/font-size defaults landed ONLY in a consuming project’s consumer layer (RK3588/Presenter), NOT here. CLAUDE.md + AGENTS.md +
 QWEN.md mirrors updated in lockstep. Prior round: Added §11.4.147 —
 Crashed-agent respawn-until-complete + no-work-loss registry mandate
 (User mandate 2026-06-10): every dispatched agent/subagent MUST be
@@ -541,8 +539,7 @@ playing! Proper UI interaction to play exact show with proper content
 and subtitles is MANDATORY! Without it we just eventually play on 2nd
 display sample, and that’s it mostly! THIS MUST BE ADDED as MANDATORY
 RULE regarding testing of any video streaming app in general with full
-automation tests! Universal in root constitution + ATMOSphere project
-extensions.”): any full-automation test asserting a video player /
+automation tests! Universal in root constitution + a consuming project’s extensions.”): any full-automation test asserting a video player /
 streaming app plays content MUST drive the REAL end-user journey through
 the app’s OWN UI — launch → BROWSE the actual catalog → choose a
 SPECIFIC title → press the real Play/Resume button → confirm THAT chosen
@@ -1140,7 +1137,7 @@ Constitution (e.g. <code>docs/guides/PROJECT_CONSTITUTION.md</code>) and
 this universal Constitution differ, the project Constitution may extend
 or tighten — but NEVER weaken — the universal rules below.</p>
 <p><strong>Last revision</strong>: 2026-05-14 (v1.0 — initial extraction
-from ATMOSphere Android 15 1.1.5-dev)</p>
+from a consuming project’s Android app 1.1.5-dev)</p>
 </blockquote>
 <p>This Constitution is the universal source-of-truth for the
 engineering practices shared across all Helix projects (and any project
@@ -2603,8 +2600,7 @@ commit path</strong> distinct from the full-repo commit wrapper. The
 lightweight path stages, commits, and pushes <strong>only</strong> the
 status-tracking doc set:</p>
 <ol type="1">
-<li>The active issue tracker (<code>docs/Issues.md</code> in
-ATMOSphere’s layout; the project’s equivalent file elsewhere) and its
+<li>The active issue tracker (<code>docs/Issues.md</code> in a consuming project’s layout; the project’s equivalent file elsewhere) and its
 HTML + PDF exports.</li>
 <li>The auto-generated issues summary
 (<code>docs/Issues_Summary.md</code>) and its HTML + PDF exports.</li>
@@ -2655,7 +2651,7 @@ project):</strong></p>
 lightweight wrapper exists + is executable, its external user guide (per
 §11.4.18) exists, the full-tree wrapper advertises the delegation flag,
 and the wrapper’s doc-set enumeration lists ≥ N entries (N depends on
-project — ATMOSphere’s set is 15). Paired mutation strips the doc-set
+project — a consuming project’s set is 15). Paired mutation strips the doc-set
 array → gate FAILs.</li>
 </ul>
 <p><strong>Propagation.</strong> Composes with §11.4.12 (export-sync
@@ -3281,7 +3277,7 @@ audit; CONST-050(A) mock-path-from-production- code audit; CONST-035
 anti-bluff smoke-scan), the sweep runs the corresponding gate against
 the post-pull tree.</li>
 <li>Any failure produces a directed FAIL entry naming the rule (e.g.,
-<code>FAIL: CONST-053 — *.log tracked at HelixCode/foo.log</code>)
+<code>FAIL: CONST-053 — *.log tracked at the-project/foo.log</code>)
 <ul>
 <li>the canonical fix.</li>
 </ul></li>
@@ -3494,8 +3490,7 @@ followed anti-bluff policy and all anti-bluff rules!”</p>
 under the parent project’s working tree MUST use a <strong>lowercase,
 snake_case</strong> name (ASCII letters / digits / underscores, words
 separated by <code>_</code>). Existing names that violate the rule
-(<code>HelixCode/</code>, <code>Challenges/</code>,
-<code>Containers/</code>, <code>HelixAgent/</code>,
+(<code>ExampleModule/</code>, <code>Challenges/</code>, <code>Containers/</code>, <code>ExampleAgent/</code>,
 <code>HelixQA/</code>, <code>Security/</code>,
 <code>Github-Pages-Website/</code>, <code>Upstreams/</code>,
 <code>Dependencies/</code>, etc.) MUST be renamed as part of the
@@ -6788,8 +6783,7 @@ branches) — over-limit FAILs the gate (per §12.6 memory budget).</li>
 <li><code>CM-COVENANT-114-58-PROPAGATION</code> — anchor literal
 <code>§11.4.58</code> present in <code>constitution/CLAUDE.md</code> +
 <code>constitution/AGENTS.md</code> + parent CLAUDE.md/AGENTS.md + every
-owned-submodule CLAUDE.md/ AGENTS.md (42 files total in current
-ATMOSphere consumer family).</li>
+owned-submodule CLAUDE.md/ AGENTS.md (42 files total in the current a consuming project’s family).</li>
 </ul>
 <p><strong>Paired mutations (per §1.1):</strong></p>
 <ul>
@@ -8108,12 +8102,12 @@ display ID present in <code>dumpsys SurfaceFlinger</code></td>
 constitution-submodule commits + propagation. Removal of a feature class
 is forbidden without a tracked work item explaining the supersession.
 Consumer projects MAY extend the taxonomy with project-specific feature
-classes (e.g., HelixCode-specific build-pipeline classes) but MUST NOT
+classes (e.g., a consuming project’s build-pipeline classes) but MUST NOT
 contract it.</p>
 <p><strong>Element 2: New helper contracts (additive during grace
 period; mandatory after grace-period end-date 2026-06-19).</strong></p>
 <p>The project anti-bluff helper library (<code>anti_bluff.sh</code> in
-ATMOSphere; functionally equivalent helper in every consuming project)
+a consuming project; functionally equivalent helper in every consuming project)
 MUST provide three new helpers:</p>
 <ol type="1">
 <li><strong><code>ab_pass_with_evidence &lt;description&gt; &lt;evidence_path&gt;</code></strong>
@@ -8213,9 +8207,7 @@ enforcement logic.</li>
 </ul>
 <p><strong>Element 5: Inheritance via HelixConstitution.</strong> This
 anchor lives in the constitution submodule and applies to every
-consuming project that subscribes — including HelixCode, Catalogizer,
-Yole, HelixPlay, HelixTranslate, HelixFlow, MeTube,
-ATMOSphere-Android-15, and every future consumer. Each consumer MUST
+consuming project that subscribes — including Catalogizer and every future consumer. Each consumer MUST
 implement its own equivalent helper library + pre-build gates; the
 taxonomy in Element 1 is the canonical authority across all consumers.
 Consumer-specific extensions are allowed only as additions to the
@@ -8360,8 +8352,7 @@ fast-forwards. The complementary discipline closes the
 regression-via-stale-baseline gap: a project committing against a HEAD
 that’s behind any upstream’s main risks pushing changes that conflict
 with, regress, or fail to incorporate accepted work landed in parallel
-by other consumers (HelixCode, Catalogizer, Yole, HelixPlay,
-HelixTranslate, HelixFlow, MeTube on the constitution submodule; sibling
+by other consumers (Catalogizer and other consuming projects on the constitution submodule; sibling
 projects on other shared submodules).</p>
 <p><strong>The mandatory 5-step pre-push cycle (every push, every
 repository — main + every submodule):</strong></p>
@@ -8421,8 +8412,7 @@ future debugging crosses the §11.4.6 no-guessing line).</li>
 <li>Pushing-after-integration-without-evidence reproduces §11.4 itself
 (untested integration = release-blocker by definition).</li>
 </ul>
-<p><strong>Per-repository scope:</strong> this anchor applies to (a) the
-parent ATMOSphere-Android-15 repo, (b) the constitution submodule
+<p><strong>Per-repository scope:</strong> this anchor applies to (a) the parent a consuming project’s repo, (b) the constitution submodule
 (across all 6 remotes), (c) every owned submodule (presenter,
 vlc-player, nova-player, mpv-player, gramophone-player, rhythm-player,
 strep-player, smarttube-player, torrserve, lampa), (d) every nested
@@ -8705,7 +8695,7 @@ drafted as §11.4.74 but renumbered to §11.4.75 per the §11.4.41
 merge-first mandate after upstream landed a different §11.4.74
 (Submodule-catalogue- first discovery) concurrent with this work. Same
 renumber pattern as Phase 39.DH §11.4.41 collision resolution (commit
-<code>8ad51547115</code> of the parent ATMOSphere-Android-15 repo).</p>
+<code>8ad51547115</code> of the parent a consuming project’s repo).</p>
 <p>The §11.4 covenant (“tests pass while feature broken-for-end-user”)
 historically relied on agent and operator vigilance to enforce. Three
 forensic incidents in 2026-05-19→20 demonstrated the failure: subagent
@@ -8970,8 +8960,7 @@ QWEN.md or any other required document / file from the constitution
 Submodule! Do not forget to fetch and pull Submodule first! Commit and
 push all Submodule changes to all upstreams!”</p>
 </blockquote>
-<p><strong>Forensic incident</strong> (2026-05-20T15:00Z, parent project
-ATMOSphere-Android-15). The parent’s audio Tier 1
+<p><strong>Forensic incident</strong> (2026-05-20T15:00Z, parent project, a consuming project). The parent’s audio Tier 1
 <code>commit_all.sh</code> stalled four hours on <code>git add -A</code>
 while scanning 274 GiB of untracked
 <code>.git-backup-20260520T084610Z-pre-orphan-kill/</code> + 159 GiB
@@ -9118,8 +9107,7 @@ commit, where it is bounded and visible.</p>
 Without §11.4.77, the natural fix to today’s <code>commit_all.sh</code>
 4-hour-stall — adding <code>.git-backup-*</code>,
 <code>RKTools/linux/</code>, <code>qa-results/</code> to
-<code>.gitignore</code> — would have orphaned every fresh ATMOSphere
-clone. With §11.4.77, each of those entries now requires: (a) a
+<code>.gitignore</code> — would have orphaned every fresh clone of a consuming project. With §11.4.77, each of those entries now requires: (a) a
 <code>.gitignore-meta/&lt;slug&gt;.yaml</code> declaring the mechanism
 (e.g., <code>.git-backup-*</code> is a transient artefact safe to
 re-create per §9.2 hardlinked-backup; <code>RKTools/linux/</code> is
@@ -9233,8 +9221,7 @@ hardcoded host path (the no-hardcoding posture). Claude Code is the
 canonical primary agent; the others MUST work too.</p></li>
 <li><p><strong>Anti-bluff verification is mandatory.</strong> CodeGraph
 integration MUST be covered by an anti-bluff verification suite (the
-canonical reference implementation is Lava’s
-<code>scripts/verify-codegraph.sh</code> +
+canonical reference implementation is a consuming project’s <code>scripts/verify-codegraph.sh</code> +
 <code>tests/codegraph/</code>, six layers): index reality, query
 correctness, MCP-protocol JSON-RPC, per-agent connectivity, per-agent
 end-to-end LLM drive, and a falsifiability rehearsal that mechanically
@@ -11659,8 +11646,7 @@ graduates to §11.4.90 Obsolete and is removed from the active test suite
 (not deleted — preserved with <code>Obsolete-Details:</code> per
 §11.4.90, citing §11.4.98 as the obsolescence reason).</p>
 <p><strong>Canonical authority:</strong> this Constitution.md §11.4.98
-in the HelixConstitution submodule. All consuming projects (Herald,
-ATMOSphere, future) restate + cite via §11.4.35 inheritance.</p>
+in the HelixConstitution submodule. All consuming projects (Herald, a consuming project, future) restate + cite via §11.4.35 inheritance.</p>
 <p><strong>Non-compliance is a release blocker.</strong> No
 <code>--manual-test-OK</code>, <code>--skip-114-98-audit</code>,
 <code>--bluff-tolerance-temporary</code> flag exists. The 2026-05-28
@@ -11861,8 +11847,7 @@ with
 <code>Obsolete-Details: Reason=stale-documentation; superseded-by=&lt;replacement-doc-or-rewrite&gt;</code>
 after the 30-day grace window per §11.4.90.</p>
 <p><strong>Canonical authority:</strong> this Constitution.md §11.4.99
-in the HelixConstitution submodule. All consuming projects (Herald,
-ATMOSphere, future) restate + cite via §11.4.35 inheritance.</p>
+in the HelixConstitution submodule. All consuming projects (Herald, a consuming project, future) restate + cite via §11.4.35 inheritance.</p>
 <p><strong>Non-compliance is a release blocker.</strong> No
 <code>--skip-source-check</code> /
 <code>--documentation-freshness-optional</code> /
@@ -11870,8 +11855,7 @@ ATMOSphere, future) restate + cite via §11.4.35 inheritance.</p>
 <code>--trust-prior-doc-as-authoritative</code> flag exists. The
 2026-05-28 user mandate is unambiguous: the result MUST be “consistency
 and safety of created instructions, guides and manuals”.</p>
-<p><strong>§11.4.100 — RETIRED.</strong> Demoted to consumer project
-(ATMOSphere video-color/visual-quality fidelity) per §11.4.17/§11.4.35 —
+<p><strong>§11.4.100 — RETIRED.</strong> Demoted to consumer project (a consuming project’s video-color/visual-quality fidelity) per §11.4.17/§11.4.35 —
 project-specific (RK3588/MPV/Arvus), not universal. See the consuming
 project’s Constitution/CLAUDE/AGENTS/QWEN.</p>
 <hr />
@@ -12299,8 +12283,7 @@ the system agent.”</p>
 <p>This anchor binds participant identity, workable-item attribution,
 and notification @-tagging as MANDATORY constraints on every consumer
 that ships a messenger/notification surface (Herald and its flavor
-binaries are the reference implementation; ATMOSphere and any future
-messenger-bearing project inherit per §11.4.35). The detailed normative
+binaries are the reference implementation; a consuming project and any future messenger-bearing project inherit per §11.4.35). The detailed normative
 spec is the Herald design contract
 <code>docs/design/PARTICIPANT_ATTRIBUTION.md</code> (model, columns,
 attribution rules, tagging matrix) — this section restates its
@@ -12419,8 +12402,7 @@ System.”</p>
 <p>This anchor binds natural-language intent recognition as a MANDATORY
 constraint on every consumer that ships a messenger/notification-driven
 command surface (Herald and its flavor binaries are the reference
-implementation; ATMOSphere and any future messenger-bearing project
-inherit per §11.4.35). The detailed normative spec is the Herald design
+implementation; a consuming project and any future messenger-bearing project inherit per §11.4.35). The detailed normative spec is the Herald design
 contract <code>docs/design/INTENT_RECOGNITION.md</code> (three-tier
 resolution, command set, the <code>clarify</code> action, envelope
 wiring) — this section restates its load-bearing constraints;
@@ -13027,7 +13009,7 @@ actions. Together these are the “anti-forgetting” enforcement layer: the
 hook is the floor (commands cannot be executed even if the agent forgot
 every rule), the preamble is the ceiling (the full live ruleset, not
 just what the hook can pattern-match). This two-layer model was
-introduced in the Lava project (commit family on <code>master</code>,
+introduced in a consuming project (commit family on <code>master</code>,
 2026-06-01/02) and is explicitly designed to be universal —
 <code>scripts/hooks/guard-forbidden-commands.sh</code> carries
 <code>Classification: universal</code> in its header and is portable by
@@ -13068,7 +13050,7 @@ mandatory blocked classes, each mapped to its governing clause:</p>
 <td>Raw host-direct Android emulator launch / APK install /
 instrumentation run</td>
 <td>§11.4.76 (Containers mandate) + any project-layer emulator clause
-(e.g. §6.X / §6.V / §6.AG in Lava)</td>
+(e.g. §6.X / §6.V / §6.AG in a consuming project)</td>
 <td><code>emulator -avd …</code>,
 <code>$ANDROID_HOME/emulator/emulator …</code>,
 <code>adb install …</code>, <code>adb -s … install …</code>,
@@ -16203,8 +16185,7 @@ proper UI button to start or resume playing! Proper UI interaction to
 play exact show with proper content and subtitles is MANDATORY! Without
 it we just eventually play on 2nd display sample, and that’s it mostly!
 THIS MUST BE ADDED as MANDATORY RULE regarding testing of any video
-streaming app in general with full automation tests! Universal in root
-constitution + ATMOSphere project extensions.”</p>
+streaming app in general with full automation tests! Universal in root constitution + a consuming project’s extensions.”</p>
 </blockquote>
 <p>Any full-automation test that asserts a video player / streaming
 application plays content MUST drive the REAL end-user journey through
@@ -17268,7 +17249,7 @@ crash/ANR/perf/non-fatal field-reporting backend); the consuming project
 supplies its concrete Crashlytics project handle, console-access
 credential (§11.4.10, never logged), severity table, and per-issue
 closure-log path per §11.4.35. The reference project-level instantiation
-is the Lava client’s §6.O (Crashlytics-Resolved Issue Coverage Mandate —
+is a consuming project’s §6.O (Crashlytics-Resolved Issue Coverage Mandate —
 per-issue validation test + Challenge test +
 <code>.lava-ci-evidence/crashlytics-resolved/&lt;date&gt;-&lt;slug&gt;.md</code>
 closure log) + §6.AC (Comprehensive Non-Fatal Telemetry Mandate — every

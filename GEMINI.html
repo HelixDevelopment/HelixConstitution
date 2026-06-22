@@ -559,7 +559,7 @@ UI interaction to play exact show with proper content and subtitles is
 MANDATORY! Without it we just eventually play on 2nd display sample, and
 that’s it mostly! THIS MUST BE ADDED as MANDATORY RULE regarding testing
 of any video streaming app in general with full automation tests!
-Universal in root constitution + ATMOSphere project extensions.” Any
+Universal in root constitution + a consuming project’s extensions.” Any
 full-automation test that asserts a video player / streaming application
 plays content MUST drive the REAL end-user journey through the app’s OWN
 UI — launch → BROWSE the actual catalog → choose a SPECIFIC title →
@@ -1221,7 +1221,7 @@ guard is GREEN on a clean artifact, never when the console mark is
 flipped. Classification: universal (§11.4.17) — the consuming project
 supplies its Crashlytics handle, console-access credential (§11.4.10,
 never logged), severity table, and per-issue closure-log path per
-§11.4.35; the reference project-level instantiation is the Lava client’s
+§11.4.35; the reference project-level instantiation is a consuming project’s
 §6.O (Crashlytics-Resolved Issue Coverage — per-issue validation test +
 Challenge test +
 <code>.lava-ci-evidence/crashlytics-resolved/&lt;date&gt;-&lt;slug&gt;.md</code>
