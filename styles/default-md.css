@@ -1,0 +1,239 @@
+/*
+ * default-md.css — Helix Constitution canonical on-screen / HTML stylesheet
+ * (§11.4.73 project-wide MD/HTML/PDF styling mandate).
+ *
+ * Applied by scripts/testing/sync_all_markdown_exports.sh via pandoc
+ * `--css=constitution/styles/default-md.css` in `--self-contained` mode so the
+ * generated HTML stays portable (the CSS is inlined into each .html file and
+ * survives being copied out of the repo / emailed as an attachment).
+ *
+ * Project-NEUTRAL by design: this file lives in the constitution submodule and
+ * is shared by EVERY consuming project. It contains no project-specific asset
+ * names, hardware references, or region-specific content — only generic
+ * document typography plus the §11.4.23 / §11.4.90 visual-cue cell/row classes
+ * that the colorizer (scripts/testing/colorize_progress_html.py) emits.
+ *
+ * Authority: constitution/Constitution.md §11.4.73 (HOW for §11.4.65's WHAT).
+ */
+
+/* ------------------------------------------------------------------ *
+ * Base typography + layout
+ * ------------------------------------------------------------------ */
+
+:root {
+  --doc-fg:            #1c1e21;
+  --doc-fg-muted:      #555a61;
+  --doc-bg:            #ffffff;
+  --doc-accent:        #1a5fb4;
+  --doc-accent-soft:   #e8f0fb;
+  --doc-border:        #d6d9de;
+  --doc-border-soft:   #ececef;
+  --doc-code-bg:       #f6f8fa;
+  --doc-code-fg:       #24292f;
+  --doc-quote-bar:     #c7cdd6;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+               "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--doc-fg);
+  background: var(--doc-bg);
+  line-height: 1.6;
+  max-width: 56rem;
+  margin: 2.5rem auto;
+  padding: 0 1.5rem 4rem;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+/* ------------------------------------------------------------------ *
+ * Headings
+ * ------------------------------------------------------------------ */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.8em 0 0.6em;
+  color: var(--doc-fg);
+}
+
+h1 {
+  font-size: 2.0rem;
+  border-bottom: 2px solid var(--doc-border);
+  padding-bottom: 0.3em;
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 1.55rem;
+  border-bottom: 1px solid var(--doc-border-soft);
+  padding-bottom: 0.25em;
+}
+
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.1rem; }
+h5 { font-size: 1.0rem; color: var(--doc-fg-muted); }
+h6 { font-size: 0.95rem; color: var(--doc-fg-muted); }
+
+/* §11.4.23 status-group headings emitted by the colorizer */
+h3.status-group-heading {
+  margin-top: 1.6em;
+  padding: 0.35em 0.6em;
+  background: var(--doc-accent-soft);
+  border-left: 4px solid var(--doc-accent);
+  border-radius: 3px;
+  font-size: 1.15rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Text elements
+ * ------------------------------------------------------------------ */
+
+p { margin: 0.7em 0; }
+
+a {
+  color: var(--doc-accent);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+strong { font-weight: 600; }
+em { font-style: italic; }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--doc-border);
+  margin: 2em 0;
+}
+
+blockquote {
+  margin: 1em 0;
+  padding: 0.4em 1.1em;
+  color: var(--doc-fg-muted);
+  border-left: 4px solid var(--doc-quote-bar);
+  background: #fafbfc;
+}
+
+ul, ol { padding-left: 1.6em; margin: 0.7em 0; }
+li { margin: 0.25em 0; }
+
+/* ------------------------------------------------------------------ *
+ * Code
+ * ------------------------------------------------------------------ */
+
+code, pre, kbd, samp {
+  font-family: "SFMono-Regular", "JetBrains Mono", "Fira Code", Consolas,
+               "Liberation Mono", Menlo, monospace;
+  font-size: 0.88em;
+}
+
+code {
+  background: var(--doc-code-bg);
+  color: var(--doc-code-fg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+pre {
+  background: var(--doc-code-bg);
+  color: var(--doc-code-fg);
+  padding: 1em 1.2em;
+  border-radius: 6px;
+  overflow-x: auto;
+  line-height: 1.45;
+  border: 1px solid var(--doc-border-soft);
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Tables
+ * ------------------------------------------------------------------ */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.2em 0;
+  font-size: 0.93rem;
+  display: block;
+  overflow-x: auto;
+}
+
+thead th {
+  background: var(--doc-accent-soft);
+  color: var(--doc-fg);
+  font-weight: 600;
+  text-align: left;
+}
+
+th, td {
+  border: 1px solid var(--doc-border);
+  padding: 0.5em 0.75em;
+  vertical-align: top;
+}
+
+tbody tr:nth-child(even) { background: #fbfbfc; }
+
+/* ------------------------------------------------------------------ *
+ * §11.4.23 / §11.4.90 visual-cue classes
+ * (emitted by scripts/testing/colorize_progress_html.py)
+ *
+ * Two layers:
+ *   - per-CELL classes (cell-type-* / cell-status-*) tint the Type / Status
+ *     cell so an at-a-glance scan reveals item state.
+ *   - per-ROW classes (row-status-*) tint the whole row for terminal states.
+ * ------------------------------------------------------------------ */
+
+/* Item TYPE cells */
+td.cell-type-bug      { background: #fde8e8; }   /* red-ish    — defect       */
+td.cell-type-feature  { background: #e6f4ea; }   /* green-ish  — new capability*/
+td.cell-type-task     { background: #eef2f7; }   /* neutral    — internal work */
+
+/* Item STATUS cells — actionable → terminal gradient of cues */
+td.cell-status-queued             { background: #eef1f4; }  /* grey     */
+td.cell-status-in-progress        { background: #fff4d6; }  /* amber    */
+td.cell-status-ready-for-testing  { background: #e3f0ff; }  /* light blue */
+td.cell-status-in-testing         { background: #d9ecff; }  /* blue     */
+td.cell-status-reopened           { background: #ffe1cc; }  /* orange   — fragile */
+td.cell-status-operator-blocked   { background: #ffd6d6; }  /* strong red — blocked */
+td.cell-status-fixed              { background: #d6f5dd; }  /* green    — closed  */
+td.cell-status-obsolete           { background: #e0e0e0; color: var(--doc-fg-muted); } /* §11.4.90 light-gray */
+
+/* Whole-ROW terminal-state cues */
+tr.row-status-fixed            { background: #f1fbf3; }
+tr.row-status-fixed td         { border-color: #cdeccf; }
+
+tr.row-status-operator-blocked { background: #fff4f4; }
+tr.row-status-operator-blocked td { border-color: #f3cccc; }
+
+/* §11.4.90 — Obsolete rows: light-gray background + strikethrough text */
+tr.row-status-obsolete {
+  background: #e0e0e0;
+  color: var(--doc-fg-muted);
+}
+tr.row-status-obsolete td {
+  text-decoration: line-through;
+  border-color: #cfcfcf;
+}
+/* keep the Status cell itself readable (no double strikethrough emphasis) */
+tr.row-status-obsolete td.cell-status-obsolete {
+  text-decoration: line-through;
+}
+
+/* ------------------------------------------------------------------ *
+ * Images
+ * ------------------------------------------------------------------ */
+
+img {
+  max-width: 100%;
+  height: auto;
+}
