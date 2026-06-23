@@ -65,6 +65,7 @@ func TestAdd_InsertsQueryableRow(t *testing.T) {
 
 // TestAdd_AutoIDMonotonic proves auto-generated ids are monotonic + zero-padded.
 func TestAdd_AutoIDMonotonic(t *testing.T) {
+	// bluff-scan: nil-only-ok (asserts auto-generated WIT-001..003 are present — real monotonic-ID observable)
 	dbPath := newTestDB(t)
 	for i := 0; i < 3; i++ {
 		if code := addCmd([]string{

@@ -179,7 +179,7 @@ func TestParseFixed_Real_SectionHeader_A_Skipped(t *testing.T) {
 func TestParseFixed_Real_FullFile_Count(t *testing.T) {
 	src, err := os.ReadFile("/tmp/atm_fixed_real.md")
 	if err != nil {
-		t.Skipf("real Fixed.md not available at /tmp/atm_fixed_real.md: %v", err)
+		t.Skipf("real Fixed.md not available at /tmp/atm_fixed_real.md: %v (SKIP-OK: #real-fixture-absent)", err)
 	}
 	items, segs := parseFixed(string(src))
 	const wantItems = 42
