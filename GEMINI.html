@@ -6,240 +6,258 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>GEMINI</title>
   <style>
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
-    html {
-      color: #1a1a1a;
-      background-color: #fdfdfd;
-    }
-    body {
-      margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
-      overflow-wrap: break-word;
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-    @media (max-width: 600px) {
-      body {
-        font-size: 0.9em;
-        padding: 12px;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-    @media print {
-      html {
-        background-color: white;
-      }
-      body {
-        background-color: transparent;
-        color: black;
-        font-size: 12pt;
-      }
-      p, h2, h3 {
-        orphans: 3;
-        widows: 3;
-      }
-      h2, h3, h4 {
-        page-break-after: avoid;
-      }
-    }
-    p {
-      margin: 1em 0;
-    }
-    a {
-      color: #1a1a1a;
-    }
-    a:visited {
-      color: #1a1a1a;
-    }
-    img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.4em;
-    }
-    h5, h6 {
-      font-size: 1em;
-      font-style: italic;
-    }
-    h6 {
-      font-weight: normal;
-    }
-    ol, ul {
-      padding-left: 1.7em;
-      margin-top: 1em;
-    }
-    li > ol, li > ul {
-      margin-top: 0;
-    }
-    blockquote {
-      margin: 1em 0 1em 1.7em;
-      padding-left: 1em;
-      border-left: 2px solid #e6e6e6;
-      color: #606060;
-    }
-    code {
-      white-space: pre-wrap;
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-      font-size: 85%;
-      margin: 0;
-      hyphens: manual;
-    }
-    pre {
-      margin: 1em 0;
-      overflow: auto;
-    }
-    pre code {
-      padding: 0;
-      overflow: visible;
-      overflow-wrap: normal;
-    }
-    .sourceCode {
-     background-color: transparent;
-     overflow: visible;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #1a1a1a;
-      height: 1px;
-      margin: 1em 0;
-    }
-    table {
-      margin: 1em 0;
-      border-collapse: collapse;
-      width: 100%;
-      overflow-x: auto;
-      display: block;
-      font-variant-numeric: lining-nums tabular-nums;
-    }
-    table caption {
-      margin-bottom: 0.75em;
-    }
-    tbody {
-      margin-top: 0.5em;
-      border-top: 1px solid #1a1a1a;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    th {
-      border-top: 1px solid #1a1a1a;
-      padding: 0.25em 0.5em 0.25em 0.5em;
-    }
-    td {
-      padding: 0.125em 0.5em 0.25em 0.5em;
-    }
-    header {
-      margin-bottom: 4em;
-      text-align: center;
-    }
-    #TOC li {
-      list-style: none;
-    }
-    #TOC ul {
-      padding-left: 1.3em;
-    }
-    #TOC > ul {
-      padding-left: 0;
-    }
-    #TOC a:not(:hover) {
-      text-decoration: none;
-    }
-    span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-    code span.at { color: #7d9029; } /* Attribute */
-    code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { color: #008000; } /* BuiltIn */
-    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #4070a0; } /* Char */
-    code span.cn { color: #880000; } /* Constant */
-    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-    code span.dt { color: #902000; } /* DataType */
-    code span.dv { color: #40a070; } /* DecVal */
-    code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #40a070; } /* Float */
-    code span.fu { color: #06287e; } /* Function */
-    code span.im { color: #008000; font-weight: bold; } /* Import */
-    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-    code span.op { color: #666666; } /* Operator */
-    code span.ot { color: #007020; } /* Other */
-    code span.pp { color: #bc7a00; } /* Preprocessor */
-    code span.sc { color: #4070a0; } /* SpecialChar */
-    code span.ss { color: #bb6688; } /* SpecialString */
-    code span.st { color: #4070a0; } /* String */
-    code span.va { color: #19177c; } /* Variable */
-    code span.vs { color: #4070a0; } /* VerbatimString */
-    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+
+:root {
+--doc-fg: #1c1e21;
+--doc-fg-muted: #555a61;
+--doc-bg: #ffffff;
+--doc-accent: #1a5fb4;
+--doc-accent-soft: #e8f0fb;
+--doc-border: #d6d9de;
+--doc-border-soft: #ececef;
+--doc-code-bg: #f6f8fa;
+--doc-code-fg: #24292f;
+--doc-quote-bar: #c7cdd6;
+}
+html {
+font-size: 16px;
+}
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+"Helvetica Neue", Arial, "Noto Sans", sans-serif,
+"Apple Color Emoji", "Segoe UI Emoji";
+color: var(--doc-fg);
+background: var(--doc-bg);
+line-height: 1.6;
+max-width: 56rem;
+margin: 2.5rem auto;
+padding: 0 1.5rem 4rem;
+-webkit-text-size-adjust: 100%;
+text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+font-weight: 600;
+line-height: 1.25;
+margin: 1.8em 0 0.6em;
+color: var(--doc-fg);
+}
+h1 {
+font-size: 2.0rem;
+border-bottom: 2px solid var(--doc-border);
+padding-bottom: 0.3em;
+margin-top: 0;
+}
+h2 {
+font-size: 1.55rem;
+border-bottom: 1px solid var(--doc-border-soft);
+padding-bottom: 0.25em;
+}
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.1rem; }
+h5 { font-size: 1.0rem; color: var(--doc-fg-muted); }
+h6 { font-size: 0.95rem; color: var(--doc-fg-muted); }
+
+h3.status-group-heading {
+margin-top: 1.6em;
+padding: 0.35em 0.6em;
+background: var(--doc-accent-soft);
+border-left: 4px solid var(--doc-accent);
+border-radius: 3px;
+font-size: 1.15rem;
+}
+
+p { margin: 0.7em 0; }
+a {
+color: var(--doc-accent);
+text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+strong { font-weight: 600; }
+em { font-style: italic; }
+hr {
+border: 0;
+border-top: 1px solid var(--doc-border);
+margin: 2em 0;
+}
+blockquote {
+margin: 1em 0;
+padding: 0.4em 1.1em;
+color: var(--doc-fg-muted);
+border-left: 4px solid var(--doc-quote-bar);
+background: #fafbfc;
+}
+ul, ol { padding-left: 1.6em; margin: 0.7em 0; }
+li { margin: 0.25em 0; }
+
+code, pre, kbd, samp {
+font-family: "SFMono-Regular", "JetBrains Mono", "Fira Code", Consolas,
+"Liberation Mono", Menlo, monospace;
+font-size: 0.88em;
+}
+code {
+background: var(--doc-code-bg);
+color: var(--doc-code-fg);
+padding: 0.15em 0.4em;
+border-radius: 4px;
+}
+pre {
+background: var(--doc-code-bg);
+color: var(--doc-code-fg);
+padding: 1em 1.2em;
+border-radius: 6px;
+overflow-x: auto;
+line-height: 1.45;
+border: 1px solid var(--doc-border-soft);
+}
+pre code {
+background: transparent;
+padding: 0;
+border-radius: 0;
+}
+
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1.2em 0;
+font-size: 0.93rem;
+display: block;
+overflow-x: auto;
+}
+thead th {
+background: var(--doc-accent-soft);
+color: var(--doc-fg);
+font-weight: 600;
+text-align: left;
+}
+th, td {
+border: 1px solid var(--doc-border);
+padding: 0.5em 0.75em;
+vertical-align: top;
+}
+tbody tr:nth-child(even) { background: #fbfbfc; }
+
+
+td.cell-type-bug { background: #fde8e8; } 
+td.cell-type-feature { background: #e6f4ea; } 
+td.cell-type-task { background: #eef2f7; } 
+
+td.cell-status-queued { background: #eef1f4; } 
+td.cell-status-in-progress { background: #fff4d6; } 
+td.cell-status-ready-for-testing { background: #e3f0ff; } 
+td.cell-status-in-testing { background: #d9ecff; } 
+td.cell-status-reopened { background: #ffe1cc; } 
+td.cell-status-operator-blocked { background: #ffd6d6; } 
+td.cell-status-fixed { background: #d6f5dd; } 
+td.cell-status-obsolete { background: #e0e0e0; color: var(--doc-fg-muted); } 
+
+tr.row-status-fixed { background: #f1fbf3; }
+tr.row-status-fixed td { border-color: #cdeccf; }
+tr.row-status-operator-blocked { background: #fff4f4; }
+tr.row-status-operator-blocked td { border-color: #f3cccc; }
+
+tr.row-status-obsolete {
+background: #e0e0e0;
+color: var(--doc-fg-muted);
+}
+tr.row-status-obsolete td {
+text-decoration: line-through;
+border-color: #cfcfcf;
+}
+
+tr.row-status-obsolete td.cell-status-obsolete {
+text-decoration: line-through;
+}
+
+img {
+max-width: 100%;
+height: auto;
+}
+</style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">GEMINI</h1>
-</header>
 <h1 id="helix-constitution-universal-gemini.md">Helix Constitution —
 Universal GEMINI.md</h1>
 <table>
@@ -349,8 +367,7 @@ inheritance pointer and adds only project-specific rules; THIS file is
 the canonical carrier and does not.</p>
 <p>For agents driven from a consuming project, the project’s repo-root
 carrier SHOULD start with a clearly-marked inheritance pointer:</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## INHERITED FROM constitution/GEMINI.md</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## INHERITED FROM constitution/GEMINI.md</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>All rules in <span class="in">`constitution/GEMINI.md`</span> (and the <span class="in">`constitution/Constitution.md`</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>it references) apply unconditionally. The project-specific rules below</span>
@@ -391,7 +408,7 @@ line only (mid-prose tokens never match); the action token AND the
 namespace are UPPERCASE-only <code>[A-Z][A-Z0-9_]*</code> (lowercase
 never matches); the namespace separator <code>::</code> inside the token
 carries NO surrounding spaces (<code>PREFIX::ACTION_NAME</code>),
-DISTINCT from the action-body separator <code>" :: "</code> (one ASCII
+DISTINCT from the action-body separator <code>&quot; :: &quot;</code> (one ASCII
 space on each side of <code>::</code> — avoids C++
 <code>Foo::Bar</code>, YAML <code>key: value</code>, URLs) in forms 1/2
 and the slash-body separator (one space) in forms 3/4; stacked prefixes
@@ -464,7 +481,7 @@ full text kept gate-scanned in <code>constitution/Constitution.md</code>
 and reachable in one hop — a de-duplication realising §11.4.35, never a
 deletion; (4) <strong>CodeGraph/retrieval-first over full-file
 loading</strong> (§11.4.78/§11.4.79/§11.4.80); (5) <strong>output-token
-reduction</strong> — terse status + <code>effort:"low"</code> on the
+reduction</strong> — terse status + <code>effort:&quot;low&quot;</code> on the
 mechanical allowlist only; (6) <strong>tool-call batching + no
 re-reads</strong>; (7) <strong>compaction/context-editing for long
 sessions</strong>. <strong>Mandatory measured proof:</strong> a
@@ -488,8 +505,7 @@ Classification: universal (§11.4.17). Propagation gate
 <code>CM-TOKEN-EFFICIENCY</code> + paired §1.1 mutation (inject a
 pre-breakpoint volatile token → cache collapses → measured reduction
 falls below bar → gate FAILs). <strong>Canonical authority:</strong>
-constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.141.
+constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.141.
 Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-token-efficiency</code>,
 <code>--no-cache-governance</code>,
@@ -544,8 +560,7 @@ reviewer distinct from the author, before acceptance/commit/build) +
 paired §1.1 mutation (strip the literal → propagation gate FAILs; accept
 a diff with no independent-review marker →
 <code>CM-EVERY-CHANGE-REVIEWED</code> FAILs). <strong>Canonical
-authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.142. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-review</code>, <code>--no-review</code>,
 <code>--trivial-change-exempt</code>, <code>--doc-edit-exempt</code>,
@@ -607,8 +622,7 @@ chosen content + subtitles, or SKIPs-with-reason) + paired §1.1 mutation
 (replace a real-journey test’s browse-select-play path with a deep-link
 / sample shortcut → gate FAILs; strip the literal → propagation gate
 FAILs; gate-code = separate work item). <strong>Canonical
-authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.143. Non-compliance is a release blocker. No escape hatch — no
 <code>--sample-playback-ok</code>, <code>--skip-real-journey</code>,
 <code>--deep-link-suffices</code>, <code>--routing-only-pass</code>,
@@ -787,8 +801,7 @@ reproduce→confirm pair but NO enumerated extend case-set FAILs) + paired
 close a defect with only the reproduce→confirm pair and no
 extend-case-set → <code>CM-REPRODUCE-FIRST-THEN-EXTEND</code> FAILs;
 gate-code = separate work item). <strong>Canonical authority:</strong>
-constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.146. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-reproduce-first</code>, <code>--fix-without-red</code>,
 <code>--skip-extend-to-all-cases</code>,
@@ -874,8 +887,7 @@ mutation (strip the literal → propagation gate FAILs; mark a
 agent without a registry entry →
 <code>CM-CRASHED-AGENT-RESPAWN-TRACKED</code> FAILs; gate-code =
 separate work item). <strong>Canonical authority:</strong> constitution
-submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.147. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-agent-registry</code>, <code>--crash-equals-done</code>,
 <code>--no-respawn</code>, <code>--discard-partial-state</code>,
@@ -938,8 +950,7 @@ env var, docs_chain context per §11.4.35. Propagation gate
 <code>CM-BLOCKED-UNBLOCK-CHOICES</code> /
 <code>CM-TRACKER-SYNC-IDEMPOTENT</code> + paired §1.1 mutation
 (gate-code = separate work item). <strong>Canonical authority:</strong>
-constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.148. Non-compliance is a release blocker. No escape hatch — no
 <code>--item-without-status</code>, <code>--item-without-type</code>,
 <code>--item-without-id</code>, <code>--stub-description-OK</code>,
@@ -1001,8 +1012,7 @@ context per §11.4.35. Propagation gate
 <code>CM-TEST-DIARY-SYNC</code> /
 <code>CM-DIARY-PASS-REQUIRES-EVIDENCE</code> + paired §1.1 mutation
 (gate-code = separate work item). <strong>Canonical authority:</strong>
-constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.149. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-testing-diary</code>,
 <code>--diary-without-evidence</code>, <code>--no-diary-summary</code>,
@@ -1032,7 +1042,7 @@ issue trackers, maintainer guidance, reusable open-source code — to BOTH
 (i) discover the best possible solution AND (ii) confirm there is NOT a
 more serious underlying problem the team is unaware of. Forensic case
 study (FACT, 2026-06-11): a subtitle-on-secondary-display goal verdicted
-<code>Won't-fix: structurally-impossible</code> (§11.4.112
+<code>Won&#39;t-fix: structurally-impossible</code> (§11.4.112
 secure-surface pixel-blanking) was OVERTURNED by a deep multi-angle
 research pass that surfaced the real OCR-of-the-PRIMARY-display path — a
 “we can’t” became a shipped capability; the canonical anti-pattern of a
@@ -1093,8 +1103,7 @@ mutation (strip the literal → propagation gate FAILs; close an item or
 reach a <code>structural</code> verdict with no documented multi-angle
 research artefact / cited footer →
 <code>CM-DEEP-RESEARCH-PER-ISSUE</code> FAILs; gate-code = separate work
-item). <strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+item). <strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.150. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-deep-research</code>,
 <code>--single-source-suffices</code>,
@@ -1107,8 +1116,8 @@ href="constitution/Constitution.md"><code>Constitution.md</code></a>
 mandate (User mandate, 2026-06-12).</strong> Verbatim operator mandate:
 “Every release tag and version name we create — on the main repository
 and on every Submodule we own — MUST be prefixed with the project’s
-release prefix, e.g. <code>myproject-1.0.0-dev-0.0.1</code>. The
-prefix MUST come from <code>HELIX_RELEASE_PREFIX</code> in our
+release prefix, e.g. <code>myproject-1.0.0-dev-0.0.1</code>. The prefix
+MUST come from <code>HELIX_RELEASE_PREFIX</code> in our
 <code>.env</code> if it is set, otherwise from the lowercased project
 root directory name. The SAME prefix MUST be used across the main repo
 and all owned Submodules in one release so a release is greppable across
@@ -1116,9 +1125,9 @@ every repository.” Every release tag AND every version name created on
 the main repository AND on every owned-by-us submodule (§11.4.28) MUST
 be prefixed with the project’s release prefix, form
 <code>&lt;PREFIX&gt;-&lt;version&gt;</code> (canonical example:
-<code>myproject-1.0.0-dev-0.0.1</code>), so a release is
-identifiable + greppable across every repository it spans (one
-<code>git tag -l '&lt;PREFIX&gt;-*'</code> enumerates the whole release
+<code>myproject-1.0.0-dev-0.0.1</code>), so a release is identifiable +
+greppable across every repository it spans (one
+<code>git tag -l &#39;&lt;PREFIX&gt;-*&#39;</code> enumerates the whole release
 surface). <strong>Prefix resolution order (closed-set, deterministic —
 §11.4.6 no-guessing):</strong> (1) <code>HELIX_RELEASE_PREFIX</code>
 from the project’s <code>.env</code> — authoritative when set;
@@ -1154,8 +1163,7 @@ main repo + every owned submodule carries the resolved
 paired §1.1 meta-test mutation (strip the literal → propagation gate
 FAILs; create an unprefixed or differing-prefix release tag →
 <code>CM-RELEASE-PREFIX-NAMING</code> FAILs; gate-code = separate work
-item). <strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+item). <strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.151. Non-compliance is a release blocker. No escape hatch — no
 <code>--no-release-prefix</code>, <code>--unprefixed-tag</code>,
 <code>--prefix-optional</code>,
@@ -1221,9 +1229,9 @@ guard is GREEN on a clean artifact, never when the console mark is
 flipped. Classification: universal (§11.4.17) — the consuming project
 supplies its Crashlytics handle, console-access credential (§11.4.10,
 never logged), severity table, and per-issue closure-log path per
-§11.4.35; the reference project-level instantiation is a consuming project’s
-§6.O (Crashlytics-Resolved Issue Coverage — per-issue validation test +
-Challenge test +
+§11.4.35; the reference project-level instantiation is a consuming
+project’s §6.O (Crashlytics-Resolved Issue Coverage — per-issue
+validation test + Challenge test +
 <code>.lava-ci-evidence/crashlytics-resolved/&lt;date&gt;-&lt;slug&gt;.md</code>
 closure log) + §6.AC (Comprehensive Non-Fatal Telemetry — every
 catch/fallback records a non-fatal with triage context). Composes
@@ -1236,8 +1244,7 @@ registered §11.4.135 regression guard + a closure-log entry citing the
 console issue id/URL + the validation/verification test paths; a
 console-resolved issue with no falsifiable regression guard FAILs) +
 paired §1.1 meta-test mutation (gate-code = separate work item).
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.152. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-crashlytics-monitoring</code>,
 <code>--monitor-crashes-only</code>, <code>--skip-non-fatals</code>,
@@ -1297,8 +1304,7 @@ Propagation gate <code>CM-COVENANT-114-153-PROPAGATION</code> (literal
 <code>CM-FEATURE-STATUS-COMPLETE</code> +
 <code>CM-FEATURE-STATUS-VIDEO-CONFIRMED</code> + paired §1.1
 mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.153. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-feature-status</code>,
 <code>--feature-without-video</code>, <code>--frozen-video-OK</code>,
@@ -1339,8 +1345,7 @@ Propagation gate <code>CM-COVENANT-114-154-PROPAGATION</code> (literal
 <code>11.4.154</code>) + recommended gate
 <code>CM-WINDOW-SCOPED-FRESH-CORPUS-RECORDING</code> + paired §1.1
 mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.154. Non-compliance is a release blocker. No escape hatch — no
 <code>--whole-screen-capture-OK</code>,
 <code>--skip-window-scope</code>, <code>--keep-stale-recordings</code>,
@@ -1369,7 +1374,7 @@ deterministic — §11.4.6, IDENTICAL to §11.4.151):</strong> (1)
 git-ignored §11.4.30, documented in tracked <code>.env.example</code>
 §11.4.77) else (2) lowercased snake_case project-root dir name §11.4.29
 — ALWAYS resolvable, zero operator input. SAME prefix for EVERY
-recording in a checkout so <code>ls '&lt;PREFIX&gt;---'*</code>
+recording in a checkout so <code>ls &#39;&lt;PREFIX&gt;---&#39;*</code>
 enumerates the corpus; canonical form
 <code>&lt;PREFIX&gt;---&lt;feature-or-scope&gt;---&lt;run-id&gt;.&lt;ext&gt;</code>
 (<code>---</code> delimits the prefix unambiguously); MUST equal the
@@ -1385,8 +1390,7 @@ Propagation gate <code>CM-COVENANT-114-155-PROPAGATION</code> (literal
 <code>11.4.155</code>) + recommended gate
 <code>CM-RECORDING-PROJECT-NAME-PREFIX</code> + paired §1.1
 mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.155. Non-compliance is a release blocker. No escape hatch — no
 <code>--no-recording-prefix</code>,
 <code>--recording-without-project-name</code>,
@@ -1427,7 +1431,7 @@ scope, MUST NOT be mass-edited (§11.4.29 vendor-exempt); test = “does a
 push to OUR upstream trigger a run?” yes⇒disable, inert⇒document+leave
 (§11.4.6 verify-not-assume); <strong>(D)</strong> no new CI may be added
 (release blocker); <strong>(E)</strong> pre-push verify
-<code>git ls-files | grep -E '^\.github/workflows/.*\.ya?ml$|^\.gitlab-ci\.yml$'</code>
+<code>git ls-files | grep -E &#39;^\.github/workflows/.*\.ya?ml$|^\.gitlab-ci\.yml$&#39;</code>
 empty for authored repos, §11.4.109-class PreToolUse guard + gate
 enforce mechanically. Honest boundary (§11.4.6): file-level disabling
 stops FILE-triggered runs, NOT provider-side server settings
@@ -1441,8 +1445,7 @@ universal (§11.4.17). Propagation gate
 paired §1.1 meta-test mutation (strip the literal → propagation gate
 FAILs; add a root <code>.github/workflows/x.yml</code> to an authored
 repo → <code>CM-NO-ACTIVE-CI</code> FAILs). <strong>Canonical
-authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.156. Non-compliance is a release blocker. No escape hatch — no
 <code>--allow-ci</code>, <code>--enable-workflow</code>,
 <code>--keep-pipeline</code>, <code>--remote-ci-OK</code>,
@@ -1477,8 +1480,7 @@ back-fill is incomplete is itself a §11.4.157 violation. Composes
 <code>CM-COVENANT-114-157-PROPAGATION</code> (literal
 <code>11.4.157</code>, GEMINI.md INCLUDED) + recommended gate
 <code>CM-GEMINI-MD-LOCKSTEP</code> + paired §1.1 meta-test mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.157. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-gemini-md</code>, <code>--gemini-optional</code>,
 <code>--gemini-lag-OK</code>, <code>--four-carrier-suffices</code>
@@ -1517,8 +1519,7 @@ Classification: universal (§11.4.17). Propagation gate
 <code>11.4.158</code>) + recommended gates
 <code>CM-INTENSIVE-RECORDING-COVERAGE</code> +
 <code>CM-RECORDING-CONTENT-READ-VERIFIED</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.158. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-recording-coverage</code>,
 <code>--video-without-content-read</code>,
@@ -1598,8 +1599,7 @@ recording completes. Classification: universal (§11.4.17). Composes
 Propagation gate <code>CM-COVENANT-114-159-PROPAGATION</code> (literal
 <code>11.4.159</code>) + recommended gate
 <code>CM-WINDOW-VIDEO-VALIDATED</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.159. Non-compliance is a release blocker. No escape hatch — no
 <code>--whole-screen-ok</code>, <code>--cast-only</code>,
 <code>--skip-vision-validation</code>, <code>--no-cleanup</code>,
@@ -1679,6 +1679,73 @@ MCP/pre-commit/PATH wiring, docs_chain <code>semgrep_status</code>
 context, and the <code>CM-COVENANT-114-166-PROPAGATION</code> /
 <code>CM-SEMGREP-WIRED</code> gates removed. Anchor 11.4.166 retired.
 See constitution <code>Constitution.md</code> §11.4.166.</p>
+<p><strong>§11.4.167 — Big-work-item feature work-stream lifecycle (User
+mandate, 2026-06-23).</strong> Every BIG work item (new feature OR
+drastic/large fix) MUST be its own isolated feature work-stream — own
+sibling project copy, own <code>feature/&lt;slug&gt;</code> branch, own
+per-feature flashable builds + feature tags, SEPARATE from trunk until
+operator manually approves after testing, trunk merged INTO every stream
+regularly. (A) one big item = one sibling project copy
+(<code>&lt;project&gt;_&lt;slug&gt;</code>); small changes stay on
+trunk. (B) disk-feasible CoW/reflink clone MANDATORY
+(<code>cp -a --reflink=auto</code> on btrfs/XFS/ZFS/APFS, else
+<code>git worktree</code>); naive deep copies FORBIDDEN; per-stream
+<code>out/</code> + shared ccache; ~0-disk verified (§11.4.69) before
+relied on (§11.4.6). (C) own branch + greppable tags (§11.4.151
+<code>&lt;base&gt;-feat-&lt;slug&gt;</code>), NEVER merged to trunk
+until §11.4.40 GREEN on clean target → §11.4.41 merge-first → §11.4.113
+ff-only. (D) trunk merged INTO every live stream per trunk-tag/daily
+(merge, never rebase). (E) feature branch + tag cascades to EVERY
+touched submodule (§11.4.113). (F) single-builder build QUEUE
+(§11.4.58/.12.7/.12.8) + finite-device queue (§11.4.119); idle
+<code>out/</code> GC’d (§11.4.77). (G) every change crosses full
+gauntlet (§11.4.142/.125/.134/.145 + anti-bluff). (H) stream registry
+(§11.4.116/.147) + atomic <code>.partial</code>→rename + §11.4.84 resume
++ §9.2 retire-backup; bounded §12/.12.6. Honest boundary (§11.4.6):
+isolation+disk-feasibility+greppable-identity+merge-discipline, NOT
+correctness (still §11.4.108/.40). Classification: universal (§11.4.17).
+Propagation gate <code>CM-COVENANT-114-167-PROPAGATION</code> (literal
+<code>11.4.167</code>) + gates
+<code>CM-FEATURE-WORKSTREAM-COW-CLONE</code> /
+<code>-NO-MERGE-UNTIL-APPROVED</code> / <code>-TRUNK-SYNC-CADENCE</code>
+/ <code>-SUBMODULE-CASCADE</code> + paired §1.1 mutations.
+<strong>Canonical authority:</strong> constitution
+<code>Constitution.md</code> §11.4.167.</p>
+<p><strong>§11.4.168 — Exported-document independent content + textual +
+full-visual validation mandate (User mandate, 2026-06-23).</strong>
+Every generated/exported document (HTML/PDF/DOCX/any §11.4.65
+export-scope format) MUST pass INDEPENDENT validation by a reviewer
+structurally separate from the generator (§11.4.70/.142, NEVER author
+self-check), on BOTH source AND every exported artifact, ALWAYS, across
+THREE layers: (1) CONTENT — export faithfully carries source
+intent+data, nothing dropped/truncated/garbled; (2) TEXTUAL —
+human-readable, NO raw markup/diagram-source (Mermaid
+<code>gantt</code>/<code>graph</code>/<code>flowchart</code>/<code>sequenceDiagram</code>
+etc.)/unrendered code-fence leaking as body text (the exact 2026-06-23
+raw-gantt-in-PDF failure); (3) FULL VISUAL — diagrams render as IMAGES
+not source, layout intact, no overlap/cut-off/garble, verified by
+RENDERING the export (<code>pdftotext</code> catches raw source +
+<code>pdfimages</code> confirms rendered images +
+<code>pdftoppm</code>→OCR confirms human-readable content) with captured
+evidence §11.4.5/.69/.107. Anti-bluff: rubber-stamp ≠ validation;
+analyzer self-validated golden-good/golden-bad §11.4.107(10) (golden-bad
+seeded with raw <code>gantt</code> MUST FAIL); iterate to clean GO
+§11.4.134. Forensic FACT (2026-06-23): a “green” Mermaid fix shipped raw
+gantt source as readable text into user PDFs because validation grepped
+HTML for <code>class=&quot;mermaid&quot;</code> and NEVER checked the exported PDF
+— operator caught it (§11.4.138). Honest boundary (§11.4.6): confirms
+the exported artifact is faithful/readable/visually-rendered — does NOT
+prove source content is correct (§11.4.142/.135) nor replace the
+§11.4.65 mtime freshness gate (this is the READABILITY/FIDELITY layer
+the mtime gate cannot see); FLAG_SECURE/un-rasterisable surfaces
+document the gap §11.4.112 + §11.4.117 proxy, never a faked PASS.
+Classification: universal (§11.4.17). Composes
+§11.4.65/.73/.107/.117/.135/.138/.142/.159/.163/.165/§1.1. Propagation
+gate <code>CM-COVENANT-114-168-PROPAGATION</code> (literal
+<code>11.4.168</code>) + recommended gate
+<code>CM-EXPORTED-DOC-VISUALLY-VALIDATED</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution
+<code>Constitution.md</code> §11.4.168.</p>
 <h2 id="when-in-doubt">When in doubt</h2>
 <ul>
 <li>Read <code>constitution/Constitution.md</code> for the canonical

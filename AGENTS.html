@@ -6,240 +6,258 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>AGENTS</title>
   <style>
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
-    html {
-      color: #1a1a1a;
-      background-color: #fdfdfd;
-    }
-    body {
-      margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
-      overflow-wrap: break-word;
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-    @media (max-width: 600px) {
-      body {
-        font-size: 0.9em;
-        padding: 12px;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-    @media print {
-      html {
-        background-color: white;
-      }
-      body {
-        background-color: transparent;
-        color: black;
-        font-size: 12pt;
-      }
-      p, h2, h3 {
-        orphans: 3;
-        widows: 3;
-      }
-      h2, h3, h4 {
-        page-break-after: avoid;
-      }
-    }
-    p {
-      margin: 1em 0;
-    }
-    a {
-      color: #1a1a1a;
-    }
-    a:visited {
-      color: #1a1a1a;
-    }
-    img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.4em;
-    }
-    h5, h6 {
-      font-size: 1em;
-      font-style: italic;
-    }
-    h6 {
-      font-weight: normal;
-    }
-    ol, ul {
-      padding-left: 1.7em;
-      margin-top: 1em;
-    }
-    li > ol, li > ul {
-      margin-top: 0;
-    }
-    blockquote {
-      margin: 1em 0 1em 1.7em;
-      padding-left: 1em;
-      border-left: 2px solid #e6e6e6;
-      color: #606060;
-    }
-    code {
-      white-space: pre-wrap;
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-      font-size: 85%;
-      margin: 0;
-      hyphens: manual;
-    }
-    pre {
-      margin: 1em 0;
-      overflow: auto;
-    }
-    pre code {
-      padding: 0;
-      overflow: visible;
-      overflow-wrap: normal;
-    }
-    .sourceCode {
-     background-color: transparent;
-     overflow: visible;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #1a1a1a;
-      height: 1px;
-      margin: 1em 0;
-    }
-    table {
-      margin: 1em 0;
-      border-collapse: collapse;
-      width: 100%;
-      overflow-x: auto;
-      display: block;
-      font-variant-numeric: lining-nums tabular-nums;
-    }
-    table caption {
-      margin-bottom: 0.75em;
-    }
-    tbody {
-      margin-top: 0.5em;
-      border-top: 1px solid #1a1a1a;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    th {
-      border-top: 1px solid #1a1a1a;
-      padding: 0.25em 0.5em 0.25em 0.5em;
-    }
-    td {
-      padding: 0.125em 0.5em 0.25em 0.5em;
-    }
-    header {
-      margin-bottom: 4em;
-      text-align: center;
-    }
-    #TOC li {
-      list-style: none;
-    }
-    #TOC ul {
-      padding-left: 1.3em;
-    }
-    #TOC > ul {
-      padding-left: 0;
-    }
-    #TOC a:not(:hover) {
-      text-decoration: none;
-    }
-    span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-    code span.at { color: #7d9029; } /* Attribute */
-    code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { color: #008000; } /* BuiltIn */
-    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #4070a0; } /* Char */
-    code span.cn { color: #880000; } /* Constant */
-    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-    code span.dt { color: #902000; } /* DataType */
-    code span.dv { color: #40a070; } /* DecVal */
-    code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #40a070; } /* Float */
-    code span.fu { color: #06287e; } /* Function */
-    code span.im { color: #008000; font-weight: bold; } /* Import */
-    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-    code span.op { color: #666666; } /* Operator */
-    code span.ot { color: #007020; } /* Other */
-    code span.pp { color: #bc7a00; } /* Preprocessor */
-    code span.sc { color: #4070a0; } /* SpecialChar */
-    code span.ss { color: #bb6688; } /* SpecialString */
-    code span.st { color: #4070a0; } /* String */
-    code span.va { color: #19177c; } /* Variable */
-    code span.vs { color: #4070a0; } /* VerbatimString */
-    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+
+:root {
+--doc-fg: #1c1e21;
+--doc-fg-muted: #555a61;
+--doc-bg: #ffffff;
+--doc-accent: #1a5fb4;
+--doc-accent-soft: #e8f0fb;
+--doc-border: #d6d9de;
+--doc-border-soft: #ececef;
+--doc-code-bg: #f6f8fa;
+--doc-code-fg: #24292f;
+--doc-quote-bar: #c7cdd6;
+}
+html {
+font-size: 16px;
+}
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+"Helvetica Neue", Arial, "Noto Sans", sans-serif,
+"Apple Color Emoji", "Segoe UI Emoji";
+color: var(--doc-fg);
+background: var(--doc-bg);
+line-height: 1.6;
+max-width: 56rem;
+margin: 2.5rem auto;
+padding: 0 1.5rem 4rem;
+-webkit-text-size-adjust: 100%;
+text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+font-weight: 600;
+line-height: 1.25;
+margin: 1.8em 0 0.6em;
+color: var(--doc-fg);
+}
+h1 {
+font-size: 2.0rem;
+border-bottom: 2px solid var(--doc-border);
+padding-bottom: 0.3em;
+margin-top: 0;
+}
+h2 {
+font-size: 1.55rem;
+border-bottom: 1px solid var(--doc-border-soft);
+padding-bottom: 0.25em;
+}
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.1rem; }
+h5 { font-size: 1.0rem; color: var(--doc-fg-muted); }
+h6 { font-size: 0.95rem; color: var(--doc-fg-muted); }
+
+h3.status-group-heading {
+margin-top: 1.6em;
+padding: 0.35em 0.6em;
+background: var(--doc-accent-soft);
+border-left: 4px solid var(--doc-accent);
+border-radius: 3px;
+font-size: 1.15rem;
+}
+
+p { margin: 0.7em 0; }
+a {
+color: var(--doc-accent);
+text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+strong { font-weight: 600; }
+em { font-style: italic; }
+hr {
+border: 0;
+border-top: 1px solid var(--doc-border);
+margin: 2em 0;
+}
+blockquote {
+margin: 1em 0;
+padding: 0.4em 1.1em;
+color: var(--doc-fg-muted);
+border-left: 4px solid var(--doc-quote-bar);
+background: #fafbfc;
+}
+ul, ol { padding-left: 1.6em; margin: 0.7em 0; }
+li { margin: 0.25em 0; }
+
+code, pre, kbd, samp {
+font-family: "SFMono-Regular", "JetBrains Mono", "Fira Code", Consolas,
+"Liberation Mono", Menlo, monospace;
+font-size: 0.88em;
+}
+code {
+background: var(--doc-code-bg);
+color: var(--doc-code-fg);
+padding: 0.15em 0.4em;
+border-radius: 4px;
+}
+pre {
+background: var(--doc-code-bg);
+color: var(--doc-code-fg);
+padding: 1em 1.2em;
+border-radius: 6px;
+overflow-x: auto;
+line-height: 1.45;
+border: 1px solid var(--doc-border-soft);
+}
+pre code {
+background: transparent;
+padding: 0;
+border-radius: 0;
+}
+
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1.2em 0;
+font-size: 0.93rem;
+display: block;
+overflow-x: auto;
+}
+thead th {
+background: var(--doc-accent-soft);
+color: var(--doc-fg);
+font-weight: 600;
+text-align: left;
+}
+th, td {
+border: 1px solid var(--doc-border);
+padding: 0.5em 0.75em;
+vertical-align: top;
+}
+tbody tr:nth-child(even) { background: #fbfbfc; }
+
+
+td.cell-type-bug { background: #fde8e8; } 
+td.cell-type-feature { background: #e6f4ea; } 
+td.cell-type-task { background: #eef2f7; } 
+
+td.cell-status-queued { background: #eef1f4; } 
+td.cell-status-in-progress { background: #fff4d6; } 
+td.cell-status-ready-for-testing { background: #e3f0ff; } 
+td.cell-status-in-testing { background: #d9ecff; } 
+td.cell-status-reopened { background: #ffe1cc; } 
+td.cell-status-operator-blocked { background: #ffd6d6; } 
+td.cell-status-fixed { background: #d6f5dd; } 
+td.cell-status-obsolete { background: #e0e0e0; color: var(--doc-fg-muted); } 
+
+tr.row-status-fixed { background: #f1fbf3; }
+tr.row-status-fixed td { border-color: #cdeccf; }
+tr.row-status-operator-blocked { background: #fff4f4; }
+tr.row-status-operator-blocked td { border-color: #f3cccc; }
+
+tr.row-status-obsolete {
+background: #e0e0e0;
+color: var(--doc-fg-muted);
+}
+tr.row-status-obsolete td {
+text-decoration: line-through;
+border-color: #cfcfcf;
+}
+
+tr.row-status-obsolete td.cell-status-obsolete {
+text-decoration: line-through;
+}
+
+img {
+max-width: 100%;
+height: auto;
+}
+</style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">AGENTS</h1>
-</header>
 <h1 id="helix-constitution-universal-agents.md">Helix Constitution —
 Universal AGENTS.md</h1>
 <table>
@@ -338,7 +356,8 @@ paths; regular cadence (the §11.4.47 five-trigger set), no false
 results, no bluff — a console-resolved Crashlytics issue with no
 falsifiable regression test is FORBIDDEN (the silent-recurrence vector).
 STRENGTHENS+COMPLETES §11.4.47 (review/dedup finds it; §11.4.152 fixes
-it + proves it stays fixed). Project-level reference instantiation = a consuming project’s §6.O + §6.AC. Composes
+it + proves it stays fixed). Project-level reference instantiation = a
+consuming project’s §6.O + §6.AC. Composes
 §11.4/.1/.5/.6/.9/.34/.40/.43/.47/.69/.90/.102/.107/.108/.115/.118/.123/.130/.135/.138/.150/§1.1.
 Propagation gate <code>CM-COVENANT-114-152-PROPAGATION</code> +
 recommended gate <code>CM-CRASHLYTICS-ISSUE-FULLY-COVERED</code>.
@@ -347,8 +366,8 @@ mirror — Project-prefixed release-tag/version-naming mandate (User
 mandate 2026-06-12): every release tag AND version name on the main repo
 AND every owned submodule MUST be prefixed
 <code>&lt;PREFIX&gt;-&lt;version&gt;</code>
-(e.g. <code>myproject-1.0.0-dev-0.0.1</code>); prefix resolution
-order (1) <code>HELIX_RELEASE_PREFIX</code> from <code>.env</code>
+(e.g. <code>myproject-1.0.0-dev-0.0.1</code>); prefix resolution order
+(1) <code>HELIX_RELEASE_PREFIX</code> from <code>.env</code>
 (authoritative, git-ignored §11.4.30, documented in tracked
 <code>.env.example</code> §11.4.77) else (2) lowercased snake_case
 project-root dir name §11.4.29; SAME prefix across main + all owned
@@ -626,156 +645,111 @@ addition.</td>
 <li><a href="#identity-posture">Identity &amp; posture</a></li>
 <li><a href="#top-level-invariants-for-every-agent">Top-level invariants
 for every agent</a></li>
-<li><a
-href="#critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
-base rules restated (for agents that don’t honour <span class="citation"
-data-cites="imports">@imports</span>)</a>
+<li><a href="#critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don’t honour <span class="citation" data-cites="imports">@imports</span>)</a>
 <ul>
-<li><a
-href="#anti-bluff-covenant-end-user-quality-guarantee-114">Anti-bluff
+<li><a href="#anti-bluff-covenant-end-user-quality-guarantee-114">Anti-bluff
 covenant — END-USER QUALITY GUARANTEE (§11.4)</a></li>
 <li><a href="#mutation-paired-gates-11">Mutation-paired gates
 (§1.1)</a></li>
 <li><a href="#recorded-evidence-requirement-1142">Recorded-evidence
 requirement (§11.4.2)</a></li>
-<li><a
-href="#test-interrupt-on-discovery-1144">Test-interrupt-on-discovery
+<li><a href="#test-interrupt-on-discovery-1144">Test-interrupt-on-discovery
 (§11.4.4)</a></li>
 <li><a href="#no-guessing-mandate-1146">No-guessing mandate
 (§11.4.6)</a></li>
 <li><a href="#item-type-tracking-11416">Item-type tracking
 (§11.4.16)</a></li>
-<li><a
-href="#universal-vs-project-classification-11417-user-mandate-2026-05-14">Universal-vs-project
+<li><a href="#universal-vs-project-classification-11417-user-mandate-2026-05-14">Universal-vs-project
 classification (§11.4.17, User mandate 2026-05-14)</a></li>
-<li><a
-href="#subagent-driven-by-default-11420-user-mandate-2026-05-14">Subagent-driven-by-default
+<li><a href="#subagent-driven-by-default-11420-user-mandate-2026-05-14">Subagent-driven-by-default
 (§11.4.20, User mandate 2026-05-14)</a></li>
-<li><a
-href="#script-documentation-mandate-11418-user-mandate-2026-05-14">Script
+<li><a href="#script-documentation-mandate-11418-user-mandate-2026-05-14">Script
 documentation mandate (§11.4.18, User mandate 2026-05-14)</a></li>
-<li><a
-href="#fixed-document-column-alignment-11419-user-mandate-2026-05-14">Fixed-document
+<li><a href="#fixed-document-column-alignment-11419-user-mandate-2026-05-14">Fixed-document
 column-alignment (§11.4.19, User mandate 2026-05-14)</a></li>
-<li><a
-href="#operator-blocked-status-self-resolution-exhaustion-11421-user-mandate-2026-05-14">Operator-blocked
+<li><a href="#operator-blocked-status-self-resolution-exhaustion-11421-user-mandate-2026-05-14">Operator-blocked
 status + self-resolution exhaustion (§11.4.21, User mandate
 2026-05-14)</a></li>
-<li><a
-href="#document-sync-commit-discipline-11422-user-mandate-2026-05-14">Document-sync
+<li><a href="#document-sync-commit-discipline-11422-user-mandate-2026-05-14">Document-sync
 commit discipline (§11.4.22, User mandate 2026-05-14)</a></li>
-<li><a
-href="#build-resource-stats-tracking-11424-user-mandate-2026-05-14">Build-resource
+<li><a href="#build-resource-stats-tracking-11424-user-mandate-2026-05-14">Build-resource
 stats tracking (§11.4.24, User mandate 2026-05-14)</a></li>
-<li><a
-href="#full-automation-coverage-11425-user-mandate-2026-05-15">Full-Automation-Coverage
+<li><a href="#full-automation-coverage-11425-user-mandate-2026-05-15">Full-Automation-Coverage
 (§11.4.25, User mandate 2026-05-15)</a></li>
-<li><a
-href="#constitution-submodule-update-workflow-11426-user-mandate-2026-05-15">Constitution-Submodule
+<li><a href="#constitution-submodule-update-workflow-11426-user-mandate-2026-05-15">Constitution-Submodule
 Update Workflow (§11.4.26, User mandate 2026-05-15)</a></li>
-<li><a
-href="#submodule-dependency-manifest-11431-user-mandate-2026-05-15">Submodule-dependency-manifest
+<li><a href="#submodule-dependency-manifest-11431-user-mandate-2026-05-15">Submodule-dependency-manifest
 (§11.4.31, User mandate 2026-05-15)</a></li>
-<li><a
-href="#post-constitution-pull-validation-11432-user-mandate-2026-05-15">Post-constitution-pull
+<li><a href="#post-constitution-pull-validation-11432-user-mandate-2026-05-15">Post-constitution-pull
 validation (§11.4.32, User mandate 2026-05-15)</a></li>
-<li><a
-href="#gitignore-no-versioned-build-artifacts-11430-user-mandate-2026-05-15">.gitignore
+<li><a href="#gitignore-no-versioned-build-artifacts-11430-user-mandate-2026-05-15">.gitignore
 + no-versioned-build-artifacts (§11.4.30, User mandate
 2026-05-15)</a></li>
-<li><a
-href="#lowercase-snake_case-naming-11429-user-mandate-2026-05-15">Lowercase-snake_case-naming
+<li><a href="#lowercase-snake_case-naming-11429-user-mandate-2026-05-15">Lowercase-snake_case-naming
 (§11.4.29, User mandate 2026-05-15)</a></li>
-<li><a
-href="#submodules-as-equal-codebase-decoupling-dependency-layout-11428-user-mandate-2026-05-15">Submodules-as-equal-codebase
+<li><a href="#submodules-as-equal-codebase-decoupling-dependency-layout-11428-user-mandate-2026-05-15">Submodules-as-equal-codebase
 + decoupling + dependency-layout (§11.4.28, User mandate
 2026-05-15)</a></li>
-<li><a
-href="#no-fakes-beyond-unit-tests-100-test-type-coverage-11427-user-mandate-2026-05-15">No-fakes-beyond-unit-tests
+<li><a href="#no-fakes-beyond-unit-tests-100-test-type-coverage-11427-user-mandate-2026-05-15">No-fakes-beyond-unit-tests
 + 100%-test-type-coverage (§11.4.27, User mandate 2026-05-15)</a></li>
-<li><a
-href="#type-aware-closure-status-vocabulary-11433-user-mandate-2026-05-15">Type-aware
+<li><a href="#type-aware-closure-status-vocabulary-11433-user-mandate-2026-05-15">Type-aware
 closure-status vocabulary (§11.4.33, User mandate 2026-05-15)</a></li>
-<li><a
-href="#reopened-source-attribution-11434-user-mandate-2026-05-15">Reopened-source
+<li><a href="#reopened-source-attribution-11434-user-mandate-2026-05-15">Reopened-source
 attribution (§11.4.34, User mandate 2026-05-15)</a></li>
-<li><a
-href="#canonical-root-inheritance-clarity-11435-user-mandate-2026-05-15">Canonical-root
+<li><a href="#canonical-root-inheritance-clarity-11435-user-mandate-2026-05-15">Canonical-root
 inheritance clarity (§11.4.35, User mandate 2026-05-15)</a></li>
-<li><a
-href="#mandatory-install_upstreams-on-cloneadd-11436-user-mandate-2026-05-15">Mandatory
+<li><a href="#mandatory-install_upstreams-on-cloneadd-11436-user-mandate-2026-05-15">Mandatory
 install_upstreams on clone/add (§11.4.36, User mandate
 2026-05-15)</a></li>
-<li><a
-href="#fetch-before-edit-11437-user-mandate-2026-05-15">Fetch-before-edit
+<li><a href="#fetch-before-edit-11437-user-mandate-2026-05-15">Fetch-before-edit
 (§11.4.37, User mandate 2026-05-15)</a></li>
-<li><a
-href="#installable-asset-evidence-11438-user-mandate-2026-05-17">Installable-asset
+<li><a href="#installable-asset-evidence-11438-user-mandate-2026-05-17">Installable-asset
 evidence (§11.4.38, User mandate 2026-05-17)</a></li>
-<li><a
-href="#full-suite-retest-before-release-tag-11440-user-mandate-2026-05-17">Full-suite
+<li><a href="#full-suite-retest-before-release-tag-11440-user-mandate-2026-05-17">Full-suite
 retest before release tag (§11.4.40, User mandate 2026-05-17)</a></li>
-<li><a
-href="#pre-force-push-merge-first-11441-user-mandate-2026-05-17">Pre-force-push
+<li><a href="#pre-force-push-merge-first-11441-user-mandate-2026-05-17">Pre-force-push
 merge-first (§11.4.41, User mandate 2026-05-17)</a></li>
-<li><a
-href="#iteration-discipline-mandate-11442-user-mandate-2026-05-18">Iteration-discipline
+<li><a href="#iteration-discipline-mandate-11442-user-mandate-2026-05-18">Iteration-discipline
 mandate (§11.4.42, User mandate 2026-05-18)</a></li>
-<li><a
-href="#tdd-fix-discipline-11443-user-mandate-2026-05-18">TDD-Fix-Discipline
+<li><a href="#tdd-fix-discipline-11443-user-mandate-2026-05-18">TDD-Fix-Discipline
 (§11.4.43, User mandate 2026-05-18)</a></li>
-<li><a
-href="#document-revision-header-11444-user-mandate-2026-05-18">Document
+<li><a href="#document-revision-header-11444-user-mandate-2026-05-18">Document
 revision header (§11.4.44, User mandate 2026-05-18)</a></li>
-<li><a
-href="#integration-status-doc-maintenance-11445-user-mandate-2026-05-18">Integration-status-doc
+<li><a href="#integration-status-doc-maintenance-11445-user-mandate-2026-05-18">Integration-status-doc
 maintenance (§11.4.45, User mandate 2026-05-18)</a></li>
-<li><a
-href="#validate-recent-work-before-post-flash-tests-11446-user-mandate-2026-05-18">Validate-recent-work-before-post-flash-tests
+<li><a href="#validate-recent-work-before-post-flash-tests-11446-user-mandate-2026-05-18">Validate-recent-work-before-post-flash-tests
 (§11.4.46, User mandate 2026-05-18)</a></li>
-<li><a
-href="#firebase-data-review-11447-user-mandate-2026-05-18">Firebase data
+<li><a href="#firebase-data-review-11447-user-mandate-2026-05-18">Firebase data
 review (§11.4.47, User mandate 2026-05-18)</a></li>
-<li><a
-href="#ui-driven-video-testing-11448-user-mandate-2026-05-18">UI-driven
+<li><a href="#ui-driven-video-testing-11448-user-mandate-2026-05-18">UI-driven
 video testing (§11.4.48, User mandate 2026-05-18)</a></li>
-<li><a
-href="#dual-approach-testing-11449-user-mandate-2026-05-18">Dual-approach
+<li><a href="#dual-approach-testing-11449-user-mandate-2026-05-18">Dual-approach
 testing (§11.4.49, User mandate 2026-05-18)</a></li>
-<li><a
-href="#deterministic-consistency-11450-user-mandate-2026-05-18">Deterministic
+<li><a href="#deterministic-consistency-11450-user-mandate-2026-05-18">Deterministic
 consistency (§11.4.50, User mandate 2026-05-18)</a></li>
-<li><a
-href="#live-adb-first-maximization-11451-user-mandate-2026-05-18">Live-ADB-First
+<li><a href="#live-adb-first-maximization-11451-user-mandate-2026-05-18">Live-ADB-First
 maximization (§11.4.51, User mandate 2026-05-18)</a></li>
-<li><a
-href="#autonomous-validation-11452-user-mandate-2026-05-18">Autonomous-Validation
+<li><a href="#autonomous-validation-11452-user-mandate-2026-05-18">Autonomous-Validation
 (§11.4.52, User mandate 2026-05-18)</a></li>
-<li><a
-href="#fixed_summary-parity-11453-user-mandate-2026-05-18">Fixed_Summary
+<li><a href="#fixed_summary-parity-11453-user-mandate-2026-05-18">Fixed_Summary
 parity (§11.4.53, User mandate 2026-05-18)</a></li>
-<li><a
-href="#atm-nnn-ticket-identifier-11454-user-mandate-2026-05-19">ATM-NNN
+<li><a href="#atm-nnn-ticket-identifier-11454-user-mandate-2026-05-19">ATM-NNN
 ticket identifier (§11.4.54, User mandate 2026-05-19)</a></li>
-<li><a
-href="#reopens-history-tracking-per-item-reopensmd-11455-user-mandate-2026-05-19">Reopens-history
+<li><a href="#reopens-history-tracking-per-item-reopensmd-11455-user-mandate-2026-05-19">Reopens-history
 tracking + per-item Reopens.md (§11.4.55, User mandate
 2026-05-19)</a></li>
-<li><a
-href="#status_summary-parity-two-audience-format-11456-user-mandate-2026-05-19">Status_Summary
+<li><a href="#status_summary-parity-two-audience-format-11456-user-mandate-2026-05-19">Status_Summary
 parity + two-audience format (§11.4.56, User mandate
 2026-05-19)</a></li>
-<li><a
-href="#readmemd-doc-link-section-revision-metadata-11457-user-mandate-2026-05-19">README.md
+<li><a href="#readmemd-doc-link-section-revision-metadata-11457-user-mandate-2026-05-19">README.md
 doc-link section + revision metadata (§11.4.57, User mandate
 2026-05-19)</a></li>
-<li><a
-href="#parallel-development-methodology-11458-user-mandate-2026-05-19">Parallel-development
+<li><a href="#parallel-development-methodology-11458-user-mandate-2026-05-19">Parallel-development
 methodology (§11.4.58, User mandate 2026-05-19)</a></li>
 <li><a href="#readme-always-sync-11459-user-mandate-2026-05-19">README
 always-sync (§11.4.59, User mandate 2026-05-19)</a></li>
-<li><a
-href="#documentation-always-sync-composite-covenant-11460-user-mandate-2026-05-19">Documentation
+<li><a href="#documentation-always-sync-composite-covenant-11460-user-mandate-2026-05-19">Documentation
 always-sync composite covenant (§11.4.60, User mandate
 2026-05-19)</a></li>
 <li><a href="#credentials-handling-11410">Credentials-handling
@@ -806,8 +780,7 @@ of:</p>
 <ol type="1">
 <li><p><strong>Reference + restate critical rules</strong> (safest —
 works for every agent):</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># &lt;Project&gt; — AGENTS.md</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># &lt;Project&gt; — AGENTS.md</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Base agent rules: </span><span class="in">`constitution/AGENTS.md`</span><span class="at"> — READ IT FIRST.</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; The base file is authoritative for any topic not covered here.</span></span>
@@ -876,10 +849,8 @@ literal value(s); surface any findings to operator before storing.</li>
 non-trivial state change updates the continuation document in the same
 commit.</li>
 </ol>
-<h2
-id="critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
-base rules restated (for agents that don’t honour <span class="citation"
-data-cites="imports">@imports</span>)</h2>
+<h2 id="critical-base-rules-restated-for-agents-that-dont-honour-imports">Critical
+base rules restated (for agents that don’t honour <span class="citation" data-cites="imports">@imports</span>)</h2>
 <h3 id="anti-bluff-covenant-end-user-quality-guarantee-11.4">Anti-bluff
 covenant — END-USER QUALITY GUARANTEE (§11.4)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -943,8 +914,7 @@ the Type column for every active item. All three Issues / Issues_Summary
 <code>CM-ITEM-TYPE-TRACKING</code> +
 <code>CM-COVENANT-114-16-PROPAGATION</code> enforce the mandate. No
 escape hatch.</p>
-<h3
-id="universal-vs-project-classification-11.4.17-user-mandate-2026-05-14">Universal-vs-project
+<h3 id="universal-vs-project-classification-11.4.17-user-mandate-2026-05-14">Universal-vs-project
 classification (§11.4.17, User mandate 2026-05-14)</h3>
 <p>Before adding ANY new rule / mandatory constraint / covenant clause /
 gate / “MUST”-bearing statement, classify it: <strong>universal</strong>
@@ -955,8 +925,7 @@ gate / “MUST”-bearing statement, classify it: <strong>universal</strong>
 uncertain, default to project-specific. Gate
 <code>CM-UNIVERSAL-VS-PROJECT-CLASSIFICATION</code> audits new rule
 commits. Paired mutation enforces the gate is not a bluff.</p>
-<h3
-id="subagent-driven-by-default-11.4.20-user-mandate-2026-05-14">Subagent-driven-by-default
+<h3 id="subagent-driven-by-default-11.4.20-user-mandate-2026-05-14">Subagent-driven-by-default
 (§11.4.20, User mandate 2026-05-14)</h3>
 <p>When the runtime supports subagent delegation (Agent tool / task
 runner / sub-session), the primary agent MUST default to subagent
@@ -972,8 +941,7 @@ subagents MUST partition non-overlapping files; parent
 <code>git add -A</code>. Gate <code>CM-SUBAGENT-DELEGATION-AUDIT</code>
 (per consuming project) flags foreground multi-step work as a violation.
 Paired mutation enforces the gate is not a bluff.</p>
-<h3
-id="script-documentation-mandate-11.4.18-user-mandate-2026-05-14">Script
+<h3 id="script-documentation-mandate-11.4.18-user-mandate-2026-05-14">Script
 documentation mandate (§11.4.18, User mandate 2026-05-14)</h3>
 <p>Every Bash / shell / POSIX-sh script under <code>scripts/</code> /
 <code>bin/</code> / <code>tests/</code> / library dirs / CI hooks
@@ -987,8 +955,7 @@ the in-source block AND the external user guide MUST be updated in the
 SAME commit. <strong>No documentation ever out of sync with its
 codebase.</strong> Gate <code>CM-SCRIPT-DOCS-SYNC</code> enforces.
 Paired mutation strips the invariant.</p>
-<h3
-id="fixed-document-column-alignment-11.4.19-user-mandate-2026-05-14">Fixed-document
+<h3 id="fixed-document-column-alignment-11.4.19-user-mandate-2026-05-14">Fixed-document
 column-alignment (§11.4.19, User mandate 2026-05-14)</h3>
 <p>The closed-archive tracker (<code>Fixed.md</code>) MUST mirror the
 open-work tracker (<code>Issues.md</code> +
@@ -1011,8 +978,7 @@ header-has-Status+Type, mtime ≥ Fixed.md, generator script present, sync
 wrapper invokes it, HTML+PDF exports present). Paired mutation strips
 Status column from Fixed_Summary header → gate FAILs. Classification:
 universal (per §11.4.17).</p>
-<h3
-id="operator-blocked-status-self-resolution-exhaustion-11.4.21-user-mandate-2026-05-14">Operator-blocked
+<h3 id="operator-blocked-status-self-resolution-exhaustion-11.4.21-user-mandate-2026-05-14">Operator-blocked
 status + self-resolution exhaustion (§11.4.21, User mandate
 2026-05-14)</h3>
 <p><code>Operator-blocked</code> is the §11.4.15 Status closed-set’s 7th
@@ -1035,8 +1001,7 @@ violation at planning layer (PASS-bluff equivalent). Gates
 <code>CM-OPERATOR-BLOCKED-SELF- RESOLUTION-AUDIT</code> (every NEW
 Operator-blocked commit carries an “Attempted: a — …; b — …; c — …”
 trail). Classification: universal (per §11.4.17). No escape hatch.</p>
-<h3
-id="document-sync-commit-discipline-11.4.22-user-mandate-2026-05-14">Document-sync
+<h3 id="document-sync-commit-discipline-11.4.22-user-mandate-2026-05-14">Document-sync
 commit discipline (§11.4.22, User mandate 2026-05-14)</h3>
 <p>Every project tracking work items through an Issues / Fixed lifecycle
 MUST provide a <strong>lightweight commit path</strong> distinct from
@@ -1055,8 +1020,7 @@ Gate <code>CM-COMMIT-DOCS-EXISTS</code> + paired mutation. Composes with
 §11.4.12 / §11.4.15 / §11.4.18 / §12.10. Classification: universal (per
 §11.4.17). No escape hatch — doc-status drift is a §11.4 PASS-bluff at
 the documentation layer.</p>
-<h3
-id="build-resource-stats-tracking-11.4.24-user-mandate-2026-05-14">Build-resource
+<h3 id="build-resource-stats-tracking-11.4.24-user-mandate-2026-05-14">Build-resource
 stats tracking (§11.4.24, User mandate 2026-05-14)</h3>
 <p>Every project under this Constitution with a build exceeding 1 minute
 wall-clock MUST run a host-side resource sampler for every build —
@@ -1075,8 +1039,7 @@ AND failure paths of the build wrapper. Gate
 Classification: mixed (per §11.4.17). Composes with §11.4.12 / §11.4.18
 / §11.4.22 / §12.6 / §12.7 / §12.9. No escape hatch — build-resource
 debugging without time-series data is the bluff this anchor forbids.</p>
-<h3
-id="full-automation-coverage-11.4.25-user-mandate-2026-05-15">Full-Automation-Coverage
+<h3 id="full-automation-coverage-11.4.25-user-mandate-2026-05-15">Full-Automation-Coverage
 (§11.4.25, User mandate 2026-05-15)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-15):</strong></p>
@@ -1102,8 +1065,7 @@ platform × invariant × status) regenerated at release-gate sweep.
 Classification: universal (§11.4.17). Severity-equivalent to a §11.4
 PASS-bluff at the release-gate layer. No escape hatch. See Constitution
 §11.4.25 for the full mandate.</p>
-<h3
-id="constitution-submodule-update-workflow-11.4.26-user-mandate-2026-05-15">Constitution-Submodule
+<h3 id="constitution-submodule-update-workflow-11.4.26-user-mandate-2026-05-15">Constitution-Submodule
 Update Workflow (§11.4.26, User mandate 2026-05-15)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-15):</strong></p>
@@ -1135,8 +1097,7 @@ cascade work — out-of-sync pointer = §11.4.26 violation. Classification:
 universal (§11.4.17). Severity-equivalent to force-push without §9.2
 authorization. No escape hatch. See Constitution §11.4.26 for the full
 pipeline (operational scope, cross-cutting reach).</p>
-<h3
-id="submodule-dependency-manifest-11.4.31-user-mandate-2026-05-15">Submodule-dependency-manifest
+<h3 id="submodule-dependency-manifest-11.4.31-user-mandate-2026-05-15">Submodule-dependency-manifest
 (§11.4.31, User mandate 2026-05-15)</h3>
 <p>Every owned-by-us submodule MUST ship <code>helix-deps.yaml</code>
 listing its own-org dependencies:
@@ -1152,8 +1113,7 @@ rule is the operational complement of §11.4.28 / CONST-051(C) —
 manifests are the bridge that lets consumers reconstruct the dependency
 graph at the parent root. Classification: universal (§11.4.17). See
 Constitution §11.4.31 for the full mandate.</p>
-<h3
-id="post-constitution-pull-validation-11.4.32-user-mandate-2026-05-15">Post-constitution-pull
+<h3 id="post-constitution-pull-validation-11.4.32-user-mandate-2026-05-15">Post-constitution-pull
 validation (§11.4.32, User mandate 2026-05-15)</h3>
 <p>Whenever a project’s constitution submodule is fetched + pulled with
 any content change, run
@@ -1171,8 +1131,7 @@ gate, asserts sweep FAILs. This is the <strong>enforcement
 engine</strong> for every other rule — without it, new rules are
 decorative anchors rather than enforced gates. Classification: universal
 (§11.4.17). See Constitution §11.4.32 for the full mandate.</p>
-<h3
-id="gitignore-no-versioned-build-artifacts-11.4.30-user-mandate-2026-05-15">.gitignore
+<h3 id="gitignore-no-versioned-build-artifacts-11.4.30-user-mandate-2026-05-15">.gitignore
 + no-versioned-build-artifacts (§11.4.30, User mandate 2026-05-15)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-15):</strong></p>
@@ -1213,8 +1172,7 @@ PASS-bluff at the repository-hygiene layer. Composes with §1, §2, §9.1,
 §11.4.10, §11.4.12, §11.4.17, §11.4.18, §11.4.20, §11.4.25, §11.4.26,
 §11.4.27, §11.4.28, §11.4.29, CONST-047. See Constitution §11.4.30 for
 the full mandate.</p>
-<h3
-id="lowercase-snake_case-naming-11.4.29-user-mandate-2026-05-15">Lowercase-snake_case-naming
+<h3 id="lowercase-snake_case-naming-11.4.29-user-mandate-2026-05-15">Lowercase-snake_case-naming
 (§11.4.29, User mandate 2026-05-15)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-15):</strong></p>
@@ -1251,8 +1209,7 @@ common-sense exceptions. Severity-equivalent to §11.4 PASS-bluff at the
 reference-integrity layer. Composes with §1, §11.4.12, §11.4.17,
 §11.4.18, §11.4.20, §11.4.25, §11.4.26, §11.4.27, §11.4.28, CONST-047.
 See Constitution §11.4.29 for the full mandate.</p>
-<h3
-id="submodules-as-equal-codebase-decoupling-dependency-layout-11.4.28-user-mandate-2026-05-15">Submodules-as-equal-codebase
+<h3 id="submodules-as-equal-codebase-decoupling-dependency-layout-11.4.28-user-mandate-2026-05-15">Submodules-as-equal-codebase
 + decoupling + dependency-layout (§11.4.28, User mandate
 2026-05-15)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -1292,8 +1249,7 @@ Classification: universal (§11.4.17). No escape hatch.
 Severity-equivalent to a §11.4 PASS-bluff at the codebase- completeness
 layer. Composes with §1, §3, §11.4.17, §11.4.20, §11.4.25, §11.4.26,
 §11.4.27, CONST-047. See Constitution §11.4.28 for the full mandate.</p>
-<h3
-id="no-fakes-beyond-unit-tests-100-test-type-coverage-11.4.27-user-mandate-2026-05-15">No-fakes-beyond-unit-tests
+<h3 id="no-fakes-beyond-unit-tests-100-test-type-coverage-11.4.27-user-mandate-2026-05-15">No-fakes-beyond-unit-tests
 + 100%-test-type-coverage (§11.4.27, User mandate 2026-05-15)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-15):</strong></p>
@@ -1327,8 +1283,7 @@ cascade work (§11.4.26 step 7).</p>
 PASS-bluff at the release-gate layer. No escape hatch. Composes with §1,
 §7.1, §11.4.1–§11.4.26 (esp. §11.4.25 — strict per-type-of-test
 expansion). See Constitution §11.4.27 for full mandate.</p>
-<h3
-id="type-aware-closure-status-vocabulary-11.4.33-user-mandate-2026-05-15">Type-aware
+<h3 id="type-aware-closure-status-vocabulary-11.4.33-user-mandate-2026-05-15">Type-aware
 closure-status vocabulary (§11.4.33, User mandate 2026-05-15)</h3>
 <p>Every project that tracks work items by Type per §11.4.16 MUST close
 them with the Type-appropriate closure-status word: <code>Bug</code> →
@@ -1345,8 +1300,7 @@ emitted docs. Closing a <code>Feature</code> with
 gate <code>CM-CLOSURE-VOCAB-TYPE-AWARE</code>. Composes with §11.4.15 /
 §11.4.16 / §11.4.19 / §11.4.23. Classification: universal (per
 §11.4.17). No escape hatch.</p>
-<h3
-id="reopened-source-attribution-11.4.34-user-mandate-2026-05-15">Reopened-source
+<h3 id="reopened-source-attribution-11.4.34-user-mandate-2026-05-15">Reopened-source
 attribution (§11.4.34, User mandate 2026-05-15)</h3>
 <p>Every Issues.md heading whose <code>**Status:**</code> is
 <code>Reopened</code> MUST carry a <code>**Reopened-Details:**</code>
@@ -1363,8 +1317,7 @@ sub-states by source (e.g., <code>Reopened (AI: test-failed)</code> vs
 <code>CM-ITEM-REOPENED-DETAILS</code> mirrors §11.4.21 walk pattern.
 Composes with §11.4.6 / §11.4.7 / §11.4.15 / §11.4.21. Classification:
 universal (per §11.4.17). No escape hatch.</p>
-<h3
-id="canonical-root-inheritance-clarity-11.4.35-user-mandate-2026-05-15">Canonical-root
+<h3 id="canonical-root-inheritance-clarity-11.4.35-user-mandate-2026-05-15">Canonical-root
 inheritance clarity (§11.4.35, User mandate 2026-05-15)</h3>
 <p><strong>The constitution submodule’s three files
 (<code>constitution/Constitution.md</code>,
@@ -1391,8 +1344,7 @@ between layers MUST be a visible commit — <code>git mv</code> + explicit
 constitution to <project> per §11.4.35” line in the message. Pre-build
 gate <code>CM-CANONICAL-ROOT-CLARITY</code>. Composes with §11.4.17.
 Classification: universal (per §11.4.17). No escape hatch.</p>
-<h3
-id="mandatory-install_upstreams-on-cloneadd-11.4.36-user-mandate-2026-05-15">Mandatory
+<h3 id="mandatory-install_upstreams-on-cloneadd-11.4.36-user-mandate-2026-05-15">Mandatory
 install_upstreams on clone/add (§11.4.36, User mandate 2026-05-15)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-15):</strong></p>
@@ -1423,8 +1375,7 @@ count.</p>
 <p>Classification: universal (§11.4.17). Composes with §2, §2.1, §3,
 §9.2, §11.4.17, §11.4.20, §11.4.28, §11.4.29, §11.4.30, §11.4.31. See
 Constitution §11.4.36 for the full mandate.</p>
-<h3
-id="fetch-before-edit-11.4.37-user-mandate-2026-05-15">Fetch-before-edit
+<h3 id="fetch-before-edit-11.4.37-user-mandate-2026-05-15">Fetch-before-edit
 (§11.4.37, User mandate 2026-05-15)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-15):</strong></p>
@@ -1435,7 +1386,7 @@ Validate and verify that Proejct-Toolkit and all Submodules do inherit
 all of them!”</p>
 </blockquote>
 <p>FIRST git-touching action of any session:
-<code>git fetch --all --prune &amp;&amp; git log --oneline HEAD..@{u} &amp;&amp; git submodule foreach --recursive 'git fetch --all --prune --quiet'</code>.
+<code>git fetch --all --prune &amp;&amp; git log --oneline HEAD..@{u} &amp;&amp; git submodule foreach --recursive &#39;git fetch --all --prune --quiet&#39;</code>.
 If <code>HEAD..@{u}</code> is non-empty, integrate (ff-merge / rebase /
 surface per §11.4.4) BEFORE any local edit, scanner, or test. Skipping
 on “nothing could have changed” is a §11.4.6 (no-guessing) violation —
@@ -1451,8 +1402,7 @@ dependency cloned via <code>incorporate-submodule</code> (§11.4.31) or
 <code>git submodule add</code> (§11.4.36). Gate
 <code>CM-FETCH-BEFORE-EDIT-AUDIT</code> + paired mutation per §1.1.
 Classification: universal (per §11.4.17). No escape hatch.</p>
-<h3
-id="installable-asset-evidence-11.4.38-user-mandate-2026-05-17">Installable-asset
+<h3 id="installable-asset-evidence-11.4.38-user-mandate-2026-05-17">Installable-asset
 evidence (§11.4.38, User mandate 2026-05-17)</h3>
 <p>For any user-distributable build artifact (package, bundle,
 installer, or container image), tests/challenges MUST open the artifact
@@ -1467,8 +1417,7 @@ type that opens the produced artifact and verifies every declared
 user-visible asset. The challenge MUST run as part of the standard QA
 gate. Classification: universal (per §11.4.17). No escape hatch. See
 Constitution §11.4.38 for the full mandate.</p>
-<h3
-id="full-suite-retest-before-release-tag-11.4.40-user-mandate-2026-05-17">Full-suite
+<h3 id="full-suite-retest-before-release-tag-11.4.40-user-mandate-2026-05-17">Full-suite
 retest before release tag (§11.4.40, User mandate 2026-05-17)</h3>
 <p>Release tag MUST NOT be created until a COMPLETE retest with ALL
 existing tests runs on a clean baseline AFTER every workable item in the
@@ -1483,8 +1432,7 @@ granularity) + §11.4.7 (full-suite is authoritative baseline for
 closures) + §11.4.39 (per-feature on-device validation runs as step 3).
 Classification: universal (per §11.4.17). No escape hatch. See
 Constitution §11.4.40 for the full mandate.</p>
-<h3
-id="pre-force-push-merge-first-11.4.41-user-mandate-2026-05-17">Pre-force-push
+<h3 id="pre-force-push-merge-first-11.4.41-user-mandate-2026-05-17">Pre-force-push
 merge-first (§11.4.41, User mandate 2026-05-17)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-17):</strong></p>
@@ -1532,8 +1480,7 @@ and full retest MUST carry positive captured evidence (§11.4.2 +
 §11.4.5). Tests AND Challenges bound equally. No escape hatch.
 Classification: universal (per §11.4.17). See Constitution §11.4.42 for
 the full mandate.</p>
-<h3
-id="tdd-fix-discipline-11.4.43-user-mandate-2026-05-18">TDD-Fix-Discipline
+<h3 id="tdd-fix-discipline-11.4.43-user-mandate-2026-05-18">TDD-Fix-Discipline
 (§11.4.43, User mandate 2026-05-18)</h3>
 <p>Every fix follows 5-step workflow: <strong>RED</strong> (failing test
 FIRST, real product defect, captured evidence) →
@@ -1550,8 +1497,7 @@ guides, HelixQA bank, CONTINUATION.md §12.10 — all in SAME commit).
 Test-after-fix is a §11.4 PASS-bluff: test agrees with fix but does not
 catch the bug. No escape hatch. Classification: universal (§11.4.17).
 See Constitution §11.4.43 for the full mandate.</p>
-<h3
-id="document-revision-header-11.4.44-user-mandate-2026-05-18">Document
+<h3 id="document-revision-header-11.4.44-user-mandate-2026-05-18">Document
 revision header (§11.4.44, User mandate 2026-05-18)</h3>
 <p>Every IN-scope tracked Markdown document (Issues.md /
 Issues_Summary.md / Fixed.md / Fixed_Summary.md / CONTINUATION.md /
@@ -1572,8 +1518,7 @@ edit the revision number — only the bump script is authoritative.</p>
 with §12.10 (CONTINUATION.md header reuse), §11.4.12, §11.4.22,
 §11.4.23, §11.4.18. No escape hatch. Classification: universal
 (§11.4.17). See Constitution §11.4.44 for the full mandate.</p>
-<h3
-id="integration-status-doc-maintenance-11.4.45-user-mandate-2026-05-18">Integration-status-doc
+<h3 id="integration-status-doc-maintenance-11.4.45-user-mandate-2026-05-18">Integration-status-doc
 maintenance (§11.4.45, User mandate 2026-05-18)</h3>
 <p>Every non-trivial domain integration MUST have a
 <code>docs/&lt;domain&gt;/&lt;integration&gt;/Status.md</code> carrying
@@ -1589,8 +1534,7 @@ domain.</p>
 Composes with §11.4.5 / §11.4.12 / §11.4.13 / §11.4.15 / §11.4.22 /
 §11.4.23 / §11.4.44 / §12.10. No escape hatch. Classification: universal
 (§11.4.17). See Constitution §11.4.45 for the full mandate.</p>
-<h3
-id="validate-recent-work-before-post-flash-tests-11.4.46-user-mandate-2026-05-18">Validate-recent-work-before-post-flash-tests
+<h3 id="validate-recent-work-before-post-flash-tests-11.4.46-user-mandate-2026-05-18">Validate-recent-work-before-post-flash-tests
 (§11.4.46, User mandate 2026-05-18)</h3>
 <p>Every post-flash run MUST first run a recent-work validation pass
 (targeted tests for Issues.md In-progress / Ready-for-testing / Reopened
@@ -1631,8 +1575,7 @@ with §11.4.4 / §11.4.4(a) / §11.4.6 / §11.4.7 / §11.4.10 / §11.4.12 /
 §11.4.44 / §11.4.45 / §11.4.46. No escape hatch — no
 <code>--skip-firebase-review</code>. Classification: universal
 (§11.4.17). See Constitution §11.4.47 for the full mandate.</p>
-<h3
-id="ui-driven-video-testing-11.4.48-user-mandate-2026-05-18">UI-driven
+<h3 id="ui-driven-video-testing-11.4.48-user-mandate-2026-05-18">UI-driven
 video testing (§11.4.48, User mandate 2026-05-18)</h3>
 <p>Every test that asserts video playback on a secondary display MUST
 traverse the user-equivalent UI path (launcher icon → app home → content
@@ -1656,8 +1599,7 @@ meta-test mutations. No escape hatch — no
 <code>--use-intent-shortcut</code>, <code>--skip-ui-traverse</code>,
 <code>--legacy-intent-mode</code> flag. Classification: universal
 (§11.4.17). See Constitution §11.4.48 for the full mandate.</p>
-<h3
-id="dual-approach-testing-11.4.49-user-mandate-2026-05-18">Dual-approach
+<h3 id="dual-approach-testing-11.4.49-user-mandate-2026-05-18">Dual-approach
 testing (§11.4.49, User mandate 2026-05-18)</h3>
 <p>Every feature test exercising a user-visible behaviour MUST ship in
 TWO variants: a UI-driven variant (uiautomator-based, §11.4.48 surfaces
@@ -1688,8 +1630,7 @@ mutations. No escape hatch — no <code>--ui-only</code> /
 <code>--intent-only</code> / <code>--skip-dual</code> flag.
 Classification: universal (§11.4.17). See Constitution §11.4.49 for the
 full mandate.</p>
-<h3
-id="deterministic-consistency-11.4.50-user-mandate-2026-05-18">Deterministic
+<h3 id="deterministic-consistency-11.4.50-user-mandate-2026-05-18">Deterministic
 consistency (§11.4.50, User mandate 2026-05-18)</h3>
 <p>Every test that PASSes MUST have been executed N times (default N=3
 normal tests, N=10 cycle-validation suites) against the same firmware
@@ -1715,8 +1656,7 @@ mutations. No escape hatch — no <code>--allow-flake</code>,
 <code>--first-pass-suffices</code>, <code>--skip-n-iter</code>,
 <code>--skip-coverage-audit</code> flag. Classification: universal
 (§11.4.17). See Constitution §11.4.50 for the full mandate.</p>
-<h3
-id="live-adb-first-maximization-11.4.51-user-mandate-2026-05-18">Live-ADB-First
+<h3 id="live-adb-first-maximization-11.4.51-user-mandate-2026-05-18">Live-ADB-First
 maximization (§11.4.51, User mandate 2026-05-18)</h3>
 <p>Every fix MUST be classified by rebuild-requirement before commit
 using the project’s per-file-class decision matrix. If
@@ -1748,8 +1688,7 @@ mutations. No escape hatch — no <code>--skip-classify</code> /
 flag.</p>
 <p>Classification: universal (§11.4.17). See Constitution §11.4.51 for
 the full mandate.</p>
-<h3
-id="autonomous-validation-11.4.52-user-mandate-2026-05-18">Autonomous-Validation
+<h3 id="autonomous-validation-11.4.52-user-mandate-2026-05-18">Autonomous-Validation
 (§11.4.52, User mandate 2026-05-18)</h3>
 <p><strong>Forensic anchor — verbatim user mandate:</strong></p>
 <blockquote>
@@ -1787,8 +1726,7 @@ escape hatch — no <code>--allow-operator-attended-only</code> /
 <code>--manual-validation-suffices</code> flag.</p>
 <p>Classification: universal (§11.4.17). See Constitution §11.4.52 for
 the full mandate.</p>
-<h3
-id="fixed_summary-parity-11.4.53-user-mandate-2026-05-18">Fixed_Summary
+<h3 id="fixed_summary-parity-11.4.53-user-mandate-2026-05-18">Fixed_Summary
 parity (§11.4.53, User mandate 2026-05-18)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-18T17:55Z):</strong></p>
@@ -1822,8 +1760,7 @@ hatch — no <code>--skip-fixed-summary-sync</code>,
 flag.</p>
 <p>Classification: universal (§11.4.17). See Constitution §11.4.53 for
 the full mandate.</p>
-<h3
-id="atm-nnn-ticket-identifier-11.4.54-user-mandate-2026-05-19">ATM-NNN
+<h3 id="atm-nnn-ticket-identifier-11.4.54-user-mandate-2026-05-19">ATM-NNN
 ticket identifier (§11.4.54, User mandate 2026-05-19)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-19):</strong></p>
@@ -1849,8 +1786,7 @@ gaps. Issues_Summary.md and Fixed_Summary.md MUST carry an
 hatch.</p>
 <p>Classification: universal (§11.4.17). See Constitution §11.4.54 for
 the full mandate.</p>
-<h3
-id="reopens-history-tracking-per-item-reopens.md-11.4.55-user-mandate-2026-05-19">Reopens-history
+<h3 id="reopens-history-tracking-per-item-reopens.md-11.4.55-user-mandate-2026-05-19">Reopens-history
 tracking + per-item Reopens.md (§11.4.55, User mandate 2026-05-19)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-19):</strong></p>
@@ -1878,8 +1814,7 @@ Reopens.md.</p>
 hatch.</p>
 <p>Classification: universal (§11.4.17). See Constitution §11.4.55 for
 the full mandate.</p>
-<h3
-id="status_summary-parity-two-audience-format-11.4.56-user-mandate-2026-05-19">Status_Summary
+<h3 id="status_summary-parity-two-audience-format-11.4.56-user-mandate-2026-05-19">Status_Summary
 parity + two-audience format (§11.4.56, User mandate 2026-05-19)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-19):</strong></p>
@@ -1914,8 +1849,7 @@ on every Status.md update.</p>
 hatch.</p>
 <p>Classification: universal (§11.4.17). See Constitution §11.4.56 for
 the full mandate.</p>
-<h3
-id="readme.md-doc-link-section-revision-metadata-11.4.57-user-mandate-2026-05-19">README.md
+<h3 id="readme.md-doc-link-section-revision-metadata-11.4.57-user-mandate-2026-05-19">README.md
 doc-link section + revision metadata (§11.4.57, User mandate
 2026-05-19)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -1934,7 +1868,7 @@ markdown table with columns: <code>Document</code>,
 Issues.md + Issues_Summary.md, Fixed.md + Fixed_Summary.md,
 CONTINUATION.md, every <code>docs/**/Status.md</code> + its
 Status_Summary.md pair. Status docs auto-discovered by the generator via
-<code>find docs -name 'Status.md'</code>.</p>
+<code>find docs -name &#39;Status.md&#39;</code>.</p>
 <p>Generator: <code>scripts/testing/update_readme_doc_links.sh</code>
 extracts each doc’s revision + last-modified from its §11.4.44 header,
 renders the table, replaces the section between explicit markers
@@ -1953,8 +1887,7 @@ markers, remove rows, backdate <code>Last modified</code>, strip anchor
 literal. No escape hatch.</p>
 <p>Classification: universal (§11.4.17). See Constitution §11.4.57 for
 the full mandate.</p>
-<h3
-id="parallel-development-methodology-11.4.58-user-mandate-2026-05-19">Parallel-development
+<h3 id="parallel-development-methodology-11.4.58-user-mandate-2026-05-19">Parallel-development
 methodology (§11.4.58, User mandate 2026-05-19)</h3>
 <p><strong>Forensic anchor — verbatim user mandate (2026-05-19T~05:00Z
 MSK):</strong></p>
@@ -2022,8 +1955,7 @@ backdates HTML+PDF → gate FAILs. No escape hatch — no
 §11.4.44 + §11.4.45 + §11.4.53 + §11.4.56 + §11.4.57 + §12.10.</p>
 <p>Classification: universal (§11.4.17). See Constitution §11.4.59 for
 the full mandate.</p>
-<h3
-id="documentation-always-sync-composite-covenant-11.4.60-user-mandate-2026-05-19">Documentation
+<h3 id="documentation-always-sync-composite-covenant-11.4.60-user-mandate-2026-05-19">Documentation
 always-sync composite covenant (§11.4.60, User mandate 2026-05-19)</h3>
 <p>Eight doc classes — Issues, Issues_Summary, Fixed, Fixed_Summary,
 CONTINUATION, README, every Status.md (domain-scoped), every
@@ -2142,8 +2074,7 @@ Composes with §11.4.12 / §11.4.18 / §11.4.23 / §11.4.44 / §11.4.45 /
 §11.4.53 / §11.4.59 / §11.4.60 / §11.4.63 / §11.4.64. No escape hatch —
 no <code>--skip-md-exports</code>, <code>--no-pdf-only</code>,
 <code>--md-export-not-applicable</code> flag.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.65.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <p><strong>§11.4.66 — Blocker-resolution interactive-clarification
@@ -2164,8 +2095,7 @@ the anchor literal across the 42-file consumer fleet. Paired meta- test
 mutation strips the literal → gate FAILs. No escape hatch — no
 <code>--skip-ask</code>, <code>--silent-wait</code>,
 <code>--free-form-only</code> flag.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.66.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <p><strong>§11.4.67 — Shell-script target-shell-parseability mandate
@@ -2177,11 +2107,11 @@ well if they are broken!” + “Make sure that this is mandatory rule!”</p>
 than the one in its shebang MUST parse cleanly under that target shell.
 Forensic incident:
 <code>device/rockchip/rk3588/tests/test_all_fixes.sh:114</code> used
-bash-only <code>exec &gt; &gt;(tee -a "$f") 2&gt;&amp;1</code> on a
+bash-only <code>exec &gt; &gt;(tee -a &quot;$f&quot;) 2&gt;&amp;1</code> on a
 <code>sh script.sh</code> callsite — Android mksh parses the whole
 script BEFORE executing, so the runtime
-<code>[ -n "${BASH_VERSION:-}" ]</code> guard could not save it. Fixed
-by wrapping in <code>eval 'exec &gt; &gt;(tee …) 2&gt;&amp;1'</code> so
+<code>[ -n &quot;${BASH_VERSION:-}&quot; ]</code> guard could not save it. Fixed
+by wrapping in <code>eval &#39;exec &gt; &gt;(tee …) 2&gt;&amp;1&#39;</code> so
 the parser sees only a string.</p>
 <p>Closed-set scope: every tracked <code>.sh</code> under
 <code>device/rockchip/rk3588/tests/</code>, <code>scripts/</code>,
@@ -2205,8 +2135,7 @@ outside <code>eval</code> → parse gate FAILs; strip <code>11.4.67</code>
 literal → propagation gate FAILs. No escape hatch — no
 <code>--skip-parseability-check</code>, <code>--bash-only-script</code>,
 <code>--runtime-guard-suffices</code> flag.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.67.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <p><strong>§11.4.68 — Positive sink-side / downstream evidence mandate
@@ -2235,8 +2164,7 @@ re-probe. No escape hatch.</p>
 <code>CM-COVENANT-114-68-PROPAGATION</code> +
 <code>CM-POSITIVE-SINK-EVIDENCE-PER-AUDIO-TEST</code> + paired meta-test
 mutations per §1.1.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.68.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <p><strong>§11.4.69 — Universal sink-side positive-evidence taxonomy +
@@ -2311,8 +2239,7 @@ Codec-In-Use field was empty.</p>
 <p>Propagation gate <code>CM-COVENANT-114-69-PROPAGATION</code> enforces
 this anchor literal across the ~44-file consumer fleet. Paired mutation
 strips the literal → gate FAILs.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.69.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <p><strong>§11.4.70 — Subagent-driven execution is the default (User
@@ -2350,8 +2277,7 @@ recorded operator authorisation is itself a §11.4 PASS-bluff. Pre-build
 gate <code>CM-COVENANT-114-70-SUBAGENT-DEFAULT-PROPAGATION</code>
 enforces this anchor literal across the ~44-file consumer fleet. Paired
 meta-test mutation strips the literal → gate FAILs.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.70.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <p><strong>§11.4.71 — Pre-Push Fetch + Investigate + Integrate Mandate
@@ -2379,8 +2305,7 @@ Audit-trail per push reconstructable from
 <code>--no-investigate</code>, <code>--fast-push</code>,
 <code>--trust-upstream</code> flag. Pre-build gate
 <code>CM-COVENANT-114-71-PROPAGATION</code> + paired mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.71.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <p><strong>§11.4.72 — Audio Top-Priority Mandate (User mandate,
@@ -2404,8 +2329,7 @@ non-audio task is faster” or “but this research is more interesting”
 override. Audio-stack regressions are user-perceptible and high-impact
 (D3 silent post-flash is a release blocker), while research and
 refactors can wait.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.72.</p>
 <p>Non-compliance is a process violation regardless of context.</p>
 <p><strong>§11.4.73 — Main-specification document versioning + revision
@@ -2427,8 +2351,7 @@ Every operator-mandated requirement MUST land in the spec as part of the
 work that implements it. Cross-doc propagation copies MUST reference the
 active spec file, not a stale archived version. Composes with §11.4.44,
 §11.4.61, §11.4.59, §11.4.65.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.73.</p>
 <p>Non-compliance is a release blocker.</p>
 <p><strong>§11.4.74 — Submodule-catalogue-first discovery +
@@ -2443,8 +2366,7 @@ them properly and extend those Submodules further!”</p>
 <p>Before scaffolding any new module / package / helper / utility, the
 agent MUST: (1) survey <code>vasic-digital</code> +
 <code>HelixDevelopment</code> orgs on GitHub + GitLab — the canonical
-inventory is <a
-href="submodules-catalogue.md"><code>submodules-catalogue.md</code></a>
+inventory is <a href="submodules-catalogue.md"><code>submodules-catalogue.md</code></a>
 (142 repos categorised); (2) reuse an existing Submodule when it covers
 ≥ 80% of the functionality; (3) extend in-place via upstream PR when
 80%+ matches but features are missing — never duplicate; (4) document
@@ -2455,8 +2377,7 @@ development-cycle rules (§11.4 anti-bluff, §1.1 paired mutations,
 §11.4.10 credentials, §11.4.61 metadata + ToC, §11.4.65 universal
 export, §11.4.73 spec versioning, §2.1 multi-mirror push, §3 propagation
 order).</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.74.</p>
 <p>Non-compliance is a process violation; severe cases (duplicate
 implementation landed without catalogue check) are release blockers.</p>
@@ -2544,8 +2465,7 @@ catalogue for cross-project reuse).</p>
 <code>--no-verify</code> route IS the deliberate audit-trail bypass;
 §11.4.75 makes the audit trail mechanical via the
 <code>commit-msg</code> footer requirement.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.75.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.75.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <p><strong>§11.4.76 — Containers-submodule mandate (User mandate,
 2026-05-20)</strong></p>
@@ -2592,8 +2512,7 @@ enforcement), §3 (propagation), §11.4.31
 (Submodule-Dependency-Manifest), §11.4.36
 (<code>install_upstreams</code> on clone), §11.4.28
 (Submodules-As-Equal-Codebase), §1.1 (paired-mutation gates).</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.76.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.76.</p>
 <p>Non-compliance: reinventing compose orchestration in-project is a
 release blocker.</p>
 <p><strong>§11.4.77 — Regeneration-mechanism-required mandate (User
@@ -2601,7 +2520,8 @@ mandate, 2026-05-20)</strong></p>
 <p>Direct user mandate (verbatim): “We must be sure that after excluding
 anything from Git versioning we still have the mechanism which will out
 of the box obtain or re-generate missing content!”</p>
-<p><strong>Forensic anchor.</strong> 2026-05-20T15:00Z: a consuming project’s audio Tier 1 <code>commit_all.sh</code> stalled 4 h on
+<p><strong>Forensic anchor.</strong> 2026-05-20T15:00Z: a consuming
+project’s audio Tier 1 <code>commit_all.sh</code> stalled 4 h on
 <code>git add -A</code> scanning 274 GiB <code>.git-backup-*</code> +
 159 GiB <code>RKTools/linux/</code> + 167 GiB <code>qa-results/</code> —
 all untracked but un-gitignored. Bare <code>.gitignore</code> fix would
@@ -2642,8 +2562,7 @@ downloader Submodule), §11.4.75 (pre-commit + CI replay refuse bare
 additions), §11.4.76 (container images regenerated via
 <code>vasic-digital/containers</code>), §9 / §9.2 (pre-test mechanism in
 sandbox), §3 (consuming submodules inherit).</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.77.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.77.</p>
 <p>Non-compliance is a release blocker regardless of context.</p>
 <p><strong>§11.4.78 — CodeGraph code-intelligence mandate (User mandate,
 2026-05-20)</strong></p>
@@ -2687,8 +2606,7 @@ remote.</p>
 <p>Composes with §11.4.3, §11.4.10, §11.4.12, §11.4.65, §11.4.30,
 §11.4.74, §11.4.77, §11.4, §1.1. Planned gate
 <code>CM-CODEGRAPH-WIRED</code> + paired mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.78.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.78.</p>
 <p>Non-compliance is a process violation; a project worked on by AI
 agents without CodeGraph installed, wired, and anti-bluff-verified is in
 breach of this mandate.</p>
@@ -2714,8 +2632,7 @@ exclude → validate FAILs → restore.</p>
 <p>Composes with §11.4.74 (ownership classifier), §11.4.78 (CodeGraph
 parent), §11.4.10 (credentials still excluded), §1.1 (paired mutation),
 §107 (a lying index is a PASS-bluff).</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.79.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.79.</p>
 <p>Non-compliance is a process violation; severe cases (own-org
 submodules silently excluded without an audit trail in
 <code>.codegraph/config.json</code>) are release blockers.</p>
@@ -2745,8 +2662,7 @@ inheritance) — invoke at
 <code>${CONST_DIR}/scripts/codegraph_*.sh</code>, never copy.</p>
 <p>Composes with §11.4.78, §11.4.79, §11.4.10, §11.4.45, §11.4.65, §107,
 §1.1.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.80.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.80.</p>
 <p>Non-compliance is a process violation; severe cases (&gt;2 weeks
 since last update + open AI-agent work) are release blockers.</p>
 <p><strong>§11.4.81 — Cross-platform-parity mandate (User mandate,
@@ -2764,7 +2680,7 @@ Three sub-mandates: <strong>(A)</strong> Per-OS implementation REQUIRED
 — cgroup/systemd/<code>/proc</code> primitives have documented
 equivalents (POSIX <code>setrlimit</code>/<code>ulimit</code>, launchd,
 <code>rctl</code>, Job Object). <strong>(B)</strong> Per-OS tests
-REQUIRED — every gate test has <code>case "$(uname -s)" in</code>
+REQUIRED — every gate test has <code>case &quot;$(uname -s)&quot; in</code>
 branches with positive captured evidence per §11.4.2 + §11.4.5 in each
 branch; SKIP-with-reason only when the platform genuinely cannot
 enforce. <strong>(C)</strong> Honest kernel-gap citation + adjacent
@@ -2785,8 +2701,7 @@ when kernel cannot) / §11.4.4 / §11.4.5 / §11.4.6 / §11.4.20 / §11.4.27
 / §11.4.69 / §11.4.70 / §107. Pre-build gate
 <code>CM-CROSS-PLATFORM-PARITY</code> + paired §1.1 mutation. No escape
 hatch.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.81.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.81.</p>
 <p>Non-compliance is a release blocker on multi-platform projects.</p>
 <p><strong>§11.4.82 — Iteration-speedup discipline mandate (User
 mandate, 2026-05-22)</strong></p>
@@ -2839,8 +2754,7 @@ surfaces empirical ROI per discipline.</li>
 <code>--no-pre-flight</code>, <code>--rebuild-everything</code>,
 <code>--unlimited-subagent-scope</code>, <code>--ignore-locks</code>,
 <code>--no-telemetry</code> flag exists.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.82.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.82.</p>
 <p>Non-compliance is a release blocker.</p>
 <p><strong>§11.4.83 — docs/qa/ end-user evidence mandate (User mandate,
 2026-05-22)</strong></p>
@@ -2863,8 +2777,7 @@ feature-shipping commit lacks its matching
 <code>docs/qa/&lt;run-id&gt;/</code>.</p>
 <p>Composes with §11.4.2, §11.4.5, §11.4.13, §11.4.65, §11.4.69, §107,
 §1.1.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.83.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.83.</p>
 <p>Non-compliance is a release blocker.</p>
 <p><strong>§11.4.84 — Working-tree quiescence rule for subagent commits
 (User mandate, 2026-05-22)</strong></p>
@@ -2903,8 +2816,7 @@ lockfile (<code>.git/MUTATION_IN_PROGRESS</code>) or
 mutation markers → push BLOCKED.</p>
 <p>Composes with §1.1, §11.4.20, §11.4.70, §11.4.27, §11.4.10, §11.4.71,
 §107.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.84.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.84.</p>
 <p>Non-compliance is a release blocker. A mutation marker in a tagged
 commit is a critical defect regardless of how briefly it persisted.</p>
 <p><strong>§11.4.85 — Stress + Chaos Test Mandate (User mandate,
@@ -2941,8 +2853,7 @@ failure = §11.4.14 violation.</p>
 on-device test (if LIVE_ADB_TESTABLE) + HelixQA Challenge entry.
 Composes with §11.4 / §11.4.1 / §11.4.5 / §11.4.6 / §11.4.43 / §11.4.50
 / §11.4.52 / §11.4.69 / §11.4.83 / §107.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.85.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.85.</p>
 <p>Non-compliance is a release blocker regardless of context. No
 <code>--skip-stress</code>, <code>--no-chaos</code>,
 <code>--happy-path-suffices</code>, <code>--stress-test-later</code>
@@ -2972,8 +2883,7 @@ fingerprint → gate FAILs. Composes with §11.4.12 / §11.4.45 / §11.4.53 /
 §11.4.56 / §11.4.57 / §11.4.59 / §11.4.60 / §11.4.65 / §11.4.6.
 Classification universal (§11.4.17) — consuming project supplies
 specific docs/roster/helper/gate per §11.4.35.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.86.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.86.</p>
 <p>Non-compliance is a release blocker regardless of context. No
 <code>--skip-roster-sync</code>, <code>--allow-status-drift</code>,
 <code>--roster-sync-not-applicable</code> flag exists.</p>
@@ -3002,8 +2912,7 @@ family), or scheduled wake on known-future-actionable signal.</p>
 §11.4.52 / §11.4.58 / §11.4.68 / §11.4.69 / §11.4.70 / §11.4.83 /
 §11.4.85 / §11.4.86 / §12.10. Pre-build gate
 <code>CM-COVENANT-114-87-PROPAGATION</code> + paired §1.1 mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.87.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.87.</p>
 <p>Non-compliance is a release blocker regardless of context. No escape
 hatch — <code>--idle-OK</code>, <code>--skip-endless-loop</code>,
 <code>--bluff-permitted-for-this-task</code>,
@@ -3030,12 +2939,10 @@ flag escape for §11.4.41 force-push merge-first paths only. Composes
 with §2.1 / §9.2 / §11.4.41 / §11.4.42 / §11.4.71 / §11.4.87. Pre-build
 gates <code>CM-COVENANT-114-88-PROPAGATION</code> +
 <code>CM-BACKGROUND-PUSH-WIRED</code> + paired §1.1 mutations.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.88.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.88.</p>
 <p>Non-compliance is a release blocker. No escape hatch beyond
 <code>--sync-push</code>.</p>
-<h3
-id="background-test-execution-mandate-user-mandate-2026-05-27">§11.4.89
+<h3 id="background-test-execution-mandate-user-mandate-2026-05-27">§11.4.89
 — Background test execution mandate (User mandate, 2026-05-27)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
 (2026-05-27):</strong> “Any tests we are executing, especially long test
@@ -3056,12 +2963,10 @@ log files; (E) Foreground only for &lt;30s OR operator authorisation;
 §11.4.88. Pre-build gates <code>CM-COVENANT-114-89-PROPAGATION</code> +
 <code>CM-BACKGROUND-TEST-EXECUTION-WIRED</code> + paired §1.1
 mutations.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.89.</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.89.</p>
 <p>Non-compliance is a release blocker. No escape hatch beyond explicit
 per-invocation operator authorisation.</p>
-<h3
-id="obsolete-status-per-item-obsolescence-audit-user-mandate-2026-05-27">§11.4.90
+<h3 id="obsolete-status-per-item-obsolescence-audit-user-mandate-2026-05-27">§11.4.90
 — Obsolete status + per-item obsolescence audit (User mandate,
 2026-05-27)</h3>
 <p>§11.4.15 Status closed-set extended with terminal
@@ -3079,8 +2984,7 @@ non-negotiable. Pre-build gates
 <code>CM-COVENANT-114-90-PROPAGATION</code> +
 <code>CM-ITEM-OBSOLETE-DETAILS</code> +
 <code>CM-OBSOLETE-COLORIZER-WIRED</code> + paired §1.1 mutations.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.90.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.90.
 Non-compliance is a release blocker.</p>
 <h3 id="summary-doc-clarity-mandate-user-mandate-2026-05-27">§11.4.91 —
 Summary-doc clarity mandate (User mandate, 2026-05-27)</h3>
@@ -3090,11 +2994,9 @@ Forbidden anti-patterns: section labels (<code>Composes with</code>,
 etc.); bare metadata fragments; §-letter alone. Generators MUST extract
 from H1/H2 heading line per §11.4.54 ATM-NNN convention. Pre-build gate
 <code>CM-SUMMARY-CLARITY-DESCRIPTIONS</code> + paired §1.1 mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.91.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.91.
 Non-compliance is a release blocker.</p>
-<h3
-id="multi-pass-change-evaluation-discipline-user-mandate-2026-05-27">§11.4.92
+<h3 id="multi-pass-change-evaluation-discipline-user-mandate-2026-05-27">§11.4.92
 — Multi-pass change-evaluation discipline (User mandate,
 2026-05-27)</h3>
 <p>Every non-trivial change MUST pass 5-pass evaluation BEFORE
@@ -3107,11 +3009,9 @@ passes complete may commit/push/test/release proceed. Composes §11.4.4 /
 §11.4.85 / §11.4.87 / §11.4.89. Pre-build gates
 <code>CM-COVENANT-114-92-PROPAGATION</code> +
 <code>CM-MULTI-PASS-EVALUATION-EVIDENCE</code>.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.92.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.92.
 Non-compliance is a release blocker.</p>
-<h3
-id="sqlite-backed-single-source-of-truth-for-workable-items-user-mandate-2026-05-27">§11.4.93
+<h3 id="sqlite-backed-single-source-of-truth-for-workable-items-user-mandate-2026-05-27">§11.4.93
 — SQLite-backed single-source-of-truth for workable items (User mandate,
 2026-05-27)</h3>
 <p>Text-based Issues/Fixed/Summary trackers converted to SQLite DB at
@@ -3128,11 +3028,9 @@ runs validate. Anti-bluff: unit + integration + stress + chaos per
 CME-WORKABLE-ITEMS-001. 6-phase migration §LA. Go binary in constitution
 submodule per §11.4.74. Composes §11.4 / §11.4.12-93 covenant
 family.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.93.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.93.
 Non-compliance is a release blocker.</p>
-<h3
-id="zero-idle-priority-first-parallel-by-default-operating-mode-user-mandate-2026-05-27">§11.4.94
+<h3 id="zero-idle-priority-first-parallel-by-default-operating-mode-user-mandate-2026-05-27">§11.4.94
 — Zero-idle priority-first parallel-by-default operating mode (User
 mandate, 2026-05-27)</h3>
 <p>Binds
@@ -3147,11 +3045,9 @@ queue survey, “nothing to do” with non-trivial progressable, serial
 parallelisable work, lower priority over higher. Pre-build gates
 <code>CM-COVENANT-114-94-PROPAGATION</code> +
 <code>CM-PARALLEL-WORK-AUDIT</code>.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.94.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.94.
 Non-compliance is a release blocker.</p>
-<h3
-id="workable-items-sqlite-db-tracked-in-git-never-gitignored-user-mandate-2026-05-27">§11.4.95
+<h3 id="workable-items-sqlite-db-tracked-in-git-never-gitignored-user-mandate-2026-05-27">§11.4.95
 — Workable-items SQLite DB TRACKED in git, NEVER gitignored (User
 mandate, 2026-05-27)</h3>
 <p>§11.4.93 amendment: DB at <code>docs/workable_items.db</code> is
@@ -3161,11 +3057,9 @@ per §11.4.19+§2.1. WAL-checkpoint before commit. Destructive DB ops
 require §9.2+authorization. Pre-build gates
 <code>CM-COVENANT-114-95-PROPAGATION</code> +
 <code>CM-WORKABLE-ITEMS-DB-TRACKED</code>.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.95.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.95.
 Non-compliance is a release blocker.</p>
-<h3
-id="safe-parallel-work-with-long-build-catalogue-mandate-user-mandate-2026-05-27">§11.4.96
+<h3 id="safe-parallel-work-with-long-build-catalogue-mandate-user-mandate-2026-05-27">§11.4.96
 — Safe-parallel-work-with-long-build catalogue + mandate (User mandate,
 2026-05-27)</h3>
 <p>Operational catalogue for 5-7h AOSP containerised build:</p>
@@ -3185,11 +3079,9 @@ breaches.</p>
 running, nothing else to do” NEVER true. Pre-build gates
 <code>CM-COVENANT-114-96-PROPAGATION</code> +
 <code>CM-PARALLEL-WORK-DURING-BUILD-AUDIT</code>.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.96.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.96.
 Non-compliance is a release blocker.</p>
-<h3
-id="maximum-use-of-idle-time-progress-update-cadence-user-mandate-2026-05-27">§11.4.97
+<h3 id="maximum-use-of-idle-time-progress-update-cadence-user-mandate-2026-05-27">§11.4.97
 — Maximum-use-of-idle-time + progress-update cadence (User mandate,
 2026-05-27)</h3>
 <p>Operating-mode capstone: (A) every minute of progressable idle time =
@@ -3202,11 +3094,9 @@ commit/subagent-return/anchor-landed/evidence-captured/migration-closure
 idle-only-when-blocked closed-set unchanged. Pre-build gates
 <code>CM-COVENANT-114-97-PROPAGATION</code> +
 <code>CM-IDLE-TIME-AUDIT</code>.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.97.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.97.
 Non-compliance is a release blocker.</p>
-<h3
-id="full-automation-anti-bluff-mandate-live-tests-must-be-re-runnable-end-to-end-without-manual-intervention-user-mandate-2026-05-28">§11.4.98
+<h3 id="full-automation-anti-bluff-mandate-live-tests-must-be-re-runnable-end-to-end-without-manual-intervention-user-mandate-2026-05-28">§11.4.98
 — Full-Automation Anti-Bluff Mandate — Live tests MUST be re-runnable
 end-to-end without manual intervention (User mandate, 2026-05-28)</h3>
 <p>Forensic anchor — verbatim user mandate (2026-05-28): “Make sure we
@@ -3239,11 +3129,9 @@ in every consumer’s CLAUDE/AGENTS/QWEN; pre-build gate
 → gates FAIL. (F) Enforcement: manual-action commit BLOCKED at
 release-gate; NON-COMPLIANT test not rewritten in 30 days → §11.4.90
 Obsolete citing §11.4.98.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.98.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.98.
 Non-compliance is a release blocker.</p>
-<h3
-id="latest-source-documentation-cross-reference-mandate-instructionsguidesmanuals-must-be-verified-against-latest-official-online-sources-before-publication-user-mandate-2026-05-28">§11.4.99
+<h3 id="latest-source-documentation-cross-reference-mandate-instructionsguidesmanuals-must-be-verified-against-latest-official-online-sources-before-publication-user-mandate-2026-05-28">§11.4.99
 — Latest-Source Documentation Cross-Reference Mandate —
 instructions/guides/manuals MUST be verified against latest official
 online sources BEFORE publication (User mandate, 2026-05-28)</h3>
@@ -3278,14 +3166,13 @@ consumer; pre-build gate <code>CM-COVENANT-114-99-PROPAGATION</code>.
 stale-beyond-grace → §11.4.90 Obsolete
 <code>Reason=stale-documentation</code>.</li>
 </ol>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.99.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.99.
 Non-compliance is a release blocker.</p>
-<p><strong>§11.4.100 — RETIRED.</strong> Demoted to consumer project (a consuming project’s video-color/visual-quality fidelity) per §11.4.17/§11.4.35 —
-project-specific (RK3588/MPV/Arvus), not universal. See the consuming
-project’s Constitution/CLAUDE/AGENTS/QWEN.</p>
-<h3
-id="autonomous-decision-over-blocking-mandate-user-mandate-2026-05-28">§11.4.101
+<p><strong>§11.4.100 — RETIRED.</strong> Demoted to consumer project (a
+consuming project’s video-color/visual-quality fidelity) per
+§11.4.17/§11.4.35 — project-specific (RK3588/MPV/Arvus), not universal.
+See the consuming project’s Constitution/CLAUDE/AGENTS/QWEN.</p>
+<h3 id="autonomous-decision-over-blocking-mandate-user-mandate-2026-05-28">§11.4.101
 — Autonomous-decision-over-blocking mandate (User mandate,
 2026-05-28)</h3>
 <p>Forensic anchor — verbatim user mandate (2026-05-28): “when working
@@ -3325,11 +3212,9 @@ No escape hatch — no <code>--always-block-on-decision</code>,
 <code>--never-decide-autonomously</code>,
 <code>--skip-decision-rule</code>,
 <code>--block-without-self-resolution</code> flag.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.101.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.101.
 Non-compliance is a release blocker.</p>
-<h3
-id="mandatory-systematic-debugging-activation-always-loaded-skill-discovery-plugin-dependency-availability-user-mandate-2026-05-29">§11.4.102
+<h3 id="mandatory-systematic-debugging-activation-always-loaded-skill-discovery-plugin-dependency-availability-user-mandate-2026-05-29">§11.4.102
 — Mandatory systematic-debugging activation + always-loaded
 skill-discovery + plugin-dependency availability (User mandate,
 2026-05-29)</h3>
@@ -3393,11 +3278,9 @@ No escape hatch — no <code>--skip-systematic-debugging</code>,
 <code>--symptom-patch-permitted</code>,
 <code>--skip-skill-discovery</code>, <code>--plugin-optional</code>,
 <code>--missing-plugin-is-warning</code> flag.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.102.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.102.
 Non-compliance is a release blocker.</p>
-<h3
-id="continuous-parallel-stream-working-routine-user-mandate-2026-05-29">§11.4.103
+<h3 id="continuous-parallel-stream-working-routine-user-mandate-2026-05-29">§11.4.103
 — Continuous parallel-stream working routine (User mandate,
 2026-05-29)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -3442,11 +3325,9 @@ No escape hatch — no <code>--block-main-stream</code>,
 <code>--single-stream-only</code>, <code>--skip-parallel-streams</code>,
 <code>--serialise-actionable-work</code>,
 <code>--idle-without-queue-survey</code> flag.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.103.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.103.
 Non-compliance is a release blocker.</p>
-<h3
-id="participant-identity-attribution-notification-tagging-user-mandate-2026-05-31">§11.4.104
+<h3 id="participant-identity-attribution-notification-tagging-user-mandate-2026-05-31">§11.4.104
 — Participant identity, attribution &amp; notification-tagging (User
 mandate, 2026-05-31)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -3476,7 +3357,7 @@ carry <code>created_by</code> + <code>assigned_to</code> (canonical
 handles): CLI-prompt→Operator;
 system/agent-detected→<code>Claude</code>; received-message→sender’s
 resolved <code>@username</code>; <code>assigned_to</code> defaults to
-Operator, overridable; legacy items carry <code>""</code> and MUST still
+Operator, overridable; legacy items carry <code>&quot;&quot;</code> and MUST still
 parse + validate. (D) Tagging matrix: tag <code>assigned_to</code> if
 human ≠ Operator; tag <code>created_by</code> if human ≠ Operator ≠
 <code>Claude</code>; NEVER tag <code>Claude</code> or the Operator;
@@ -3498,13 +3379,11 @@ No escape hatch — no <code>--skip-attribution</code>,
 <code>--no-participant-tagging</code>,
 <code>--tag-operator-anyway</code>, <code>--attribution-later</code>
 flag.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.104;
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.104;
 detailed spec Herald
 <code>docs/design/PARTICIPANT_ATTRIBUTION.md</code>. Non-compliance is a
 release blocker.</p>
-<h3
-id="natural-language-intent-recognition-clarification-user-mandate-2026-05-31">§11.4.105
+<h3 id="natural-language-intent-recognition-clarification-user-mandate-2026-05-31">§11.4.105
 — Natural-language intent recognition &amp; clarification (User mandate,
 2026-05-31)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -3553,12 +3432,10 @@ mutation (strip literal → gate FAILs; gate-code = separate work item).
 No escape hatch — no <code>--require-command-syntax</code>,
 <code>--guess-intent-ok</code>, <code>--skip-clarify</code>,
 <code>--drop-on-ambiguous</code> flag.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.105;
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.105;
 detailed spec Herald <code>docs/design/INTENT_RECOGNITION.md</code>.
 Non-compliance is a release blocker.</p>
-<h3
-id="docs-chain-mechanical-documentationdb-sync-engine-operator-mandate-2026-05-31">§11.4.106
+<h3 id="docs-chain-mechanical-documentationdb-sync-engine-operator-mandate-2026-05-31">§11.4.106
 — Docs Chain — mechanical documentation/DB sync engine (Operator
 mandate, 2026-05-31)</h3>
 <p><strong>Forensic anchor — operator mandate (2026-05-31):</strong>
@@ -3621,15 +3498,13 @@ mutation (strip literal → gate FAILs; gate-code = separate work item).
 No escape hatch — no <code>--ad-hoc-sync-ok</code>,
 <code>--skip-docs-chain</code>, <code>--fake-transform</code>,
 <code>--sync-evidence-optional</code> flag.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.106;
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.106;
 detailed spec the Docs Chain engine docs
 <code>docs/CONSTITUTION_INTEGRATION.md</code> +
 <code>docs/USE_CASE_CATALOGUE.md</code>
 (<code>vasic-digital/docs_chain</code>). Non-compliance is a release
 blocker.</p>
-<h3
-id="anti-bluff-avtest-validation-techniques-mandate-user-driven-research-2026-06-02">§11.4.107
+<h3 id="anti-bluff-avtest-validation-techniques-mandate-user-driven-research-2026-06-02">§11.4.107
 — Anti-bluff AV/test-validation techniques mandate (User-driven
 research, 2026-06-02)</h3>
 <p>Forensic (genericised, 2026-06-02): a test PASSed on a SINGLE
@@ -3691,8 +3566,7 @@ mechanism + calibrated thresholds per §11.4.35. Composes
 gate <code>CM-COVENANT-114-107-PROPAGATION</code> (literal
 <code>11.4.107</code>) + paired §1.1 mutation (gate-code = separate work
 item).</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.107.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.107.
 Non-compliance is a release blocker. No escape hatch — no
 <code>--single-frame-proves-playback</code>,
 <code>--skip-liveness</code>, <code>--byte-identical-freeze-OK</code>,
@@ -3702,8 +3576,7 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--unvalidated-analyzer-OK</code>,
 <code>--aggregate-rms-suffices</code>,
 <code>--hardcoded-thresholds-OK</code> flag.</p>
-<h3
-id="four-layer-fix-verification-runtime-signature-as-definition-of-done-mandate-systematic-debugging-phase-4.5-2026-06-03">§11.4.108
+<h3 id="four-layer-fix-verification-runtime-signature-as-definition-of-done-mandate-systematic-debugging-phase-4.5-2026-06-03">§11.4.108
 — Four-layer fix-verification + runtime-signature-as-definition-of-done
 mandate (systematic-debugging Phase 4.5, 2026-06-03)</h3>
 <p>Forensic anchor (genericised, 2026-06-03): across one batch multiple
@@ -3759,8 +3632,7 @@ gate <code>CM-COVENANT-114-108-PROPAGATION</code> (literal
 <code>11.4.108</code>) + recommended per-fix gate
 <code>CM-RUNTIME-SIGNATURE-REGISTRY</code> + paired §1.1 mutations
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.108.
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.108.
 Non-compliance is a release blocker. No escape hatch — no
 <code>--source-green-is-done</code>,
 <code>--skip-artifact-byte-check</code>,
@@ -3768,8 +3640,7 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--no-clean-deployment</code>,
 <code>--skip-runtime-signature</code>,
 <code>--spot-validate-touched-only</code> flag.</p>
-<h3
-id="mandatory-anti-forgetting-enforcement-pretooluse-guard-hook-subagent-constitutional-preamble-orchestrator-pre-action-checklist-operator-mandate">§11.4.109
+<h3 id="mandatory-anti-forgetting-enforcement-pretooluse-guard-hook-subagent-constitutional-preamble-orchestrator-pre-action-checklist-operator-mandate">§11.4.109
 — Mandatory Anti-Forgetting Enforcement: PreToolUse Guard Hook +
 Subagent Constitutional Preamble + Orchestrator Pre-Action Checklist
 (Operator mandate)</h3>
@@ -3796,16 +3667,14 @@ locally. Gates: <code>CM-ANTI-FORGETTING-ENFORCEMENT</code> (hook + doc
 <code>11.4.109</code> across consumer fleet). Paired §1.1 mutations
 (gate-code = separate work item). Classification: universal (§11.4.17).
 Composes §11.4.6/.10/.75/.76/.78/.79/.80/.81/.84/.98/.102/§12.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.109; ref
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.109; ref
 impl <code>constitution/scripts/hooks/guard-forbidden-commands.sh</code>
 + <code>constitution/docs/AGENT_GUARDRAILS.md</code>. Release blocker.
 No <code>--skip-pretooluse-hook</code> /
 <code>--no-guardrails-doc</code> /
 <code>--anti-forgetting-optional</code> /
 <code>--single-layer-sufficient</code> escape.</p>
-<h3
-id="pre-build-build-readiness-verdict-change-impact-clash-detection-mandate-operator-mandate-2026-06-03">§11.4.110
+<h3 id="pre-build-build-readiness-verdict-change-impact-clash-detection-mandate-operator-mandate-2026-06-03">§11.4.110
 — Pre-build build-readiness verdict + change-impact clash detection
 mandate (operator mandate, 2026-06-03)</h3>
 <p>Forensic anchor (genericised, 2026-06-03): a fix shipped a new
@@ -3852,15 +3721,13 @@ mapping per §11.4.35. Composes
 <code>CM-BUILDGRAPH-DRYRUN-WIRED</code> /
 <code>CM-SEPOLICY-NEVERALLOW-WIRED</code> + paired §1.1 mutations
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.110.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.110.
 Release blocker. No <code>--source-green-is-ready</code> /
 <code>--skip-clash-detector</code> / <code>--skip-coverage-gate</code> /
 <code>--no-ready-verdict</code> / <code>--grep-proves-neverallow</code>
 / <code>--skip-buildgraph-dryrun</code> /
 <code>--build-without-ready-verdict</code> escape.</p>
-<h3
-id="resolve-by-stable-name-not-by-enumeration-index-mandate-research-derived-2026-06-03">§11.4.111
+<h3 id="resolve-by-stable-name-not-by-enumeration-index-mandate-research-derived-2026-06-03">§11.4.111
 — Resolve-by-stable-name-not-by-enumeration-index mandate
 (research-derived, 2026-06-03)</h3>
 <p>Forensic anchor (genericised, 2026-06-03): a platform bound an audio
@@ -3897,14 +3764,12 @@ per §11.4.35. Composes §11.4.6/.8/.69/.108/.110. Propagation gate
 <code>11.4.111</code>) + recommended
 <code>CM-RESOLVE-BY-NAME-NOT-INDEX</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.111.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.111.
 Release blocker. No <code>--allow-index-binding</code> /
 <code>--ordinal-is-stable-enough</code> /
 <code>--skip-name-resolution</code> /
 <code>--trust-unpinned-index</code> escape.</p>
-<h3
-id="structural-impossibility-wont-fix-classification-mandate-research-derived-2026-06-03">§11.4.112
+<h3 id="structural-impossibility-wont-fix-classification-mandate-research-derived-2026-06-03">§11.4.112
 — Structural-impossibility won’t-fix classification mandate
 (research-derived, 2026-06-03)</h3>
 <p>Forensic anchor (genericised, 2026-06-03): deep research (§11.4.8)
@@ -3921,7 +3786,7 @@ PROVES (cited authoritative sources AND, where applicable, reproducible
 captured evidence) a goal is structurally impossible on the target
 platform (forbidden by platform design / hardware-protocol constraint /
 documented kernel-or-API limitation — NOT merely unimplemented or hard),
-the goal MUST be: (1) classified <code>Won't-fix</code> + closed per
+the goal MUST be: (1) classified <code>Won&#39;t-fix</code> + closed per
 §11.4.90 with reason <code>structurally-impossible</code>; (2)
 documented with the impossibility evidence — cited source URLs (per
 §11.4.99) + reproducible probe/captured evidence — in the tracker entry
@@ -3943,14 +3808,12 @@ impossible goal, its constraint + cited evidence per §11.4.35. Composes
 <code>11.4.112</code>) + recommended
 <code>CM-WONT-FIX-STRUCTURAL-IMPOSSIBILITY</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.112.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.112.
 Release blocker. No <code>--wont-fix-without-proof</code> /
 <code>--reattempt-closed-impossible</code> /
 <code>--skip-impossibility-evidence</code> /
 <code>--impossible-equals-broken</code> escape.</p>
-<h3
-id="absolute-no-force-push-merge-onto-latest-main-mandate-user-mandate-2026-06-03">§11.4.113
+<h3 id="absolute-no-force-push-merge-onto-latest-main-mandate-user-mandate-2026-06-03">§11.4.113
 — Absolute no-force-push + merge-onto-latest-main mandate (User mandate,
 2026-06-03)</h3>
 <p>Forensic anchor — verbatim user mandate (2026-06-03): “Any force-push
@@ -3992,14 +3855,12 @@ Classification: universal (§11.4.17). Composes §2.1 / §9 / §9.2 /
 <code>push +&lt;ref&gt;</code> + reject; §11.4.109-class PreToolUse
 guard blocks the class) + paired §1.1 mutation (gate-code = separate
 work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.113.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.113.
 Release blocker. No <code>--force</code> /
 <code>--force-with-lease</code> / <code>--allow-force-push</code> /
 <code>--force-push-authorised</code> /
 <code>--skip-merge-onto-main</code> escape.</p>
-<h3
-id="last-known-good-tag-regression-isolation-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.114
+<h3 id="last-known-good-tag-regression-isolation-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.114
 — Last-known-good-tag regression isolation mandate (1.1.8-dev
 remediation, 2026-06-03)</h3>
 <p>When a previously-working feature/behaviour is observed broken, the
@@ -4024,14 +3885,12 @@ Propagation gate <code>CM-COVENANT-114-114-PROPAGATION</code> (literal
 <code>11.4.114</code>) + recommended
 <code>CM-REGRESSION-ISOLATED-AGAINST-KNOWN-GOOD</code> + paired §1.1
 mutation (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.114.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.114.
 Release blocker. No <code>--skip-known-good-diff</code> /
 <code>--root-cause-from-scratch</code> /
 <code>--assume-regression-source</code> /
 <code>--wholesale-revert-without-isolation</code> escape.</p>
-<h3
-id="red-baseline-on-the-broken-artifact-polarity-switch-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.115
+<h3 id="red-baseline-on-the-broken-artifact-polarity-switch-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.115
 — RED-baseline-on-the-broken-artifact + polarity-switch mandate
 (1.1.8-dev remediation, 2026-06-03)</h3>
 <p>Strict refinement of §11.4.43’s RED step. Every RED test MUST
@@ -4056,14 +3915,12 @@ test). Classification: universal (§11.4.17). Composes §11.4.1 / §11.4.2
 <code>11.4.115</code>) + recommended
 <code>CM-RED-POLARITY-SWITCH-PRESENT</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.115.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.115.
 Release blocker. No <code>--green-only-test</code> /
 <code>--skip-red-reproduction</code> /
 <code>--separate-happy-path-suffices</code> /
 <code>--synthetic-red-OK</code> escape.</p>
-<h3
-id="real-time-conductorautonomous-test-framework-sync-channel-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.116
+<h3 id="real-time-conductorautonomous-test-framework-sync-channel-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.116
 — Real-time conductor↔︎autonomous-test-framework sync channel mandate
 (1.1.8-dev remediation, 2026-06-03)</h3>
 <p>Any autonomous, long-running test/QA/validation framework an external
@@ -4091,14 +3948,12 @@ Composes §11.4.4 / §11.4.5 / §11.4.69 / §11.4.27 / §11.4.28 / §11.4.45 /
 <code>11.4.116</code>) + recommended
 <code>CM-AUTONOMOUS-FRAMEWORK-SYNC-CHANNEL</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.116.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.116.
 Release blocker. No <code>--no-sync-channel</code> /
 <code>--end-of-session-report-suffices</code> /
 <code>--verdict-without-evidence-path</code> /
 <code>--torn-status-write-OK</code> escape.</p>
-<h3
-id="computer-vision-ocr-pixel-oracle-fallback-for-non-introspectable-uis-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.117
+<h3 id="computer-vision-ocr-pixel-oracle-fallback-for-non-introspectable-uis-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.117
 — Computer-vision / OCR pixel-oracle fallback for non-introspectable UIs
 mandate (1.1.8-dev remediation, 2026-06-03)</h3>
 <p>Any test that drives a UI control OR asserts on-screen content MUST
@@ -4126,13 +3981,11 @@ Classification: universal (§11.4.17). Composes §11.4.5 / §11.4.6 /
 <code>11.4.117</code>) + recommended
 <code>CM-CV-OCR-PIXEL-ORACLE-FALLBACK</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.117.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.117.
 Release blocker. No <code>--hierarchy-is-content-oracle</code> /
 <code>--skip-pixel-fallback</code> / <code>--unvalidated-ocr-OK</code> /
 <code>--hardcoded-ocr-threshold-OK</code> escape.</p>
-<h3
-id="discovery-pressure-to-confirm-known-issue-set-completeness-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.118
+<h3 id="discovery-pressure-to-confirm-known-issue-set-completeness-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.118
 — Discovery-pressure to confirm known-issue-set completeness mandate
 (1.1.8-dev remediation, 2026-06-03)</h3>
 <p>A remediation/release cycle MUST NOT treat “every reported defect is
@@ -4159,14 +4012,12 @@ universal (§11.4.17). Composes §11.4.4 / §11.4.5 / §11.4.69 / §11.4.25 /
 (literal <code>11.4.118</code>) + recommended
 <code>CM-DISCOVERY-COVERAGE-ENUMERATED</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.118.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.118.
 Release blocker. No <code>--reported-set-suffices</code> /
 <code>--skip-discovery-pass</code> /
 <code>--no-issues-without-coverage-list</code> /
 <code>--assume-complete</code> escape.</p>
-<h3
-id="single-resource-owner-partitioning-for-parallel-hardware-testing-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.119
+<h3 id="single-resource-owner-partitioning-for-parallel-hardware-testing-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.119
 — Single-resource-owner partitioning for parallel hardware testing
 mandate (1.1.8-dev remediation, 2026-06-03)</h3>
 <p>Strict refinement of §11.4.58 / §11.4.103 for hardware contention.
@@ -4197,13 +4048,11 @@ hope. Classification: universal (§11.4.17). Composes §11.4.5 / §11.4.69
 (literal <code>11.4.119</code>) + recommended
 <code>CM-SINGLE-RESOURCE-OWNER-PARTITION</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.119.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.119.
 Release blocker. No <code>--allow-concurrent-resource-drivers</code> /
 <code>--skip-ownership-lock</code> / <code>--read-only-may-mutate</code>
 / <code>--contended-evidence-OK</code> escape.</p>
-<h3
-id="fix-breaks-its-own-gate-reconciliation-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.120
+<h3 id="fix-breaks-its-own-gate-reconciliation-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.120
 — Fix-breaks-its-own-gate reconciliation mandate (1.1.8-dev remediation,
 2026-06-03)</h3>
 <p>When a correct fix causes a pre-existing gate/test to FAIL because
@@ -4232,14 +4081,12 @@ Classification: universal (§11.4.17). Composes §11.4.1 / §11.4.4 /
 <code>11.4.120</code>) + recommended
 <code>CM-GATE-RECONCILED-NOT-FAKE-PASSED</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.120.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.120.
 Release blocker. No <code>--fake-pass-stale-gate</code> /
 <code>--revert-fix-for-gate</code> /
 <code>--weaken-assertion-to-pass</code> /
 <code>--delete-failing-gate</code> escape.</p>
-<h3
-id="no-commit-while-build-writes-tracked-artifacts-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.121
+<h3 id="no-commit-while-build-writes-tracked-artifacts-mandate-1.1.8-dev-remediation-2026-06-03">§11.4.121
 — No-commit-while-build-writes-tracked-artifacts mandate (1.1.8-dev
 remediation, 2026-06-03)</h3>
 <p>A commit (especially <code>git add -A</code> / any broad stage) MUST
@@ -4268,14 +4115,12 @@ universal (§11.4.17). Composes §11.4.6 / §11.4.30 / §11.4.58 / §11.4.84
 <code>11.4.121</code>) + recommended
 <code>CM-NO-COMMIT-DURING-ARTIFACT-WRITE</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.121.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.121.
 Release blocker. No <code>--commit-during-build</code> /
 <code>--stage-partial-artifact-OK</code> /
 <code>--assume-build-finished</code> /
 <code>--skip-build-completion-check</code> escape.</p>
-<h3
-id="no-silent-removal-of-existing-components-without-operator-confirmation-mandate-user-mandate-2026-06-03">§11.4.122
+<h3 id="no-silent-removal-of-existing-components-without-operator-confirmation-mandate-user-mandate-2026-06-03">§11.4.122
 — No-silent-removal-of-existing-components-without-operator-confirmation
 mandate (User mandate, 2026-06-03)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4311,14 +4156,12 @@ Propagation gate <code>CM-COVENANT-114-122-PROPAGATION</code> (literal
 <code>11.4.122</code>) + recommended gate
 <code>CM-NO-SILENT-COMPONENT-REMOVAL</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.122.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.122.
 Release blocker. No <code>--remove-without-asking</code> /
 <code>--silent-removal</code> / <code>--autonomous-removal-OK</code> /
 <code>--dedup-removal-exempt</code> /
 <code>--it-was-broken-anyway</code> escape.</p>
-<h3
-id="rock-solid-proof-or-deep-research-mandate-user-mandate-2026-06-03">§11.4.123
+<h3 id="rock-solid-proof-or-deep-research-mandate-user-mandate-2026-06-03">§11.4.123
 — Rock-solid-proof-or-deep-research mandate (User mandate,
 2026-06-03)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4367,14 +4210,12 @@ Propagation gate <code>CM-COVENANT-114-123-PROPAGATION</code> (literal
 <code>11.4.123</code>) + recommended gate
 <code>CM-ROCK-SOLID-PROOF-OR-RESEARCH</code> + paired §1.1 mutation
 (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.123.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.123.
 Release blocker. No <code>--metadata-pass-suffices</code> /
 <code>--skip-proof</code> / <code>--untestable-without-research</code> /
 <code>--config-only-closure-OK</code> / <code>--bluff-when-unsure</code>
 escape.</p>
-<h3
-id="deadunwired-code-investigate-before-remove-mandate-user-mandate-2026-06-04">§11.4.124
+<h3 id="deadunwired-code-investigate-before-remove-mandate-user-mandate-2026-06-04">§11.4.124
 — Dead/unwired-code investigate-before-remove mandate (User mandate,
 2026-06-04)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4421,15 +4262,13 @@ Propagation gate <code>CM-COVENANT-114-124-PROPAGATION</code> (literal
 commit must be removal-only + cite the git-history investigation OR be
 part of a tracked Obsolete item) + paired §1.1 mutation (gate-code =
 separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.124.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.124.
 Release blocker. No <code>--zero-importers-means-dead</code> /
 <code>--delete-unwired-on-sight</code> /
 <code>--skip-git-history-investigation</code> /
 <code>--remove-without-proof</code> /
 <code>--bundle-removal-with-other-work</code> escape.</p>
-<h3
-id="code-review-agent-gate-before-pre-build-main-build-mandatory-multi-layer-review-user-mandate-2026-06-04">§11.4.125
+<h3 id="code-review-agent-gate-before-pre-build-main-build-mandatory-multi-layer-review-user-mandate-2026-06-04">§11.4.125
 — Code-review-agent gate before pre-build + main build (mandatory
 multi-layer review) (User mandate, 2026-06-04)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4488,14 +4327,12 @@ Classification: universal (§11.4.17). Propagation gate
 fresh code-review-completed marker for the current batch, produced after
 the last fix + before the pre-build sweep + main build) + paired §1.1
 mutation (gate-code = separate work item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.125.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.125.
 Release blocker. No <code>--skip-code-review</code> /
 <code>--build-without-review</code> / <code>--no-review-gate</code> /
 <code>--review-optional</code> / <code>--trust-the-author</code>
 escape.</p>
-<h3
-id="default-autonomous-loop-working-mode-from-first-prompt-user-mandate-2026-06-04">§11.4.126
+<h3 id="default-autonomous-loop-working-mode-from-first-prompt-user-mandate-2026-06-04">§11.4.126
 — Default autonomous-loop working mode from first prompt (User mandate,
 2026-06-04)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4553,13 +4390,11 @@ PASS-bluff at the operating-mode layer. Classification: universal
 <code>CM-COVENANT-114-126-PROPAGATION</code> (literal
 <code>11.4.126</code>) + paired §1.1 mutation (gate-code = separate work
 item).</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.126.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.126.
 Release blocker. No <code>--ask-before-continuing</code> /
 <code>--single-turn-only</code> / <code>--not-default-loop</code> /
 <code>--mimic-OK</code> escape.</p>
-<h3
-id="session-handoff-resumption-prompt-mandate-user-mandate-2026-06-06">§11.4.127
+<h3 id="session-handoff-resumption-prompt-mandate-user-mandate-2026-06-06">§11.4.127
 — Session-handoff resumption-prompt mandate (User mandate,
 2026-06-06)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4586,13 +4421,11 @@ MOMENT-VALID never generic. Handoff docs current BEFORE the prompt
 §11.4.6 / §11.4.66 / §11.4.87 / §11.4.103 / §11.4.126. Classification:
 universal (§11.4.17). Gate <code>CM-COVENANT-114-127-PROPAGATION</code>
 (literal <code>11.4.127</code>) + paired §1.1 mutation.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.127.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.127.
 Release blocker. No <code>--skip-handoff-prompt</code> /
 <code>--generic-prompt-OK</code> / <code>--no-resumption-sentence</code>
 / <code>--handoff-without-state</code> escape.</p>
-<h3
-id="always-on-device-recording-mandate-user-mandate-2026-06-06">§11.4.128
+<h3 id="always-on-device-recording-mandate-user-mandate-2026-06-06">§11.4.128
 — Always-on device-recording mandate (User mandate, 2026-06-06)</h3>
 <p><strong>Forensic anchor — direct user mandate (2026-06-06):</strong>
 ALWAYS live-record all available data from all test/manual-testing
@@ -4625,8 +4458,7 @@ Classification: universal (§11.4.17). Gate
 <code>CM-COVENANT-114-128-PROPAGATION</code> (literal
 <code>11.4.128</code>) + rec. gate
 <code>CM-DEVICE-RECORDING-ALWAYS-ON</code> + paired §1.1 mutation.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.128.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.128.
 Release blocker. No <code>--skip-recording</code> /
 <code>--record-without-layout</code> / <code>--commit-raw-corpus</code>
 / <code>--index-raw-corpus</code> / <code>--analyse-corpus-always</code>
@@ -4663,15 +4495,13 @@ Classification: universal (§11.4.17). Gate
 <code>CM-COVENANT-114-129-PROPAGATION</code> (literal
 <code>11.4.129</code>) + rec. gate
 <code>CM-HUGE-BLOCKER-FULL-RESTART</code> + paired §1.1 mutation.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.129.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.129.
 Release blocker. No <code>--resume-after-blocker</code> /
 <code>--spot-validate-after-fix</code> /
 <code>--skip-recording-analysis</code> / <code>--skip-new-tests</code> /
 <code>--module-only-after-blocker</code> /
 <code>--single-device-restart</code> escape.</p>
-<h3
-id="post-remediation-validate-the-fix-first-after-redeploy-user-mandate-2026-06-06">§11.4.130
+<h3 id="post-remediation-validate-the-fix-first-after-redeploy-user-mandate-2026-06-06">§11.4.130
 — Post-remediation validate-the-fix-FIRST-after-redeploy (User mandate,
 2026-06-06)</h3>
 <p><strong>Forensic anchor — direct user mandate (2026-06-06):</strong>
@@ -4706,14 +4536,12 @@ never proceeds to the full cycle on a still-broken fix. Composes
 (§11.4.17). Gate <code>CM-COVENANT-114-130-PROPAGATION</code> (literal
 <code>11.4.130</code>) + rec. gate
 <code>CM-FIX-FIRST-AFTER-REDEPLOY</code> + paired §1.1 mutation.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.130.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.130.
 Release blocker. No <code>--skip-targeted-retest</code> /
 <code>--full-cycle-first</code> / <code>--assume-fix-took</code> /
 <code>--validate-fix-at-end</code> /
 <code>--skip-red-green-flip-on-new-artifact</code> escape.</p>
-<h3
-id="standing-session-resumption-file-mandate-user-mandate-2026-06-07">§11.4.131
+<h3 id="standing-session-resumption-file-mandate-user-mandate-2026-06-07">§11.4.131
 — Standing session-resumption file mandate (User mandate,
 2026-06-07)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4749,14 +4577,12 @@ Classification: universal (§11.4.17). Gate
 <code>11.4.131</code>) + rec. gate
 <code>CM-SESSION-RESUMPTION-FILE-PRESENT</code> + paired §1.1
 mutation.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.131.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.131.
 Release blocker. No <code>--skip-resumption-file</code> /
 <code>--ephemeral-prompt-only</code> /
 <code>--stale-resumption-OK</code> / <code>--generic-template-OK</code>
 escape.</p>
-<h3
-id="risk-ordered-validation-priority-mandate-user-mandate-2026-06-07">§11.4.132
+<h3 id="risk-ordered-validation-priority-mandate-user-mandate-2026-06-07">§11.4.132
 — Risk-ordered validation priority mandate (User mandate,
 2026-06-07)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4794,13 +4620,11 @@ per §11.4.35. Composes
 <code>11.4.132</code>) + rec. gate
 <code>CM-RISK-ORDERED-VALIDATION-PRIORITY</code> + paired §1.1
 mutation.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.132.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.132.
 Release blocker. No <code>--skip-risk-ordering</code> /
 <code>--any-order-OK</code> / <code>--suite-order-fixed</code>
 escape.</p>
-<h3
-id="target-system-hardware-safety-mandate-user-mandate-2026-06-08">§11.4.133
+<h3 id="target-system-hardware-safety-mandate-user-mandate-2026-06-08">§11.4.133
 — Target-System + hardware safety mandate (User mandate,
 2026-06-08)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4840,13 +4664,11 @@ sanctioned flashing tool per §11.4.35. Composes §12 / §11.4.6 /
 <code>CM-COVENANT-114-133-PROPAGATION</code> (literal
 <code>11.4.133</code>) + rec. gate
 <code>CM-TARGET-HARDWARE-SAFETY</code> + paired §1.1 mutation.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.133.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.133.
 Release blocker. No <code>--unsafe-hardware-write</code> /
 <code>--skip-system-safety</code> / <code>--brick-risk-accepted</code>
 escape.</p>
-<h3
-id="code-review-iterate-until-go-rock-solid-evidence-mandate-user-mandate-2026-06-08">§11.4.134
+<h3 id="code-review-iterate-until-go-rock-solid-evidence-mandate-user-mandate-2026-06-08">§11.4.134
 — Code-review iterate-until-GO + rock-solid-evidence mandate (User
 mandate, 2026-06-08)</h3>
 <p><strong>Forensic anchor — verbatim user mandate
@@ -4881,8 +4703,7 @@ BINDS physical evidence to every round. Classification: universal
 <code>CM-COVENANT-114-134-PROPAGATION</code> (literal
 <code>11.4.134</code>) + rec. gate
 <code>CM-CODE-REVIEW-ITERATE-UNTIL-GO</code> + paired §1.1 mutation.</p>
-<p><strong>Canonical authority:</strong> <a
-href="Constitution.md"><code>Constitution.md</code></a> §11.4.134.
+<p><strong>Canonical authority:</strong> <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.134.
 Release blocker. No <code>--skip-rereview</code> /
 <code>--single-review-pass</code> / <code>--warnings-ok</code> /
 <code>--evidence-optional</code> escape.</p>
@@ -4912,8 +4733,7 @@ Classification: universal (§11.4.17). Propagation gate
 <code>11.4.135</code>) + recommended gates
 <code>CM-REGRESSION-GUARD-REGISTERED</code> /
 <code>CM-REGRESSION-GUARD-SUITE-WIRED</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.135. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-regression-guard</code>, <code>--no-guard-on-close</code>,
 <code>--guard-optional</code> flag.</p>
@@ -4935,8 +4755,7 @@ Classification: universal (§11.4.17). Propagation gate
 <code>CM-COVENANT-114-136-PROPAGATION</code> (literal
 <code>11.4.136</code>) + recommended gate
 <code>CM-REAL-CONTENT-PLAYBACK-TEST</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.136. Non-compliance is a release blocker. No escape hatch — no
 <code>--launch-proves-playback</code>,
 <code>--skip-decoder-health</code>,
@@ -4981,8 +4800,7 @@ Propagation gate <code>CM-COVENANT-114-137-PROPAGATION</code> (literal
 <code>CM-SUBTITLE-CONTENT-CORRECTNESS-ORACLE</code> + paired §1.1
 mutation (strip the denylist/position/cadence check → golden-bad
 <code>Аудио и субтитры</code> PASSes → gate FAILs). <strong>Canonical
-authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.137. Non-compliance is a release blocker. No escape hatch — no
 <code>--present-cue-is-correct</code>,
 <code>--skip-chrome-oracle</code>,
@@ -5012,8 +4830,7 @@ Classification: universal (§11.4.17). Propagation gate
 <code>CM-COVENANT-114-138-PROPAGATION</code> (literal
 <code>11.4.138</code>) + recommended gate
 <code>CM-OPERATOR-ESCAPE-BLUFF-AUDIT</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.138. Non-compliance is a release blocker. No escape hatch — no
 <code>--close-without-bluff-audit</code>,
 <code>--operator-find-is-just-a-bug</code>,
@@ -5040,8 +4857,7 @@ Classification: universal (§11.4.17). Propagation gate
 <code>CM-COVENANT-114-139-PROPAGATION</code> (literal
 <code>11.4.139</code>) + recommended gate
 <code>CM-CLEAN-ARTIFACT-RUNTIME-SIGNATURE</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.139. Non-compliance is a release blocker. No escape hatch — no
 <code>--validate-against-running-state</code>,
 <code>--skip-clean-precondition</code>, <code>--shadow-OK</code>
@@ -5073,7 +4889,7 @@ line only (mid-prose tokens never match); the action token AND the
 namespace are UPPERCASE-only <code>[A-Z][A-Z0-9_]*</code> (lowercase
 never matches); the namespace separator <code>::</code> inside the token
 carries NO surrounding spaces (<code>PREFIX::ACTION_NAME</code>),
-DISTINCT from the action-body separator <code>" :: "</code> (one ASCII
+DISTINCT from the action-body separator <code>&quot; :: &quot;</code> (one ASCII
 space on each side of <code>::</code> — avoids C++
 <code>Foo::Bar</code>, YAML <code>key: value</code>, URLs) in forms 1/2
 and the slash-body separator (one space) in forms 3/4; stacked prefixes
@@ -5141,7 +4957,7 @@ full text kept gate-scanned in <code>constitution/Constitution.md</code>
 and reachable in one hop — a de-duplication realising §11.4.35, never a
 deletion; (4) <strong>CodeGraph/retrieval-first over full-file
 loading</strong> (§11.4.78/§11.4.79); (5) <strong>output-token
-reduction</strong> — terse status + <code>effort:"low"</code> on the
+reduction</strong> — terse status + <code>effort:&quot;low&quot;</code> on the
 mechanical allowlist only; (6) <strong>tool-call batching + no
 re-reads</strong>; (7) <strong>compaction/context-editing for long
 sessions</strong>. <strong>Mandatory measured proof:</strong> a
@@ -5165,10 +4981,9 @@ Classification: universal (§11.4.17). Propagation gate
 <code>CM-TOKEN-EFFICIENCY</code> + paired §1.1 mutation (inject a
 pre-breakpoint volatile token → cache collapses → measured reduction
 falls below bar → gate FAILs). <strong>Canonical authority:</strong>
-constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
-§11.4.141. <strong>Project instantiation (§11.4.35):</strong>
-[the consuming project fills in: confirm the Claude Code governance-prefix
+constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.141. <strong>Project instantiation (§11.4.35):</strong> [the
+consuming project fills in: confirm the Claude Code governance-prefix
 cache is warm + free of pre-breakpoint volatiles; tier the §11.4.96-SAFE
 mechanical subagents (search/grep/status/doc-export) to Haiku with
 output-to-file under <code>qa-results/</code>; replace the consumer
@@ -5230,8 +5045,7 @@ reviewer distinct from the author, before acceptance/commit/build) +
 paired §1.1 mutation (strip the literal → propagation gate FAILs; accept
 a diff with no independent-review marker →
 <code>CM-EVERY-CHANGE-REVIEWED</code> FAILs). <strong>Canonical
-authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.142. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-review</code>, <code>--no-review</code>,
 <code>--trivial-change-exempt</code>, <code>--doc-edit-exempt</code>,
@@ -5293,8 +5107,7 @@ chosen content + subtitles, or SKIPs-with-reason) + paired §1.1 mutation
 (replace a real-journey test’s browse-select-play path with a deep-link
 / sample shortcut → gate FAILs; strip the literal → propagation gate
 FAILs; gate-code = separate work item). <strong>Canonical
-authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.143. Non-compliance is a release blocker. No escape hatch — no
 <code>--sample-playback-ok</code>, <code>--skip-real-journey</code>,
 <code>--deep-link-suffices</code>, <code>--routing-only-pass</code>,
@@ -5473,8 +5286,7 @@ reproduce→confirm pair but NO enumerated extend case-set FAILs) + paired
 close a defect with only the reproduce→confirm pair and no
 extend-case-set → <code>CM-REPRODUCE-FIRST-THEN-EXTEND</code> FAILs;
 gate-code = separate work item). <strong>Canonical authority:</strong>
-constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.146. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-reproduce-first</code>, <code>--fix-without-red</code>,
 <code>--skip-extend-to-all-cases</code>,
@@ -5560,8 +5372,7 @@ mutation (strip the literal → propagation gate FAILs; mark a
 agent without a registry entry →
 <code>CM-CRASHED-AGENT-RESPAWN-TRACKED</code> FAILs; gate-code =
 separate work item). <strong>Canonical authority:</strong> constitution
-submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.147. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-agent-registry</code>, <code>--crash-equals-done</code>,
 <code>--no-respawn</code>, <code>--discard-partial-state</code>,
@@ -5624,8 +5435,7 @@ env var, docs_chain context per §11.4.35. Propagation gate
 <code>CM-BLOCKED-UNBLOCK-CHOICES</code> /
 <code>CM-TRACKER-SYNC-IDEMPOTENT</code> + paired §1.1 mutation
 (gate-code = separate work item). <strong>Canonical authority:</strong>
-constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.148. Non-compliance is a release blocker. No escape hatch — no
 <code>--item-without-status</code>, <code>--item-without-type</code>,
 <code>--item-without-id</code>, <code>--stub-description-OK</code>,
@@ -5687,8 +5497,7 @@ context per §11.4.35. Propagation gate
 <code>CM-TEST-DIARY-SYNC</code> /
 <code>CM-DIARY-PASS-REQUIRES-EVIDENCE</code> + paired §1.1 mutation
 (gate-code = separate work item). <strong>Canonical authority:</strong>
-constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.149. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-testing-diary</code>,
 <code>--diary-without-evidence</code>, <code>--no-diary-summary</code>,
@@ -5718,7 +5527,7 @@ issue trackers, maintainer guidance, reusable open-source code — to BOTH
 (i) discover the best possible solution AND (ii) confirm there is NOT a
 more serious underlying problem the team is unaware of. Forensic case
 study (FACT, 2026-06-11): a subtitle-on-secondary-display goal verdicted
-<code>Won't-fix: structurally-impossible</code> (§11.4.112
+<code>Won&#39;t-fix: structurally-impossible</code> (§11.4.112
 secure-surface pixel-blanking) was OVERTURNED by a deep multi-angle
 research pass that surfaced the real OCR-of-the-PRIMARY-display path — a
 “we can’t” became a shipped capability; the canonical anti-pattern of a
@@ -5779,8 +5588,7 @@ mutation (strip the literal → propagation gate FAILs; close an item or
 reach a <code>structural</code> verdict with no documented multi-angle
 research artefact / cited footer →
 <code>CM-DEEP-RESEARCH-PER-ISSUE</code> FAILs; gate-code = separate work
-item). <strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+item). <strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.150. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-deep-research</code>,
 <code>--single-source-suffices</code>,
@@ -5793,8 +5601,8 @@ href="constitution/Constitution.md"><code>Constitution.md</code></a>
 mandate (User mandate, 2026-06-12).</strong> Verbatim operator mandate:
 “Every release tag and version name we create — on the main repository
 and on every Submodule we own — MUST be prefixed with the project’s
-release prefix, e.g. <code>myproject-1.0.0-dev-0.0.1</code>. The
-prefix MUST come from <code>HELIX_RELEASE_PREFIX</code> in our
+release prefix, e.g. <code>myproject-1.0.0-dev-0.0.1</code>. The prefix
+MUST come from <code>HELIX_RELEASE_PREFIX</code> in our
 <code>.env</code> if it is set, otherwise from the lowercased project
 root directory name. The SAME prefix MUST be used across the main repo
 and all owned Submodules in one release so a release is greppable across
@@ -5802,9 +5610,9 @@ every repository.” Every release tag AND every version name created on
 the main repository AND on every owned-by-us submodule (§11.4.28) MUST
 be prefixed with the project’s release prefix, form
 <code>&lt;PREFIX&gt;-&lt;version&gt;</code> (canonical example:
-<code>myproject-1.0.0-dev-0.0.1</code>), so a release is
-identifiable + greppable across every repository it spans (one
-<code>git tag -l '&lt;PREFIX&gt;-*'</code> enumerates the whole release
+<code>myproject-1.0.0-dev-0.0.1</code>), so a release is identifiable +
+greppable across every repository it spans (one
+<code>git tag -l &#39;&lt;PREFIX&gt;-*&#39;</code> enumerates the whole release
 surface). <strong>Prefix resolution order (closed-set, deterministic —
 §11.4.6 no-guessing):</strong> (1) <code>HELIX_RELEASE_PREFIX</code>
 from the project’s <code>.env</code> — authoritative when set;
@@ -5840,8 +5648,7 @@ main repo + every owned submodule carries the resolved
 paired §1.1 meta-test mutation (strip the literal → propagation gate
 FAILs; create an unprefixed or differing-prefix release tag →
 <code>CM-RELEASE-PREFIX-NAMING</code> FAILs; gate-code = separate work
-item). <strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+item). <strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.151. Non-compliance is a release blocker. No escape hatch — no
 <code>--no-release-prefix</code>, <code>--unprefixed-tag</code>,
 <code>--prefix-optional</code>,
@@ -5907,9 +5714,9 @@ guard is GREEN on a clean artifact, never when the console mark is
 flipped. Classification: universal (§11.4.17) — the consuming project
 supplies its Crashlytics handle, console-access credential (§11.4.10,
 never logged), severity table, and per-issue closure-log path per
-§11.4.35; the reference project-level instantiation is a consuming project’s
-§6.O (Crashlytics-Resolved Issue Coverage — per-issue validation test +
-Challenge test +
+§11.4.35; the reference project-level instantiation is a consuming
+project’s §6.O (Crashlytics-Resolved Issue Coverage — per-issue
+validation test + Challenge test +
 <code>.lava-ci-evidence/crashlytics-resolved/&lt;date&gt;-&lt;slug&gt;.md</code>
 closure log) + §6.AC (Comprehensive Non-Fatal Telemetry — every
 catch/fallback records a non-fatal with triage context). Composes
@@ -5922,8 +5729,7 @@ registered §11.4.135 regression guard + a closure-log entry citing the
 console issue id/URL + the validation/verification test paths; a
 console-resolved issue with no falsifiable regression guard FAILs) +
 paired §1.1 meta-test mutation (gate-code = separate work item).
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.152. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-crashlytics-monitoring</code>,
 <code>--monitor-crashes-only</code>, <code>--skip-non-fatals</code>,
@@ -5983,8 +5789,7 @@ Propagation gate <code>CM-COVENANT-114-153-PROPAGATION</code> (literal
 <code>CM-FEATURE-STATUS-COMPLETE</code> +
 <code>CM-FEATURE-STATUS-VIDEO-CONFIRMED</code> + paired §1.1
 mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.153. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-feature-status</code>,
 <code>--feature-without-video</code>, <code>--frozen-video-OK</code>,
@@ -6025,8 +5830,7 @@ Propagation gate <code>CM-COVENANT-114-154-PROPAGATION</code> (literal
 <code>11.4.154</code>) + recommended gate
 <code>CM-WINDOW-SCOPED-FRESH-CORPUS-RECORDING</code> + paired §1.1
 mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.154. Non-compliance is a release blocker. No escape hatch — no
 <code>--whole-screen-capture-OK</code>,
 <code>--skip-window-scope</code>, <code>--keep-stale-recordings</code>,
@@ -6055,7 +5859,7 @@ deterministic — §11.4.6, IDENTICAL to §11.4.151):</strong> (1)
 git-ignored §11.4.30, documented in tracked <code>.env.example</code>
 §11.4.77) else (2) lowercased snake_case project-root dir name §11.4.29
 — ALWAYS resolvable, zero operator input. SAME prefix for EVERY
-recording in a checkout so <code>ls '&lt;PREFIX&gt;---'*</code>
+recording in a checkout so <code>ls &#39;&lt;PREFIX&gt;---&#39;*</code>
 enumerates the corpus; canonical form
 <code>&lt;PREFIX&gt;---&lt;feature-or-scope&gt;---&lt;run-id&gt;.&lt;ext&gt;</code>
 (<code>---</code> delimits the prefix unambiguously); MUST equal the
@@ -6071,8 +5875,7 @@ Propagation gate <code>CM-COVENANT-114-155-PROPAGATION</code> (literal
 <code>11.4.155</code>) + recommended gate
 <code>CM-RECORDING-PROJECT-NAME-PREFIX</code> + paired §1.1
 mutation.</p>
-<p><strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.155. Non-compliance is a release blocker. No escape hatch — no
 <code>--no-recording-prefix</code>,
 <code>--recording-without-project-name</code>,
@@ -6113,7 +5916,7 @@ scope, MUST NOT be mass-edited (§11.4.29 vendor-exempt); test = “does a
 push to OUR upstream trigger a run?” yes⇒disable, inert⇒document+leave
 (§11.4.6 verify-not-assume); <strong>(D)</strong> no new CI may be added
 (release blocker); <strong>(E)</strong> pre-push verify
-<code>git ls-files | grep -E '^\.github/workflows/.*\.ya?ml$|^\.gitlab-ci\.yml$'</code>
+<code>git ls-files | grep -E &#39;^\.github/workflows/.*\.ya?ml$|^\.gitlab-ci\.yml$&#39;</code>
 empty for authored repos, §11.4.109-class PreToolUse guard + gate
 enforce mechanically. Honest boundary (§11.4.6): file-level disabling
 stops FILE-triggered runs, NOT provider-side server settings
@@ -6127,8 +5930,7 @@ universal (§11.4.17). Propagation gate
 paired §1.1 meta-test mutation (strip the literal → propagation gate
 FAILs; add a root <code>.github/workflows/x.yml</code> to an authored
 repo → <code>CM-NO-ACTIVE-CI</code> FAILs). <strong>Canonical
-authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.156. Non-compliance is a release blocker. No escape hatch — no
 <code>--allow-ci</code>, <code>--enable-workflow</code>,
 <code>--keep-pipeline</code>, <code>--remote-ci-OK</code>,
@@ -6163,8 +5965,7 @@ back-fill is incomplete is itself a §11.4.157 violation. Composes
 <code>CM-COVENANT-114-157-PROPAGATION</code> (literal
 <code>11.4.157</code>, GEMINI.md INCLUDED) + recommended gate
 <code>CM-GEMINI-MD-LOCKSTEP</code> + paired §1.1 meta-test mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.157. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-gemini-md</code>, <code>--gemini-optional</code>,
 <code>--gemini-lag-OK</code>, <code>--four-carrier-suffices</code>
@@ -6203,8 +6004,7 @@ Classification: universal (§11.4.17). Propagation gate
 <code>11.4.158</code>) + recommended gates
 <code>CM-INTENSIVE-RECORDING-COVERAGE</code> +
 <code>CM-RECORDING-CONTENT-READ-VERIFIED</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.158. Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-recording-coverage</code>,
 <code>--video-without-content-read</code>,
@@ -6284,8 +6084,7 @@ recording completes. Classification: universal (§11.4.17). Composes
 Propagation gate <code>CM-COVENANT-114-159-PROPAGATION</code> (literal
 <code>11.4.159</code>) + recommended gate
 <code>CM-WINDOW-VIDEO-VALIDATED</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a
-href="constitution/Constitution.md"><code>Constitution.md</code></a>
+<strong>Canonical authority:</strong> constitution submodule <a href="constitution/Constitution.md"><code>Constitution.md</code></a>
 §11.4.159. Non-compliance is a release blocker. No escape hatch — no
 <code>--whole-screen-ok</code>, <code>--cast-only</code>,
 <code>--skip-vision-validation</code>, <code>--no-cleanup</code>,
@@ -6417,5 +6216,110 @@ MCP/pre-commit/PATH wiring, docs_chain <code>semgrep_status</code>
 context, and the <code>CM-COVENANT-114-166-PROPAGATION</code> /
 <code>CM-SEMGREP-WIRED</code> gates removed. Anchor 11.4.166 retired.
 See constitution <code>Constitution.md</code> §11.4.166.</p>
+<p><strong>§11.4.167 — Big-work-item feature work-stream lifecycle (User
+mandate, 2026-06-23).</strong> Compact summary: every BIG work item (new
+feature OR drastic/large fix) MUST be developed as its own isolated
+<strong>feature work-stream</strong> — its OWN full project copy in a
+sibling directory, its OWN <code>feature/&lt;slug&gt;</code> branch, its
+OWN per-feature flashable builds + feature release tags, kept SEPARATE
+from the trunk until the operator manually approves after testing, with
+the trunk regularly merged INTO every feature stream. (A) one big item =
+one feature work-stream in a sibling project copy
+(<code>&lt;project&gt;_&lt;slug&gt;</code>, §11.4.29 slug); small
+changes stay on the trunk. (B) disk-feasible duplication MANDATORY,
+naive deep copies FORBIDDEN — a CoW/reflink clone
+(<code>cp -a --reflink=auto</code> / FS snapshot) on btrfs/XFS/ZFS/APFS,
+else a shared-object-store mechanism (<code>git worktree</code> +
+externalized build output); per-stream <code>out/</code> excluded from
+the clone + one shared ccache; ~0-disk-per-fresh-stream verified by
+captured evidence (§11.4.69) before relied on (§11.4.6 no-guessing). (C)
+own branch + own tags greppable per §11.4.151
+(<code>&lt;base&gt;-feat-&lt;slug&gt;[-&lt;iter&gt;]</code>), NEVER
+merged to trunk until §11.4.40 full retest GREEN on a clean target →
+§11.4.41 merge-first → §11.4.113 ff-only (no-force) merge. (D) trunk
+merged INTO every live stream FREQUENTLY (per trunk tag / daily,
+<code>git merge</code> never rebase a shared/tagged branch); a stale
+stream is flagged. (E) feature branch + mirrored feature tag cascades to
+EVERY touched submodule the moment a submodule is modified (§11.4.113 +
+tag-cascade); untouched submodules stay trunk-pinned. (F) single-builder
+build QUEUE (FIFO + advisory lock, §11.4.58 L1 / §12.7 / §12.8) +
+finite-device test queue (§11.4.119 per-device exclusive ownership);
+idle streams’ regenerable build output GC’d (§11.4.77). (G) every change
+crosses the full quality gauntlet (§11.4.142/.125/.134 review +
+§11.4.145 impact research + §11.4 / .5 / .69 / .107 anti-bluff testing)
+— a feature stream is NOT a quality carve-out. (H) resumable, data-safe
+lifecycle — a stream registry (§11.4.116 / §11.4.147) tracks
+branch/base-tag/out-state/last-trunk-merge/merge-approval; atomic
+<code>.partial</code>→rename create + §11.4.84 quiescence resume; retire
+only after merged/approved + §9.2 backup; bounded by §12 / §12.6. Honest
+boundary (§11.4.6): guarantees ISOLATION + disk-feasibility + greppable
+identity + controlled trunk↔︎feature merge — NOT that any stream’s work
+is correct (still crosses §11.4.108 + §11.4.40). Classification:
+universal (§11.4.17) — consumer supplies its CoW mechanism, sibling-dir
++ tag naming, build/device-queue counts, big-item threshold per
+§11.4.35. Propagation gate <code>CM-COVENANT-114-167-PROPAGATION</code>
+(literal <code>11.4.167</code>) + recommended gates
+<code>CM-FEATURE-WORKSTREAM-COW-CLONE</code> /
+<code>CM-FEATURE-WORKSTREAM-NO-MERGE-UNTIL-APPROVED</code> /
+<code>CM-FEATURE-WORKSTREAM-TRUNK-SYNC-CADENCE</code> /
+<code>CM-FEATURE-WORKSTREAM-SUBMODULE-CASCADE</code> + paired §1.1
+mutations. <strong>Canonical authority:</strong> constitution submodule
+<a href="Constitution.md"><code>Constitution.md</code></a> §11.4.167.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--full-clone-per-feature</code>, <code>--deep-copy-stream</code>,
+<code>--skip-cow-clone</code>,
+<code>--merge-feature-without-approval</code>,
+<code>--no-trunk-sync</code>, <code>--skip-submodule-cascade</code>,
+<code>--unbounded-parallel-builds</code>,
+<code>--shared-device-no-lock</code>,
+<code>--retire-unmerged-stream</code>,
+<code>--feature-stream-quality-carveout</code> flag.</p>
+<p><strong>§11.4.168 — Exported-document independent content + textual +
+full-visual validation mandate (User mandate, 2026-06-23).</strong>
+Compact summary: every generated/exported document (HTML / PDF / DOCX /
+any format in the §11.4.65 export scope) MUST pass INDEPENDENT
+validation by a review agent structurally separate from the generator
+(§11.4.70/§11.4.142, NEVER the author self-checking), on BOTH the source
+AND every exported artifact, ALWAYS, across THREE layers: (1) CONTENT —
+the export faithfully carries the source’s intent + data, nothing
+dropped/truncated/garbled; (2) TEXTUAL — human-readable, NO raw markup /
+diagram-source (Mermaid
+<code>gantt</code>/<code>graph</code>/<code>flowchart</code>/<code>sequenceDiagram</code>
+etc.) / unrendered code-fence leaking as body text (the exact 2026-06-23
+raw-gantt-in-PDF failure); (3) FULL VISUAL — embedded diagrams render as
+IMAGES not source, layout intact, no overlap/cut-off/garble/collapse,
+verified by RENDERING the export (<code>pdftotext</code> catches raw
+source as text + <code>pdfimages</code> confirms rendered images +
+<code>pdftoppm</code>→OCR confirms human-readable visual content) with
+captured evidence per §11.4.5/§11.4.69/§11.4.107. Anti-bluff: a
+rubber-stamp is not validation; the analyzer is self-validated
+golden-good/golden-bad per §11.4.107(10) (a golden-bad export seeded
+with raw <code>gantt</code> source MUST FAIL); iterate to a clean GO per
+§11.4.134. Forensic FACT (2026-06-23): a “green” Mermaid fix shipped raw
+gantt source as readable text into user-facing PDFs because validation
+grepped the HTML for <code>class=&quot;mermaid&quot;</code> and NEVER checked the
+exported PDF — operator caught it (§11.4.138). A generated doc shipping
+without this content+textual+visual validation, or containing raw
+diagram source / unreadable garble, is a §11.4 PASS-bluff at the
+documentation layer. Honest boundary (§11.4.6): confirms the exported
+artifact a reader opens is faithful/readable/visually-rendered — does
+NOT prove the source content is correct (§11.4.142/§11.4.135) nor
+replace the §11.4.65 mtime-parity freshness gate (this is the
+READABILITY/FIDELITY layer the mtime gate cannot see);
+FLAG_SECURE/un-rasterisable surfaces document the gap per §11.4.112 +
+§11.4.117 proxy oracle, never a faked visual PASS. Classification:
+universal (§11.4.17). Composes
+§11.4.65/.73/.107/.117/.135/.138/.142/.159/.163/.165/§1.1. Propagation
+gate <code>CM-COVENANT-114-168-PROPAGATION</code> (literal
+<code>11.4.168</code>) + recommended gate
+<code>CM-EXPORTED-DOC-VISUALLY-VALIDATED</code> + paired §1.1 mutation
+(a PDF/HTML/DOCX containing raw diagram source as body text → gate
+FAILs). <strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.168.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-visual-validation</code>,
+<code>--raw-source-in-pdf-ok</code>,
+<code>--textual-check-suffices</code>,
+<code>--self-validate-export</code>,
+<code>--diagram-source-as-text-ok</code> flag.</p>
 </body>
 </html>
