@@ -9644,6 +9644,146 @@ Classification: universal (§11.4.17) — the consuming project supplies its con
 
 **§11.4.166 — REPEALED (operator decision, 2026-06-22).** The Universal Semgrep static-analysis mandate is repealed: Semgrep is **NO LONGER a mandatory requirement** for projects governed by this Constitution. Static analysis / security scanning remains *encouraged* and may be re-adopted per project, but is NOT mandated, NOT a release blocker, and NOT cascaded. Removed with this repeal: `scripts/semgrep/`, `scripts/hooks/semgrep_precommit.sh`, the `submodules/semgrep` submodule, the MCP / pre-commit / PATH wiring, the consumer `.docs_chain/contexts/semgrep_status.yaml` context, and the `CM-COVENANT-114-166-PROPAGATION` / `CM-SEMGREP-WIRED` gates. Anchor number 11.4.166 is RETIRED (not reused). Repealed before full fleet cascade — consuming projects never received it as a binding mandate.
 
+### §11.4.167 — Big-work-item feature work-stream lifecycle (own copy-on-write project copy + own branch/tags + per-feature builds, no-merge-until-approved, trunk-merged-into-every-stream) (User mandate, 2026-06-23)
+
+Every BIG work item — a new feature OR a drastic/large fix — MUST be developed as
+its own isolated **feature work-stream**: its OWN full project copy in a sibling
+directory, its OWN feature branch, its OWN per-feature flashable builds + feature
+release tags, kept SEPARATE from the trunk until manually approved after testing,
+with the trunk regularly merged INTO every feature stream. This generalises
+Git-flow's feature/release/tag discipline (long-lived `main` trunk, one
+`feature/<slug>` per big item, no merge to trunk until reviewed-complete) and
+binds it to the project's parallel-stream (§11.4.58/§11.4.103), single-builder,
+and finite-test-device realities. The mandate (ALL hold):
+
+**(A) One big item = one feature work-stream in a sibling project copy.** Each
+big work item gets its own complete project copy in a sibling directory
+(`<project>`, `<project>_<slug-1>`, `<project>_<slug-2>`, …), the `<slug>` a
+lowercase identifier per §11.4.29. The trunk copy is the canonical `main`. Small
+changes stay on the trunk; only BIG items earn a stream (the threshold is the
+project's own per §11.4.35).
+
+**(B) Disk-feasible duplication is MANDATORY, naive copies FORBIDDEN.** A
+feature-stream copy MUST be created by a near-zero-disk mechanism — on a
+copy-on-write filesystem (btrfs/XFS/ZFS/APFS) a reflink/CoW clone (`cp -a
+--reflink=auto` / filesystem snapshot) so only DIVERGED bytes consume disk;
+elsewhere a shared-object-store mechanism (e.g. `git worktree` + externalized
+build output + sparse where the build tolerates it). A full deep copy or full
+`git clone` per stream of a large working tree is FORBIDDEN where it would exhaust
+free space (§9 data safety + the project's host-disk reality per §11.4.35). The
+chosen mechanism MUST be verified to consume ~0 disk for a fresh stream (captured
+evidence per §11.4.69) before being relied on (§11.4.6 — no guessing about
+disk). Build output (`out/`-class) MUST be per-stream and excluded from the CoW
+clone; one shared compiler cache (ccache-class) across streams maximises queued-
+build hit-rate.
+
+**(C) Own branch + own tags, separate until approved.** Each stream develops on
+its own `feature/<slug>` branch; per-feature flashable builds are marked with
+feature tags under a scheme that embeds the slug so the build is greppable across
+every repository (composes §11.4.151), e.g. `<base-version>-feat-<slug>[-<iter>]`,
+the `<iter>` monotonic per §11.4.54. **The feature branch is NEVER merged to the
+trunk until the operator manually approves after testing** — approval requires the
+§11.4.40 full-suite retest GREEN on a clean target, then the §11.4.41 merge-first
+integration, then a §11.4.113 ff-only (no-force) merge to trunk.
+
+**(D) Trunk merged INTO every feature stream, regularly.** The trunk MUST be
+merged INTO every live feature stream FREQUENTLY (at minimum after every trunk tag
+/ daily) to prevent long-lived-branch conflict storms — `git merge` (never rebase
+a shared/tagged branch). A stream that has not been synced within the cadence is
+flagged stale.
+
+**(E) Feature-level branching AND tagging cascades to ALL submodules the moment a
+submodule is modified.** The instant a stream modifies ANY submodule, that
+submodule gets its own `feature/<slug>` branch; per-feature tags on the main repo
+are mirrored on EVERY touched submodule at the same HEAD and ff-only-pushed to all
+owned remotes (§11.4.113 + the project's tag-cascade rule). Untouched submodules
+stay trunk-pinned (no branch/tag churn). Merge-to-trunk applies the same cascade.
+Where the duplication mechanism is `git worktree`, the experimental/disk-
+duplicating worktree-submodule path (each worktree keeps a unique submodule copy;
+removal must be forced) is a documented hazard and the CoW-clone mechanism (each
+stream owns CoW-shared submodule git dirs) is preferred where available.
+
+**(F) Single-builder build queue + finite-device test queue.** Where the host can
+run only ONE build at a time, feature builds MUST QUEUE (FIFO + advisory lock,
+composes §11.4.58 L1 / §12.7 / §12.8), never contend. Where live testing has a
+finite device count, per-device exclusive ownership (§11.4.119) serialises tests;
+streams beyond the device count queue. The build queue MUST garbage-collect idle
+streams' regenerable build output (§11.4.77) to keep disk within budget.
+
+**(G) Every change crosses the full quality gauntlet.** Every change in any
+stream passes the extensive independent code review (§11.4.142/§11.4.125/§11.4.134)
++ multi-angle impact research (§11.4.145) + anti-bluff captured-evidence testing
+(§11.4 / §11.4.5 / §11.4.69 / §11.4.107) — a feature stream is NOT a quality
+carve-out.
+
+**(H) Resumable, data-safe stream lifecycle.** A stream registry (single source
+of "is this stream owed?", composes §11.4.116 / §11.4.147) tracks each stream's
+branch, base tag, build/out state, last-trunk-merge, and merge-approval state.
+Stream creation is atomic-on-success (clone to a `.partial` name, rename on
+success) and resumable (§11.4.84 quiescence check on resume). Retiring a stream
+requires a §9.2 pre-op backup + a guard that the feature work is merged/approved
+(unmerged work blocks auto-deletion). Host-session safety (§12) and the
+≤60%-memory ceiling (§12.6) bound clone + build.
+
+Honest boundary (§11.4.6): this lifecycle guarantees ISOLATION, disk-feasibility,
+greppable identity, and a controlled trunk↔feature merge discipline — it does NOT
+by itself prove any stream's work is correct (each change still crosses
+§11.4.108 runtime-signature + §11.4.40 retest). Classification: universal
+(§11.4.17) — the consuming project supplies its filesystem/CoW mechanism, sibling-
+dir + tag naming, build-queue + device-queue counts, and big-item threshold per
+§11.4.35.
+
+Propagation gate `CM-COVENANT-114-167-PROPAGATION` (literal `11.4.167` across the
+consumer fleet) + recommended gates `CM-FEATURE-WORKSTREAM-COW-CLONE` (a feature
+stream is created by the verified near-zero-disk mechanism, NOT a full deep copy/
+clone; per-stream out/ + shared cache; captured disk-cost evidence) +
+`CM-FEATURE-WORKSTREAM-NO-MERGE-UNTIL-APPROVED` (no feature→trunk merge without
+the approval marker + §11.4.40 GREEN) + `CM-FEATURE-WORKSTREAM-TRUNK-SYNC-CADENCE`
+(every live stream's last-trunk-merge within the declared cadence) +
+`CM-FEATURE-WORKSTREAM-SUBMODULE-CASCADE` (every touched submodule carries the
+`feature/<slug>` branch + mirrored feature tag). Paired §1.1 meta-test mutations:
+strip the literal → propagation gate FAILs; create a stream via full deep copy →
+`CM-FEATURE-WORKSTREAM-COW-CLONE` FAILs; merge a feature to trunk with no approval
+marker → `CM-FEATURE-WORKSTREAM-NO-MERGE-UNTIL-APPROVED` FAILs; let a stream go
+stale past the cadence → `CM-FEATURE-WORKSTREAM-TRUNK-SYNC-CADENCE` FAILs; modify
+a submodule in a stream without its `feature/<slug>` branch/tag →
+`CM-FEATURE-WORKSTREAM-SUBMODULE-CASCADE` FAILs (gate-code = separate work item).
+
+Composes §9 / §9.2 / §11.4.6 / §11.4.17 / §11.4.28 / §11.4.29 / §11.4.35 /
+§11.4.40 / §11.4.41 / §11.4.54 / §11.4.58 / §11.4.66 / §11.4.69 / §11.4.71 /
+§11.4.77 / §11.4.84 / §11.4.103 / §11.4.108 / §11.4.113 / §11.4.116 / §11.4.119 /
+§11.4.125 / §11.4.142 / §11.4.145 / §11.4.147 / §11.4.151 / §12 / §12.6 / §12.7 /
+§12.8 / §12.9 / §1.1.
+
+**Canonical authority:** constitution submodule `Constitution.md` §11.4.167.
+Non-compliance is a release blocker. No escape hatch — no
+`--full-clone-per-feature`, `--deep-copy-stream`, `--skip-cow-clone`,
+`--merge-feature-without-approval`, `--no-trunk-sync`, `--skip-submodule-cascade`,
+`--unbounded-parallel-builds`, `--shared-device-no-lock`,
+`--retire-unmerged-stream`, `--feature-stream-quality-carveout` flag.
+
+### §11.4.168 — Exported-document independent content + textual + full-visual validation mandate (User mandate, 2026-06-23)
+
+**Forensic anchor (FACT, 2026-06-23).** A "green" Mermaid export fix shipped RAW gantt-diagram source — the literal lines `gantt`, `title`, `dateFormat`, `section`, `:done,` — as plain readable text into user-facing PDFs, unreadable to any reader who expected a rendered diagram. The fix's validation grepped the HTML for `class="mermaid"` but NEVER opened the EXPORTED PDF to check whether raw diagram source had leaked into the body. The operator caught it (§11.4.138 operator-escape — the green suite missed it). Root lesson: generated/exported documents were never INDEPENDENTLY validated for the VISUAL + TEXTUAL correctness of the EXPORTED artifact itself — a `grep` of the source-or-intermediate HTML is NOT a check of what the reader actually receives. This is the §11.4.108 SOURCE→ARTIFACT gap (the change present in source / intermediate, but the rendered bytes a reader opens are broken) materialised at the documentation-export layer.
+
+**The mandate.** Every generated/exported document — HTML, PDF, DOCX, or any format in the §11.4.65 universal-Markdown-export scope (and the §11.4.153 four-format feature-Status set that adds DOCX) — MUST pass INDEPENDENT validation by a review agent structurally separate from the generator (§11.4.70/§11.4.20 dedicated subagent or a distinct human; NEVER the author/generator self-checking its own output — §11.4.92 self-evaluation PRECEDES and never satisfies; this is the §11.4.142 every-change-reviewed discipline applied to exported artifacts). The validation MUST be run on BOTH the source Markdown AND every exported artifact derived from it, ALWAYS — every export, not a sampled subset — across THREE layers, ALL of which MUST hold:
+
+**(1) CONTENT layer.** The export faithfully carries the source's intent + data: nothing dropped, truncated, re-ordered into nonsense, or garbled. Every section, table, list, code block, figure caption, and link the source declares is present and complete in the export (a table truncated to its first page, a list collapsed, a section silently omitted, a link stripped of its target are all CONTENT findings). Cross-check the exported artifact against the source — present-and-complete, not merely "the file exists and is non-empty" (the §11.4.5/§11.4.69 captured-evidence quality bar, not a presence-only bar).
+
+**(2) TEXTUAL layer.** The export is human-readable: NO raw markup, NO diagram source, NO unrendered code-fence body leaking as ordinary body text. Specifically forbidden as body text in the exported artifact: raw Mermaid diagram source (`mermaid`, `gantt`, `graph`, `flowchart`, `sequenceDiagram`, `classDiagram`, `stateDiagram`, `erDiagram`, `pie`, `gitGraph`, `journey`, `dateFormat`, `section …`, `:done,`/`:active,`/`:crit,` task lines, and the closing-fence residue), raw HTML tags rendered as visible text, raw LaTeX/math source where math rendering was intended, and any triple-backtick code-fence whose intended rendering (diagram / formatted block) was supposed to replace the source. The 2026-06-23 raw-gantt-in-PDF failure is the canonical TEXTUAL finding. Detection reads the exported artifact as text (e.g. `pdftotext` on the PDF, the rendered DOM/text of the HTML, the extracted document text of the DOCX) and asserts the forbidden tokens do NOT appear as body text.
+
+**(3) FULL VISUAL layer.** Embedded diagrams render as IMAGES, not as source; layout is intact; no overlapping / cut-off / clipped / garbled / collapsed / blank content. Verified by RENDERING the export and inspecting the rendered result — never by inspecting the source or an intermediate alone: e.g. `pdftotext` to catch raw diagram source leaking as text (composes layer 2), `pdfimages` (or the format's image-enumeration) to CONFIRM the intended diagrams are present as rendered raster/vector images (a diagram that should be an image but produces zero embedded images is a VISUAL finding — the source leaked instead of rendering), and `pdftoppm`→OCR (§11.4.117/§11.4.107(12), confidence floor + ROI) to CONFIRM the rasterised page carries human-readable visual content and to re-catch any raw-source-as-pixels. Captured evidence per §11.4.5/§11.4.69/§11.4.107 (`pdftotext_body.txt`, `pdfimages_manifest.txt`, `ocr_pages/`, the per-finding pinpoint — which page/region/token, expected vs actual) accompanies every verdict.
+
+**(4) Anti-bluff — the validator is itself anti-bluff.** A rubber-stamp "the export looks fine" is NOT validation (§11.4 / §11.4.1 — a rubber-stamp validator is a PASS-bluff at the export-validation layer). The analyzer/validator is self-validated with a golden-good / golden-bad fixture pair per §11.4.107(10): a golden-good export (clean rendered diagram + faithful content) MUST PASS, and a golden-bad export (a PDF/HTML/DOCX deliberately seeded with raw Mermaid `gantt` source as body text, plus a truncated table) MUST FAIL — a validator that passes its golden-bad fixture is a bluff gate and is investigated per §11.4.102 before any further use. The validation iterates to a clean GO per §11.4.134: any finding in ANY of the three layers (BLOCKING / nit / warning) re-arms the loop — the generator/author fixes it (e.g. pre-renders the diagram to an image before export), the export is regenerated, and the validator RE-VALIDATES, until GO with ZERO findings and ZERO warnings, every verdict backed by captured rendered-artifact evidence. A generated document that ships WITHOUT this independent content+textual+visual validation, or that contains raw diagram source / unreadable garble / dropped content in the exported artifact, is a §11.4 PASS-bluff at the documentation layer.
+
+**Honest boundary (§11.4.6).** This validation confirms the EXPORTED artifact a reader opens carries the source's content faithfully, is textually readable, and renders its visuals as images — it does NOT prove the source's content is itself correct (that rests on the source's own §11.4.142 review + §11.4.135 regression guards) and does NOT replace the §11.4.65 mtime-parity export-sync gate (which proves the exports are FRESH, not that they are READABLE — §11.4.168 is the READABILITY/FIDELITY layer the mtime gate cannot see). A FLAG_SECURE / DRM-blanked / sink-blanked rendering surface that cannot be rasterised documents the gap per §11.4.112 and uses the §11.4.117 proxy oracle — never a faked visual PASS. "The HTML had `class="mermaid"`" is a source-side check, NOT an exported-artifact check (the exact 2026-06-23 omission); "`pdftotext` shows no `gantt` source AND `pdfimages` shows the expected diagram image AND OCR reads human text" is the exported-artifact check.
+
+**Classification:** universal (§11.4.17) — a platform-neutral exported-document-fidelity discipline reusable by ANY project that generates/exports documents; the consuming project supplies its concrete pre-render pipeline, exporters, and rendered-artifact validators (text-extraction / image-enumeration / rasterise→OCR) per §11.4.35. Composes §11.4.65 (the export-scope + freshness layer this READABILITY layer sits atop) / §11.4.73 (project-wide MD/HTML/PDF/DOCX styling — styled exports MUST still pass the three layers) / §11.4.107 (the self-validated-analyzer + liveness/OCR validation techniques) / §11.4.117 (CV/OCR pixel-oracle for rasterised-page validation) / §11.4.135 (a fixed export-fidelity defect registers a permanent regression guard) / §11.4.138 (the 2026-06-23 operator-escape that motivated this anchor) / §11.4.142 (independent every-change review applied to exports) / §11.4.159 (window-scoped recording + vision-validation discipline, the recording analogue) / §11.4.163 (the media-validation pipeline — §11.4.168 is its document-export sibling) / §11.4.165 (the independent verification agent — §11.4.168(c) DOCS layer is its export-fidelity refinement) / §1.1.
+
+Propagation gate `CM-COVENANT-114-168-PROPAGATION` (literal `11.4.168` across the consumer fleet) + recommended gate `CM-EXPORTED-DOC-VISUALLY-VALIDATED` (every exported document in the §11.4.65 scope carries an independent-validation marker — produced by a validator structurally separate from the generator — asserting the three layers PASS on the exported artifact, with captured rendered-artifact evidence; the validator is self-validated by a golden-good/golden-bad fixture pair) + paired §1.1 meta-test mutation (strip the literal `11.4.168` → propagation gate FAILs; produce a PDF/HTML/DOCX containing raw diagram source — e.g. raw Mermaid `gantt` lines — as body text and assert the gate catches it → `CM-EXPORTED-DOC-VISUALLY-VALIDATED` FAILs; feed the validator its golden-bad fixture → self-validation FAILs; gate-code = separate work item).
+
+**Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.168. Non-compliance is a release blocker regardless of context. No escape hatch — no `--skip-visual-validation`, `--raw-source-in-pdf-ok`, `--textual-check-suffices`, `--self-validate-export`, `--diagram-source-as-text-ok` flag exists.
+
 ---
 
 ## §12. Host-session safety — directly OR indirectly signing the user out is FORBIDDEN
