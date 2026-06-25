@@ -251,7 +251,7 @@
 <tbody>
 <tr>
 <td>Revision</td>
-<td>30</td>
+<td>31</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -267,22 +267,40 @@
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.169 — Mandatory comprehensive test-type coverage with
-anti-bluff captured evidence (User mandate 2026-06-25): every project
-MUST cover a CLOSED enumerated test-type set — unit, integration (real
-System, infra via containers submodule §11.4.76), e2e, full-automation
-(§11.4.25/.52/.98, deterministic §11.4.50), Challenges (challenges
-submodule §11.4.27(B)), HelixQA (helix_qa submodule — written test
-banks/suites per app/service/platform + comprehensive fully-autonomous
-QA sessions §11.4.27), DDoS/load-flood, security (§11.4.10 + security
-submodule), stress+chaos (§11.4.85), concurrency/atomicity,
-race-condition/deadlock, memory, benchmarking/performance — each to
-as-close-to-100% coverage as the domain permits, every PASS citing
-rock-solid captured PHYSICAL evidence (§11.4.5/.69/.107), zero false
-results/zero bluff (§11.4/.1/.6); the ONLY permitted absence is an
-honest §11.4.3 SKIP-with-reason, never a silent gap; strict enumerated
-expansion of §11.4.27; four-layer §11.4.4(b) enforcement + coverage
-ledger (§11.4.25/.52). Propagation gate
+<td>Added §11.4.170 — Device-independent host-side rendered-UI
+visual-proof mandate (User mandate 2026-06-25): every change to ANY
+user-facing UI surface MUST be proven by device-independent host-side
+RENDERED PIXELS (Compose→Roborazzi/Paparazzi, web→Playwright,
+SwiftUI→snapshot-testing) per screen×state×{light,dark} theme,
+dual-validated by (i) golden image-diff AND (ii) an OCR/vision layout
+oracle (legibility + NO
+overlap/clip/off-screen/collapsed-or-giant-unbounded widget);
+VALUE/TOKEN-EQUALITY UI tests are FORBIDDEN as the proof a UI is correct
+(the giant-button bluff: green token-equality tests while the real
+screen was broken) — they may supplement, never substitute the
+rendered-pixel artefact; "device offline" is NEVER a valid skip
+(host-render is device-free); composes
+§11.4.162/.168/.153/.158/.159/.160; self-validated
+golden-good/golden-bad analyzer §11.4.107(10). Propagation gate
+<code>CM-COVENANT-114-170-PROPAGATION</code> + recommended gate
+<code>CM-HOST-RENDERED-UI-VISUAL-PROOF</code> + paired §1.1 mutation.
+Classification: universal (§11.4.17). Prior round: Added §11.4.169 —
+Mandatory comprehensive test-type coverage with anti-bluff captured
+evidence (User mandate 2026-06-25): every project MUST cover a CLOSED
+enumerated test-type set — unit, integration (real System, infra via
+containers submodule §11.4.76), e2e, full-automation (§11.4.25/.52/.98,
+deterministic §11.4.50), Challenges (challenges submodule §11.4.27(B)),
+HelixQA (helix_qa submodule — written test banks/suites per
+app/service/platform + comprehensive fully-autonomous QA sessions
+§11.4.27), DDoS/load-flood, security (§11.4.10 + security submodule),
+stress+chaos (§11.4.85), concurrency/atomicity, race-condition/deadlock,
+memory, benchmarking/performance — each to as-close-to-100% coverage as
+the domain permits, every PASS citing rock-solid captured PHYSICAL
+evidence (§11.4.5/.69/.107), zero false results/zero bluff
+(§11.4/.1/.6); the ONLY permitted absence is an honest §11.4.3
+SKIP-with-reason, never a silent gap; strict enumerated expansion of
+§11.4.27; four-layer §11.4.4(b) enforcement + coverage ledger
+(§11.4.25/.52). Propagation gate
 <code>CM-COVENANT-114-169-PROPAGATION</code> + recommended gate
 <code>CM-MANDATORY-TEST-TYPES-COVERED</code> + paired §1.1 mutation
 (gate-code = separate work item). Classification: universal (§11.4.17).
@@ -18662,6 +18680,257 @@ hatch — no <code>--skip-test-type</code>,
 <code>--no-chaos</code>, <code>--no-ddos</code>,
 <code>--skip-memory-test</code>, <code>--skip-race-detector</code>,
 <code>--bench-optional</code> flag exists.</p>
+<hr />
+<h3
+id="114140--mandatory-helixtranslate-canonical-translation-pipeline-user-mandate-2026-06-25">§11.4.140
+— Mandatory HelixTranslate canonical translation pipeline (User mandate,
+2026-06-25)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-25):</strong> "Every project that inherits this constitution
+MUST use HelixTranslate (<a
+href="mailto:git@github.com">git@github.com</a>:HelixDevelopment/HelixTranslate.git)
+— via a universal, reusable pipeline — to generate ANY translations it
+needs. This is a hard rule/constraint."</p>
+<p>ALL translations of ANY content — UI strings, documents, articles,
+CVs, READMEs, marketing copy, in-app messages, release notes, legal
+text, ANY human-language string rendered in a non-source language — MUST
+be produced by <strong>HelixTranslate</strong>
+(<code>git@github.com:HelixDevelopment/HelixTranslate.git</code>) driven
+through the <strong>canonical universal translation pipeline</strong>
+shipped in this submodule at <code>scripts/translation/</code>
+(<code>translate-pipeline.sh</code> + <code>render-articles.sh</code>).
+This is a hard, non-negotiable constraint.</p>
+<p>The following are FORBIDDEN and constitute a §11.4.140 violation:</p>
+<p>(a) <strong>Hand-translation</strong> — no human-authored, manually
+edited, or "good enough" hand-written translation of any content, ever.
+The engine is the single source of every translated string.</p>
+<p>(b) <strong>Other engines</strong> — no Google Translate, DeepL, raw
+ChatGPT/Claude prompting, OS translation APIs, library i18n
+auto-translators, or any engine other than HelixTranslate's
+<code>unified-translator</code>. There is exactly one engine.</p>
+<p>(c) <strong>Silent fallback</strong> — no quiet substitution of the
+source string, no empty/partial output passed off as a translation, no
+swallowed engine error, no "absence-of-error" PASS (§11.4 / §11.4.1). On
+exhaustion of all configured providers the pipeline MUST FAIL LOUD
+(non-zero exit, destination NOT written) so the caller detects it; a
+missing translation is a hard error, never a degraded-but-shipped
+string. Provider-to-provider failover WITHIN HelixTranslate (primary →
+fallback, with logged, evidenced retries) is NOT a silent fallback and
+is permitted; falling back to ANY non-HelixTranslate source is
+forbidden.</p>
+<p><strong>Mandatory validation.</strong> Every generated translation
+MUST be validated for accuracy with real (physical) captured evidence
+per §11.4.5 / §11.4.69 / §11.4.107 — no metadata-only / config-only /
+grep-without-runtime PASS (§11.4 / §11.4.1), no false results, no bluff
+of any kind (§11.4.6). The per-file run log (provider used, byte counts,
+retries, success/failure) is the evidence artifact; an unvalidated or
+unevidenced translation is treated as ABSENT.</p>
+<p><strong>Explicit provider routing.</strong> Provider + model routing
+MUST be explicit and recorded — never implicit/defaulted-in-the-dark.
+The canonical routing is provider <code>groq</code> / model
+<code>llama-3.3-70b-versatile</code> with documented failover to
+provider <code>mistral</code> / model <code>mistral-large-latest</code>;
+the provider that actually produced each output MUST be recorded in the
+per-file log. Any deviation from the canonical routing MUST be stated
+explicitly in configuration and logged.</p>
+<p><strong>Canonical pipeline location.</strong>
+<code>scripts/translation/translate-pipeline.sh</code> (universal
+Markdown / plain-text + article-frontmatter-preserving translator) and
+<code>scripts/translation/render-articles.sh</code> (article-source →
+HTML fragment renderer). Both are reusable verbatim across projects; the
+engine binary is supplied by the consuming project via
+<code>HELIX_TRANSLATE_BIN</code> and built from the HelixTranslate
+repository.</p>
+<p>Classification: universal (§11.4.17) — a platform-neutral,
+language-neutral translation discipline reusable by ANY project; the
+consuming project supplies its concrete source files, target languages,
+and the HelixTranslate engine build per §11.4.35. Composes §11.4 /
+§11.4.1 / §11.4.5 / §11.4.6 / §11.4.7 / §11.4.69 / §11.4.107.
+Propagation gate <code>CM-COVENANT-114-140-PROPAGATION</code> (literal
+<code>11.4.140</code>) + recommended gate
+<code>CM-MANDATORY-HELIXTRANSLATE-PIPELINE</code> + paired §1.1
+meta-test mutation (gate-code = separate work item).</p>
+<p><strong>Rationale.</strong> A single, evidenced, fail-loud
+translation engine guarantees that every translated string in the fleet
+has a known provenance, a reproducible pipeline, and a captured accuracy
+proof — eliminating the silent drift, inconsistent quality, and
+untraceable "where did this string come from" failures that
+hand-translation and ad-hoc engines produce. One engine, one pipeline,
+one evidence trail.</p>
+<p><strong>Canonical authority:</strong> this Constitution.md §11.4.140
+in the HelixConstitution submodule. All consuming projects restate +
+cite via §11.4.35 inheritance.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--allow-hand-translation</code>,
+<code>--other-engine-OK</code>,
+<code>--skip-translation-validation</code>,
+<code>--silent-fallback</code> flag exists.</p>
+<hr />
+<h3
+id="114141--mandatory-independent-per-language-translation-review-user-mandate-2026-06-25">§11.4.141
+— Mandatory independent per-language translation review (User mandate,
+2026-06-25)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-06-25):</strong> "Quality of translations for all languages MUST
+BE ALWAYS properly checked and reviewed! We MUST CREATE independent,
+specialized translations review agents for all languages we support
+which will be performing full testing, review, validation and
+verification for all translated content! This MUST BE mandatory part of
+our root constitution (Submodule) and followed as mandatory constraint /
+rule by this and all our projects implementing the constitution
+Submodule."</p>
+<p>Every translated artifact produced under §11.4.140 MUST, before it is
+shipped / committed / deployed, be INDEPENDENTLY REVIEWED for quality by
+a per-language review agent. This is a hard, non-negotiable gate that
+composes with — and never replaces — the §11.4.140 generation
+mandate.</p>
+<p>Requirements:</p>
+<p>(a) <strong>Independence.</strong> The reviewer MUST be a different
+model/provider than the one that produced the translation (e.g.
+translator <code>mistral/mistral-large-latest</code> → reviewer
+<code>groq/llama-3.3-70b-versatile</code>, or any distinct verified
+model). A model reviewing its own output is NOT an independent review
+and is forbidden.</p>
+<p>(b) <strong>Per-language specialization.</strong> The reviewer MUST
+act as a NATIVE speaker / linguistic reviewer of the SPECIFIC target
+language, evaluating that language's grammar, orthography, and correct
+script (Cyrillic for ru/be/kk, Arabic for ar/fa,
+Han/Kana/Hangul/Devanagari for zh/ja/ko/hi, Latin for sr/de/es/fr/tr,
+etc.).</p>
+<p>(c) <strong>Full criteria.</strong> Each review MUST judge:
+accuracy/fidelity, fluency/naturalness, completeness (nothing omitted or
+invented), correct script &amp; orthography, and absence of untranslated
+source leftovers (proper nouns / URLs / code excepted).</p>
+<p>(d) <strong>Strict machine-readable verdict + evidence.</strong> Each
+review MUST emit a structured PASS/FAIL verdict with per-criterion
+scores and an issues list, persisted as a physical evidence artifact
+(§11.4.5 / §11.4.69 / §11.4.107). A FAIL — or an ERROR /
+unavailable-reviewer — BLOCKS the content; only a real PASS may ship. No
+metadata-only / absence-of-error PASS (§11.4 / §11.4.1); no bluff
+(§11.4.6).</p>
+<p>(e) <strong>Remediation loop.</strong> A FAIL routes the artifact
+back through the §11.4.140 pipeline (re-translate / multipass-polish)
+and is re-reviewed, iterating until PASS — never hand-patched to pass
+(hand-translation remains forbidden under §11.4.140).</p>
+<p><strong>Canonical tooling.</strong>
+<code>scripts/translation/review-translations.sh</code> (per-language
+review driver) + <code>scripts/translation/review_translation.py</code>
+(independent reviewer engine emitting strict JSON verdicts). Reusable
+verbatim across projects; the consuming project supplies its
+source/translation file pairs and a reviewer provider DISTINCT from its
+translator.</p>
+<p>Classification: universal (§11.4.17) — a platform-neutral,
+language-neutral translation-quality-assurance discipline reusable by
+ANY project that ships translated content; composes §11.4.140 (the
+translation it gates) / §11.4 / §11.4.1 / §11.4.5 / §11.4.6 / §11.4.69 /
+§11.4.107 / §11.4.134 (rock-solid evidence). Propagation gate
+<code>CM-COVENANT-114-141-PROPAGATION</code> (literal
+<code>11.4.141</code>) + recommended gate
+<code>CM-MANDATORY-TRANSLATION-REVIEW</code> + paired §1.1 meta-test
+mutation (gate-code = separate work item).</p>
+<p><strong>Rationale.</strong> §11.4.140 guarantees a translation's
+provenance and a fail-loud pipeline, but not its linguistic quality. An
+independent, native-level, per-language reviewer with a captured
+PASS/FAIL verdict is what turns "a string was produced" into "a string
+was verified correct" — making translation quality an auditable fact
+rather than an assumption.</p>
+<p><strong>Canonical authority:</strong> this Constitution.md §11.4.141
+in the HelixConstitution submodule. All consuming projects restate +
+cite via §11.4.35 inheritance.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--skip-translation-review</code>,
+<code>--self-review-OK</code>,
+<code>--accept-unreviewed-translation</code> flag exists.</p>
+<hr />
+<p><strong>§11.4.170 — Device-independent host-side rendered-UI
+visual-proof mandate (User mandate, 2026-06-25).</strong> Verbatim
+operator escalation set (2026-06-25): "what this should represent, this
+uglyness!?!?!? UI we see does not purpos or sense at all! it is messed
+up with an giant button!" + "Eye candy stunning funcitonal UI and UX
+MUST BE prooven with full automation tests which 'see' everything
+visually with no issues, false results or bluff of any kind!!! So far,
+anti-bluff policy seems completely ignored!" Every change to any
+user-facing UI surface (screen / component / view / widget / layout /
+theme on any platform — Android-Compose, iOS-SwiftUI/UIKit, web,
+desktop, TUI) MUST be proven by <strong>device-independent host-side
+RENDERED PIXELS</strong> before it may be claimed correct: the actual
+component rendered to an image ON THE HOST (NO device, NO emulator, NO
+running app required) via a host-render harness (Compose →
+Roborazzi/Paparazzi on the JVM; web → Playwright/Storybook snapshot;
+SwiftUI → snapshot-testing; equivalent per stack), for EVERY relevant
+<code>screen × state × {light,dark} theme</code> combination, with the
+produced PNG validated by BOTH (i) <strong>image-diff against an
+approved golden</strong> (per-pixel or perceptual-diff PASS/FAIL) AND
+(ii) an <strong>OCR / vision oracle</strong> that reads the rendered
+text + labels + control bounds to assert legibility + NO element overlap
+/ NO label-over-label / NO clipping / NO off-screen control / NO
+collapsed-or-giant unbounded widget (the §11.4.162 layout invariants,
+here PROVEN on real pixels not asserted on tokens). <strong>The
+forbidden bluff (forensic anchor, FACT 2026-06-25):</strong> UI work was
+"validated" by VALUE-EQUALITY unit tests (asserting a hex colour string,
+an <code>sp</code>/<code>dp</code> size integer, a design-token field
+equals an expected constant) that NEVER RENDERED A SINGLE PIXEL — every
+such test was GREEN while the operator opened the running screen and saw
+a broken, unbounded giant-button layout. A value-equality /
+token-equality / property-assertion UI test is therefore FORBIDDEN as
+the <em>proof</em> a UI is correct (it may SUPPLEMENT — confirming a
+token's wiring — but NEVER SUBSTITUTE for the rendered-pixel proof); a
+"green" UI suite that contains no rendered-pixel artefact for the
+changed surface is a §11.4 PASS-bluff at the visual layer,
+severity-equivalent to a metadata-only PASS. The mandate (ALL hold): (1)
+<strong>rendered-pixel proof per screen × state × theme</strong>,
+device-independent, runnable in CI on EVERY commit with zero hardware
+(that is the whole point of host-side rendering — it is NOT subject to
+device availability); (2) <strong>dual oracle</strong> — golden
+image-diff AND OCR/vision content+layout oracle, both required, each
+PASS citing the captured PNG + diff artefact path per §11.4.5/§11.4.69;
+(3) <strong>value-only UI claims FORBIDDEN as proof</strong> — a UI
+change with no rendered-pixel artefact for its surface is a finding
+(§11.4.4 test-interrupt → render → fix → re-render GREEN); (4)
+<strong>self-validated analyzer</strong> — the image-diff + OCR oracle
+is golden-good/golden-bad calibrated per §11.4.107(10) (a golden-bad
+fixture seeded with overlapping labels / a clipped control / an
+unbounded button MUST FAIL, else the analyzer is itself a bluff gate),
+thresholds calibrated on the project's OWN fixtures not hardcoded from
+literature (§11.4.6); (5) <strong>"device offline" is NEVER a valid
+skip</strong> for this proof — host-render is precisely the
+device-independent path; an honest §11.4.3 SKIP applies ONLY where the
+platform genuinely has no host-render harness (a tracked migration item,
+never a silent gap or a value-only fallback). Honest boundary (§11.4.6):
+host-render proves the COMPONENT renders correctly device-independently
+on every commit — it does NOT prove the running app on real hardware
+(that remains §11.4.153/§11.4.158/§11.4.159/§11.4.160's live-device
+recording + read-the-screen layer, which §11.4.170 COMPLEMENTS not
+replaces — the two layers are both mandatory: host-render for per-commit
+device-free coverage, live-recording for end-to-end on-device
+confirmation), does NOT replace §11.4.162's OpenDesign token/theme
+governance (§11.4.170 PROVES the rendered RESULT of those tokens), and
+is a DISTINCT artifact class from §11.4.168's exported-document visual
+validation. Classification: universal (§11.4.17) — the consuming project
+supplies its concrete host-render harness, golden corpus,
+screen×state×theme matrix, and OCR/vision thresholds per §11.4.35.
+Composes
+§11.4.3/§11.4.5/§11.4.27/§11.4.40/§11.4.69/§11.4.107/§11.4.108/§11.4.117/§11.4.153/§11.4.158/§11.4.159/§11.4.160/§11.4.162/§11.4.163/§11.4.168/§11.4.169/§1.1.
+Propagation gate <code>CM-COVENANT-114-170-PROPAGATION</code> (literal
+<code>11.4.170</code>) + recommended gate
+<code>CM-HOST-RENDERED-UI-VISUAL-PROOF</code> (every changed UI surface
+carries a device-independent host-rendered PNG per screen×state×theme,
+dual-oracle-validated, run on every commit; a UI change proven only by
+value/token-equality assertions FAILs) + paired §1.1 meta-test mutation
+(strip the literal → propagation gate FAILs; accept a UI change whose
+only proof is a value-equality assertion / a golden-bad
+overlapping-label fixture that PASSes →
+<code>CM-HOST-RENDERED-UI-VISUAL-PROOF</code> FAILs; gate-code =
+separate work item). <strong>Canonical authority:</strong> constitution
+submodule <a href="Constitution.md"><code>Constitution.md</code></a>
+§11.4.170. Non-compliance is a release blocker. No escape hatch — no
+<code>--value-assertion-proves-ui</code>,
+<code>--skip-rendered-pixel-proof</code>,
+<code>--token-equality-suffices</code>,
+<code>--device-offline-skip-visual</code>,
+<code>--single-theme-only</code>,
+<code>--unvalidated-image-diff-OK</code>,
+<code>--no-ocr-layout-oracle</code> flag.</p>
 <hr />
 <h2
 id="12-host-session-safety--directly-or-indirectly-signing-the-user-out-is-forbidden">§12.

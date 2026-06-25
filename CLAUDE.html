@@ -252,7 +252,7 @@ Universal CLAUDE.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>34</td>
+<td>35</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -268,10 +268,31 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>§11.4.166 REPEALED (operator decision 2026-06-22): Universal Semgrep
-static-analysis mandate repealed — Semgrep no longer mandatory;
-scaffolding, submodules/semgrep, MCP/pre-commit/PATH wiring, docs_chain
-semgrep_status context, and
+<td>Added §11.4.170 — Device-independent host-side rendered-UI
+visual-proof mandate (User mandate 2026-06-25): every change to ANY
+user-facing UI surface MUST be proven by DEVICE-INDEPENDENT host-side
+RENDERED PIXELS before claimed correct — the real component rendered to
+a PNG ON THE HOST (no device/emulator/running app;
+Compose→Roborazzi/Paparazzi, web→Playwright/Storybook,
+SwiftUI→snapshot-testing, equiv per stack) for EVERY
+screen×state×{light,dark} theme, dual-validated by (i) golden image-diff
+AND (ii) an OCR/vision oracle reading rendered text+labels+control
+bounds (NO overlap / label-over-label / clipping / off-screen /
+collapsed-or-giant-unbounded widget). VALUE/token-equality /
+property-assertion UI tests are FORBIDDEN as the PROOF a UI is correct
+(forensic FACT 2026-06-25: hex/sp/dp value-equality unit tests stayed
+GREEN while the operator opened a broken giant-button screen) — may
+supplement, NEVER substitute the rendered-pixel proof; self-validated
+golden-good/golden-bad analyzer §11.4.107(10); device-offline is NEVER a
+valid skip (host-render IS the device-independent path); COMPLEMENTS not
+replaces §11.4.153/.158/.159/.160 live-device recording + §11.4.162
+OpenDesign tokens + §11.4.168 exported-doc visual validation.
+Propagation gate CM-COVENANT-114-170-PROPAGATION + recommended gate
+CM-HOST-RENDERED-UI-VISUAL-PROOF + paired §1.1 mutation. Classification:
+universal (§11.4.17). Prior round: §11.4.166 REPEALED (operator decision
+2026-06-22): Universal Semgrep static-analysis mandate repealed —
+Semgrep no longer mandatory; scaffolding, submodules/semgrep,
+MCP/pre-commit/PATH wiring, docs_chain semgrep_status context, and
 CM-COVENANT-114-166-PROPAGATION/CM-SEMGREP-WIRED gates removed. Added
 §11.4.163 mirror — Universal Media Validation &amp; Verification
 Mandate: every recorded artifact MUST pass MEDIA VALIDATION pipeline
@@ -7790,5 +7811,56 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--no-chaos</code>, <code>--no-ddos</code>,
 <code>--skip-memory-test</code>, <code>--skip-race-detector</code>,
 <code>--bench-optional</code> flag.</p>
+<p><strong>§11.4.170 — Device-independent host-side rendered-UI
+visual-proof mandate (User mandate, 2026-06-25).</strong> Compact
+summary: every change to ANY user-facing UI surface
+(screen/component/view/widget/layout/theme on any platform —
+Android-Compose, iOS-SwiftUI/UIKit, web, desktop, TUI) MUST be proven by
+DEVICE-INDEPENDENT host-side RENDERED PIXELS before it may be claimed
+correct — the real component rendered to a PNG ON THE HOST (NO device,
+NO emulator, NO running app) via a host-render harness
+(Compose→Roborazzi/Paparazzi on the JVM; web→Playwright/Storybook
+snapshot; SwiftUI→snapshot-testing; equivalent per stack), for EVERY
+relevant screen×state×{light,dark} theme, with the PNG validated by BOTH
+(i) golden image-diff (per-pixel/perceptual PASS/FAIL) AND (ii) an
+OCR/vision oracle reading rendered text+labels+control bounds to assert
+legibility + NO overlap / NO label-over-label / NO clipping / NO
+off-screen control / NO collapsed-or-giant-unbounded widget (the
+§11.4.162 layout invariants PROVEN on real pixels). Forensic FACT
+(2026-06-25): UI work was "validated" by VALUE-EQUALITY unit tests (a
+hex colour string / an sp/dp size integer / a design-token field == a
+constant) that NEVER RENDERED A PIXEL — GREEN while the operator opened
+a broken unbounded giant-button screen. A value/token-equality /
+property-assertion UI test is FORBIDDEN as the PROOF a UI is correct (it
+may SUPPLEMENT, NEVER SUBSTITUTE the rendered-pixel proof); a "green" UI
+suite with no rendered-pixel artefact for the changed surface is a §11.4
+PASS-bluff at the visual layer. Self-validated golden-good/golden-bad
+analyzer §11.4.107(10), thresholds calibrated on the project's own
+fixtures §11.4.6. "device offline" is NEVER a valid skip — host-render
+IS the device-independent path; honest §11.4.3 SKIP only where the
+platform genuinely has no host-render harness (tracked migration item,
+never a value-only fallback). Honest boundary §11.4.6: host-render
+proves the COMPONENT renders correctly device-independently per commit —
+it does NOT prove the running app on real hardware (that remains
+§11.4.153/.158/.159/.160's live-device recording + read-the-screen
+layer, which §11.4.170 COMPLEMENTS not replaces — both mandatory), does
+NOT replace §11.4.162 OpenDesign token/theme governance (§11.4.170
+PROVES the rendered RESULT of those tokens), DISTINCT from §11.4.168
+exported-document visual validation. Classification: universal
+(§11.4.17). Composes
+§11.4.3/.5/.27/.40/.69/.107/.108/.117/.153/.158/.159/.160/.162/.163/.168/.169/§1.1.
+Propagation gate <code>CM-COVENANT-114-170-PROPAGATION</code> (literal
+<code>11.4.170</code>) + recommended gate
+<code>CM-HOST-RENDERED-UI-VISUAL-PROOF</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.170.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--value-assertion-proves-ui</code>,
+<code>--skip-rendered-pixel-proof</code>,
+<code>--token-equality-suffices</code>,
+<code>--device-offline-skip-visual</code>,
+<code>--single-theme-only</code>,
+<code>--unvalidated-image-diff-OK</code>,
+<code>--no-ocr-layout-oracle</code> flag.</p>
 </body>
 </html>
