@@ -9818,13 +9818,13 @@ Pre-build gate `CM-COVENANT-114-169-PROPAGATION` (literal `11.4.169` across the 
 
 ---
 
-### §11.4.133 — Mandatory HelixTranslate canonical translation pipeline (User mandate, 2026-06-25)
+### §11.4.140 — Mandatory HelixTranslate canonical translation pipeline (User mandate, 2026-06-25)
 
 **Forensic anchor — verbatim user mandate (2026-06-25):** "Every project that inherits this constitution MUST use HelixTranslate (git@github.com:HelixDevelopment/HelixTranslate.git) — via a universal, reusable pipeline — to generate ANY translations it needs. This is a hard rule/constraint."
 
 ALL translations of ANY content — UI strings, documents, articles, CVs, READMEs, marketing copy, in-app messages, release notes, legal text, ANY human-language string rendered in a non-source language — MUST be produced by **HelixTranslate** (`git@github.com:HelixDevelopment/HelixTranslate.git`) driven through the **canonical universal translation pipeline** shipped in this submodule at `scripts/translation/` (`translate-pipeline.sh` + `render-articles.sh`). This is a hard, non-negotiable constraint.
 
-The following are FORBIDDEN and constitute a §11.4.133 violation:
+The following are FORBIDDEN and constitute a §11.4.140 violation:
 
 (a) **Hand-translation** — no human-authored, manually edited, or "good enough" hand-written translation of any content, ever. The engine is the single source of every translated string.
 
@@ -9838,13 +9838,43 @@ The following are FORBIDDEN and constitute a §11.4.133 violation:
 
 **Canonical pipeline location.** `scripts/translation/translate-pipeline.sh` (universal Markdown / plain-text + article-frontmatter-preserving translator) and `scripts/translation/render-articles.sh` (article-source → HTML fragment renderer). Both are reusable verbatim across projects; the engine binary is supplied by the consuming project via `HELIX_TRANSLATE_BIN` and built from the HelixTranslate repository.
 
-Classification: universal (§11.4.17) — a platform-neutral, language-neutral translation discipline reusable by ANY project; the consuming project supplies its concrete source files, target languages, and the HelixTranslate engine build per §11.4.35. Composes §11.4 / §11.4.1 / §11.4.5 / §11.4.6 / §11.4.7 / §11.4.69 / §11.4.107. Propagation gate `CM-COVENANT-114-133-PROPAGATION` (literal `11.4.133`) + recommended gate `CM-MANDATORY-HELIXTRANSLATE-PIPELINE` + paired §1.1 meta-test mutation (gate-code = separate work item).
+Classification: universal (§11.4.17) — a platform-neutral, language-neutral translation discipline reusable by ANY project; the consuming project supplies its concrete source files, target languages, and the HelixTranslate engine build per §11.4.35. Composes §11.4 / §11.4.1 / §11.4.5 / §11.4.6 / §11.4.7 / §11.4.69 / §11.4.107. Propagation gate `CM-COVENANT-114-140-PROPAGATION` (literal `11.4.140`) + recommended gate `CM-MANDATORY-HELIXTRANSLATE-PIPELINE` + paired §1.1 meta-test mutation (gate-code = separate work item).
 
 **Rationale.** A single, evidenced, fail-loud translation engine guarantees that every translated string in the fleet has a known provenance, a reproducible pipeline, and a captured accuracy proof — eliminating the silent drift, inconsistent quality, and untraceable "where did this string come from" failures that hand-translation and ad-hoc engines produce. One engine, one pipeline, one evidence trail.
 
-**Canonical authority:** this Constitution.md §11.4.133 in the HelixConstitution submodule. All consuming projects restate + cite via §11.4.35 inheritance.
+**Canonical authority:** this Constitution.md §11.4.140 in the HelixConstitution submodule. All consuming projects restate + cite via §11.4.35 inheritance.
 
 Non-compliance is a release blocker regardless of context. No escape hatch — no `--allow-hand-translation`, `--other-engine-OK`, `--skip-translation-validation`, `--silent-fallback` flag exists.
+
+---
+
+### §11.4.141 — Mandatory independent per-language translation review (User mandate, 2026-06-25)
+
+**Forensic anchor — verbatim user mandate (2026-06-25):** "Quality of translations for all languages MUST BE ALWAYS properly checked and reviewed! We MUST CREATE independent, specialized translations review agents for all languages we support which will be performing full testing, review, validation and verification for all translated content! This MUST BE mandatory part of our root constitution (Submodule) and followed as mandatory constraint / rule by this and all our projects implementing the constitution Submodule."
+
+Every translated artifact produced under §11.4.140 MUST, before it is shipped / committed / deployed, be INDEPENDENTLY REVIEWED for quality by a per-language review agent. This is a hard, non-negotiable gate that composes with — and never replaces — the §11.4.140 generation mandate.
+
+Requirements:
+
+(a) **Independence.** The reviewer MUST be a different model/provider than the one that produced the translation (e.g. translator `mistral/mistral-large-latest` → reviewer `groq/llama-3.3-70b-versatile`, or any distinct verified model). A model reviewing its own output is NOT an independent review and is forbidden.
+
+(b) **Per-language specialization.** The reviewer MUST act as a NATIVE speaker / linguistic reviewer of the SPECIFIC target language, evaluating that language's grammar, orthography, and correct script (Cyrillic for ru/be/kk, Arabic for ar/fa, Han/Kana/Hangul/Devanagari for zh/ja/ko/hi, Latin for sr/de/es/fr/tr, etc.).
+
+(c) **Full criteria.** Each review MUST judge: accuracy/fidelity, fluency/naturalness, completeness (nothing omitted or invented), correct script & orthography, and absence of untranslated source leftovers (proper nouns / URLs / code excepted).
+
+(d) **Strict machine-readable verdict + evidence.** Each review MUST emit a structured PASS/FAIL verdict with per-criterion scores and an issues list, persisted as a physical evidence artifact (§11.4.5 / §11.4.69 / §11.4.107). A FAIL — or an ERROR / unavailable-reviewer — BLOCKS the content; only a real PASS may ship. No metadata-only / absence-of-error PASS (§11.4 / §11.4.1); no bluff (§11.4.6).
+
+(e) **Remediation loop.** A FAIL routes the artifact back through the §11.4.140 pipeline (re-translate / multipass-polish) and is re-reviewed, iterating until PASS — never hand-patched to pass (hand-translation remains forbidden under §11.4.140).
+
+**Canonical tooling.** `scripts/translation/review-translations.sh` (per-language review driver) + `scripts/translation/review_translation.py` (independent reviewer engine emitting strict JSON verdicts). Reusable verbatim across projects; the consuming project supplies its source/translation file pairs and a reviewer provider DISTINCT from its translator.
+
+Classification: universal (§11.4.17) — a platform-neutral, language-neutral translation-quality-assurance discipline reusable by ANY project that ships translated content; composes §11.4.140 (the translation it gates) / §11.4 / §11.4.1 / §11.4.5 / §11.4.6 / §11.4.69 / §11.4.107 / §11.4.134 (rock-solid evidence). Propagation gate `CM-COVENANT-114-141-PROPAGATION` (literal `11.4.141`) + recommended gate `CM-MANDATORY-TRANSLATION-REVIEW` + paired §1.1 meta-test mutation (gate-code = separate work item).
+
+**Rationale.** §11.4.140 guarantees a translation's provenance and a fail-loud pipeline, but not its linguistic quality. An independent, native-level, per-language reviewer with a captured PASS/FAIL verdict is what turns "a string was produced" into "a string was verified correct" — making translation quality an auditable fact rather than an assumption.
+
+**Canonical authority:** this Constitution.md §11.4.141 in the HelixConstitution submodule. All consuming projects restate + cite via §11.4.35 inheritance.
+
+Non-compliance is a release blocker regardless of context. No escape hatch — no `--skip-translation-review`, `--self-review-OK`, `--accept-unreviewed-translation` flag exists.
 
 ---
 

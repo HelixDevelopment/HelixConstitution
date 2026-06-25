@@ -90,3 +90,17 @@ This is the inherited standard. Consuming projects restate + cite §11.4.133 via
 §11.4.35 inheritance. Non-compliance is a release blocker; there is no escape hatch.
 
 See: `scripts/translation/README.md` and Constitution.md §11.4.133.
+
+## Mandatory independent review (§11.4.141)
+
+Every translation produced by the §11.4.140 pipeline MUST be reviewed by an
+**independent** model (different provider/model than the translator), acting as a
+native reviewer of the target language, before it ships. Tooling:
+
+- `scripts/translation/review_translation.py` — independent reviewer engine; emits
+  strict JSON `{verdict,accuracy,fluency,completeness,script_ok,untranslated_leftovers,issues}`.
+- `scripts/translation/review-translations.sh <site-root> <lang...>` — per-language
+  review driver; writes per-file evidence + an aggregate `REVIEW-REPORT.md`.
+
+Reviewer provider/model is chosen via `REVIEW_PROVIDER` / `REVIEW_MODEL` and MUST
+differ from the translator. A FAIL/ERROR blocks the content; only a real PASS ships.
