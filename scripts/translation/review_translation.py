@@ -12,7 +12,7 @@ Usage:
 
 Exit: 0=PASS, 1=FAIL, 2=ERROR.
 """
-import argparse, json, os, re, sys, urllib.request, urllib.error
+import argparse, json, os, re, sys, time, urllib.request, urllib.error
 
 LANG_NAMES = {
     "en": "English", "ru": "Russian", "sr": "Serbian", "de": "German",
@@ -26,6 +26,7 @@ PROVIDERS = {
     "openrouter": ("https://openrouter.ai/api/v1/chat/completions", "OPENROUTER_API_KEY", "meta-llama/llama-3.3-70b-instruct"),
     "mistral":    ("https://api.mistral.ai/v1/chat/completions", "MISTRAL_API_KEY", "mistral-large-latest"),
     "zhipu":      ("https://open.bigmodel.cn/api/paas/v4/chat/completions", "ZHIPU_API_KEY", "glm-4-flash"),
+    "cohere":     ("https://api.cohere.com/v2/chat", "COHERE_API_KEY", "command-r-plus-08-2024"),
 }
 
 
@@ -84,14 +85,24 @@ def main():
         "User-Agent": "Mozilla/5.0 (HelixConstitution translation-reviewer)",
         "Accept": "application/json",
     })
-    try:
-        resp = json.load(urllib.request.urlopen(req, timeout=90))
-    except urllib.error.HTTPError as e:
-        print(json.dumps({"verdict": "ERROR", "error": "HTTP %s: %s" % (e.code, e.read()[:160].decode("utf-8", "ignore"))})); sys.exit(2)
-    except Exception as e:
-        print(json.dumps({"verdict": "ERROR", "error": str(e)[:160]})); sys.exit(2)
+    resp, last_err = None, ""
+    for attempt in range(4):
+        try:
+            resp = json.load(urllib.request.urlopen(req, timeout=120)); break
+        except urllib.error.HTTPError as e:
+            last_err = "HTTP %s: %s" % (e.code, e.read()[:160].decode("utf-8", "ignore"))
+            if e.code in (429, 500, 502, 503, 529):
+                time.sleep(8 * (attempt + 1)); continue
+            break
+        except Exception as e:
+            last_err = str(e)[:160]; time.sleep(5 * (attempt + 1)); continue
+    if resp is None:
+        print(json.dumps({"verdict": "ERROR", "error": last_err})); sys.exit(2)
 
-    content = resp["choices"][0]["message"]["content"].strip()
+    if a.provider == "cohere":
+        content = resp["message"]["content"][0]["text"].strip()
+    else:
+        content = resp["choices"][0]["message"]["content"].strip()
     m = re.search(r"\{.*\}", content, re.S)
     data = json.loads(m.group(0)) if m else {"verdict": "ERROR", "raw": content[:300]}
     data.update({"_lang": a.lang, "_provider": a.provider, "_model": model, "_translated": a.translated})
