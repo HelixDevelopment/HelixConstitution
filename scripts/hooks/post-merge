@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# ============================================================================
+# post-merge — Git hook: auto-propagate constitution changes after merge
+# ============================================================================
+# Purpose:
+#   After any `git merge` or `git pull` that updates the constitution
+#   submodule, automatically run the constitution's post_update_hook.sh
+#   to install/register new skills, MCP configs, hooks, and scripts.
+#
+#   §11.4.164 — Post-update auto-propagation mandate
+#
+# Installation:
+#   Installed automatically via:
+#     bash constitution/scripts/post_update_hook.sh
+#   Or manually:
+#     cp constitution/scripts/hooks/post-merge .git/hooks/post-merge
+#     chmod +x .git/hooks/post-merge
+#
+# Behaviour:
+#   - Detects if the constitution submodule was updated in the merge
+#   - Only runs when constitution/ HEAD actually changed
+#   - Delegates to constitution/scripts/post_update_hook.sh
+#   - Silent on no-op (no constitution changes)
+#
+# Inputs:
+#   GIT_DIR      — set by git; points to .git
+#   PROJECT_ROOT — consuming project root (default: parent of .git)
+#
+# Outputs:
+#   stdout — summary of actions taken (only when constitution changes)
+#   Exit 0 — success or no-op
+#   Exit 1 — hook error (non-fatal for merge)
+#
+# Dependencies:
+#   bash, git, constitution/scripts/post_update_hook.sh
+#
+# Side-effects:
+#   Updates skills/ MCP configs .git/hooks scripts in consuming project
+#
+# Cross-references:
+#   constitution/Constitution.md §11.4.164
+#   constitution/scripts/post_update_hook.sh
+#
+# Last verified: 2026-06-21
+# ============================================================================
+
+set -euo pipefail
+
+# Only run on a real merge (not a squash or rebase that git still calls merge)
+# git sets GIT_DIR during hook execution
+GIT_DIR="${GIT_DIR:-.git}"
+
+# Resolve project root
+if [ -f "${GIT_DIR}" ]; then
+    # GIT_DIR is a file (submodule)
+    PROJECT_ROOT="$(cd "$(dirname "$GIT_DIR")" && pwd)"
+elif [ -d "${GIT_DIR}" ]; then
+    PROJECT_ROOT="$(cd "$GIT_DIR/.." && pwd)"
+else
+    PROJECT_ROOT="$(pwd)"
+fi
+
+CONST_DIR="${PROJECT_ROOT}/constitution"
+POST_UPDATE_HOOK="${CONST_DIR}/scripts/post_update_hook.sh"
+
+# --- Early exit if no constitution submodule --------------------------------
+if [ ! -d "$CONST_DIR" ]; then
+    # Not a constitution-backed project — silently skip
+    exit 0
+fi
+
+if [ ! -f "$POST_UPDATE_HOOK" ]; then
+    # Constitution exists but post-update hook isn't there yet — skip
+    exit 0
+fi
+
+# --- Detect whether the constitution submodule actually changed -------------
+# Get the previous and current HEAD of the constitution submodule
+if [ -d "${CONST_DIR}/.git" ] || [ -f "${CONST_DIR}/.git" ]; then
+    PREV_CONST_HASH="$(git -C "$CONST_DIR" rev-parse HEAD~1 2>/dev/null || echo "")"
+    CURR_CONST_HASH="$(git -C "$CONST_DIR" rev-parse HEAD 2>/dev/null || echo "")"
+
+    if [ -n "$PREV_CONST_HASH" ] && [ "$PREV_CONST_HASH" != "$CURR_CONST_HASH" ]; then
+        # Constitution was updated — run the post-update hook
+        echo "[post-merge] Constitution submodule updated: ${PREV_CONST_HASH:0:8}..${CURR_CONST_HASH:0:8}"
+        echo "[post-merge] Running post-update auto-propagation..."
+
+        bash "$POST_UPDATE_HOOK" || {
+            echo "[post-merge] WARNING: post-update hook completed with errors (exit $?)"
+            echo "[post-merge] This is non-fatal for the merge, but review the output above."
+        }
+    else
+        # No change in constitution — silent skip
+        :
+    fi
+else
+    # constitution/ is not a submodule checkout (yet) — skip
+    :
+fi
+
+exit 0

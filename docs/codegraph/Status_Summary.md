@@ -32,6 +32,18 @@ Per-project cadence audit:
 | Herald | `(populated on first codegraph_update.sh run)` | `(populated)` | `(populated)` | TBD |
 | (other consuming projects appended here) | — | — | — | — |
 
+### Semgrep SAST
+
+| Component | Status | Last Checked |
+|-----------|--------|-------------|
+| semgrep installed on PATH | PASS | 2026-06-21 |
+| Known-vuln detection (eval injection) | PASS | 2026-06-21 |
+| Registry connectivity | PASS | 2026-06-21 |
+| Pre-commit hook (git: staged files scan) | CREATED | 2026-06-21 |
+| Pre-push gate (--error blocks findings) | CONFIGURED | 2026-06-21 |
+| MCP agent integration | PENDING | — |
+| All consuming projects wired | PENDING | — |
+
 ## Recent significant events
 
 (summarize Status.md's most-impactful events — typically last 10 entries)

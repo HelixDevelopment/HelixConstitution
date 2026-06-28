@@ -237,6 +237,9 @@
   </style>
 </head>
 <body>
+<header id="title-block-header">
+<h1 class="title">GEMINI</h1>
+</header>
 <h1 id="helix-constitution--universal-geminimd">Helix Constitution —
 Universal GEMINI.md</h1>
 <table>
@@ -249,7 +252,7 @@ Universal GEMINI.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>2</td>
+<td>5</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -257,7 +260,7 @@ Universal GEMINI.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-15T00:00:00Z</td>
+<td>2026-06-22T00:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -265,17 +268,64 @@ Universal GEMINI.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>New Gemini CLI carrier of the Helix Constitution — added by
-§11.4.140 (universal action-prefix system) so Gemini CLI gets the
-LAYER-1 action-prefix recognition floor out of the box, plus the
-§11.4.141 token-efficiency mandate mirror. This file is one of the four
-canonical agent context carriers (<code>CLAUDE.md</code>,
-<code>AGENTS.md</code>, <code>QWEN.md</code>, <code>GEMINI.md</code>)
-the constitution maintains per §11.4.35; the textual identity of the
-action-prefix recognition block across all four IS the LAYER-1
-universality. This GEMINI.md is a thin carrier — the full universal rule
-set is in <code>Constitution.md</code> (canonical) and the sibling
-carriers; Gemini CLI reads this file as its context carrier. Back-filled
+<td>Added §11.4.170 — Device-independent host-side rendered-UI
+visual-proof mandate (User mandate 2026-06-25): every change to ANY
+user-facing UI surface MUST be proven by DEVICE-INDEPENDENT host-side
+RENDERED PIXELS before claimed correct — the real component rendered to
+a PNG ON THE HOST (no device/emulator/running app;
+Compose→Roborazzi/Paparazzi, web→Playwright/Storybook,
+SwiftUI→snapshot-testing, equiv per stack) for EVERY
+screen×state×{light,dark} theme, dual-validated by (i) golden image-diff
+AND (ii) an OCR/vision oracle reading rendered text+labels+control
+bounds (NO overlap / label-over-label / clipping / off-screen /
+collapsed-or-giant-unbounded widget). VALUE/token-equality /
+property-assertion UI tests are FORBIDDEN as the PROOF a UI is correct
+(forensic FACT 2026-06-25: hex/sp/dp value-equality unit tests stayed
+GREEN while the operator opened a broken giant-button screen) — may
+supplement, NEVER substitute the rendered-pixel proof; self-validated
+golden-good/golden-bad analyzer §11.4.107(10); device-offline is NEVER a
+valid skip (host-render IS the device-independent path); COMPLEMENTS not
+replaces §11.4.153/.158/.159/.160 live-device recording + §11.4.162
+OpenDesign tokens + §11.4.168 exported-doc visual validation.
+Propagation gate CM-COVENANT-114-170-PROPAGATION + recommended gate
+CM-HOST-RENDERED-UI-VISUAL-PROOF + paired §1.1 mutation. Classification:
+universal (§11.4.17). Prior round: §11.4.166 REPEALED (operator decision
+2026-06-22): Universal Semgrep static-analysis mandate repealed —
+Semgrep no longer mandatory; scaffolding, submodules/semgrep,
+MCP/pre-commit/PATH wiring, docs_chain semgrep_status context, and
+CM-COVENANT-114-166-PROPAGATION/CM-SEMGREP-WIRED gates removed. Added
+§11.4.163 mirror — Universal Media Validation: every recorded artifact
+MUST pass MEDIA VALIDATION pipeline (OCR/transcription/text parsing vs
+patterns, self-validated analyzer, structured verdict, pinpoint on FAIL,
+real-time trigger, §1.1 mutation). Added §11.4.164 mirror — Universal
+Auto-Propagation Hook: post_update_hook.sh detects/registers/installs
+skills/MCP/hooks/scripts; consumer invokes after every pull. Added
+§11.4.165 mirror — Universal Independent Verification Agent: every
+output passes INDEPENDENT verifier (§11.4.70/.20), zero-finding GO. All
+Classification: universal (§11.4.17). Prior round: Added §11.4.160–162
+mirror entries — Vision-verified recording + HelixQA bridge (User
+mandate 2026-06-21): every video recording MUST be processed through a
+vision/OCR pipeline reading on-screen content against SPECIFY-phase
+expected patterns; ≤5s frame capture, self-validated analyzer, per-frame
+PASS/FAIL with evidence path. Rootless container runtime (User mandate
+2026-06-21): Podman rootless mandatory; rootful Docker/sudo FORBIDDEN
+unless §11.4.112; vasic-digital/containers sole orchestration layer.
+OpenDesign UI design system (User mandate 2026-06-21): mandatory UI
+design-and-refinement system for all user-facing interfaces; design
+tokens for color/typography/spacing; light+dark themes; extend upstream
+per §11.4.74. All three Classification: universal (§11.4.17). GEMINI.md
+mirrors updated in lockstep per §11.4.157. Prior round: New Gemini CLI
+carrier of the Helix Constitution — added by §11.4.140 (universal
+action-prefix system) so Gemini CLI gets the LAYER-1 action-prefix
+recognition floor out of the box, plus the §11.4.141 token-efficiency
+mandate mirror. This file is one of the four canonical agent context
+carriers (<code>CLAUDE.md</code>, <code>AGENTS.md</code>,
+<code>QWEN.md</code>, <code>GEMINI.md</code>) the constitution maintains
+per §11.4.35; the textual identity of the action-prefix recognition
+block across all four IS the LAYER-1 universality. This GEMINI.md is a
+thin carrier — the full universal rule set is in
+<code>Constitution.md</code> (canonical) and the sibling carriers;
+Gemini CLI reads this file as its context carrier. Back-filled
 §11.4.142–157 to lockstep (§11.4.157).</td>
 </tr>
 <tr>
@@ -432,7 +482,7 @@ index (one line per fix/anchor, EACH carrying the literal
 full text kept gate-scanned in <code>constitution/Constitution.md</code>
 and reachable in one hop — a de-duplication realising §11.4.35, never a
 deletion; (4) <strong>CodeGraph/retrieval-first over full-file
-loading</strong> (§11.4.78/§11.4.79); (5) <strong>output-token
+loading</strong> (§11.4.78/§11.4.79/§11.4.80); (5) <strong>output-token
 reduction</strong> — terse status + <code>effort:"low"</code> on the
 mechanical allowlist only; (6) <strong>tool-call batching + no
 re-reads</strong>; (7) <strong>compaction/context-editing for long
@@ -528,7 +578,7 @@ UI interaction to play exact show with proper content and subtitles is
 MANDATORY! Without it we just eventually play on 2nd display sample, and
 that's it mostly! THIS MUST BE ADDED as MANDATORY RULE regarding testing
 of any video streaming app in general with full automation tests!
-Universal in root constitution + ATMOSphere project extensions." Any
+Universal in root constitution + a consuming project's extensions." Any
 full-automation test that asserts a video player / streaming application
 plays content MUST drive the REAL end-user journey through the app's OWN
 UI — launch → BROWSE the actual catalog → choose a SPECIFIC title →
@@ -1076,8 +1126,8 @@ href="constitution/Constitution.md"><code>Constitution.md</code></a>
 mandate (User mandate, 2026-06-12).</strong> Verbatim operator mandate:
 "Every release tag and version name we create — on the main repository
 and on every Submodule we own — MUST be prefixed with the project's
-release prefix, e.g. <code>helix_translate-1.0.0-dev-0.0.1</code>. The
-prefix MUST come from <code>HELIX_RELEASE_PREFIX</code> in our
+release prefix, e.g. <code>myproject-1.0.0-dev-0.0.1</code>. The prefix
+MUST come from <code>HELIX_RELEASE_PREFIX</code> in our
 <code>.env</code> if it is set, otherwise from the lowercased project
 root directory name. The SAME prefix MUST be used across the main repo
 and all owned Submodules in one release so a release is greppable across
@@ -1085,8 +1135,8 @@ every repository." Every release tag AND every version name created on
 the main repository AND on every owned-by-us submodule (§11.4.28) MUST
 be prefixed with the project's release prefix, form
 <code>&lt;PREFIX&gt;-&lt;version&gt;</code> (canonical example:
-<code>helix_translate-1.0.0-dev-0.0.1</code>), so a release is
-identifiable + greppable across every repository it spans (one
+<code>myproject-1.0.0-dev-0.0.1</code>), so a release is identifiable +
+greppable across every repository it spans (one
 <code>git tag -l '&lt;PREFIX&gt;-*'</code> enumerates the whole release
 surface). <strong>Prefix resolution order (closed-set, deterministic —
 §11.4.6 no-guessing):</strong> (1) <code>HELIX_RELEASE_PREFIX</code>
@@ -1190,9 +1240,9 @@ guard is GREEN on a clean artifact, never when the console mark is
 flipped. Classification: universal (§11.4.17) — the consuming project
 supplies its Crashlytics handle, console-access credential (§11.4.10,
 never logged), severity table, and per-issue closure-log path per
-§11.4.35; the reference project-level instantiation is the Lava client's
-§6.O (Crashlytics-Resolved Issue Coverage — per-issue validation test +
-Challenge test +
+§11.4.35; the reference project-level instantiation is a consuming
+project's §6.O (Crashlytics-Resolved Issue Coverage — per-issue
+validation test + Challenge test +
 <code>.lava-ci-evidence/crashlytics-resolved/&lt;date&gt;-&lt;slug&gt;.md</code>
 closure log) + §6.AC (Comprehensive Non-Fatal Telemetry — every
 catch/fallback records a non-fatal with triage context). Composes
@@ -1252,11 +1302,14 @@ AND sorted video-artefact roster, NOT mtime), re-syncs out-of-the-box;
 stale = violation. (6) <strong>Four-format export</strong> — HTML + PDF
 + <strong>DOCX</strong> (this doc class ADDS DOCX to the §11.4.65
 HTML+PDF set; other classes unchanged), in sync per §11.4.60. (7)
-Follows §11.4.44/.45/.56/.57/.59/.60. Honest boundary §11.4.6 —
-guarantees a complete video-confirmed always-synced ledger, NOT
-per-feature correctness (rests on each row's §11.4.69/.107/.123
-evidence) and NOT a §11.4.40 retest substitute. Classification:
-universal (§11.4.17). Composes
+Follows §11.4.44/.45/.56/.57/.59/.60. (8) <strong>MP4 format
+REQUIRED.</strong> All video confirmations MUST be in <code>.mp4</code>
+format (H.264). Window-specific capture ONLY (§11.4.159(A)). Vision
+validation REQUIRED (§11.4.159(D)). <code>.cast</code> files are
+supplementary only. Honest boundary §11.4.6 — guarantees a complete
+video-confirmed always-synced ledger, NOT per-feature correctness (rests
+on each row's §11.4.69/.107/.123 evidence) and NOT a §11.4.40 retest
+substitute. Classification: universal (§11.4.17). Composes
 §11.4.2/.5/.44/.45/.52/.56/.57/.59/.60/.65/.86/.102/.106/.107/.108/.118/.123/.134/.146/§1.1.
 Propagation gate <code>CM-COVENANT-114-153-PROPAGATION</code> (literal
 <code>11.4.153</code>) + recommended gates
@@ -1311,7 +1364,11 @@ href="constitution/Constitution.md"><code>Constitution.md</code></a>
 <code>--whole-screen-capture-OK</code>,
 <code>--skip-window-scope</code>, <code>--keep-stale-recordings</code>,
 <code>--no-corpus-rotation</code>, <code>--full-desktop-recording</code>
-flag.</p>
+flag. <strong>(C) MP4 auto-conversion REQUIRED.</strong> Any
+<code>.cast</code> file produced MUST be auto-converted to
+<code>.mp4</code> via <code>agg</code> + <code>ffmpeg</code> immediately
+after capture. The <code>.mp4</code> is the primary evidence;
+<code>.cast</code> is supplementary only.</p>
 <p><strong>§11.4.155 — Project-name-prefixed feature/QA recording
 filenames (User mandate, 2026-06-15).</strong> Verbatim: "All recorded
 videos MUST START with prefix: the PROJECT NAME (ALWAYS USE THE PROJECT
@@ -1468,7 +1525,11 @@ only on a read-confirmed genuine result + captured artefact path
 (host user's home Downloads, resolved at runtime never hardcoded) unless
 a project declares an override per §11.4.35; §11.4.155 project-prefix +
 §11.4.154 window-scope/rotation + §11.4.128 git-ignored raw corpus +
-§11.4.83 curated docs/qa evidence apply. Composes
+§11.4.83 curated docs/qa evidence apply. <strong>Vision analysis
+MANDATORY for every recording</strong> — after every recording, the
+agent MUST read the terminal output / video content and verify the
+feature actually works. A recording without a vision-confirmed verdict
+is a §11.4.158 violation. Composes
 §11.4.2/.5/.25/.27/.52/.69/.83/.85/.107/.108/.117/.118/.128/.137/.138/.153/.154/.155/§1.1.
 Classification: universal (§11.4.17). Propagation gate
 <code>CM-COVENANT-114-158-PROPAGATION</code> (literal
@@ -1484,6 +1545,310 @@ href="constitution/Constitution.md"><code>Constitution.md</code></a>
 <code>--recording-path-anywhere</code>,
 <code>--unread-recording-OK</code>, <code>--skip-helixqa-read</code>
 flag.</p>
+<p><strong>§11.4.159 — Mandatory window-specific video recording +
+vision validation mandate (User mandate, 2026-06-20).</strong> Every
+feature test, validation, verification, challenge, and QA session that
+produces video evidence MUST comply with ALL of the following:
+<strong>(A) Window-specific recording ONLY</strong> — every video MUST
+record ONLY the target application window (Terminal pane, TUI app,
+browser tab, emulator frame), NEVER the whole desktop/monitor screen;
+use macOS <code>screencapture -l&lt;window_id&gt;</code>, Linux
+<code>xdotool</code>+<code>ffmpeg</code>, or equivalent; whole-desktop
+capture leaks operator-private content (§11.4.10), dilutes the §11.4.107
+liveness oracle, and breaks §11.4.137 OCR/ROI; platform genuinely cannot
+capture below whole-screen =&gt; honest §11.4.3 SKIP + tracked migration
+item. <strong>(B) MP4 format REQUIRED</strong> — <code>.mp4</code>
+(H.264, <code>movflags +faststart</code>, <code>pix_fmt yuv420p</code>);
+<code>.cast</code> files are supplementary only; auto-convert via
+<code>agg</code>+<code>ffmpeg</code> per §11.4.154(C). <strong>(C)
+Project-name prefix REQUIRED</strong> — filename MUST start with project
+name in snake_case from <code>HELIX_RELEASE_PREFIX</code> in
+<code>.env</code> (§11.4.151) or lowercased project root dir name
+(§11.4.29); format
+<code>&lt;project_name&gt;-&lt;feature&gt;-&lt;timestamp&gt;.mp4</code>;
+unprefixed = violation. <strong>(D) Mandatory vision validation</strong>
+— after EVERY recording, the agent MUST read the terminal output / video
+content and verify: (i) feature ACTUALLY WORKS, (ii) LLM responses are
+REAL, (iii) all tests show PASS, (iv) no "TODO implement" / "simulate" /
+"for now" patterns, (v) output demonstrates end-user working feature;
+MUST produce a verdict (PASS/FAIL) with evidence path (§11.4.69).
+<strong>(E) Terminal window cleanup</strong> — after each recording,
+dismiss/close ONLY the Terminal window used for that recording
+(window-specific close via <code>osascript</code>/<code>xdotool</code>);
+MUST NOT close windows belonging to other processes. <strong>(F) Real
+results ONLY</strong> — every recording MUST show REAL working features;
+errors/empty output/simulated responses trigger fix→retest→re-record.
+<strong>(G) Re-runnable evidence</strong> — the command shown MUST be
+re-runnable to produce the same results. <strong>(H) Fresh-corpus
+rotation</strong> — remove agent's own prior in-scope stale recordings
+FIRST (§11.4.154). <strong>(I) Content verification MANDATORY — not
+duration-based</strong> — the value of a recording is NOT its duration
+but its CONTENT; a recording MUST demonstrate the ACTUAL feature being
+used with REAL results; before accepting ANY recording, the agent MUST
+verify: expected output patterns ARE present (e.g., test PASS lines, API
+response data, feature-specific output), the feature ACTUALLY WORKS as
+demonstrated (not just "something ran"), LLM responses are REAL content
+(not simulated, not placeholder, not empty), every claim of "working" is
+backed by visible evidence; a 5-second recording showing a feature
+working correctly is MORE valuable than a 60-second recording of empty
+terminal; duration is NOT a proxy for quality. <strong>(J)
+Expected-content specification REQUIRED</strong> — before recording, the
+agent MUST specify what content SHOULD appear (expected patterns,
+expected test results, expected API responses); after recording, the
+agent MUST verify these patterns ARE present; if expected content is
+MISSING, the recording is REJECTED regardless of duration. <strong>(K)
+Content-verification recording workflow</strong> — mandated workflow:
+(1) SPECIFY expected content patterns, (2) RECORD the feature execution,
+(3) EXTRACT all text from the recording, (4) VERIFY expected patterns
+are present, (5) CHECK for simulated/placeholder content, (6) ACCEPT
+only if ALL patterns found AND zero bluffs detected, (7) REJECT and
+re-record if ANY pattern missing or bluff detected. <strong>(L) Root
+cause analysis REQUIRED for rejected recordings</strong> — when a
+recording is rejected (missing expected content, bluff detected, or
+empty capture), the agent MUST investigate WHY before re-recording per
+§11.4.102; determine the root cause (timing issue, wrong command, tool
+failure, etc.) and fix it; simply re-recording without understanding WHY
+the first attempt failed is a §11.4.159 violation. <strong>(M) Real-time
+monitoring RECOMMENDED</strong> — for complex features, use real-time
+monitoring that analyzes output DURING recording (not after); this
+catches issues immediately and allows corrective action before the
+recording completes. Classification: universal (§11.4.17). Composes
+§11.4.2/.3/.5/.10/.29/.69/.83/.107/.111/.128/.137/.151/.153/.154/.155/.158/§1.1.
+Propagation gate <code>CM-COVENANT-114-159-PROPAGATION</code> (literal
+<code>11.4.159</code>) + recommended gate
+<code>CM-WINDOW-VIDEO-VALIDATED</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a
+href="constitution/Constitution.md"><code>Constitution.md</code></a>
+§11.4.159. Non-compliance is a release blocker. No escape hatch — no
+<code>--whole-screen-ok</code>, <code>--cast-only</code>,
+<code>--skip-vision-validation</code>, <code>--no-cleanup</code>,
+<code>--simulated-recording-ok</code>,
+<code>--unprefixed-recording</code> flag.</p>
+<p><strong>§11.4.160 — Vision-verified recording + HelixQA bridge
+mandate (User mandate, 2026-06-21).</strong> Compact summary: every
+video recording for feature/QA evidence MUST be processed through a
+vision/OCR pipeline that reads on-screen content and confirms expected
+results BEFORE acceptance; the recording system MUST provide a bridge
+feeding captured frames to HelixQA's test infrastructure (or equivalent)
+for automated read-the-screen verification against SPECIFY-phase
+expected patterns (§11.4.159(J)); capture frames at ≤5s intervals, run
+OCR/vision with self-validated analyzer (§11.4.107(10)), compare text
+against patterns, produce per-frame PASS/FAIL with evidence path,
+surface failures immediately for re-record (§11.4.159(L)).
+Project-configured parameters per §11.4.35. Honest boundary: does NOT
+replace §11.4.5 quality analysis nor §11.4.108 runtime-signature;
+FLAG_SECURE uses §11.4.117 proxy oracle. Classification: universal
+(§11.4.17). Propagation gate
+<code>CM-COVENANT-114-160-PROPAGATION</code> + recommended gate
+<code>CM-VISION-VERIFIED-RECORDING-BRIDGE</code> + paired §1.1
+mutation.</p>
+<p><strong>§11.4.161 — Rootless container runtime mandate (User mandate,
+2026-06-21).</strong> Compact summary: every project MUST use Podman
+rootless (or equivalent) for ALL containerized workloads — rootful
+Docker/sudo FORBIDDEN unless §11.4.112 platform constraint documented;
+<code>vasic-digital/containers</code> Submodule (§11.4.76) sole
+orchestration layer via
+<code>pkg/boot</code>/<code>pkg/compose</code>/<code>pkg/health</code>;
+extend upstream per §11.4.74 for missing capabilities; integration tests
+boot infra on-demand. Honest boundary: does NOT replace §11.4.10
+credentials nor §12.3 hygiene. Classification: universal (§11.4.17).
+Propagation gate <code>CM-COVENANT-114-161-PROPAGATION</code> +
+recommended gate <code>CM-ROOTLESS-CONTAINER-RUNTIME</code> + paired
+§1.1 mutation.</p>
+<p><strong>§11.4.162 — OpenDesign UI design system mandate (User
+mandate, 2026-06-21).</strong> Compact summary: every project with
+user-facing interfaces MUST use OpenDesign (<a
+href="https://github.com/nexu-io/open-design">https://github.com/nexu-io/open-design</a>)
+as mandatory UI design system — NOT ad-hoc CSS; install as dependency,
+use token system for all color (light+dark from brand assets),
+typography, spacing, component tokens; extend upstream (§11.4.74) for
+unsupported patterns; every UI component ships light+dark + token-diff
+regression tests via visual regression; no element overlap/font
+collision/label overlay. Honest boundary: does NOT replace §11.4.27
+functional testing nor §11.4.48/.49 UI testing. Classification:
+universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-162-PROPAGATION</code> + recommended gate
+<code>CM-OPENDESIGN-UI-SYSTEM</code> + paired §1.1 mutation.</p>
+<p><strong>§11.4.163 — Universal Media Validation (User
+mandate).</strong> Every recorded artifact MUST pass MEDIA VALIDATION
+pipeline — OCR/transcription/text parsing, compare vs SPECIFY-phase
+patterns (§11.4.159(J)), self-validated analyzer (§11.4.107(10)),
+structured verdict, pinpoint on FAIL, REAL-TIME trigger option. Paired
+§1.1 mutation on golden-bad fixture. Classification: universal.
+Propagation gate <code>CM-COVENANT-114-163-PROPAGATION</code> + paired
+§1.1 mutation.</p>
+<p><strong>§11.4.164 — Universal Auto-Propagation Hook (User
+mandate).</strong> Every constitutional pull triggers
+<code>post_update_hook.sh</code> — detects changed files, registers
+skills/MCP/hooks/scripts, logs summary. Consumer invokes after every
+pull. Classification: universal. Propagation gate
+<code>CM-COVENANT-114-164-PROPAGATION</code> + paired §1.1 mutation.</p>
+<p><strong>§11.4.165 — Universal Independent Verification Agent (User
+mandate).</strong> Every code/media/docs/config output passes
+independent verifier (§11.4.70/.20), zero-finding GO (§11.4.134). CODE:
+review+build+mutations+runtime-signature. MEDIA:
+pipeline+genuine+format. DOCS: exports+revision. CONFIG:
+syntax+schema+leaks. Self-validated §1.1 mutation. Classification:
+universal. Propagation gate <code>CM-COVENANT-114-165-PROPAGATION</code>
++ paired §1.1 mutation.</p>
+<p><strong>§11.4.166 — REPEALED (operator decision,
+2026-06-22).</strong> The Universal Semgrep static-analysis mandate is
+repealed — Semgrep is NO LONGER mandatory. Static analysis remains
+encouraged, not mandated. Scaffolding, <code>submodules/semgrep</code>,
+MCP/pre-commit/PATH wiring, docs_chain <code>semgrep_status</code>
+context, and the <code>CM-COVENANT-114-166-PROPAGATION</code> /
+<code>CM-SEMGREP-WIRED</code> gates removed. Anchor 11.4.166 retired.
+See constitution <code>Constitution.md</code> §11.4.166.</p>
+<p><strong>§11.4.167 — Big-work-item feature work-stream lifecycle (User
+mandate, 2026-06-23).</strong> Every BIG work item (new feature OR
+drastic/large fix) MUST be its own isolated feature work-stream — own
+sibling project copy, own <code>feature/&lt;slug&gt;</code> branch, own
+per-feature flashable builds + feature tags, SEPARATE from trunk until
+operator manually approves after testing, trunk merged INTO every stream
+regularly. (A) one big item = one sibling project copy
+(<code>&lt;project&gt;_&lt;slug&gt;</code>); small changes stay on
+trunk. (B) disk-feasible CoW/reflink clone MANDATORY
+(<code>cp -a --reflink=auto</code> on btrfs/XFS/ZFS/APFS, else
+<code>git worktree</code>); naive deep copies FORBIDDEN; per-stream
+<code>out/</code> + shared ccache; ~0-disk verified (§11.4.69) before
+relied on (§11.4.6). (C) own branch + greppable tags (§11.4.151
+<code>&lt;base&gt;-feat-&lt;slug&gt;</code>), NEVER merged to trunk
+until §11.4.40 GREEN on clean target → §11.4.41 merge-first → §11.4.113
+ff-only. (D) trunk merged INTO every live stream per trunk-tag/daily
+(merge, never rebase). (E) feature branch + tag cascades to EVERY
+touched submodule (§11.4.113). (F) single-builder build QUEUE
+(§11.4.58/.12.7/.12.8) + finite-device queue (§11.4.119); idle
+<code>out/</code> GC'd (§11.4.77). (G) every change crosses full
+gauntlet (§11.4.142/.125/.134/.145 + anti-bluff). (H) stream registry
+(§11.4.116/.147) + atomic <code>.partial</code>→rename + §11.4.84 resume
++ §9.2 retire-backup; bounded §12/.12.6. Honest boundary (§11.4.6):
+isolation+disk-feasibility+greppable-identity+merge-discipline, NOT
+correctness (still §11.4.108/.40). Classification: universal (§11.4.17).
+Propagation gate <code>CM-COVENANT-114-167-PROPAGATION</code> (literal
+<code>11.4.167</code>) + gates
+<code>CM-FEATURE-WORKSTREAM-COW-CLONE</code> /
+<code>-NO-MERGE-UNTIL-APPROVED</code> / <code>-TRUNK-SYNC-CADENCE</code>
+/ <code>-SUBMODULE-CASCADE</code> + paired §1.1 mutations.
+<strong>Canonical authority:</strong> constitution
+<code>Constitution.md</code> §11.4.167.</p>
+<p><strong>§11.4.168 — Exported-document independent content + textual +
+full-visual validation mandate (User mandate, 2026-06-23).</strong>
+Every generated/exported document (HTML/PDF/DOCX/any §11.4.65
+export-scope format) MUST pass INDEPENDENT validation by a reviewer
+structurally separate from the generator (§11.4.70/.142, NEVER author
+self-check), on BOTH source AND every exported artifact, ALWAYS, across
+THREE layers: (1) CONTENT — export faithfully carries source
+intent+data, nothing dropped/truncated/garbled; (2) TEXTUAL —
+human-readable, NO raw markup/diagram-source (Mermaid
+<code>gantt</code>/<code>graph</code>/<code>flowchart</code>/<code>sequenceDiagram</code>
+etc.)/unrendered code-fence leaking as body text (the exact 2026-06-23
+raw-gantt-in-PDF failure); (3) FULL VISUAL — diagrams render as IMAGES
+not source, layout intact, no overlap/cut-off/garble, verified by
+RENDERING the export (<code>pdftotext</code> catches raw source +
+<code>pdfimages</code> confirms rendered images +
+<code>pdftoppm</code>→OCR confirms human-readable content) with captured
+evidence §11.4.5/.69/.107. Anti-bluff: rubber-stamp ≠ validation;
+analyzer self-validated golden-good/golden-bad §11.4.107(10) (golden-bad
+seeded with raw <code>gantt</code> MUST FAIL); iterate to clean GO
+§11.4.134. Forensic FACT (2026-06-23): a "green" Mermaid fix shipped raw
+gantt source as readable text into user PDFs because validation grepped
+HTML for <code>class="mermaid"</code> and NEVER checked the exported PDF
+— operator caught it (§11.4.138). Honest boundary (§11.4.6): confirms
+the exported artifact is faithful/readable/visually-rendered — does NOT
+prove source content is correct (§11.4.142/.135) nor replace the
+§11.4.65 mtime freshness gate (this is the READABILITY/FIDELITY layer
+the mtime gate cannot see); FLAG_SECURE/un-rasterisable surfaces
+document the gap §11.4.112 + §11.4.117 proxy, never a faked PASS.
+Classification: universal (§11.4.17). Composes
+§11.4.65/.73/.107/.117/.135/.138/.142/.159/.163/.165/§1.1. Propagation
+gate <code>CM-COVENANT-114-168-PROPAGATION</code> (literal
+<code>11.4.168</code>) + recommended gate
+<code>CM-EXPORTED-DOC-VISUALLY-VALIDATED</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution
+<code>Constitution.md</code> §11.4.168.</p>
+<p><strong>§11.4.169 — Mandatory comprehensive test-type coverage with
+anti-bluff captured evidence (User mandate, 2026-06-25).</strong> Every
+project MUST cover a CLOSED enumerated test-type set, each to
+as-close-to-100% as the domain permits, every PASS citing rock-solid
+captured PHYSICAL evidence (§11.4.5/.69/.107), zero false results/zero
+bluff (§11.4/.1/.6): (1) unit (only layer mocks allowed §11.4.27(A));
+(2) integration (real System, infra via containers submodule §11.4.76);
+(3) e2e; (4) full-automation (autonomous, re-runnable, no manual step
+§11.4.25/.52/.98, deterministic §11.4.50); (5) Challenges (challenges
+submodule banks §11.4.27(B)); (6) HelixQA (helix_qa submodule — written
+test banks/suites per app/service/platform + comprehensive
+fully-autonomous QA sessions §11.4.27); (7) DDoS/load-flood (clean
+refuse or graceful degrade); (8) security (authz/injection/secret-leak
+§11.4.10/crypto/CVE/default-deny + security submodule); (9) stress+chaos
+(load+contention+boundary+failure-injection, categorised recovery
+§11.4.85); (10) concurrency/atomicity (no lost updates, transactional
+atomicity, idempotent replay); (11) race-condition/deadlock (race
+detector + lock-order analysis; no blocking op in shared-lock region
+§1); (12) memory (leak census + peak-RSS ceiling + 24h/N-iter soak, no
+unbounded growth); (13) benchmarking/performance (p50/p95/p99 +
+throughput vs recorded baseline). The ONLY permitted absence is an
+honest §11.4.3 SKIP-with-reason, never a silent gap; four-layer
+§11.4.4(b) enforcement + coverage ledger (§11.4.25/.52); missing
+required type or OPERATOR_ATTENDED_ONLY = release blocker. Strict
+enumerated expansion of §11.4.27. Composes
+§11.4.4/.5/.6/.25/.27/.50/.52/.69/.76/.85/.98/.107/.123/.135/.146/§1.1.
+Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-169-PROPAGATION</code> (literal
+<code>11.4.169</code>) + recommended gate
+<code>CM-MANDATORY-TEST-TYPES-COVERED</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution
+<code>Constitution.md</code> §11.4.169.</p>
+<p><strong>§11.4.170 — Device-independent host-side rendered-UI
+visual-proof mandate (User mandate, 2026-06-25).</strong> Compact
+summary: every change to ANY user-facing UI surface
+(screen/component/view/widget/layout/theme on any platform —
+Android-Compose, iOS-SwiftUI/UIKit, web, desktop, TUI) MUST be proven by
+DEVICE-INDEPENDENT host-side RENDERED PIXELS before it may be claimed
+correct — the real component rendered to a PNG ON THE HOST (NO device,
+NO emulator, NO running app) via a host-render harness
+(Compose→Roborazzi/Paparazzi on the JVM; web→Playwright/Storybook
+snapshot; SwiftUI→snapshot-testing; equivalent per stack), for EVERY
+relevant screen×state×{light,dark} theme, with the PNG validated by BOTH
+(i) golden image-diff (per-pixel/perceptual PASS/FAIL) AND (ii) an
+OCR/vision oracle reading rendered text+labels+control bounds to assert
+legibility + NO overlap / NO label-over-label / NO clipping / NO
+off-screen control / NO collapsed-or-giant-unbounded widget (the
+§11.4.162 layout invariants PROVEN on real pixels). Forensic FACT
+(2026-06-25): UI work was "validated" by VALUE-EQUALITY unit tests (a
+hex colour string / an sp/dp size integer / a design-token field == a
+constant) that NEVER RENDERED A PIXEL — GREEN while the operator opened
+a broken unbounded giant-button screen. A value/token-equality /
+property-assertion UI test is FORBIDDEN as the PROOF a UI is correct (it
+may SUPPLEMENT, NEVER SUBSTITUTE the rendered-pixel proof); a "green" UI
+suite with no rendered-pixel artefact for the changed surface is a §11.4
+PASS-bluff at the visual layer. Self-validated golden-good/golden-bad
+analyzer §11.4.107(10), thresholds calibrated on the project's own
+fixtures §11.4.6. "device offline" is NEVER a valid skip — host-render
+IS the device-independent path; honest §11.4.3 SKIP only where the
+platform genuinely has no host-render harness (tracked migration item,
+never a value-only fallback). Honest boundary §11.4.6: host-render
+proves the COMPONENT renders correctly device-independently per commit —
+it does NOT prove the running app on real hardware (that remains
+§11.4.153/.158/.159/.160's live-device recording + read-the-screen
+layer, which §11.4.170 COMPLEMENTS not replaces — both mandatory), does
+NOT replace §11.4.162 OpenDesign token/theme governance (§11.4.170
+PROVES the rendered RESULT of those tokens), DISTINCT from §11.4.168
+exported-document visual validation. Classification: universal
+(§11.4.17). Composes
+§11.4.3/.5/.27/.40/.69/.107/.108/.117/.153/.158/.159/.160/.162/.163/.168/.169/§1.1.
+Propagation gate <code>CM-COVENANT-114-170-PROPAGATION</code> (literal
+<code>11.4.170</code>) + recommended gate
+<code>CM-HOST-RENDERED-UI-VISUAL-PROOF</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a
+href="Constitution.md"><code>Constitution.md</code></a> §11.4.170.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--value-assertion-proves-ui</code>,
+<code>--skip-rendered-pixel-proof</code>,
+<code>--token-equality-suffices</code>,
+<code>--device-offline-skip-visual</code>,
+<code>--single-theme-only</code>,
+<code>--unvalidated-image-diff-OK</code>,
+<code>--no-ocr-layout-oracle</code> flag.</p>
 <h2 id="when-in-doubt">When in doubt</h2>
 <ul>
 <li>Read <code>constitution/Constitution.md</code> for the canonical

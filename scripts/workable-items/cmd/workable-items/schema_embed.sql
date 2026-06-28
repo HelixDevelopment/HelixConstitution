@@ -75,6 +75,26 @@ CREATE TABLE IF NOT EXISTS items (
     -- doc_segments raw prose) to reproduce the source byte-for-byte.
     body_md          TEXT,
 
+    -- Representation discriminator (GAP A). The SAME ticket id can be present in
+    -- the SAME tracker under TWO surface forms: a pipe-table closure ROW
+    -- ('table') AND a detailed H2 SECTION ('section') — e.g. HXC-044 in Fixed.md.
+    -- (atm_id, current_location) alone collided; the identity is therefore
+    -- (atm_id, current_location, representation). Default 'section': CRUD-created
+    -- items + every H2-form item are 'section'; only legacy pipe-table rows are
+    -- 'table'. A DB materialised before this column carries the old 2-tuple PK
+    -- and is rebuilt by migrateRepresentationColumn (lossless, idempotent).
+    representation   TEXT NOT NULL DEFAULT 'section'
+                     CHECK (representation IN ('section', 'table')),
+
+    -- Per-item closure metadata (GAP B). Parsed FROM a Fixed.md pipe-table row
+    -- (`| Closure | Title | Type | Status | Round | Commit(s) | Evidence |`) so
+    -- db→md can SYNTHESIZE a pipe row from DB fields (not only replay raw
+    -- body_md). NULL when the item has no pipe-table representation. Additive +
+    -- nullable: existing rows are unaffected (migrateColumns ADDs them).
+    closure_date     TEXT,
+    round            TEXT,
+    commit_ref       TEXT,
+
     -- §11.4.148/§11.4.149 sub-task hierarchy. A testing session against a parent
     -- item is itself a first-class workable item distinguished by a non-NULL
     -- parent_atm_id (the parent's id). session_ref is the human session label.
@@ -87,8 +107,9 @@ CREATE TABLE IF NOT EXISTS items (
     created_at       TEXT NOT NULL DEFAULT (datetime('now')),
     last_modified    TEXT NOT NULL DEFAULT (datetime('now')),
 
-    -- Composite identity: a ticket may be present in both trackers at once.
-    PRIMARY KEY (atm_id, current_location)
+    -- Composite identity: a ticket may be present in both trackers at once AND,
+    -- within ONE tracker, under both a pipe-table row + an H2 section (GAP A).
+    PRIMARY KEY (atm_id, current_location, representation)
 );
 
 -- NOTE: idx_items_parent (on items.parent_atm_id) is created in migrateColumns
@@ -201,6 +222,11 @@ CREATE TABLE IF NOT EXISTS doc_segments (
     seq         INTEGER NOT NULL,
     kind        TEXT NOT NULL CHECK (kind IN ('item', 'raw')),
     atm_id      TEXT,          -- set when kind='item' (FK-ish to items.atm_id)
+    -- Which item REPRESENTATION this segment points to (GAP A): a 'table' segment
+    -- references the pipe-table row, a 'section' segment the H2 block, so the
+    -- renderer disambiguates when the SAME atm_id has both in one document.
+    -- Default 'section' (raw segments + legacy DBs); raw segments ignore it.
+    representation TEXT NOT NULL DEFAULT 'section',
     raw         TEXT,          -- set when kind='raw'
     UNIQUE(document, seq)
 );
@@ -275,9 +301,9 @@ CREATE TABLE IF NOT EXISTS meta (
 -- OR REPLACE would clobber live sync state ('last_sync_direction' etc.) back to
 -- the seed values on every re-open. OR IGNORE seeds these keys ONLY when absent
 -- (first materialisation), preserving subsequent sync updates. migrateColumns
--- advances 'schema_version' to '4' on an older DB; a fresh DB is seeded '4' here.
+-- advances 'schema_version' to '5' on an older DB; a fresh DB is seeded '5' here.
 INSERT OR IGNORE INTO meta(key, value) VALUES
-    ('schema_version', '4'),
+    ('schema_version', '5'),
     ('last_sync_direction', 'none'),
     ('last_sync_timestamp', ''),
     ('integrity_hash', '');

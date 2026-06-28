@@ -593,10 +593,22 @@ func emitLegacyTable(raw string, items *[]item, segs *[]segment, seq *int, seenI
 			Status:          normalizeStatus(m[4]),
 			CurrentLocation: "Fixed",
 			BodyMD:          ln, // verbatim row (with trailing newline)
+			// GAP A: a pipe-table closure row is the 'table' representation, so an
+			// id that ALSO has an H2 'section' block in the SAME tracker (HXC-044)
+			// does not collide on the (atm_id, current_location, representation) PK.
+			Representation: "table",
+			// GAP B: capture the pipe-table closure metadata so db→md can
+			// SYNTHESIZE a pipe row from DB fields (round-trip already replays
+			// body_md; these fields make the row queryable + re-emittable).
+			// fixedRowRe groups: 1=Closure 2=Title 3=Type 4=Status 5=Round
+			// 6=Commit(s) 7=Evidence.
+			ClosureDate: strings.TrimSpace(m[1]),
+			Round:       strings.TrimSpace(m[5]),
+			CommitRef:   strings.TrimSpace(m[6]),
 		}
 		it.Description = deriveDescription(it.Title, m[7])
 		*items = append(*items, it)
-		*segs = append(*segs, segment{Document: "Fixed", Seq: *seq, Kind: "item", AtmID: it.AtmID})
+		*segs = append(*segs, segment{Document: "Fixed", Seq: *seq, Kind: "item", AtmID: it.AtmID, Representation: "table"})
 		*seq++
 	}
 	flush()

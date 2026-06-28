@@ -43,6 +43,12 @@ Subcommands:
                                                         Write the §11.4.90 obsolete_details row for an Obsolete item.
   report --db <p> [--by-type|--by-status|--by-severity|--by-assigned|--by-creator|--obsolete-audit]
                                                         Read-only grouped tally / §11.4.90 audit.
+  diary add --id <atm> --db <p> --tested-by <User|Operator|AI-agent|HelixQA> --result <PASS|FAIL|SKIP>
+            [--detail T] [--observations T] [--evidence path] [--feature-class c]
+            [--action-taken T] [--status-from s] [--status-to s] [--date-time ISO]
+                                                        Record one §11.4.149 test_diary run (PASS requires evidence that exists).
+  diary list --id <atm> --db <p>                        Print an item's testing-diary rows chronologically.
+  diary summary --db <p> [--id <atm>]                   Print the test_diary_summary rollup (per-item or all).
   export --db <p> [--out-dir <d>] [--issues <p>] [--fixed <p>] [--out-issues <p>] [--out-fixed <p>]
                                                         Regenerate Issues.md + Fixed.md + Summary docs + HTML/PDF/DOCX (§11.4.12/§11.4.53).
   version-tags --db <p> --repo <p> [--issues <p>] [--fixed <p>]  Derive + persist release-tag column (feature 2026-05-30).
@@ -81,6 +87,8 @@ func main() {
 		runObsoleteDetails(args[1:])
 	case "report":
 		runReport(args[1:])
+	case "diary":
+		runDiary(args[1:])
 	case "export":
 		runExport(args[1:])
 	case "-h", "--help", "help":

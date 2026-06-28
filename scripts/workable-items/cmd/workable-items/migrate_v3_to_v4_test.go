@@ -10,6 +10,7 @@ package main
 import (
 	"database/sql"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -87,11 +88,12 @@ func TestMigrateV3ToV4NonDestructive(t *testing.T) {
 		t.Fatalf("top-level (NULL parent) count = %d, want 3 (backfill)", topLevel)
 	}
 
-	// schema_version advanced to 4.
+	// schema_version advanced to 5 (the GAP-A representation rebuild + GAP-B
+	// closure-metadata columns landed after the original v4 sub-task/diary work).
 	var ver string
 	_ = db.QueryRow(`SELECT value FROM meta WHERE key='schema_version'`).Scan(&ver)
-	if ver != "4" {
-		t.Fatalf("post schema_version = %q, want 4", ver)
+	if ver != "5" {
+		t.Fatalf("post schema_version = %q, want 5", ver)
 	}
 
 	// Live sync state preserved (INSERT OR IGNORE did NOT clobber it).
@@ -101,12 +103,25 @@ func TestMigrateV3ToV4NonDestructive(t *testing.T) {
 		t.Fatalf("last_sync_direction = %q, want md-to-db (preserved across re-open)", lastDir)
 	}
 
-	// New v4 columns present.
+	// New v4 + v5 columns present (GAP-A representation discriminator + GAP-B
+	// closure-metadata columns added non-destructively on top of the v3 table).
 	cols := pragmaColsDB(t, db)
-	for _, c := range []string{"parent_atm_id", "session_ref"} {
+	for _, c := range []string{"parent_atm_id", "session_ref", "representation", "closure_date", "round", "commit_ref"} {
 		if !cols[c] {
 			t.Errorf("post-migration items missing column %s", c)
 		}
+	}
+
+	// GAP A: the items PK was rebuilt to the 3-tuple (atm_id, current_location,
+	// representation); the rebuild backfilled every existing row's representation
+	// to 'section' (the only value a pre-v5 DB could hold).
+	var nonSection int
+	_ = db.QueryRow(`SELECT COUNT(*) FROM items WHERE representation <> 'section'`).Scan(&nonSection)
+	if nonSection != 0 {
+		t.Errorf("post-migration: %d rows with representation <> 'section' (rebuild backfill wrong)", nonSection)
+	}
+	if pk := itemsPKColumns(t, db); pk != "atm_id,current_location,representation" {
+		t.Errorf("post-migration items PK = %q, want atm_id,current_location,representation", pk)
 	}
 
 	// test_diary table + view + indexes present.
@@ -135,8 +150,8 @@ func TestMigrateIdempotent(t *testing.T) {
 		}
 		var ver string
 		_ = db.QueryRow(`SELECT value FROM meta WHERE key='schema_version'`).Scan(&ver)
-		if ver != "4" {
-			t.Fatalf("re-open #%d schema_version = %q, want 4", i, ver)
+		if ver != "5" {
+			t.Fatalf("re-open #%d schema_version = %q, want 5", i, ver)
 		}
 		var total int
 		_ = db.QueryRow(`SELECT COUNT(*) FROM items`).Scan(&total)
@@ -177,6 +192,45 @@ func pragmaColsDB(t *testing.T, db *sql.DB) map[string]bool {
 		cols[name] = true
 	}
 	return cols
+}
+
+// itemsPKColumns returns the comma-joined names of the items PRIMARY KEY columns
+// in key order (via PRAGMA table_info's pk ordinal), so the test can assert the
+// GAP-A rebuild produced the 3-tuple PK.
+func itemsPKColumns(t *testing.T, db *sql.DB) string {
+	t.Helper()
+	rows, err := db.Query(`PRAGMA table_info(items)`)
+	if err != nil {
+		t.Fatalf("pragma: %v", err)
+	}
+	defer rows.Close()
+	type pkcol struct {
+		name string
+		ord  int
+	}
+	var pks []pkcol
+	for rows.Next() {
+		var cid, notnull, pk int
+		var name, typ string
+		var dflt any
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan: %v", err)
+		}
+		if pk > 0 {
+			pks = append(pks, pkcol{name, pk})
+		}
+	}
+	// sort by pk ordinal
+	for i := 1; i < len(pks); i++ {
+		for j := i; j > 0 && pks[j-1].ord > pks[j].ord; j-- {
+			pks[j-1], pks[j] = pks[j], pks[j-1]
+		}
+	}
+	names := make([]string, len(pks))
+	for i, p := range pks {
+		names[i] = p.name
+	}
+	return strings.Join(names, ",")
 }
 
 func metaVal(t *testing.T, dbPath, key string) string {

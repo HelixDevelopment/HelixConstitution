@@ -156,12 +156,16 @@ func validateCmd(args []string) int {
 	var violations []string
 	seen := map[string]bool{}
 	for _, it := range items {
-		// §11.4.54 — duplicate (atm_id, location). The composite PRIMARY KEY
-		// makes this impossible at the storage layer (the same id MAY appear
-		// once per tracker), but we assert it explicitly for clarity.
-		key := it.AtmID + "\x00" + it.CurrentLocation
+		// §11.4.54 — duplicate (atm_id, location, representation). The composite
+		// PRIMARY KEY makes this impossible at the storage layer (the same id MAY
+		// appear once per tracker, AND once per representation within a tracker —
+		// a pipe-table 'table' row + an H2 'section' block, GAP A / HXC-044), but
+		// we assert it explicitly for clarity. The key MUST include representation
+		// so the legitimate dual-representation case is not a false duplicate.
+		key := it.AtmID + "\x00" + it.CurrentLocation + "\x00" + it.repOrDefault()
 		if seen[key] {
-			violations = append(violations, fmt.Sprintf("duplicate atm_id in %s: %s", it.CurrentLocation, it.AtmID))
+			violations = append(violations, fmt.Sprintf("duplicate atm_id in %s [%s]: %s",
+				it.CurrentLocation, it.repOrDefault(), it.AtmID))
 		}
 		seen[key] = true
 
@@ -240,9 +244,22 @@ func diffCmd(args []string) int {
 		fmt.Fprintf(os.Stderr, "diff: %v\n", err)
 		return exitUsage
 	}
+	// Key by the COMPOSITE identity (atm_id, current_location, representation) —
+	// the schema PRIMARY KEY — NOT by atm_id alone. loadItems returns one row per
+	// composite key (an atm_id MAY appear once per tracker AND once per
+	// representation within a tracker — a pipe-table 'table' row + an H2 'section'
+	// block, GAP A / HXC-044), and renderDocument (db.go) already keys its body
+	// lookup by id + "\x00" + representation for exactly this reason. Collapsing
+	// to atm_id alone here kept only the LAST-loaded row, so the OTHER parsed
+	// representation was compared against the wrong DB row → a spurious "body
+	// differs" / "type differs" false-positive while validate + the round-trip
+	// gate both PASS.
+	itemKey := func(it item) string {
+		return it.AtmID + "\x00" + it.CurrentLocation + "\x00" + it.repOrDefault()
+	}
 	dbByID := map[string]item{}
 	for _, it := range dbItems {
-		dbByID[it.AtmID] = it
+		dbByID[itemKey(it)] = it
 	}
 
 	var parsed []item
@@ -268,8 +285,8 @@ func diffCmd(args []string) int {
 	differences := 0
 	parsedSeen := map[string]bool{}
 	for _, p := range parsed {
-		parsedSeen[p.AtmID] = true
-		d, ok := dbByID[p.AtmID]
+		parsedSeen[itemKey(p)] = true
+		d, ok := dbByID[itemKey(p)]
 		if !ok {
 			fmt.Printf("+ %s present in Markdown, absent in DB\n", p.AtmID)
 			differences++
@@ -289,7 +306,7 @@ func diffCmd(args []string) int {
 		}
 	}
 	for _, d := range dbItems {
-		if !parsedSeen[d.AtmID] {
+		if !parsedSeen[itemKey(d)] {
 			fmt.Printf("- %s present in DB, absent in Markdown\n", d.AtmID)
 			differences++
 		}

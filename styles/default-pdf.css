@@ -1,0 +1,105 @@
+/*
+ * default-pdf.css — Helix Constitution canonical PRINT / PDF override stylesheet
+ * (§11.4.73 project-wide MD/HTML/PDF styling mandate).
+ *
+ * Applied by scripts/testing/sync_all_markdown_exports.sh via weasyprint
+ * `--stylesheet constitution/styles/default-pdf.css`. weasyprint reads the
+ * already-self-contained HTML (which inlines default-md.css), so THIS file only
+ * supplies print-specific overrides: page geometry, print margins, page-break
+ * hints, and color adjustments for paper. The base typography + the §11.4.23 /
+ * §11.4.90 visual-cue cell/row classes come from default-md.css inlined in the
+ * HTML — they are NOT re-declared here.
+ *
+ * Project-NEUTRAL by design (lives in the constitution submodule, shared by all
+ * consumers). No project-specific content.
+ *
+ * Authority: constitution/Constitution.md §11.4.73.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Page geometry — A4 with sane print margins + running page number
+ * ------------------------------------------------------------------ */
+
+@page {
+  size: A4;
+  margin: 18mm 16mm 20mm 16mm;
+
+  @bottom-center {
+    content: counter(page) " / " counter(pages);
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 8pt;
+    color: #888;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Body — reset the on-screen centered max-width so PDF uses the full
+ * printable @page width (the screen layout's auto margins fight A4).
+ * ------------------------------------------------------------------ */
+
+body {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  font-size: 10.5pt;
+  line-height: 1.5;
+}
+
+/*
+ * Note: weasyprint renders element background-color into the PDF by default
+ * (it does NOT strip backgrounds for print the way some browser engines do),
+ * so the §11.4.23 / §11.4.90 cell/row tints from default-md.css print as-is
+ * without needing a `print-color-adjust` declaration (which this weasyprint
+ * build does not recognise).
+ */
+
+/* ------------------------------------------------------------------ *
+ * Page-break hints — keep headings with their content, avoid orphaned
+ * rows, never split a code block or table row across a page.
+ * ------------------------------------------------------------------ */
+
+h1, h2, h3, h4, h5, h6 {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+h1 { break-before: auto; }
+
+pre, blockquote, table, img {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+tr, td, th {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Repeat table headers on each printed page for long trackers */
+thead { display: table-header-group; }
+
+p, li {
+  orphans: 3;
+  widows: 3;
+}
+
+/* ------------------------------------------------------------------ *
+ * Print sizing tweaks — slightly tighter heading scale for paper
+ * ------------------------------------------------------------------ */
+
+h1 { font-size: 18pt; }
+h2 { font-size: 14.5pt; }
+h3 { font-size: 12.5pt; }
+h4 { font-size: 11pt; }
+
+table { font-size: 8.8pt; }
+code, pre { font-size: 8.6pt; }
+
+/* Avoid clipping wide tables/code at the page edge — let content wrap on paper.
+ * (the on-screen `overflow-x: auto` from default-md.css is irrelevant in print;
+ * weasyprint paginates rather than scrolls.) */
+table { display: table; }
+pre { white-space: pre-wrap; word-wrap: break-word; }
+
+/* Links print as plain colored text (no underline noise on paper) */
+a { text-decoration: none; }

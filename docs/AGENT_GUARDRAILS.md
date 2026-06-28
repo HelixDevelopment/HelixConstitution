@@ -143,6 +143,33 @@ the floor, not the ceiling.
 
 ---
 
+## CodeGraph tool selection (§11.4.78/§11.4.79)
+
+When using the CodeGraph MCP server for code intelligence, pick the right tool —
+this is a recurring agent confusion that wastes round-trips:
+
+- **`codegraph_search`** is an FTS5 **implicit-AND symbol-NAME lookup** — it matches
+  a single symbol whose name / qualified-name / signature / docstring contains
+  **ALL** the query tokens. Use it ONLY when you can NAME a symbol
+  (e.g. `OllamaProvider`, `NewOllamaProvider`). A natural-language PHRASE like
+  `provider Generate LLM` correctly returns **"No results found"** — no single
+  symbol is named that. That empty result is **working-as-designed, NOT a broken
+  index** (verified 2026-06-22).
+- **`codegraph_explore`** is the natural-language / multi-symbol / "explore an area"
+  surface — it returns the verbatim source of the relevant symbols grouped by file.
+  Use it for ANY question, area survey, "how does X work", or multi-concept query.
+
+**Rule of thumb: name a symbol → `codegraph_search`; ask a question → `codegraph_explore`.**
+
+**Exclusion source of truth (§11.4.79):** CodeGraph v1.x is zero-config — it derives
+its index scope from **`.gitignore`** (+ `.git/info/exclude`), **NOT** from
+`.codegraph/config.json` (which is inert / no longer read). A `codegraph_validate.sh`
+that checks `config.json`'s include/exclude lists certifies an exclusion the tool
+ignores — that is a §11.4 PASS-bluff. Validators MUST instead query the live DB
+(`SELECT COUNT(*) FROM files WHERE path LIKE '<excluded>/%'` MUST be 0). Own-org
+submodules MUST be INDEXED; third-party + credential paths MUST be EXCLUDED via the
+ignore files (verified absent from the live index, not merely listed in the config).
+
 ## Documented-exception escape hatch
 
 The PreToolUse guard supports ONE escape hatch for genuinely-approved exceptions:
