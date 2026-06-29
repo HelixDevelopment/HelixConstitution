@@ -67,8 +67,12 @@
   --od-danger:        #ef4444;   /* professional --danger  */
 
   /* Type families */
-  --od-font-body:  Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                   "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+  /* Lead with the host-installed humanist sans (Source Sans 3 / Pro) so the PDF
+     renderer (weasyprint, no web-font fetch) actually uses a modern typeface
+     instead of silently falling back to Liberation when Inter is absent. */
+  --od-font-body:  "Source Sans 3", "Source Sans Pro", "Source Sans", Inter,
+                   -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Helvetica Neue", Arial, "Noto Sans", "DejaVu Sans", sans-serif,
                    "Apple Color Emoji", "Segoe UI Emoji";
   --od-font-mono:  "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace,
                    SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
