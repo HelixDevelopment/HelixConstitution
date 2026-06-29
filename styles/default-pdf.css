@@ -88,6 +88,33 @@ tr, td, th {
 /* Repeat table headers on each printed page for long trackers */
 thead { display: table-header-group; }
 
+/* §11.4.168 table-fit (print): the on-screen rule uses `display:block;
+ * overflow-x:auto` for a horizontal scrollbar, but weasyprint has NO
+ * horizontal scroll — a wide `table-layout:auto` table overflows the A4
+ * width and clips at the page edge (the operator-reported cut-off). Force
+ * the PDF tables to constrain every column to the printable width and wrap
+ * cell content so NO text is ever cut off. */
+table {
+  display: table;
+  table-layout: auto;     /* size columns to content (short cols stay narrow);
+                             `auto`+overflow-wrap:anywhere lets weasyprint shrink
+                             columns to fit the page WITHOUT the equal-width
+                             char-breaking that table-layout:fixed forces. */
+  width: 100%;
+  font-size: 8.5pt;       /* denser so many-column trackers fit A4 */
+}
+th, td {
+  /* break-word (NOT anywhere): column min-width = longest WORD, so phrases wrap
+     at word boundaries ("Operator action to / unblock") and a word is split
+     mid-character ONLY if a single token is wider than its column — readable,
+     never cut off. */
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+  hyphens: auto;
+  padding: 0.3em 0.5em;    /* tighter cells reclaim width for content */
+}
+
 p, li {
   orphans: 3;
   widows: 3;

@@ -299,6 +299,13 @@ th, td {
   border-right: 1px solid var(--doc-border-soft);
   padding: 0.55em 0.8em;
   vertical-align: top;
+  /* §11.4.168 table-fit: wrap long tokens (paths, §-ref chains, URLs) so no
+     cell content is ever cut off — applies to both on-screen HTML and the
+     weasyprint PDF (which has no horizontal scroll to fall back on). */
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+  hyphens: auto;
 }
 
 tr > th:last-child, tr > td:last-child { border-right: 0; }
