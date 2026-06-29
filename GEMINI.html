@@ -2090,7 +2090,51 @@ before tag), §11.4.42 (iteration discipline), §11.4.93 (SQLite SSoT),
 §11.4.108 (four-layer verification). Propagation gate
 <code>CM-COVENANT-114-172-PROPAGATION</code> (literal
 <code>11.4.172</code>) + paired §1.1 mutation.</p>
-<p><strong>§11.4.173 — Shared-host process-ownership verification
+<p><strong>§11.4.173 — Containerized + distributed build mandate (User
+mandate, 2026-06-29).</strong> EVERY build of EVERY component (source
+compile, artifact/package/installer/container-image production, codegen,
+asset render — for ANY language/platform: Go, Android/Gradle, desktop,
+web, native, firmware) MUST run INSIDE a specialized build container
+provisioned via the <code>digital.vasic.containers</code> submodule
+(§11.4.76) — NEVER on the bare host. The build containers MUST be
+DISTRIBUTED to the designated remote build host(s)
+(e.g. <code>thinker.local</code>) via the SAME containers-submodule
+distribution mechanism the infra uses (§11.4.76 Distributor / remote
+compose over SSH, §11.4.161 rootless), so the build EXECUTES on the
+remote build host (offloading the developer/main host); once the build
+completes the produced artifacts MUST be brought BACK to the originating
+main host (scp/rsync/volume copy) for use/flashing/distribution.
+Building outside a container, or on the bare host, is FORBIDDEN — a
+release blocker (the “works on my machine” / unreproducible-build class
+§11.4.76 exists to prevent). The build-host target + build-container
+definitions are config-injected (§11.4.28, never hardcoded in the
+submodule); a missing build-container capability is added by EXTENDING
+the containers submodule upstream (§11.4.74), never by an ad-hoc host
+build. Honest boundary (§11.4.6): the containerized+distributed build
+guarantees reproducibility + host-isolation + capacity offload — it does
+NOT replace the §11.4.40 full-suite retest, §11.4.108 four-layer
+artifact→runtime verification, or §11.4.38 installable-asset evidence
+(those still run against the brought-back artifact). Classification:
+universal (§11.4.17). Composes §11.4.76 (containers submodule — sole
+orchestration layer), §11.4.161 (rootless runtime), §11.4.74
+(extend-don’t-reimplement), §11.4.28 (config injection / decoupling),
+§11.4.24 (build-resource stats), §11.4.82 (iteration speedup —
+persistent caches in the container), §11.4.121
+(no-commit-while-build-writes-artifacts), §11.4.38 (installable-asset
+evidence on the brought-back artifact), §11.4.108 (artifact→runtime
+verification), §12.6 (host memory ceiling — offloading the build
+preserves the main host). Propagation gate
+<code>CM-COVENANT-114-173-PROPAGATION</code> (literal
+<code>11.4.173</code>) + recommended gate
+<code>CM-CONTAINERIZED-DISTRIBUTED-BUILD</code> (every build runs via
+the containers submodule on the remote build host; a bare-host build is
+detected + FAILs) + paired §1.1 mutation. <strong>Canonical
+authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.173.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--build-on-host</code>, <code>--skip-container-build</code>,
+<code>--local-build-ok</code>, <code>--no-distributed-build</code>,
+<code>--bare-host-build</code> flag.</p>
+<p><strong>§11.4.174 — Shared-host process-ownership verification
 mandate (User mandate, 2026-06-29).</strong> On any shared host where
 other projects/users/agents may run concurrently, every inspection of or
 action on a process, build, daemon, port, lock, or system-state signal
@@ -2111,10 +2155,10 @@ exclude self-matches + other-project matches. Forensic anchor (FACT
 (cwd=Projects/catalogizer), nearly mis-attributed to our build. Composes
 §11.4.6/§11.4.66/§11.4.101/§11.4.147/§12/§12.8/§11.4.133.
 Classification: universal (§11.4.17). Propagation gate
-<code>CM-COVENANT-114-173-PROPAGATION</code> (literal
-<code>11.4.173</code>) + recommended gate
+<code>CM-COVENANT-114-174-PROPAGATION</code> (literal
+<code>11.4.174</code>) + recommended gate
 <code>CM-PROCESS-OWNERSHIP-VERIFIED</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.173.
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.174.
 Non-compliance is a release blocker. No escape hatch — no
 <code>--assume-process-ours</code>, <code>--loose-pgrep-ok</code>,
 <code>--kill-any-matching-process</code>,
