@@ -1,19 +1,26 @@
 /*
  * default-pdf.css — Helix Constitution canonical PRINT / PDF override stylesheet
- * (§11.4.73 project-wide MD/HTML/PDF styling mandate).
+ * (§11.4.73 project-wide MD/HTML/PDF styling mandate + §11.4.162 OpenDesign
+ *  UI design-system mandate).
  *
  * Applied by scripts/testing/sync_all_markdown_exports.sh via weasyprint
  * `--stylesheet constitution/styles/default-pdf.css`. weasyprint reads the
  * already-self-contained HTML (which inlines default-md.css), so THIS file only
  * supplies print-specific overrides: page geometry, print margins, page-break
- * hints, and color adjustments for paper. The base typography + the §11.4.23 /
- * §11.4.90 visual-cue cell/row classes come from default-md.css inlined in the
- * HTML — they are NOT re-declared here.
+ * hints, and the on-screen "floating sheet" reset. The base typography, the
+ * OpenDesign `professional` colour tokens, the §11.4.23 / §11.4.90 visual-cue
+ * cell/row classes, and the §11.4.162 version-tag balloon classes all come
+ * from default-md.css inlined in the HTML — they are NOT re-declared here.
+ *
+ * weasyprint NEVER matches `@media (prefers-color-scheme: dark)`, so the PDF
+ * always renders on the LIGHT `professional` sheet (correct for paper).
+ * The source `color-mix(...)` accent values are already resolved to static hex
+ * in default-md.css, so weasyprint has no unsupported colour function to parse.
  *
  * Project-NEUTRAL by design (lives in the constitution submodule, shared by all
  * consumers). No project-specific content.
  *
- * Authority: constitution/Constitution.md §11.4.73.
+ * Authority: constitution/Constitution.md §11.4.73 + §11.4.162.
  */
 
 /* ------------------------------------------------------------------ *
@@ -26,31 +33,34 @@
 
   @bottom-center {
     content: counter(page) " / " counter(pages);
-    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     font-size: 8pt;
-    color: #888;
+    color: #667085;   /* professional --muted */
   }
 }
 
 /* ------------------------------------------------------------------ *
- * Body — reset the on-screen centered max-width so PDF uses the full
- * printable @page width (the screen layout's auto margins fight A4).
+ * Body — reset the on-screen floating-sheet treatment so the PDF uses
+ * the full printable @page width (the screen layout's centered max-width,
+ * box-shadow, border-radius, and large padding fight A4).
  * ------------------------------------------------------------------ */
 
 body {
   max-width: none;
   margin: 0;
   padding: 0;
+  background: #ffffff;        /* professional --surface (force light sheet) */
+  border-radius: 0;
   font-size: 10.5pt;
   line-height: 1.5;
 }
 
 /*
- * Note: weasyprint renders element background-color into the PDF by default
- * (it does NOT strip backgrounds for print the way some browser engines do),
- * so the §11.4.23 / §11.4.90 cell/row tints from default-md.css print as-is
- * without needing a `print-color-adjust` declaration (which this weasyprint
- * build does not recognise).
+ * weasyprint renders element background-color into the PDF by default (it does
+ * NOT strip backgrounds for print the way some browser engines do), so the
+ * §11.4.23 / §11.4.90 cell/row tints + the §11.4.162 tag balloons from
+ * default-md.css print as-is without a `print-color-adjust` declaration (which
+ * this weasyprint build does not recognise).
  */
 
 /* ------------------------------------------------------------------ *
@@ -87,7 +97,7 @@ p, li {
  * Print sizing tweaks — slightly tighter heading scale for paper
  * ------------------------------------------------------------------ */
 
-h1 { font-size: 18pt; }
+h1 { font-size: 19pt; }
 h2 { font-size: 14.5pt; }
 h3 { font-size: 12.5pt; }
 h4 { font-size: 11pt; }
@@ -102,4 +112,4 @@ table { display: table; }
 pre { white-space: pre-wrap; word-wrap: break-word; }
 
 /* Links print as plain colored text (no underline noise on paper) */
-a { text-decoration: none; }
+a { text-decoration: none; border-bottom: 0; }
