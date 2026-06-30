@@ -17,6 +17,11 @@ import (
 
 func newTestDB(t *testing.T) string {
 	t.Helper()
+	// §11.4.151 decoupling: pin the DERIVED default key so auto-id assertions are
+	// deterministic and PROVE the resolver reads HELIX_RELEASE_PREFIX (without
+	// this, the default would derive from the CWD dir name "workable-items"->"WOR"
+	// and every WIT-* assertion would fail).
+	t.Setenv("HELIX_RELEASE_PREFIX", "wit") // deriveKeyPrefix("wit") == "WIT"
 	return filepath.Join(t.TempDir(), "workable_items.db")
 }
 
@@ -65,8 +70,11 @@ func TestAdd_InsertsQueryableRow(t *testing.T) {
 
 // TestAdd_AutoIDMonotonic proves auto-generated ids are monotonic + zero-padded.
 func TestAdd_AutoIDMonotonic(t *testing.T) {
-	// bluff-scan: nil-only-ok (asserts auto-generated WIT-001..003 are present — real monotonic-ID observable)
+	// bluff-scan: nil-only-ok (asserts auto-generated DEM-001..003 are present — real monotonic-ID observable)
 	dbPath := newTestDB(t)
+	// Override with a DISTINCTIVE prefix to PROVE the id derives from
+	// HELIX_RELEASE_PREFIX (not a leftover hardcode): "demoproject" -> "DEM".
+	t.Setenv("HELIX_RELEASE_PREFIX", "demoproject")
 	for i := 0; i < 3; i++ {
 		if code := addCmd([]string{
 			"--db", dbPath,
@@ -79,7 +87,7 @@ func TestAdd_AutoIDMonotonic(t *testing.T) {
 	}
 	db, _ := openDB(dbPath)
 	defer db.Close()
-	for _, want := range []string{"WIT-001", "WIT-002", "WIT-003"} {
+	for _, want := range []string{"DEM-001", "DEM-002", "DEM-003"} {
 		it, err := loadItem(db, want, "Issues")
 		if err != nil || it == nil {
 			t.Fatalf("expected auto-generated %s present (err=%v)", want, err)
