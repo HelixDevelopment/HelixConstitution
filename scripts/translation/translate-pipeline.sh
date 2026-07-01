@@ -36,8 +36,8 @@
 set -euo pipefail
 
 # ---- Configuration ----------------------------------------------------------
-ENGINE="${HELIX_TRANSLATE_BIN:-/Volumes/T7/Projects/helix_translate/build/unified-translator}"
-EVIDENCE_DIR="${TRANSLATE_EVIDENCE_DIR:-/Volumes/T7/Projects/vasic/_tests/evidence/translate}"
+ENGINE="${HELIX_TRANSLATE_BIN:-}"   # no machine-specific default; set HELIX_TRANSLATE_BIN to the unified-translator binary (checked at use, line ~65)
+EVIDENCE_DIR="${TRANSLATE_EVIDENCE_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/../.." && pwd)/_tests/evidence/translate}"   # repo-relative default; override via TRANSLATE_EVIDENCE_DIR
 SOURCE_LANG="en"
 PRIMARY_PROVIDER="groq"
 PRIMARY_MODEL="llama-3.3-70b-versatile"
