@@ -166,3 +166,9 @@ The scripts append entries below automatically; manual entries are also acceptab
 - current: `1.1.3`
 - latest:  `1.1.3`
 - action:  **no-op** (already at latest)
+
+## 2026-07-02T05:03:01Z — codegraph updated
+
+- before: `1.1.6`
+- after:  `1.2.0`
+- npm command: `npm install -g @colbymchenry/codegraph@1.2.0`
