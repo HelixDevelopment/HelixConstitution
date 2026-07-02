@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="scheduled-work-engine">scheduled-work-engine</h1>
+<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
+2026-07-02T00:00:00Z</p>
+<p>A decoupled, project-agnostic <strong>scheduled-work / reminder
+tracking service</strong>. It records background-queue work items and
+lets an autonomous agent — when a REMINDER fires — re-verify
+<strong>uncertain / blocked / overdue</strong> work before reporting it
+done (constitution §11.4.6 no-guessing, §11.4.108 verify-before-report).
+It is the backing infrastructure for the <code>REMINDER</code> /
+<code>BACKGROUND</code> action-prefix (§11.4.140).</p>
+<h2 id="surfaces-one-implementation-multiple-transports">Surfaces (one
+implementation, multiple transports)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Transport</th>
+<th>Entry</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REST</td>
+<td>HTTP/3 (QUIC) + h2/h1 fallback, brotli</td>
+<td><code>serve</code> → <code>/api/v1/...</code></td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>HTTP/3 + h2/h1 (JSON-RPC 2.0)</td>
+<td><code>serve</code> → <code>POST /mcp</code></td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>stdio (Claude Code plugin)</td>
+<td><code>mcp-stdio</code></td>
+</tr>
+<tr>
+<td>ACP-equivalent</td>
+<td>stdio (JSON-RPC 2.0)</td>
+<td><code>acp-stdio</code></td>
+</tr>
+</tbody>
+</table>
+<p>Router = <strong>gin</strong> (<code>gin.Engine</code> is served
+identically over h1/h2/h3); HTTP/3 =
+<strong><code>github.com/quic-go/quic-go/http3</code></strong>;
+compression =
+<strong><code>github.com/andybalholm/brotli</code></strong>
+middleware.</p>
+<h2 id="build">Build</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> build <span class="at">-o</span> bin/scheduled-work ./cmd/scheduled-work    <span class="co"># or: bash ../../plugins/scheduled-work/build.sh</span></span></code></pre></div>
+<p>The binary is a build derivative (gitignored per §11.4.30; regen
+§11.4.77).</p>
+<h2 id="run">Run</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># REST + MCP-over-HTTP on HTTP/3 (+ h2/h1) with a self-signed dev cert:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">SWQ_ADDR</span><span class="op">=</span>127.0.0.1:8787 <span class="ex">./bin/scheduled-work</span> serve</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># MCP over stdio (for a Claude Code plugin / any MCP stdio client):</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/scheduled-work</span> mcp-stdio</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ACP-equivalent JSON-RPC over stdio:</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/scheduled-work</span> acp-stdio</span></code></pre></div>
+<h3
+id="configuration-env-11.4.28-decoupling-no-hardcoded-consumer-data">Configuration
+(env — §11.4.28 decoupling: no hardcoded consumer data)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Var</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SWQ_ADDR</code></td>
+<td><code>127.0.0.1:8787</code></td>
+<td>listen address (TCP for h1/h2, UDP for h3)</td>
+</tr>
+<tr>
+<td><code>SWQ_DB</code></td>
+<td><code>./scheduled_work.json</code></td>
+<td>JSON store path</td>
+</tr>
+<tr>
+<td><code>SWQ_TLS_CERT</code> / <code>SWQ_TLS_KEY</code></td>
+<td>(self-signed dev)</td>
+<td>production TLS pair</td>
+</tr>
+<tr>
+<td><code>SWQ_BROTLI</code></td>
+<td><code>5</code></td>
+<td>brotli quality 0–11, or <code>-1</code> to disable</td>
+</tr>
+<tr>
+<td><code>SWQ_H3</code></td>
+<td><code>1</code></td>
+<td><code>1</code> enable HTTP/3, <code>0</code> = h1/h2 only</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rest-api">REST API</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>liveness + item count</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/items</code></td>
+<td>create
+<code>{title, description?, status?, due_at?, tags?, source?, notes?}</code></td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/items?status=</code></td>
+<td>list (effective-status filter, incl. <code>overdue</code>)</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/items/overdue</code></td>
+<td>open items past due</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/items/needs-verification</code></td>
+<td>open
+<code>blocked</code>/<code>uncertain</code>/<code>overdue</code></td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/items/:id</code></td>
+<td>one item</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/v1/items/:id/status</code></td>
+<td><code>{status, notes?}</code></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/items/:id/done</code></td>
+<td><code>{notes?}</code> — mark done (put evidence in notes)</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/v1/items/:id</code></td>
+<td>delete</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mcp-tools">MCP tools</h2>
+<p><code>create_work_item</code>, <code>list_work_items</code>,
+<code>get_work_item</code>, <code>update_work_item_status</code>,
+<code>mark_work_item_done</code>, <code>list_overdue_work</code>,
+<code>list_needs_verification</code>. See
+<code>skills/scheduled-work-queue/skill.md</code>.</p>
+<h2 id="status-model-closed-set">Status model (closed set)</h2>
+<p><code>scheduled</code> · <code>in-progress</code> ·
+<code>blocked</code> · <code>uncertain</code> · <code>done</code> ·
+<code>cancelled</code>, plus a <strong>derived</strong>
+<code>overdue</code> (an open item past <code>due_at</code>, computed on
+read, never stored — §11.4.6). <code>blocked</code> /
+<code>uncertain</code> / <code>overdue</code> are the states a REMINDER
+MUST confirm before reporting done.</p>
+<h2 id="testing">Testing</h2>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> test ./...                       <span class="co"># unit (store, mcp)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> test <span class="at">-race</span> ./test/               <span class="co"># integration: REAL HTTP/3 + brotli round-trip</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> test/meta_mutation.sh          <span class="co"># §1.1 paired mutation (RED-on-broken / GREEN-on-restore)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> test/live_smoke.sh             <span class="co"># live captured-evidence smoke (REST TLS + MCP stdio)</span></span></code></pre></div>
+<p>See <code>DESIGN.md</code> for the store-choice justification, the
+ACP honesty note, and the proposed governance-anchor handoff.</p>
+</body>
+</html>
