@@ -46,11 +46,6 @@ func partitionArgs(args []string, boolFlags map[string]bool) (positionals, flagA
 	return positionals, flagArgs
 }
 
-// addPrefixDefault is the ticket-id prefix used when --id is not supplied. It is
-// deliberately generic (3 uppercase letters per §11.4.54 / issueHeadingRe);
-// consuming projects pass their own via --prefix (e.g. HRD, ATM, HXC).
-const addPrefixDefault = "WIT"
-
 // runAdd implements `add <type> <severity> --title <T> --description <D>`.
 //
 //	type      positional (Bug | Feature | Task) — §11.4.16 closed-set
@@ -58,7 +53,7 @@ const addPrefixDefault = "WIT"
 //	--title   heading title (required)
 //	--description  §11.4.91 floor (≥6 words OR ≥40 chars; required)
 //	--id      explicit ticket id (optional; auto-generated from --prefix when absent)
-//	--prefix  3-letter id prefix for auto-generated ids (default WIT)
+//	--prefix  3-letter id prefix for auto-generated ids (default: derived per §11.4.151)
 //	--db      SQLite DB path (required)
 func runAdd(args []string) {
 	os.Exit(addCmd(args))
@@ -70,7 +65,10 @@ func addCmd(args []string) int {
 	title := fs.String("title", "", "item title (heading text)")
 	description := fs.String("description", "", "item description (§11.4.91 floor: ≥6 words OR ≥40 chars)")
 	explicitID := fs.String("id", "", "explicit ticket id (auto-generated when absent)")
-	prefix := fs.String("prefix", addPrefixDefault, "3-letter id prefix for auto-generated ids")
+	// §11.4.151/§11.4.29: the default KEY is DERIVED (HELIX_RELEASE_PREFIX env /
+	// .env / lowercased snake_case project-dir name), never a hardcoded real
+	// project key. An explicit --prefix still overrides.
+	prefix := fs.String("prefix", defaultKeyPrefix(), "3-letter id prefix for auto-generated ids (derived per §11.4.151)")
 	createdBy := fs.String("created-by", "", "§11.4.104 canonical handle that opened the item (default '')")
 	assignedTo := fs.String("assigned-to", "", "§11.4.104 canonical handle the item is assigned to (default '')")
 	pos, flagArgs := partitionArgs(args, nil)

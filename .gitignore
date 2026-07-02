@@ -4,3 +4,12 @@ __pycache__/
 
 # Runtime QA output (regenerated per test run)
 qa-results/
+
+# Credentials / secrets — never versioned (§11.4.10 / §11.4.30)
+.env
+.env.*
+*.env
+# …but keep the tracked placeholder templates (§11.4.10 / §11.4.30 exception)
+!.env.example
+!.env.sample
+!.env.template
