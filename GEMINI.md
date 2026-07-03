@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Revision | 5 |
+| Revision | 6 |
 | Created | 2026-06-09 |
-| Last modified | 2026-06-22T00:00:00Z |
+| Last modified | 2026-07-03T00:00:00Z |
 | Status | active |
 | Status summary | Added §11.4.170 — Device-independent host-side rendered-UI visual-proof mandate (User mandate 2026-06-25): every change to ANY user-facing UI surface MUST be proven by DEVICE-INDEPENDENT host-side RENDERED PIXELS before claimed correct — the real component rendered to a PNG ON THE HOST (no device/emulator/running app; Compose→Roborazzi/Paparazzi, web→Playwright/Storybook, SwiftUI→snapshot-testing, equiv per stack) for EVERY screen×state×{light,dark} theme, dual-validated by (i) golden image-diff AND (ii) an OCR/vision oracle reading rendered text+labels+control bounds (NO overlap / label-over-label / clipping / off-screen / collapsed-or-giant-unbounded widget). VALUE/token-equality / property-assertion UI tests are FORBIDDEN as the PROOF a UI is correct (forensic FACT 2026-06-25: hex/sp/dp value-equality unit tests stayed GREEN while the operator opened a broken giant-button screen) — may supplement, NEVER substitute the rendered-pixel proof; self-validated golden-good/golden-bad analyzer §11.4.107(10); device-offline is NEVER a valid skip (host-render IS the device-independent path); COMPLEMENTS not replaces §11.4.153/.158/.159/.160 live-device recording + §11.4.162 OpenDesign tokens + §11.4.168 exported-doc visual validation. Propagation gate CM-COVENANT-114-170-PROPAGATION + recommended gate CM-HOST-RENDERED-UI-VISUAL-PROOF + paired §1.1 mutation. Classification: universal (§11.4.17). Prior round: §11.4.166 REPEALED (operator decision 2026-06-22): Universal Semgrep static-analysis mandate repealed — Semgrep no longer mandatory; scaffolding, submodules/semgrep, MCP/pre-commit/PATH wiring, docs_chain semgrep_status context, and CM-COVENANT-114-166-PROPAGATION/CM-SEMGREP-WIRED gates removed. Added §11.4.163 mirror — Universal Media Validation: every recorded artifact MUST pass MEDIA VALIDATION pipeline (OCR/transcription/text parsing vs patterns, self-validated analyzer, structured verdict, pinpoint on FAIL, real-time trigger, §1.1 mutation). Added §11.4.164 mirror — Universal Auto-Propagation Hook: post_update_hook.sh detects/registers/installs skills/MCP/hooks/scripts; consumer invokes after every pull. Added §11.4.165 mirror — Universal Independent Verification Agent: every output passes INDEPENDENT verifier (§11.4.70/.20), zero-finding GO. All Classification: universal (§11.4.17). Prior round: Added §11.4.160–162 mirror entries — Vision-verified recording + HelixQA bridge (User mandate 2026-06-21): every video recording MUST be processed through a vision/OCR pipeline reading on-screen content against SPECIFY-phase expected patterns; ≤5s frame capture, self-validated analyzer, per-frame PASS/FAIL with evidence path. Rootless container runtime (User mandate 2026-06-21): Podman rootless mandatory; rootful Docker/sudo FORBIDDEN unless §11.4.112; vasic-digital/containers sole orchestration layer. OpenDesign UI design system (User mandate 2026-06-21): mandatory UI design-and-refinement system for all user-facing interfaces; design tokens for color/typography/spacing; light+dark themes; extend upstream per §11.4.74. All three Classification: universal (§11.4.17). GEMINI.md mirrors updated in lockstep per §11.4.157. Prior round: New Gemini CLI carrier of the Helix Constitution — added by §11.4.140 (universal action-prefix system) so Gemini CLI gets the LAYER-1 action-prefix recognition floor out of the box, plus the §11.4.141 token-efficiency mandate mirror. This file is one of the four canonical agent context carriers (`CLAUDE.md`, `AGENTS.md`, `QWEN.md`, `GEMINI.md`) the constitution maintains per §11.4.35; the textual identity of the action-prefix recognition block across all four IS the LAYER-1 universality. This GEMINI.md is a thin carrier — the full universal rule set is in `Constitution.md` (canonical) and the sibling carriers; Gemini CLI reads this file as its context carrier. Back-filled §11.4.142–157 to lockstep (§11.4.157). |
 | Issues | none |
@@ -48,35 +48,41 @@ works on Gemini CLI with zero extra setup.
 
 <!-- action-prefix-recognition:begin -->
 > **§11.4.140 — Universal action-prefix system (`ACTION_NAME ::`) (User mandate,
-> 2026-06-09; GRAMMAR_ADDENDUM 2026-06-09).** When a user prompt's FIRST
+> 2026-06-09; GRAMMAR_ADDENDUM 2026-06-09; arrow form 2026-07-02).** When a
+> user prompt's FIRST
 > non-blank line starts with a recognised action prefix, you MUST: (1) look the
 > action token up in the action registry
 > `constitution/actions/registry.yaml` (or `$HELIX_ACTION_REGISTRY`);
 > (2) if it is a registered action, REPLACE the prefix with that action's
 > `expansion` text and apply its `rules`; (3) execute the remainder of the prompt
-> under the expanded instruction. **Four EQUIVALENT forms** — same action, same
+> under the expanded instruction. **Five EQUIVALENT forms** — same action, same
 > expansion, same execution: (1) `ACTION_NAME :: <rest>` (bare `::`),
 > (2) `PREFIX::ACTION_NAME :: <rest>` (namespaced `::`), (3) `/ACTION_NAME <rest>`
-> (bare slash), (4) `/PREFIX::ACTION_NAME <rest>` (namespaced slash). Thus
+> (bare slash), (4) `/PREFIX::ACTION_NAME <rest>` (namespaced slash),
+> (5) `ACTION_NAME ---> <rest>` (bare arrow) ≡ `PREFIX::ACTION_NAME ---> <rest>`
+> (namespaced arrow). Thus
 > `BACKGROUND :: x` ≡ `DEFAULT::BACKGROUND :: x` ≡ `/BACKGROUND x` ≡
-> `/DEFAULT::BACKGROUND x`. `PREFIX` is an action NAMESPACE; the reserved default
+> `/DEFAULT::BACKGROUND x` ≡ `BACKGROUND ---> x` ≡ `DEFAULT::BACKGROUND ---> x`.
+> `PREFIX` is an action NAMESPACE; the reserved default
 > namespace is **`DEFAULT`**, and an action runs WITH or WITHOUT the prefix.
 > Grammar (all hold): anchored at the FIRST non-blank line only (mid-prose tokens
 > never match); the action token AND the namespace are UPPERCASE-only
 > `[A-Z][A-Z0-9_]*` (lowercase never matches); the namespace separator `::`
 > inside the token carries NO surrounding spaces (`PREFIX::ACTION_NAME`), DISTINCT
 > from the action-body separator `" :: "` (one ASCII space on each side of `::` —
-> avoids C++ `Foo::Bar`, YAML `key: value`, URLs) in forms 1/2 and the slash-body
-> separator (one space) in forms 3/4; stacked prefixes (`A :: B :: rest`) apply
+> avoids C++ `Foo::Bar`, YAML `key: value`, URLs) in forms 1/2, the arrow-body
+> separator `" ---> "` (one ASCII space on each side) in form 5, and the
+> slash-body separator (one space) in forms 3/4; stacked prefixes (`A :: B :: rest`) apply
 > outer-to-inner, left-to-right (expand `A`, re-scan, expand `B`, then the
-> residual is the task); a leading `\` escapes the prefix for BOTH the `::` and
-> the slash form (`\BACKGROUND :: x`, `\/BACKGROUND x` — treat literally, strip
-> the backslash, NO expansion) so action names can be discussed. **Conflict rule
+> residual is the task); a leading `\` escapes the prefix for the `::`, arrow,
+> and slash forms (`\BACKGROUND :: x`, `\BACKGROUND ---> x`, `\/BACKGROUND x` —
+> treat literally, strip the backslash, NO expansion) so action names can be
+> discussed. **Conflict rule
 > (slash form):** `/ACTION_NAME` (form 3) is honored as the action ONLY when
 > `ACTION_NAME` (case-folded) does not collide with a built-in/host slash command
 > (registry `slash_bare: auto` + `slash_conflicts: [..]`); form 4
 > (`/PREFIX::ACTION_NAME`) is ALWAYS unambiguous and always honored. An unknown
-> token that matches the grammar shape (any of the 4 forms) but is NOT registered
+> token that matches the grammar shape (any of the 5 forms) but is NOT registered
 > is NEVER silently expanded or silently dropped — ask which registered action
 > was meant (§11.4.66 / §11.4.105) or treat it as a literal prompt, NEVER invent
 > an expansion (§11.4.6); any prompt not satisfying the grammar is an ordinary
@@ -88,7 +94,14 @@ works on Gemini CLI with zero extra setup.
 > any false results and without any bluff!"* (composes §11.4.20 / §11.4.70
 > subagent-driven, §11.4.58 / §11.4.103 parallel streams, §11.4.89 background
 > execution, §11.4.5 / §11.4.69 / §11.4.107 captured physical evidence, §11.4
-> anti-bluff). The system is UNIVERSAL (every CLI agent reads this block via its
+> anti-bluff). A second registered action **`REMINDER`** re-surfaces
+> previously-scheduled, CRITICAL, status-UNCERTAIN work: FIRST verify the ACTUAL
+> current status from captured evidence (never assume done or not-done —
+> §11.4.6 no-guessing), THEN act on the delta — report the captured proof if
+> genuinely complete, resume from the exact point if partial, action it NOW if
+> not started, or surface the block per §11.4.66/§11.4.101 — always producing a
+> status verdict (composes §11.4.6 / §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 /
+> §11.4.108 / §11.4.130 / §11.4.147). The system is UNIVERSAL (every CLI agent reads this block via its
 > context carrier per §11.4.35), extensible (new action = new registry row),
 > decoupled + reusable (§11.4.28), and loads out-of-the-box. Classification:
 > universal (§11.4.17). **Canonical authority:** constitution submodule
@@ -188,3 +201,7 @@ works on Gemini CLI with zero extra setup.
 **§11.4.173 — Containerized + distributed build mandate (User mandate, 2026-06-29).** EVERY build of EVERY component (source compile, artifact/package/installer/container-image production, codegen, asset render — for ANY language/platform: Go, Android/Gradle, desktop, web, native, firmware) MUST run INSIDE a specialized build container provisioned via the `digital.vasic.containers` submodule (§11.4.76) — NEVER on the bare host. The build containers MUST be DISTRIBUTED to the designated remote build host(s) (e.g. `thinker.local`) via the SAME containers-submodule distribution mechanism the infra uses (§11.4.76 Distributor / remote compose over SSH, §11.4.161 rootless), so the build EXECUTES on the remote build host (offloading the developer/main host); once the build completes the produced artifacts MUST be brought BACK to the originating main host (scp/rsync/volume copy) for use/flashing/distribution. Building outside a container, or on the bare host, is FORBIDDEN — a release blocker (the "works on my machine" / unreproducible-build class §11.4.76 exists to prevent). The build-host target + build-container definitions are config-injected (§11.4.28, never hardcoded in the submodule); a missing build-container capability is added by EXTENDING the containers submodule upstream (§11.4.74), never by an ad-hoc host build. Honest boundary (§11.4.6): the containerized+distributed build guarantees reproducibility + host-isolation + capacity offload — it does NOT replace the §11.4.40 full-suite retest, §11.4.108 four-layer artifact→runtime verification, or §11.4.38 installable-asset evidence (those still run against the brought-back artifact). Classification: universal (§11.4.17). Composes §11.4.76 (containers submodule — sole orchestration layer), §11.4.161 (rootless runtime), §11.4.74 (extend-don't-reimplement), §11.4.28 (config injection / decoupling), §11.4.24 (build-resource stats), §11.4.82 (iteration speedup — persistent caches in the container), §11.4.121 (no-commit-while-build-writes-artifacts), §11.4.38 (installable-asset evidence on the brought-back artifact), §11.4.108 (artifact→runtime verification), §12.6 (host memory ceiling — offloading the build preserves the main host). Propagation gate `CM-COVENANT-114-173-PROPAGATION` (literal `11.4.173`) + recommended gate `CM-CONTAINERIZED-DISTRIBUTED-BUILD` (every build runs via the containers submodule on the remote build host; a bare-host build is detected + FAILs) + paired §1.1 mutation. **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.173. Non-compliance is a release blocker. No escape hatch — no `--build-on-host`, `--skip-container-build`, `--local-build-ok`, `--no-distributed-build`, `--bare-host-build` flag.
 
 **§11.4.174 — Shared-host process-ownership verification mandate (User mandate, 2026-06-29).** On any shared host where other projects/users/agents may run concurrently, every inspection of or action on a process, build, daemon, port, lock, or system-state signal MUST first positively VERIFY the target is OURS before diagnosing or acting. Attribute a process to us ONLY by a strong discriminator — cwd inside this project's tree, argv naming our scripts/artifacts/repo path, a PID we launched + recorded (§11.4.147), or a lock/port path under our tree — NEVER a loose `pgrep java/gradle/node` name match (it matches every project on the host). NEVER kill/signal/restart a process not positively ours (other projects' gradle/java/podman/zig are off-limits — operator-workload-safety, §12/§11.4.133); the §12.8 daemon-kill remediation MUST be scoped to OUR daemons. When our work waits on host contention from another project's process, surface it (§11.4.66/§11.4.101) — block-don't-break. Every pgrep/ps filter MUST exclude self-matches + other-project matches. Forensic anchor (FACT 2026-06-29): a 200%-CPU java+gradlew on the shared host was a separate `catalogizer` project's gradle test (cwd=Projects/catalogizer), nearly mis-attributed to our build. Composes §11.4.6/§11.4.66/§11.4.101/§11.4.147/§12/§12.8/§11.4.133. Classification: universal (§11.4.17). Propagation gate `CM-COVENANT-114-174-PROPAGATION` (literal `11.4.174`) + recommended gate `CM-PROCESS-OWNERSHIP-VERIFIED` + paired §1.1 mutation. **Canonical authority:** constitution submodule [`Constitution.md`](Constitution.md) §11.4.174. Non-compliance is a release blocker. No escape hatch — no `--assume-process-ours`, `--loose-pgrep-ok`, `--kill-any-matching-process`, `--skip-ownership-check` flag.
+
+**§11.4.176 — Conflict-free multi-track work-division + exactly-once claim registry + capability-aware deadlock-proof device-lock (User mandate, 2026-07-02).** Two mandatory multi-track arbitration layers, conflict-free by construction: (A) exactly-once work-item/logical-group claim registry (extends §11.4.147/§11.4.116; disjoint file-scope §11.4.58 L3 + worktree/CoW §11.4.167; no codebase loss §9.2/§11.4.113/§11.4.84/§11.4.41); (B) capability-aware deadlock-proof device-lock (§11.4.119 single-owner; all-or-nothing + non-blocking + TTL-reap breaks all 4 Coffman conditions; append-only JSONL + atomic snapshot §11.4.116); (C) universal/decoupled (§11.4.17/§11.4.28/§11.4.35) + evidence-based resource-tuning (§11.4.24/§11.4.6, never guessed). Classification: universal (§11.4.17). Gates CM-WORK-DIVISION-EXCLUSIVE-CLAIM + CM-DEVICE-LOCK-DEADLOCK-FREE + CM-COVENANT-114-176-PROPAGATION + paired §1.1 mutation. Composes §11.4.6 §11.4.17 §11.4.24 §11.4.28 §11.4.35 §11.4.41 §11.4.58 §11.4.84 §11.4.85 §11.4.103 §11.4.113 §11.4.116 §11.4.119 §11.4.147 §11.4.167 §12.6 §9.2 §11.4.176.
+
+**§12.11 — Maximal dynamic resource utilization for containerized builds (User mandate, 2026-07-03).** The containerized build path (its OWN cgroup + own MemoryMax → OOM-kills ITSELF, never user.slice) MUST use the maximal SAFE fraction of host capacity, computed DYNAMICALLY per host: auto-detect nproc/MemTotal/RLIMIT_NPROC (never hardcode, §11.4.6), reserve explicit host headroom (cores+RAM), scale -j against BOTH the memory model AND the process rlimit (privileged nproc-raise for full -j; EAGAIN-safe -j otherwise), never break/bottleneck/wedge. NO fixed low -j for the containerized path. The §12.6 60% ceiling + bare-metal -j cap REMAIN, SCOPED to user.slice-resident work — §12.11 does NOT weaken §12.6, it scopes it. Classification: universal (§11.4.17). Gate CM-MAXRES-DYNAMIC-BUILD + CM-COVENANT-12-11-PROPAGATION + paired §1.1 mutation. Composes §12.1 §12.2 §12.3 §12.6 §12.10 §11.4.6 §11.4.24 §11.4.133 §9.2 §11.4.35 §12.11.
