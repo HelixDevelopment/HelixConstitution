@@ -29,6 +29,7 @@ Subcommands:
   sync db-to-md --db <p> [--out-issues <p>] [--out-fixed <p>]  Regenerate trackers from DB.
   diff --db <p> [--issues <p>] [--fixed <p>]            Show DB vs Markdown divergence.
   validate --db <p>                                     Closed-set + §11.4.91 invariants.
+  repair-bodies --db <p> [--dry-run]                    Canonicalize stale body **Status:** lines + populate empty bodies from columns (ATM-627/task #20).
   add <type> <severity> --db <p> --title <T> --description <D> [--id <id>] [--prefix <P>] [--created-by <h>] [--assigned-to <h>]
                                                         Create a new Queued item in Issues.
   update --id <ID> --db <p> [--title|--severity|--description|--type|--status|--created-by|--assigned-to ...] [--location Issues|Fixed]
@@ -71,6 +72,8 @@ func main() {
 		runDiff(args[1:])
 	case "validate":
 		runValidate(args[1:])
+	case "repair-bodies":
+		runRepairBodies(args[1:])
 	case "version-tags":
 		os.Exit(versionTagsCmd(args[1:]))
 	case "add":
