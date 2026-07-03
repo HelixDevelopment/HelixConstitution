@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "scheduled-work": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/../../scripts/scheduled-work-engine/bin/scheduled-work",
+      "args": ["mcp-stdio"],
+      "env": {
+        "SWQ_DB": "${CLAUDE_PLUGIN_ROOT}/../../qa-results/scheduled-work/scheduled_work.json"
+      }
+    }
+  }
+}

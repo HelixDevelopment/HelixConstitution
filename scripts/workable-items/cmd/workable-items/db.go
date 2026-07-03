@@ -168,7 +168,20 @@ func migrateRepresentationColumn(db *sql.DB) error {
     composes_with    TEXT,
     created_by       TEXT NOT NULL DEFAULT '',
     assigned_to      TEXT NOT NULL DEFAULT '',
-    current_location TEXT NOT NULL DEFAULT 'Issues',
+    -- ATM-627 (C1) defense-in-depth: mirror the fresh-schema CHECK
+    -- (schema_embed.sql:70) onto the MIGRATED table so a legacy DB rebuilt
+    -- through this path stops silently re-admitting an out-of-set
+    -- current_location literal (e.g. the old 'Fixed.md' half-migration class).
+    -- §11.4.6 HONEST BOUNDARY: this CHECK would NOT have prevented the ATM-627
+    -- committed-DB corruption — that corruption moved an item Issues->Fixed
+    -- (BOTH valid closed-set values) while its Issues doc_segment stayed, so the
+    -- value never left the set. The renderability guard in validateCmd (sync.go)
+    -- is the PRIMARY enforcement for that segment<->item location-mismatch class;
+    -- this CHECK guards only the earlier out-of-set literal class. The INSERT
+    -- below normalizes the known legacy 'Fixed.md' stray so this CHECK never
+    -- bricks openDB() on such a DB.
+    current_location TEXT NOT NULL
+                     CHECK (current_location IN ('Issues', 'Fixed')) DEFAULT 'Issues',
     body_md          TEXT,
     representation   TEXT NOT NULL DEFAULT 'section'
                      CHECK (representation IN ('section', 'table')),
@@ -187,6 +200,15 @@ func migrateRepresentationColumn(db *sql.DB) error {
 	// emits the column when present else the empty-string literal (the NOT NULL
 	// DEFAULT '' semantics). parent_atm_id/session_ref/version_tags are nullable,
 	// so colOrNull. migrateColumns then backfills any still-missing column.
+	//
+	// ATM-627 (C1): the projected current_location is wrapped in a CASE that maps
+	// the known legacy 'Fixed.md' half-migration stray to the closed-set 'Fixed'
+	// BEFORE it reaches items_new's new CHECK — so migrating a legacy DB that
+	// carries that stray does NOT brick openDB(). Any OTHER out-of-set literal
+	// genuinely trips the CHECK (fail-closed, never silently re-admitted). §11.4.6
+	// honest boundary: this normalization does not touch the ATM-627 corruption
+	// itself (an Issues->Fixed relocation — both valid — with a dangling segment);
+	// that class is caught by validateCmd's renderability guard, not by this CHECK.
 	if _, err := tx.Exec(`INSERT INTO items_new
 		(atm_id, type, status, severity, title, description, forensic_anchor,
 		 closure_criteria, composes_with, created_by, assigned_to,
@@ -195,7 +217,8 @@ func migrateRepresentationColumn(db *sql.DB) error {
 		SELECT atm_id, type, status, severity, title, description, forensic_anchor,
 		 closure_criteria, composes_with, ` +
 		colOrDefaultStr(have, "created_by") + `, ` + colOrDefaultStr(have, "assigned_to") + `,
-		 current_location, body_md, ` + colOrNull(have, "parent_atm_id") + `, ` +
+		 CASE current_location WHEN 'Fixed.md' THEN 'Fixed' ELSE current_location END,
+		 body_md, ` + colOrNull(have, "parent_atm_id") + `, ` +
 		colOrNull(have, "session_ref") + `, ` + colOrNull(have, "version_tags") + `,
 		 created_at, last_modified
 		FROM items`); err != nil {

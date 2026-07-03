@@ -2,12 +2,17 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
+| Revision | 2 |
 | Created | 2026-06-09 |
-| Last modified | 2026-06-09T00:00:00Z |
+| Last modified | 2026-07-02T00:00:00Z |
 | Status | active |
 | Scope | the reusable verbatim instruction block embedded into every agent context carrier |
 | Authority | DESIGN.md §5 + RULE_DRAFT.md Part B (this directory) |
+
+> **Revision 2 (2026-07-02):** added the fifth grammar form — the arrow form
+> `ACTION_NAME ---> <rest>` (and namespaced `PREFIX::ACTION_NAME ---> <rest>`) —
+> as a first-class equivalent delimiter alongside `::` and `/`, plus the second
+> registered action `REMINDER` (verify-don't-assume status re-surfacing).
 
 This file holds the **single canonical LAYER-1 recognition-instruction block**.
 The conductor (or the §11.4.35 propagation machinery) embeds the block between
@@ -30,35 +35,41 @@ action.
 
 <!-- action-prefix-recognition:begin -->
 > **§11.4.140 — Universal action-prefix system (`ACTION_NAME ::`) (User mandate,
-> 2026-06-09; GRAMMAR_ADDENDUM 2026-06-09).** When a user prompt's FIRST
+> 2026-06-09; GRAMMAR_ADDENDUM 2026-06-09; arrow form 2026-07-02).** When a
+> user prompt's FIRST
 > non-blank line starts with a recognised action prefix, you MUST: (1) look the
 > action token up in the action registry
 > `constitution/actions/registry.yaml` (or `$HELIX_ACTION_REGISTRY`);
 > (2) if it is a registered action, REPLACE the prefix with that action's
 > `expansion` text and apply its `rules`; (3) execute the remainder of the prompt
-> under the expanded instruction. **Four EQUIVALENT forms** — same action, same
+> under the expanded instruction. **Five EQUIVALENT forms** — same action, same
 > expansion, same execution: (1) `ACTION_NAME :: <rest>` (bare `::`),
 > (2) `PREFIX::ACTION_NAME :: <rest>` (namespaced `::`), (3) `/ACTION_NAME <rest>`
-> (bare slash), (4) `/PREFIX::ACTION_NAME <rest>` (namespaced slash). Thus
+> (bare slash), (4) `/PREFIX::ACTION_NAME <rest>` (namespaced slash),
+> (5) `ACTION_NAME ---> <rest>` (bare arrow) ≡ `PREFIX::ACTION_NAME ---> <rest>`
+> (namespaced arrow). Thus
 > `BACKGROUND :: x` ≡ `DEFAULT::BACKGROUND :: x` ≡ `/BACKGROUND x` ≡
-> `/DEFAULT::BACKGROUND x`. `PREFIX` is an action NAMESPACE; the reserved default
+> `/DEFAULT::BACKGROUND x` ≡ `BACKGROUND ---> x` ≡ `DEFAULT::BACKGROUND ---> x`.
+> `PREFIX` is an action NAMESPACE; the reserved default
 > namespace is **`DEFAULT`**, and an action runs WITH or WITHOUT the prefix.
 > Grammar (all hold): anchored at the FIRST non-blank line only (mid-prose tokens
 > never match); the action token AND the namespace are UPPERCASE-only
 > `[A-Z][A-Z0-9_]*` (lowercase never matches); the namespace separator `::`
 > inside the token carries NO surrounding spaces (`PREFIX::ACTION_NAME`), DISTINCT
 > from the action-body separator `" :: "` (one ASCII space on each side of `::` —
-> avoids C++ `Foo::Bar`, YAML `key: value`, URLs) in forms 1/2 and the slash-body
-> separator (one space) in forms 3/4; stacked prefixes (`A :: B :: rest`) apply
+> avoids C++ `Foo::Bar`, YAML `key: value`, URLs) in forms 1/2, the arrow-body
+> separator `" ---> "` (one ASCII space on each side) in form 5, and the
+> slash-body separator (one space) in forms 3/4; stacked prefixes (`A :: B :: rest`) apply
 > outer-to-inner, left-to-right (expand `A`, re-scan, expand `B`, then the
-> residual is the task); a leading `\` escapes the prefix for BOTH the `::` and
-> the slash form (`\BACKGROUND :: x`, `\/BACKGROUND x` — treat literally, strip
-> the backslash, NO expansion) so action names can be discussed. **Conflict rule
+> residual is the task); a leading `\` escapes the prefix for the `::`, arrow,
+> and slash forms (`\BACKGROUND :: x`, `\BACKGROUND ---> x`, `\/BACKGROUND x` —
+> treat literally, strip the backslash, NO expansion) so action names can be
+> discussed. **Conflict rule
 > (slash form):** `/ACTION_NAME` (form 3) is honored as the action ONLY when
 > `ACTION_NAME` (case-folded) does not collide with a built-in/host slash command
 > (registry `slash_bare: auto` + `slash_conflicts: [..]`); form 4
 > (`/PREFIX::ACTION_NAME`) is ALWAYS unambiguous and always honored. An unknown
-> token that matches the grammar shape (any of the 4 forms) but is NOT registered
+> token that matches the grammar shape (any of the 5 forms) but is NOT registered
 > is NEVER silently expanded or silently dropped — ask which registered action
 > was meant (§11.4.66 / §11.4.105) or treat it as a literal prompt, NEVER invent
 > an expansion (§11.4.6); any prompt not satisfying the grammar is an ordinary
@@ -70,7 +81,14 @@ action.
 > any false results and without any bluff!"* (composes §11.4.20 / §11.4.70
 > subagent-driven, §11.4.58 / §11.4.103 parallel streams, §11.4.89 background
 > execution, §11.4.5 / §11.4.69 / §11.4.107 captured physical evidence, §11.4
-> anti-bluff). The system is UNIVERSAL (every CLI agent reads this block via its
+> anti-bluff). A second registered action **`REMINDER`** re-surfaces
+> previously-scheduled, CRITICAL, status-UNCERTAIN work: FIRST verify the ACTUAL
+> current status from captured evidence (never assume done or not-done —
+> §11.4.6 no-guessing), THEN act on the delta — report the captured proof if
+> genuinely complete, resume from the exact point if partial, action it NOW if
+> not started, or surface the block per §11.4.66/§11.4.101 — always producing a
+> status verdict (composes §11.4.6 / §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 /
+> §11.4.108 / §11.4.130 / §11.4.147). The system is UNIVERSAL (every CLI agent reads this block via its
 > context carrier per §11.4.35), extensible (new action = new registry row),
 > decoupled + reusable (§11.4.28), and loads out-of-the-box. Classification:
 > universal (§11.4.17). **Canonical authority:** constitution submodule

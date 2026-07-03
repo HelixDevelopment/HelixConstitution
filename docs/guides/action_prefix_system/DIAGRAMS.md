@@ -2,18 +2,18 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
+| Revision | 2 |
 | Created | 2026-06-09 |
-| Last modified | 2026-06-09T00:00:00Z |
+| Last modified | 2026-07-02T00:00:00Z |
 | Status | active |
 | Scope | Mermaid diagrams for the §11.4.140 action-prefix system |
 | Audience | maintainers + engineers (companion to USER_GUIDE.md + MANUAL.md) |
 | Inputs | `docs/research/action_prefix_system/{DESIGN.md,GRAMMAR_ADDENDUM.md,IMPLEMENTATION_REPORT.md}` |
 
 > Anti-bluff (§11.4.6): the diagrams depict only the design + the verified
-> implementation. All four forms — including the `DEFAULT::` namespace forms 2/4
-> — are now implemented and verified (grammar suite 91/0, hook E2E 10/0); none
-> remain spec-only.
+> implementation. All five forms — including the `DEFAULT::` namespace forms 2/4
+> and the arrow form 5 (` ---> `) — are implemented and verified (grammar suite
+> 166/0, paired-mutation meta-test 6/0); none remain spec-only.
 
 ---
 
@@ -89,12 +89,13 @@ flowchart TB
 
 ---
 
-## 3. The 4-form grammar decision tree
+## 3. The 5-form grammar decision tree
 
-Which form of the first non-blank line was used. All four forms are
-**implemented** and verified (grammar suite 91/0, hook E2E 10/0) per the
-GRAMMAR_ADDENDUM; forms 2 and 4 (the `DEFAULT::` namespace) are no longer
-spec-only. All four resolve to the same action + expansion by design.
+Which form of the first non-blank line was used. All five forms are
+**implemented** and verified (grammar suite 166/0, paired-mutation meta-test
+6/0) per the GRAMMAR_ADDENDUM; forms 2 and 4 (the `DEFAULT::` namespace) and
+form 5 (the arrow ` ---> `) are no longer spec-only. All five resolve to the
+same action + expansion by design.
 
 ```mermaid
 flowchart TD
@@ -102,7 +103,11 @@ flowchart TD
     ESC -- yes --> LIT([Literal — strip backslash, no expansion])
     ESC -- no --> SL{Starts with '/' ?}
 
-    SL -- no --> NS{"Token has '::' namespace?\nPREFIX::ACTION"}
+    SL -- no --> BODY{"Body separator after leading token?"}
+    BODY -- " ---> " --> NSA{"Token has '::' namespace?\nPREFIX::ACTION"}
+    NSA -- no --> F5["FORM 5: ACTION_NAME ---> rest\n(bare arrow)"]
+    NSA -- yes --> F5N["FORM 5: PREFIX::ACTION_NAME ---> rest\n(namespaced arrow)"]
+    BODY -- " :: " --> NS{"Token has '::' namespace?\nPREFIX::ACTION"}
     NS -- no --> F1["FORM 1: ACTION_NAME :: rest\n(bare '::')"]
     NS -- yes --> F2["FORM 2: PREFIX::ACTION_NAME :: rest\n(namespaced '::')"]
 
@@ -114,14 +119,18 @@ flowchart TD
     F2 --> R
     F3 --> R
     F4 --> R
-    R --> EQ(["All four forms ≡ same action, same expansion, same execution"])
+    F5 --> R
+    F5N --> R
+    R --> EQ(["All five forms ≡ same action, same expansion, same execution"])
 ```
 
-> Legend: all nodes/edges = implemented + verified (forms 1, 2, 3, 4; grammar
-> suite 91/0, hook E2E 10/0). The `DEFAULT::` namespace registry keys
-> (`default_namespace`/`namespace_separator`/`slash_prefix`/`namespaces`/
-> `slash_bare`) are present and `apx_parse_prefix` returns `matched_form` for all
-> four forms. See MANUAL.md §4.3 / §7.
+> Legend: all nodes/edges = implemented + verified (forms 1, 2, 3, 4, 5; grammar
+> suite 166/0, paired-mutation meta-test 6/0). The `DEFAULT::` namespace registry
+> keys (`default_namespace`/`namespace_separator`/`slash_prefix`/`namespaces`/
+> `slash_bare`) plus the arrow keys (`arrow_form_regex`/`arrow_body_separator`)
+> are present and `apx_parse_prefix` returns `matched_form ∈ {colon, slash,
+> arrow}` for all five forms. A mid-line ` ---> ` after a `::` token parses as
+> the colon form (the arrow branch falls through). See MANUAL.md §4.3 / §7.
 
 ---
 

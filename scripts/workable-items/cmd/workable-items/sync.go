@@ -206,6 +206,54 @@ func validateCmd(args []string) int {
 		}
 	}
 
+	// §11.4.93 renderability + §11.4.111 current_location closed-set (ATM-627).
+	// The DB is the single source of truth (§11.4.95); a DB that `db-to-md`
+	// cannot render is NOT a faithful source — regen is silently blocked. The
+	// prior validate checked status/type/description only and returned exit 0
+	// on such a DB (a §11.4.6/§11.4.93 bluff gate: green while regen impossible).
+	// These two checks fail-closed on exactly that corruption class.
+
+	// (a) current_location closed-set {Issues, Fixed}. A stray value such as the
+	// half-migration artifact "Fixed.md" orphans the item: renderDocument scopes
+	// its body lookup to current_location=document, so a "Fixed.md" item is
+	// invisible to BOTH the Issues and the Fixed render (§11.4.19 atomic-migration
+	// invariant broken).
+	for _, it := range items {
+		switch it.CurrentLocation {
+		case "Issues", "Fixed":
+			// ok
+		default:
+			violations = append(violations, fmt.Sprintf(
+				"%s: current_location %q not in closed-set {Issues,Fixed} (§11.4.93/§11.4.111) [%s]",
+				it.AtmID, it.CurrentLocation, it.repOrDefault()))
+		}
+	}
+
+	// (b) renderability guard: every doc_segment item-reference MUST resolve to
+	// an item at (current_location=document, representation). renderDocument
+	// returns a hard error on the first dangling segment; surfacing it here as a
+	// validation violation turns the silent regen-blocker into a caught, actionable
+	// failure (§11.4.120 — the gate asserts the real "DB is renderable" invariant).
+	for _, document := range []string{"Issues", "Fixed"} {
+		if _, err := renderDocument(db, document); err != nil {
+			violations = append(violations, fmt.Sprintf(
+				"%s: DB not renderable by db-to-md (§11.4.93): %v", document, err))
+		}
+	}
+
+	// (c) §11.4.135 DIRECT dangling-doc_segment integrity guard (ATM-627 defect
+	// class). renderDocument (b) catches this INDIRECTLY — it aborts on the FIRST
+	// unresolvable segment per document. danglingItemSegments asserts the same
+	// invariant DIRECTLY via an explicit segment↔item join, so EVERY offending
+	// segment is enumerated (not just the first-in-seq per document) and the
+	// finding is a self-documenting integrity violation rather than a "not
+	// renderable" side-effect. Composes with (b); does not replace it.
+	if dangling, derr := danglingItemSegments(db); derr != nil {
+		violations = append(violations, fmt.Sprintf("dangling-segment integrity query: %v", derr))
+	} else {
+		violations = append(violations, dangling...)
+	}
+
 	if len(violations) > 0 {
 		sort.Strings(violations)
 		fmt.Fprintf(os.Stderr, "validate: %d violation(s):\n", len(violations))
@@ -216,6 +264,55 @@ func validateCmd(args []string) int {
 	}
 	fmt.Printf("validate: OK — %d items, all invariants satisfied\n", len(items))
 	return exitOK
+}
+
+// danglingItemSegments returns, for the ATM-627 dangling-doc_segment defect
+// CLASS, a human-readable description of every doc_segments row with kind='item'
+// whose (atm_id, document, representation) has NO matching item at
+// (atm_id, current_location=document, representation) — i.e. the invariant
+// "item.current_location must equal the document of every doc_segment that
+// belongs to that item" is violated.
+//
+// This is the DIRECT, first-class integrity assertion of the §11.4.135 guard,
+// decoupled from renderDocument's control-flow side-effect. It is read-only, so
+// it can never break an existing valid DB.
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with
+// `return nil, nil` removes the guard; atm627_integrity_guard_test.go then FAILs
+// — proving the guard is not a tautology.
+func danglingItemSegments(db *sql.DB) ([]string, error) {
+	// A kind='item' segment is DANGLING when the LEFT JOIN to items on
+	// (atm_id, current_location=document, representation) finds no partner. The
+	// representation defaults to 'section' on both sides (COALESCE) to mirror
+	// renderDocument's body-lookup key exactly.
+	rows, err := db.Query(`
+		SELECT s.document, s.seq, s.atm_id, COALESCE(s.representation,'section')
+		FROM doc_segments s
+		LEFT JOIN items i
+		  ON i.atm_id = s.atm_id
+		 AND i.current_location = s.document
+		 AND COALESCE(i.representation,'section') = COALESCE(s.representation,'section')
+		WHERE s.kind = 'item'
+		  AND s.atm_id IS NOT NULL
+		  AND i.atm_id IS NULL
+		ORDER BY s.document, s.seq`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []string
+	for rows.Next() {
+		var document, atmID, rep string
+		var seq int
+		if err := rows.Scan(&document, &seq, &atmID, &rep); err != nil {
+			return nil, err
+		}
+		out = append(out, fmt.Sprintf(
+			"dangling item-segment (document=%s, seq=%d, atm_id=%s, rep=%s): no item at current_location=%s (§11.4.135/ATM-627)",
+			document, seq, atmID, rep, document))
+	}
+	return out, rows.Err()
 }
 
 // diffCmd reports items whose parsed-from-Markdown state differs from the DB.

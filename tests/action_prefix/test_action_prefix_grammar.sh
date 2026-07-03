@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # tests/action_prefix/test_action_prefix_grammar.sh
 #
-# §11.4.140 GRAMMAR_ADDENDUM (2026-06-09) — full test suite for the FOUR
-# equivalent action-prefix forms + the action NAMESPACE:
+# §11.4.140 GRAMMAR_ADDENDUM (2026-06-09) + arrow form (2026-07-02) — full test
+# suite for the FIVE equivalent action-prefix forms + the action NAMESPACE, plus
+# the registered REMINDER action:
 #   (1) `ACTION :: rest`           (2) `PREFIX::ACTION :: rest`
 #   (3) `/ACTION rest`             (4) `/PREFIX::ACTION rest`
+#   (5) `ACTION ---> rest`          (+ `PREFIX::ACTION ---> rest`)
 #
 # Test types (§11.4.27 — every type the surface warrants):
 #   UNIT        — apx_parse_prefix returns the correct (ns,action,rest,form) for
@@ -120,6 +122,17 @@ assert_eq "U-form4-ns-slash-custom"   "MYNS|BACKGROUND|do X|slash"     "$(parse4
 assert_eq "U-form3-multiword"         "DEFAULT|BACKGROUND|please do the thing|slash" "$(parse4 '/BACKGROUND please do the thing')"
 assert_eq "U-form3-multispace"        "DEFAULT|BACKGROUND|do X|slash"  "$(parse4 '/BACKGROUND    do X')"
 
+# ── Form 5 (arrow ` ---> `): bare + namespaced (DEFAULT + custom) + multiword ──
+echo "=== UNIT: parse form 5 (arrow) ==="
+assert_eq "U-form5-bare-arrow"        "DEFAULT|BACKGROUND|do X|arrow"  "$(parse4 'BACKGROUND ---> do X')"
+assert_eq "U-form5-ns-arrow-DEFAULT"  "DEFAULT|BACKGROUND|do X|arrow"  "$(parse4 'DEFAULT::BACKGROUND ---> do X')"
+assert_eq "U-form5-ns-arrow-custom"   "MYNS|BACKGROUND|do X|arrow"     "$(parse4 'MYNS::BACKGROUND ---> do X')"
+assert_eq "U-form5-multiword"         "DEFAULT|BACKGROUND|please do the thing|arrow" "$(parse4 'BACKGROUND ---> please do the thing')"
+# arrow token immediately after leading token; a colon token then a mid-prose
+# arrow parses as the COLON form (arrow branch falls through), and vice versa.
+assert_eq "U-form5-colon-then-arrow"  "DEFAULT|A|B ---> C|colon"       "$(parse4 'A :: B ---> C')"
+assert_eq "U-form5-arrow-then-colon"  "DEFAULT|A|B :: C|arrow"         "$(parse4 'A ---> B :: C')"
+
 # ──────────────────────────────────────────────────────────────────────────────
 # UNIT — NEGATIVES: lowercase / key:value / Foo::Bar / URL / mid-prose / no-rest
 # ──────────────────────────────────────────────────────────────────────────────
@@ -135,6 +148,13 @@ assert_eq "U-neg-midprose"            "NOMATCH" "$(parse4 'please BACKGROUND :: 
 assert_eq "U-neg-colon-norest"        "NOMATCH" "$(parse4 'BACKGROUND ::')"
 assert_eq "U-neg-slash-norest"        "NOMATCH" "$(parse4 '/BACKGROUND')"
 assert_eq "U-neg-slash-lower-tok"     "NOMATCH" "$(parse4 '/notUpper x')"
+# arrow-form negatives: lowercase / no-trailing-space (no rest) / mid-prose /
+# no-spaces-around-arrow / single-dash arrow-ish separators.
+assert_eq "U-neg-arrow-lowercase"     "NOMATCH" "$(parse4 'background ---> x')"
+assert_eq "U-neg-arrow-norest"        "NOMATCH" "$(parse4 'BACKGROUND --->')"
+assert_eq "U-neg-arrow-midprose"      "NOMATCH" "$(parse4 'please BACKGROUND ---> x')"
+assert_eq "U-neg-arrow-nospace"       "NOMATCH" "$(parse4 'BACKGROUND--->x')"
+assert_eq "U-neg-arrow-onedash"       "NOMATCH" "$(parse4 'BACKGROUND -> x')"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # UNIT — python-path ≡ awk-path (byte-identical) for every probe above
@@ -160,6 +180,17 @@ PARITY_INPUTS=(
   'BACKGROUND ::'
   '/BACKGROUND'
   '/notUpper x'
+  'BACKGROUND ---> do X'
+  'DEFAULT::BACKGROUND ---> do X'
+  'MYNS::BACKGROUND ---> do X'
+  'BACKGROUND ---> please do the thing'
+  'A :: B ---> C'
+  'A ---> B :: C'
+  'background ---> x'
+  'BACKGROUND --->'
+  'please BACKGROUND ---> x'
+  'BACKGROUND--->x'
+  'BACKGROUND -> x'
 )
 i=0
 for inp in "${PARITY_INPUTS[@]}"; do
@@ -183,6 +214,11 @@ assert_eq "U-escape-slash-verdict"  "escape"           "$(field "$ESC3" verdict)
 assert_eq "U-escape-slash-emitted"  "/BACKGROUND do X" "$(field "$ESC3" emitted)"
 ESC4="$(apx_expand_prompt '\/DEFAULT::BACKGROUND do X')"
 assert_eq "U-escape-nsslash-emit"   "/DEFAULT::BACKGROUND do X" "$(field "$ESC4" emitted)"
+ESC5="$(apx_expand_prompt '\BACKGROUND ---> do X')"
+assert_eq "U-escape-arrow-verdict"  "escape"                  "$(field "$ESC5" verdict)"
+assert_eq "U-escape-arrow-emitted"  "BACKGROUND ---> do X"    "$(field "$ESC5" emitted)"
+ESC6="$(apx_expand_prompt '\DEFAULT::BACKGROUND ---> do X')"
+assert_eq "U-escape-nsarrow-emit"   "DEFAULT::BACKGROUND ---> do X" "$(field "$ESC6" emitted)"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # UNIT — unknown grammar-shaped token → ASK (names closest), no invented expansion
@@ -195,6 +231,10 @@ assert_eq "U-unknown-colon-noexp"   ""           "$(field "$ASKC" expansion)"
 ASKS="$(apx_expand_prompt '/BACGROUND do X')"
 assert_eq "U-unknown-slash-verdict" "ask"        "$(field "$ASKS" verdict)"
 assert_eq "U-unknown-slash-closest" "BACKGROUND" "$(field "$ASKS" closest)"
+ASKA="$(apx_expand_prompt 'BACGROUND ---> do X')"
+assert_eq "U-unknown-arrow-verdict" "ask"        "$(field "$ASKA" verdict)"
+assert_eq "U-unknown-arrow-closest" "BACKGROUND" "$(field "$ASKA" closest)"
+assert_eq "U-unknown-arrow-noexp"   ""           "$(field "$ASKA" expansion)"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # E2E (expander) — every form expands to the SAME BACKGROUND expansion + residual
@@ -206,6 +246,8 @@ for spec in \
   "form2|DEFAULT::BACKGROUND :: do X" \
   "form3|/BACKGROUND do X" \
   "form4|/DEFAULT::BACKGROUND do X" \
+  "form5|BACKGROUND ---> do X" \
+  "form5ns|DEFAULT::BACKGROUND ---> do X" \
   ; do
   tag="${spec%%|*}"; prompt="${spec#*|}"
   J="$(apx_expand_prompt "$prompt")"
@@ -221,6 +263,33 @@ assert_eq "E2E-form1-ns"   "DEFAULT" "$(field "$(apx_expand_prompt 'BACKGROUND :
 assert_eq "E2E-form2-ns"   "DEFAULT" "$(field "$(apx_expand_prompt 'DEFAULT::BACKGROUND :: x')" namespace)"
 assert_eq "E2E-form3-form" "slash"   "$(field "$(apx_expand_prompt '/BACKGROUND x')" form)"
 assert_eq "E2E-form1-form" "colon"   "$(field "$(apx_expand_prompt 'BACKGROUND :: x')" form)"
+assert_eq "E2E-form5-form" "arrow"   "$(field "$(apx_expand_prompt 'BACKGROUND ---> x')" form)"
+assert_eq "E2E-form5ns-ns" "MYNS"    "$(field "$(apx_expand_prompt 'MYNS::BACKGROUND ---> x')" namespace)"
+
+# ── REMINDER action — registered; all 5 forms resolve to the SAME expansion ──
+echo "=== E2E: REMINDER action, all forms equivalent ==="
+REM_VERBATIM="$(apx_lookup_expansion REMINDER)"
+assert_eq "REM-registered-nonempty" "yes" "$([ -n "$REM_VERBATIM" ] && echo yes || echo no)"
+for spec in \
+  "colon|REMINDER :: check the D3 audio fix" \
+  "nscolon|DEFAULT::REMINDER :: check the D3 audio fix" \
+  "slash|/REMINDER check the D3 audio fix" \
+  "nsslash|/DEFAULT::REMINDER check the D3 audio fix" \
+  "arrow|REMINDER ---> check the D3 audio fix" \
+  "nsarrow|DEFAULT::REMINDER ---> check the D3 audio fix" \
+  ; do
+  tag="${spec%%|*}"; prompt="${spec#*|}"
+  J="$(apx_expand_prompt "$prompt")"
+  assert_eq "REM-$tag-verdict"   "expand"        "$(field "$J" verdict)"
+  assert_eq "REM-$tag-action"    "REMINDER"      "$(field "$J" action)"
+  assert_eq "REM-$tag-residual"  "check the D3 audio fix" "$(field "$J" residual)"
+  assert_eq "REM-$tag-expansion" "$REM_VERBATIM" "$(field "$J" expansion)"
+done
+# REMINDER expansion carries its verify-don't-assume core (no-guessing §11.4.6)
+has_verify="no"; case "$REM_VERBATIM" in *'verify the ACTUAL current status from captured evidence'*) has_verify="yes" ;; esac
+assert_eq "REM-expansion-verify-core" "yes" "$has_verify"
+# REMINDER escape → literal (arrow form)
+assert_eq "REM-escape-arrow" "REMINDER ---> x" "$(field "$(apx_expand_prompt '\REMINDER ---> x')" emitted)"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # INTEGRATION — the real hook rewrites each of the 4 forms (additionalContext)
@@ -236,6 +305,8 @@ for spec in \
   "form2|DEFAULT::BACKGROUND :: build the parser" \
   "form3|/BACKGROUND build the parser" \
   "form4|/DEFAULT::BACKGROUND build the parser" \
+  "form5|BACKGROUND ---> build the parser" \
+  "form5ns|DEFAULT::BACKGROUND ---> build the parser" \
   ; do
   tag="${spec%%|*}"; prompt="${spec#*|}"
   CTX="$(hook_ctx "$prompt")"
@@ -266,6 +337,8 @@ for spec in \
   "form2|DEFAULT::BACKGROUND :: do X" \
   "form3|/BACKGROUND do X" \
   "form4|/DEFAULT::BACKGROUND do X" \
+  "form5|BACKGROUND ---> do X" \
+  "form5-reminder|REMINDER ---> do X" \
   ; do
   tag="${spec%%|*}"; prompt="${spec#*|}"
   first_hash=""
