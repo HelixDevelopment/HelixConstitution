@@ -430,6 +430,16 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 
 	// Clear segments for this document; clear items whose current_location is
 	// this document (so a full two-document sync rebuilds everything).
+	//
+	// §11.4.148 D3: also clear the operator_block_details rows OWNED by this
+	// document's items BEFORE the items are deleted (the sub-select needs the
+	// items table intact) so the reconstruction below is idempotent — a re-sync
+	// after an item leaves Operator-blocked (or leaves this tracker) drops its
+	// stale OBD row instead of orphaning it.
+	if _, err := tx.Exec(`DELETE FROM operator_block_details
+		WHERE atm_id IN (SELECT atm_id FROM items WHERE current_location = ?)`, document); err != nil {
+		return fmt.Errorf("clear operator_block_details: %w", err)
+	}
 	if _, err := tx.Exec(`DELETE FROM doc_segments WHERE document = ?`, document); err != nil {
 		return fmt.Errorf("clear segments: %w", err)
 	}
@@ -448,6 +458,19 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 	}
 	defer insItem.Close()
 
+	// §11.4.148 D3 — reconstruct the operator_block_details sub-table from each
+	// Operator-blocked item's `**Operator-Block-Details:**` body block. Without
+	// this, md→db left the sub-table empty and `validate` reported every
+	// Operator-blocked item as "no operator_block_details row" (the RED). Uses
+	// INSERT OR REPLACE (idempotent; atm_id PK) mirroring mutate.go's block path.
+	insOBD, err := tx.Prepare(`INSERT OR REPLACE INTO operator_block_details
+		(atm_id, what, why_exhausted_alternatives, unblock_condition, who)
+		VALUES (?,?,?,?,?)`)
+	if err != nil {
+		return err
+	}
+	defer insOBD.Close()
+
 	for _, it := range items {
 		if _, err := insItem.Exec(it.AtmID, it.Type, it.Status,
 			nullable(it.Severity), it.Title, it.Description,
@@ -456,6 +479,19 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 			it.CurrentLocation, it.BodyMD, it.repOrDefault(),
 			nullable(it.ClosureDate), nullable(it.Round), nullable(it.CommitRef)); err != nil {
 			return fmt.Errorf("insert item %s [%s]: %w", it.AtmID, it.repOrDefault(), err)
+		}
+		// Repopulate operator_block_details only for Operator-blocked items whose
+		// body actually carries the block (a genuinely-missing block stays absent
+		// so the §11.4.148 D3 validator can still catch it). The 'section'
+		// representation guard skips a pipe-table 'table' row for the same id,
+		// which carries no OBD block of its own.
+		if it.Status == "Operator-blocked" && it.repOrDefault() == "section" {
+			if ob, ok := parseOperatorBlockDetails(it.BodyMD); ok {
+				if _, err := insOBD.Exec(it.AtmID, ob.what, ob.why,
+					ob.unblock, nullable(ob.who)); err != nil {
+					return fmt.Errorf("insert operator_block_details %s: %w", it.AtmID, err)
+				}
+			}
 		}
 	}
 
