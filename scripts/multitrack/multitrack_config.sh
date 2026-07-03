@@ -22,6 +22,8 @@
 #   mt_detect_drives               # prints  SERIAL|DEV|MOUNTS|HASCHILD  lines
 #   mt_plan                        # prints  TRACK ...  +  TRACKS_READY=<n>
 #   mt_protect_guard "$dev" "$serial" "$mounts"  # 0 = SAFE, 1 = PROTECTED
+#   mt_config_conductor "$cfg"     # prints the `conductor:` alias (§11.4.177), empty if unset
+#   mt_config_fallback_signatures "$cfg"  # prints `fallback.signatures:` list, one per line
 #
 # Inputs:
 #   config/multitrack/<hostname>.yaml    (schema_version: 1)
@@ -263,6 +265,72 @@ mt_load_pool() {
     return 0
 }
 
+# --- scalar/list config-key accessors (READ-only queries; set NO shell vars) --
+# These are QUERY functions (print to stdout), NOT loaders — they never mutate
+# the caller shell (disjoint from mt_load_config / mt_load_pool). Each takes the
+# config-file path as $1 (same contract as mt_load_config). §11.4.28(B): the
+# VALUES they read are consumer config data; NO project literal lives here.
+
+# Print the configured `conductor:` alias (§11.4.177 auto-conductor, top-level
+# scalar key). Empty output when the key is absent OR set to an empty string
+# (=> no alias is the conductor; the /home session is conductor by default).
+# The resolver treats a session whose alias == this value as "no worktree /
+# stay on /home". Consumer-overridable.
+mt_config_conductor() {
+    cfg=${1:-}
+    [ -r "$cfg" ] || return 1
+    awk '
+    BEGIN{ sq=sprintf("%c",39); dq=sprintf("%c",34); done=0 }
+    function strip(v,   i){
+        gsub(/^[ \t]+|[ \t]+$/,"",v)
+        if (substr(v,1,1)==sq){ v=substr(v,2); i=index(v,sq); if(i>0)v=substr(v,1,i-1); return v }
+        if (substr(v,1,1)==dq){ v=substr(v,2); i=index(v,dq); if(i>0)v=substr(v,1,i-1); return v }
+        sub(/[ \t]*#.*$/,"",v); gsub(/^[ \t]+|[ \t]+$/,"",v); return v
+    }
+    /^conductor:/ && !done { v=$0; sub(/^conductor:[ \t]*/,"",v); print strip(v); done=1 }
+    ' "$cfg"
+}
+
+# Print the `fallback.signatures:` list, ONE signature per line (§11.4.177
+# auto-fallback / DESIGN §4(b)). Block-style YAML only:
+#   fallback:
+#     signatures:
+#       - '"apiErrorStatus":429'
+#       - '"isApiErrorMessage":true'
+# Surrounding single OR double quotes are stripped (so a value that ITSELF
+# contains double-quotes is single-quoted in YAML and returned verbatim inside).
+# Empty output when no fallback/signatures block exists. Consumer-overridable
+# (a future rate-limit wording change is a one-line config pin — §11.4.6/§11.4.111).
+mt_config_fallback_signatures() {
+    cfg=${1:-}
+    [ -r "$cfg" ] || return 1
+    awk '
+    BEGIN{ sq=sprintf("%c",39); dq=sprintf("%c",34); infb=0; insig=0 }
+    function strip_q(v,   i){
+        gsub(/^[ \t]+|[ \t]+$/,"",v)
+        if (substr(v,1,1)==sq){ v=substr(v,2); i=index(v,sq); if(i>0)v=substr(v,1,i-1); return v }
+        if (substr(v,1,1)==dq){ v=substr(v,2); i=index(v,dq); if(i>0)v=substr(v,1,i-1); return v }
+        sub(/[ \t]*#.*$/,"",v); gsub(/^[ \t]+|[ \t]+$/,"",v); return v
+    }
+    {
+        line=$0
+        t=line; sub(/^[ \t]*/,"",t)
+        if (t=="" || t ~ /^#/) next
+        # a top-level (indent-0) key toggles the active section
+        if (line ~ /^[A-Za-z_][A-Za-z0-9_]*:/) {
+            key=line; sub(/:.*/,"",key)
+            infb=(key=="fallback")?1:0; insig=0; next
+        }
+        if (!infb) next
+        lt=line; sub(/^[ \t]+/,"",lt)
+        if (lt ~ /^signatures:/) { insig=1; next }
+        if (lt ~ /^- /) { if (insig){ v=lt; sub(/^- /,"",v); print strip_q(v) } next }
+        # any other sub-key under fallback ends the signatures list
+        if (lt ~ /^[A-Za-z_][A-Za-z0-9_]*:/) { insig=0 }
+    }
+    ' "$cfg"
+}
+
 # --- LIVE drive detection, matched by STABLE SERIAL (§11.4.111) ---------------
 # Output line format:  SERIAL|DEV|MOUNTS|HASCHILD
 #   SERIAL   = disk serial (stable id; NEVER the nvmeX ordinal)
@@ -441,6 +509,10 @@ mt_plan() {
     ready=0
     i=1
     matched_serials=" "
+    # SC2154: tid/tserial/tmount/trole ARE assigned below via `eval "tid=..."`
+    # (dynamic per-track vars); shellcheck cannot trace the eval, so the warning
+    # is a false positive — suppressed for this loop only (no behaviour change).
+    # shellcheck disable=SC2154
     while [ "$i" -le "$MT_TRACK_COUNT" ]; do
         eval "tid=\${MT_TRACK_${i}_ID:-}"
         eval "tserial=\${MT_TRACK_${i}_SERIAL:-}"

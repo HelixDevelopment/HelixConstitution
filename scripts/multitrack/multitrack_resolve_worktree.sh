@@ -16,6 +16,9 @@
 #
 # Resolution (deterministic, config-driven — NO hardcoded track/alias map,
 # per §11.4.28 decoupling + §11.4.111 resolve-by-stable-name):
+#   0. §11.4.177 auto-conductor: if the alias equals the config `conductor:`
+#      key, it is NEVER worktree-bound — resolve prints nothing / exit 0 and the
+#      session stays on the shared /home checkout (same as role:main / disabled).
 #   1. If the alias-orchestrator (multitrack_alias_orchestrator.sh) has an
 #      ACTIVE binding for this alias in its bindings.snapshot, take that binding's
 #      track (and its recorded worktree if it is itself a valid checkout). An
@@ -40,6 +43,7 @@
 #
 # Usage:
 #   multitrack_resolve_worktree.sh resolve <alias>   # print worktree or exit 3
+#   multitrack_resolve_worktree.sh track <alias>     # print resolved track id or exit 3/10
 #   multitrack_resolve_worktree.sh map               # table: alias track worktree state
 #   multitrack_resolve_worktree.sh -h | --help
 #
@@ -203,13 +207,35 @@ _mrw_validate() {
     return 0
 }
 
-# --- resolve one alias -> worktree (or non-zero) -----------------------------
-_mrw_resolve() {
+# --- core pick: (track, mount, wt) for an alias ------------------------------
+# The SINGLE alias->track decision point, shared by BOTH `resolve` (prints the
+# worktree) and `track` (prints the track) so the two can NEVER disagree on
+# which track an alias belongs to (§11.4.6 no-guessing). Applies, in order:
+#   1. MULTITRACK_DISABLE escape hatch  -> stay-home (rc 10, no track)
+#   2. §11.4.177 conductor key          -> stay-home (rc 10, no track): the
+#      configured conductor alias is NEVER worktree-bound (its session stays on
+#      the shared /home checkout, exactly the role:main / disabled path)
+#   3. active orchestrator binding (most-recent wins), else
+#   4. the stable positional default map
+# Echoes "track<TAB>mount<TAB>worktree" on a real pick. Return:
+#   0  = picked (caller MUST still _mrw_validate the mount+worktree)
+#   10 = stay-home silently (disabled OR conductor — no track)
+#   3  = unmapped / config-load failure ;  2 = usage (empty alias)
+_mrw_pick() {
     local alias="$1"
     [ -n "$alias" ] || return 2
     # Escape hatch: switch disabled -> no worktree (caller stays on /home).
-    [ "${MULTITRACK_DISABLE:-0}" = "1" ] && return 0
+    [ "${MULTITRACK_DISABLE:-0}" = "1" ] && return 10
     _mrw_load_cfg || return 3
+    # §11.4.177 auto-conductor: the configured conductor alias stays on /home
+    # (no worktree, never a bindings.snapshot row). Empty/absent conductor key
+    # => no alias is special-cased. mt_config_conductor is provided by the
+    # sourced multitrack_config.sh; the VALUE is consumer config, not a literal
+    # (§11.4.28(B)). Checked BEFORE any binding lookup so the conductor is
+    # deterministically home even if a stale binding row existed.
+    local cond
+    cond="$(mt_config_conductor "$MRW_CFG" 2>/dev/null || true)"
+    [ -n "$cond" ] && [ "$alias" = "$cond" ] && return 10
 
     local track="" mount="" wt="" b btrack bwt
     # 1) active orchestrator binding wins
@@ -234,9 +260,40 @@ _mrw_resolve() {
     [ -n "$mount" ] || return 3
     # 3) worktree = <mount>/<subdir> unless a valid one was already taken
     [ -n "$wt" ] || wt="$mount/$MRW_WT_SUBDIR"
+    printf '%s\t%s\t%s' "$track" "$mount" "$wt"
+    return 0
+}
 
+# --- resolve one alias -> worktree (or non-zero) -----------------------------
+_mrw_resolve() {
+    local p rc track mount wt
+    p="$(_mrw_pick "$1")"; rc=$?
+    case "$rc" in
+        10) return 0 ;;        # disabled / conductor -> silent stay-home (/home)
+        0)  ;;                 # picked -> validate below
+        *)  return "$rc" ;;    # 2 usage, 3 unmapped / config-load failure
+    esac
+    IFS=$'\t' read -r track mount wt <<<"$p"
     if _mrw_validate "$mount" "$wt"; then
         printf '%s\n' "$wt"
+        return 0
+    fi
+    return 3
+}
+
+# --- resolve one alias -> its TRACK id (PWU-3 bind-on-start) ------------------
+# Prints ONLY the resolved track id, gated by the SAME _mrw_validate as
+# `resolve` — so a track is emitted IFF `resolve` would emit a worktree (a real,
+# live, cd-able track). Empty output + non-zero for conductor / disabled /
+# unmapped / unmounted. The cwd-hook uses this to bind ONLY a real track
+# (the conductor is never bound — task PWU-3).
+_mrw_resolve_track() {
+    local p rc track mount wt
+    p="$(_mrw_pick "$1")"; rc=$?
+    [ "$rc" -eq 0 ] || return "$rc"   # 10 conductor/disabled, 3 unmapped, 2 usage -> no track
+    IFS=$'\t' read -r track mount wt <<<"$p"
+    if _mrw_validate "$mount" "$wt"; then
+        printf '%s\n' "$track"
         return 0
     fi
     return 3
@@ -246,9 +303,15 @@ _mrw_resolve() {
 _mrw_map() {
     _mrw_load_cfg || { echo "resolve-worktree: config load failed" >&2; return 1; }
     printf '%-10s %-9s %-32s %s\n' ALIAS TRACK WORKTREE STATE
-    local a
+    local a cond
+    cond="$(mt_config_conductor "$MRW_CFG" 2>/dev/null || true)"
     while IFS= read -r a; do
         [ -n "$a" ] || continue
+        # §11.4.177 conductor: never worktree-bound; its session stays on /home.
+        if [ -n "$cond" ] && [ "$a" = "$cond" ]; then
+            printf '%-10s %-9s %-32s %s\n' "$a" "-" "-" "conductor(/home)"
+            continue
+        fi
         local d track mount wt state
         if d="$(_mrw_default_track_for_alias "$a")"; then
             track="${d%%$'\t'*}"; mount="${d#*$'\t'}"; wt="$mount/$MRW_WT_SUBDIR"
@@ -277,9 +340,13 @@ _mrw_usage() {
 usage: multitrack_resolve_worktree.sh <command> [args]
   resolve <alias>   print the alias's bound worktree path (exit 0), or exit 3
                     when no valid worktree (caller falls back to /home)
+  track <alias>     print the alias's resolved TRACK id (exit 0), or exit 3/10
+                    when no track (conductor/disabled/unmapped) — used by the
+                    cwd-hook to bind ONLY a real track (PWU-3 bind-on-start)
   map               print alias -> track -> worktree -> state for all native aliases
   -h | --help       this help
 env: MULTITRACK_DISABLE=1 disables the switch (resolve prints nothing, exit 0)
+     the `conductor:` config key names an alias that always stays on /home
 USG
 }
 
@@ -287,6 +354,7 @@ main() {
     local cmd="${1:-}"; shift 2>/dev/null || true
     case "$cmd" in
         resolve) _mrw_resolve "${1:-}" ;;
+        track)   _mrw_resolve_track "${1:-}" ;;
         map)     _mrw_map ;;
         -h|--help|help|'') _mrw_usage; [ -n "$cmd" ] && return 0 || return 2 ;;
         *)       _mrw_usage; return 2 ;;
