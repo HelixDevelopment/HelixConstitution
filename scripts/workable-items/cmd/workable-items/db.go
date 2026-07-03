@@ -539,18 +539,26 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 	// representations' bodies; the segment carries which representation it points
 	// to, so the lookup key is atm_id + "\x00" + representation.
 	bodyByKey := map[string]string{}
-	brows, err := db.Query(`SELECT atm_id, representation, COALESCE(body_md,'')
+	brows, err := db.Query(`SELECT atm_id, representation, status, COALESCE(body_md,'')
 		FROM items WHERE current_location = ?`, document)
 	if err != nil {
 		return "", err
 	}
 	for brows.Next() {
-		var id, rep, body string
-		if err := brows.Scan(&id, &rep, &body); err != nil {
+		var id, rep, status, body string
+		if err := brows.Scan(&id, &rep, &status, &body); err != nil {
 			brows.Close()
 			return "", err
 		}
-		bodyByKey[id+"\x00"+rep] = body
+		// ATM-627 (task #20) generator-symmetry: emit the `**Status:**` line from the
+		// authoritative items.status column so a directly-mutated (stale-body) item
+		// still renders a column-consistent Status line. STRICT no-op for every synced
+		// item (lastBodyStatus(body)==status BY CONSTRUCTION on a clean md→db import) →
+		// the byte-identical round-trip is preserved; only a genuinely desynced item's
+		// Status line is rewritten, and its `**Reopened-Details:**` /
+		// `**Operator-Block-Details:**` blocks + all other content are preserved verbatim
+		// (see canonicalizeBodyStatusLine, parse.go).
+		bodyByKey[id+"\x00"+rep] = canonicalizeBodyStatusLine(body, status)
 	}
 	brows.Close()
 	if err := brows.Err(); err != nil {

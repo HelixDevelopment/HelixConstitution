@@ -254,6 +254,18 @@ func validateCmd(args []string) int {
 		violations = append(violations, dangling...)
 	}
 
+	// (d) §11.4.93 / ATM-627 (task #20) — column↔body Status desync guard. items.status
+	// is authoritative (§11.4.95); when a direct `UPDATE items SET status=…` bypasses
+	// renderItemBody it advances the column while body_md's `**Status:**` line stays
+	// stale → `sync db-to-md` (renderDocument) would emit the stale line, misreporting
+	// the item to every reader. The prior validate checked the status CLOSED-SET only,
+	// never column↔body agreement, so a desynced item passed exit 0 (a §11.4.6/§11.4.93
+	// bluff gate). This guard fails-closed on exactly that class; the generator-symmetry
+	// half (canonicalizeBodyStatusLine, wired into renderDocument, parse.go) prevents
+	// recurrence by emitting the Status line from the column. Composes with (b)/(c) —
+	// orthogonal invariants (those: segment↔item location; this: column↔body Status).
+	violations = append(violations, statusColumnBodyDesyncs(items)...)
+
 	if len(violations) > 0 {
 		sort.Strings(violations)
 		fmt.Fprintf(os.Stderr, "validate: %d violation(s):\n", len(violations))
@@ -313,6 +325,63 @@ func danglingItemSegments(db *sql.DB) ([]string, error) {
 			document, seq, atmID, rep, document))
 	}
 	return out, rows.Err()
+}
+
+// statusColumnBodyDesyncs returns a human-readable description of every item whose
+// authoritative items.status column DISAGREES with the Status the md→db parser would
+// derive from its body_md (lastBodyStatus). This is the ATM-627 (task #20) DURABLE
+// guard for the column↔body Status desync CLASS: a direct `UPDATE items SET status=…`
+// that bypasses renderItemBody advances the column while body_md's `**Status:**` line
+// stays stale → `sync db-to-md` would emit the stale line, misreporting the item's
+// state to every tracker reader. The prior validate checked the status CLOSED-SET only,
+// never column↔body agreement, so a desynced item passed exit 0 (a §11.4.6/§11.4.93
+// bluff gate: green while db-to-md emits a wrong Status).
+//
+// Read-only — it can never break a valid DB. Items whose body carries NO `**Status:**`
+// line are SKIPPED (nothing to compare); only a PRESENT-but-disagreeing line is a
+// violation. Generator-symmetric (§11.4.93): the oracle IS the parser's own column
+// derivation (lastBodyStatus → normalizeStatus, last-Status-line-wins), so a body whose
+// Status line carries trailing prose / a `**Priority:**` tail / multiple `**Status:**`
+// tokens normalises to the column it was first derived from and is NOT a false positive.
+// Composes with the R3 dangling-segment guard (danglingItemSegments) — orthogonal
+// invariants (that: segment↔item location; this: column↔body Status).
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with `return nil`
+// removes the guard; atm627_status_desync_test.go then FAILs — proving the guard is
+// NOT a tautology.
+func statusColumnBodyDesyncs(items []item) []string {
+	var out []string
+	for _, it := range items {
+		// The `**Status:**`-line invariant governs H2 'section' bodies. A 'table'
+		// representation carries its Status in the pipe cell (emitLegacyTable /
+		// export.go pipe-row synthesizer), NOT a `**Status:**` line, so it is out of
+		// scope for THIS guard (skipping it avoids a false positive against a valid
+		// pipe row that legitimately has no `**Status:**` line).
+		if it.repOrDefault() != "section" {
+			continue
+		}
+		// deriveStatusFromBody: mirror buildItem's FULL column derivation for a section
+		// body — the normalised last `**Status:**` line, OR buildItem's struct-default
+		// "Queued" when the section body carries NO `**Status:**` line at all (an empty
+		// / status-less body: md→db would set the column to "Queued", so a column that
+		// is NOT "Queued" is NOT recoverable from body_md — the SPK-512/519/609
+		// empty-body class). This is the exact generator-symmetric oracle.
+		want, hasLine := lastBodyStatus(it.BodyMD)
+		if !hasLine {
+			want = "Queued"
+		}
+		if want == it.Status {
+			continue
+		}
+		detail := fmt.Sprintf("body_md **Status:** line derives %q", want)
+		if !hasLine {
+			detail = "body_md has NO **Status:** line (md→db would derive \"Queued\")"
+		}
+		out = append(out, fmt.Sprintf(
+			"%s [%s/%s]: items.status=%q but %s (§11.4.93/ATM-627 column↔body desync)",
+			it.AtmID, it.CurrentLocation, it.repOrDefault(), it.Status, detail))
+	}
+	return out
 }
 
 // diffCmd reports items whose parsed-from-Markdown state differs from the DB.

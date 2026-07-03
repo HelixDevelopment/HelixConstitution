@@ -441,6 +441,68 @@ func normalizeStatus(v string) string {
 	}
 }
 
+// lastBodyStatus reconstructs the Status the md→db parser (buildItem) would derive
+// from a body_md block, returning (normalizedStatus, true) when the body carries at
+// least one `**Status:**` meta line and ("", false) when it carries none. It mirrors
+// buildItem EXACTLY: walk every `**Key:** value` line via metaLineRe and let the LAST
+// `**Status:**` line win, normalised through normalizeStatus (buildItem's switch
+// overwrites it.Status on each `status` key, so last-wins is the faithful semantics).
+//
+// This shared derivation is the generator-symmetric oracle for the ATM-627 (task #20)
+// column↔body Status invariant: a body whose Status line carries trailing prose, a
+// `**Priority:**` tail on the same line, or multiple `**Status:**` tokens normalises to
+// the SAME value the column was first set to — so those shapes are NOT false-positive
+// desyncs (the 8 false-positives the reconciliation plan calls out are resolved here).
+func lastBodyStatus(body string) (string, bool) {
+	status := ""
+	found := false
+	for _, mm := range metaLineRe.FindAllStringSubmatch(body, -1) {
+		if strings.EqualFold(mm[1], "status") {
+			status = normalizeStatus(strings.TrimSpace(mm[2]))
+			found = true
+		}
+	}
+	return status, found
+}
+
+// canonicalizeBodyStatusLine returns body with the value of its LAST `**Status:**`
+// line forced to columnStatus, so `sync db-to-md` emits a Status line consistent with
+// the authoritative items.status column even if a direct `UPDATE items SET status=…`
+// (bypassing renderItemBody) left body_md stale — the ATM-627 (task #20) generator-
+// symmetry / defense-in-depth half of the durable fix.
+//
+// It is a STRICT no-op — body returned unchanged, byte-for-byte — when the body has no
+// `**Status:**` line OR already derives columnStatus (lastBodyStatus == columnStatus).
+// Because every freshly md→db-synced item satisfies lastBodyStatus(body)==status BY
+// CONSTRUCTION (buildItem sets the column from exactly this derivation), the entire
+// clean DB round-trips BYTE-IDENTICALLY through this function; only a genuinely desynced
+// item's line is rewritten. Only the Status line's value changes — every other line,
+// including `**Reopened-Details:**` / `**Operator-Block-Details:**` blocks and all prose,
+// is preserved verbatim (surgical single-line replacement). Composes with the R3
+// dangling-segment guard (sync.go danglingItemSegments) — that guards segment↔item
+// location; this guards column↔body Status; the two are orthogonal invariants.
+func canonicalizeBodyStatusLine(body, columnStatus string) string {
+	if cur, ok := lastBodyStatus(body); !ok || cur == columnStatus {
+		return body
+	}
+	lines := splitKeepNewlines(body)
+	lastIdx := -1
+	for i, ln := range lines {
+		if strings.HasPrefix(strings.TrimRight(ln, "\n"), "**Status:**") {
+			lastIdx = i
+		}
+	}
+	if lastIdx < 0 {
+		return body // defensive: lastBodyStatus said a Status line exists → unreachable
+	}
+	nl := ""
+	if strings.HasSuffix(lines[lastIdx], "\n") {
+		nl = "\n"
+	}
+	lines[lastIdx] = "**Status:** " + columnStatus + nl
+	return strings.Join(lines, "")
+}
+
 // fixedRowRe matches a LEGACY Fixed.md closure table data row:
 // `| <date> | <title> | <Type> | <Status> | <Round> | <Commit(s)> | <Evidence> |`
 // The title cell holds `<ID>[ (...)]: <title>` (colon separator in Fixed.md).
