@@ -400,6 +400,45 @@ func recordHistory(tx *sql.Tx, id, event, by, reason, evidence string) error {
 	return err
 }
 
+// setStatusAndSyncBody is the SINGLE choke-point for a BARE items.status write —
+// a status transition that changes ONLY the status column (no title / type /
+// description / detail-block change). It advances the column AND canonicalizes
+// body_md's `**Status:**` line to the same value in the SAME transaction, so the
+// §11.4.93/ATM-627 (task #20) column↔body invariant can never be re-created by a
+// direct `UPDATE items SET status=…`: without the body write, `sync db-to-md`
+// (renderDocument) would replay the STALE body Status line and `validate`
+// (statusColumnBodyDesyncs) would flag the item.
+//
+// The full-body-regenerating mutators (add / update / reopen / block / close) do
+// NOT use this helper: they already emit a fresh, canonical body via renderItemBody
+// carrying the new status (proven 0-desync by TestNoStatusMutationLeavesDesync), and
+// they legitimately change other fields (title / description / meta blocks) that a
+// bare-status helper would clobber. This helper is for the status-ONLY paths
+// (subtask-status today; any future bare-status write).
+//
+// PROSE PRESERVATION: canonicalizeBodyStatusLine is a SURGICAL single-line rewrite —
+// every other line, including prose + `**Reopened-Details:**` / `**Operator-Block-
+// Details:**` blocks, is preserved byte-for-byte. On an empty/whitespace body it is a
+// STRICT no-op (no Status line to rewrite), matching the empty-body class that
+// repair-bodies / renderItemBody own — so this helper never fabricates a body.
+func setStatusAndSyncBody(tx *sql.Tx, atmID, location, newStatus string) error {
+	var body string
+	if err := tx.QueryRow(`SELECT COALESCE(body_md,'') FROM items
+		WHERE atm_id=? AND current_location=?`, atmID, location).Scan(&body); err != nil {
+		return err
+	}
+	synced := canonicalizeBodyStatusLine(body, newStatus)
+	res, err := tx.Exec(`UPDATE items SET status=?, body_md=?, last_modified=datetime('now')
+		WHERE atm_id=? AND current_location=?`, newStatus, synced, atmID, location)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n != 1 {
+		return fmt.Errorf("setStatusAndSyncBody: %s [%s] affected %d rows (expected 1)", atmID, location, n)
+	}
+	return nil
+}
+
 // renderItemBody produces a canonical, re-parseable Markdown item block:
 //
 //	## <ID> — <title>
