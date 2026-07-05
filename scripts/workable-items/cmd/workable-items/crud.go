@@ -264,10 +264,23 @@ func closeCmd(args []string) int {
 	}
 
 	// Insert the Fixed item row + append its Fixed item-segment (atomic move in).
+	//
+	// destination/logic_group (ASSIGNMENT_MECHANISM_DESIGN.md §3.1 "Nullable
+	// for closed: Fixed-location items may carry the group they were closed
+	// under (kept for audit) but are not re-dispatched") are carried over
+	// from src. P3 plumbing fix (docs/tracks/ASSIGNMENT_MECHANISM_PLAN.md P3),
+	// in scope not scope-creep, mirroring the loadItems/loadItem plumbing fix
+	// P2 already made: without this, every item closed via THIS subcommand
+	// silently lost its logic_group the instant it closed (these two columns
+	// were absent from this INSERT's column list), so `assign group-complete
+	// <g>` could never see a closed item as a member and would vacuously
+	// report a group "complete" the moment its real members all closed —
+	// exactly the PASS-bluff §11.4 forbids, and directly load-bearing for
+	// P3's own group-complete gate.
 	if _, err := tx.Exec(`INSERT INTO items
-		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md)
-		VALUES (?,?,?,?,?,?,?,?,?,?)`,
-		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, src.CreatedBy, src.AssignedTo, "Fixed", closedBody); err != nil {
+		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md, destination, logic_group)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, src.CreatedBy, src.AssignedTo, "Fixed", closedBody, nullable(src.Destination), nullable(src.LogicGroup)); err != nil {
 		fmt.Fprintf(os.Stderr, "close: insert into Fixed: %v\n", err)
 		return exitUsage
 	}

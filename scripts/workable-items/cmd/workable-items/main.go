@@ -66,8 +66,20 @@ Subcommands:
                                                         group-complete check is a later phase).
   validate-groups --db <p>                               §3.1 group-atomic invariants: single-valued,
                                                         destination-agreement, totality, referential, urgent-routing.
+  assign next-group --track T --destinations D1[,D2,...] --claim-script <path>
+            [--ttl SEC] --db <p>                          Priority-ordered group pick + exactly-once claim via the
+                                                        §11.4.176-A registry (ASSIGNMENT_MECHANISM_DESIGN.md §5).
+  assign next-item --track T --group <group_id> [--exclude ID1[,ID2,...]] --db <p>
+                                                        Next open member item of a group, by STORED logic_group
+                                                        (never a substring re-derivation — design §5).
+  assign group-complete <group_id> --db <p>              Refuses unless every member item is terminal-with-evidence
+                                                        (design §4 group-atomic completion gate).
+  classify --propose --db <p> [--out <path-prefix>]      Propose logic_group/destination per unclassified item from
+                                                        STRUCTURED signals + a title-scoped weak hint (NEVER
+                                                        description) — writes a review file, never the DB (design §9).
 
-Canonical authority: Constitution.md §11.4.93; docs/tracks/ASSIGNMENT_MECHANISM_DESIGN.md §3 (group subcommands).
+Canonical authority: Constitution.md §11.4.93; docs/tracks/ASSIGNMENT_MECHANISM_DESIGN.md §3 (group subcommands),
+§5 (assigner), §9 (classifier).
 `)
 }
 
@@ -111,6 +123,10 @@ func main() {
 		runGroup(args[1:])
 	case "validate-groups":
 		runValidateGroups(args[1:])
+	case "assign":
+		runAssign(args[1:])
+	case "classify":
+		runClassify(args[1:])
 	case "-h", "--help", "help":
 		usage()
 		os.Exit(exitOK)
