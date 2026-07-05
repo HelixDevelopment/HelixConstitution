@@ -264,10 +264,23 @@ func closeCmd(args []string) int {
 	}
 
 	// Insert the Fixed item row + append its Fixed item-segment (atomic move in).
+	//
+	// destination/logic_group (ASSIGNMENT_MECHANISM_DESIGN.md §3.1 "Nullable
+	// for closed: Fixed-location items may carry the group they were closed
+	// under (kept for audit) but are not re-dispatched") are carried over
+	// from src. P3 plumbing fix (docs/tracks/ASSIGNMENT_MECHANISM_PLAN.md P3),
+	// in scope not scope-creep, mirroring the loadItems/loadItem plumbing fix
+	// P2 already made: without this, every item closed via THIS subcommand
+	// silently lost its logic_group the instant it closed (these two columns
+	// were absent from this INSERT's column list), so `assign group-complete
+	// <g>` could never see a closed item as a member and would vacuously
+	// report a group "complete" the moment its real members all closed —
+	// exactly the PASS-bluff §11.4 forbids, and directly load-bearing for
+	// P3's own group-complete gate.
 	if _, err := tx.Exec(`INSERT INTO items
-		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md)
-		VALUES (?,?,?,?,?,?,?,?,?,?)`,
-		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, src.CreatedBy, src.AssignedTo, "Fixed", closedBody); err != nil {
+		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md, destination, logic_group)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, src.CreatedBy, src.AssignedTo, "Fixed", closedBody, nullable(src.Destination), nullable(src.LogicGroup)); err != nil {
 		fmt.Fprintf(os.Stderr, "close: insert into Fixed: %v\n", err)
 		return exitUsage
 	}
@@ -344,18 +357,28 @@ func itemExists(db *sql.DB, id, location string) (bool, error) {
 }
 
 // loadItem returns the single item at (id, location), or nil when absent.
+//
+// ASSIGNMENT_MECHANISM_DESIGN.md §3.1 (P2, ATM-659): destination + logic_group
+// are included in the SELECT so every caller of THIS loader — group.go's
+// groupSetItemMode foremost — observes the item's current classification, not
+// a stale Go zero-value. Mirrors the same fix already applied to loadItems
+// (plural, db.go); purely additive (two new trailing columns/scan targets),
+// every existing caller is unaffected because each accesses fields by name
+// (cur.Title, cur.Severity, ...), never by struct-literal position.
 func loadItem(db *sql.DB, id, location string) (*item, error) {
 	row := db.QueryRow(`SELECT atm_id, type, status,
 		COALESCE(severity,''), title, description,
 		COALESCE(forensic_anchor,''), COALESCE(closure_criteria,''),
 		COALESCE(composes_with,''),
 		COALESCE(created_by,''), COALESCE(assigned_to,''),
-		current_location, COALESCE(body_md,'')
+		current_location, COALESCE(body_md,''),
+		COALESCE(destination,''), COALESCE(logic_group,'')
 		FROM items WHERE atm_id=? AND current_location=?`, id, location)
 	var it item
 	err := row.Scan(&it.AtmID, &it.Type, &it.Status, &it.Severity,
 		&it.Title, &it.Description, &it.ForensicAnchor, &it.ClosureCriteria,
-		&it.ComposesWith, &it.CreatedBy, &it.AssignedTo, &it.CurrentLocation, &it.BodyMD)
+		&it.ComposesWith, &it.CreatedBy, &it.AssignedTo, &it.CurrentLocation, &it.BodyMD,
+		&it.Destination, &it.LogicGroup)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -398,6 +421,45 @@ func recordHistory(tx *sql.Tx, id, event, by, reason, evidence string) error {
 		VALUES (?,?,?,date('now'),?,?)`,
 		id, event, nullable(by), nullable(reason), nullable(evidence))
 	return err
+}
+
+// setStatusAndSyncBody is the SINGLE choke-point for a BARE items.status write —
+// a status transition that changes ONLY the status column (no title / type /
+// description / detail-block change). It advances the column AND canonicalizes
+// body_md's `**Status:**` line to the same value in the SAME transaction, so the
+// §11.4.93/ATM-627 (task #20) column↔body invariant can never be re-created by a
+// direct `UPDATE items SET status=…`: without the body write, `sync db-to-md`
+// (renderDocument) would replay the STALE body Status line and `validate`
+// (statusColumnBodyDesyncs) would flag the item.
+//
+// The full-body-regenerating mutators (add / update / reopen / block / close) do
+// NOT use this helper: they already emit a fresh, canonical body via renderItemBody
+// carrying the new status (proven 0-desync by TestNoStatusMutationLeavesDesync), and
+// they legitimately change other fields (title / description / meta blocks) that a
+// bare-status helper would clobber. This helper is for the status-ONLY paths
+// (subtask-status today; any future bare-status write).
+//
+// PROSE PRESERVATION: canonicalizeBodyStatusLine is a SURGICAL single-line rewrite —
+// every other line, including prose + `**Reopened-Details:**` / `**Operator-Block-
+// Details:**` blocks, is preserved byte-for-byte. On an empty/whitespace body it is a
+// STRICT no-op (no Status line to rewrite), matching the empty-body class that
+// repair-bodies / renderItemBody own — so this helper never fabricates a body.
+func setStatusAndSyncBody(tx *sql.Tx, atmID, location, newStatus string) error {
+	var body string
+	if err := tx.QueryRow(`SELECT COALESCE(body_md,'') FROM items
+		WHERE atm_id=? AND current_location=?`, atmID, location).Scan(&body); err != nil {
+		return err
+	}
+	synced := canonicalizeBodyStatusLine(body, newStatus)
+	res, err := tx.Exec(`UPDATE items SET status=?, body_md=?, last_modified=datetime('now')
+		WHERE atm_id=? AND current_location=?`, newStatus, synced, atmID, location)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n != 1 {
+		return fmt.Errorf("setStatusAndSyncBody: %s [%s] affected %d rows (expected 1)", atmID, location, n)
+	}
+	return nil
 }
 
 // renderItemBody produces a canonical, re-parseable Markdown item block:

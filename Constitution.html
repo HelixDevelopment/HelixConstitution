@@ -2,15 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
+  <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Constitution</title>
   <style>
 
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
 ul.task-list[class]{list-style: none;}
@@ -112,8 +115,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 --od-warn: #f59e0b; 
 --od-danger: #ef4444; 
 
---od-font-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-"Helvetica Neue", Arial, "Noto Sans", sans-serif,
+
+--od-font-body: "Source Sans 3", "Source Sans Pro", "Source Sans", Inter,
+-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+"Helvetica Neue", Arial, "Noto Sans", "DejaVu Sans", sans-serif,
 "Apple Color Emoji", "Segoe UI Emoji";
 --od-font-mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace,
 SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
@@ -298,6 +303,11 @@ border-bottom: 1px solid var(--doc-border-soft);
 border-right: 1px solid var(--doc-border-soft);
 padding: 0.55em 0.8em;
 vertical-align: top;
+
+overflow-wrap: break-word;
+word-break: normal;
+white-space: normal;
+hyphens: auto;
 }
 tr > th:last-child, tr > td:last-child { border-right: 0; }
 tbody tr:last-child > td { border-bottom: 0; }
@@ -429,9 +439,6 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">Constitution</h1>
-</header>
 <h1 id="helix-universal-constitution">Helix Universal Constitution</h1>
 <table>
 <colgroup>
@@ -447,7 +454,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 <tbody>
 <tr>
 <td>Revision</td>
-<td>31</td>
+<td>33</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -455,7 +462,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-06-25T00:00:00Z</td>
+<td>2026-07-04T00:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -463,13 +470,64 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.170 — Device-independent host-side rendered-UI
-visual-proof mandate (User mandate 2026-06-25): every change to ANY
-user-facing UI surface MUST be proven by device-independent host-side
-RENDERED PIXELS (Compose→Roborazzi/Paparazzi, web→Playwright,
-SwiftUI→snapshot-testing) per screen×state×{light,dark} theme,
-dual-validated by (i) golden image-diff AND (ii) an OCR/vision layout
-oracle (legibility + NO
+<td>Added §11.4.177–§11.4.180 — multi-track git-hardening family (User
+mandate 2026-07-04, forensic FACT: 4 git worktrees shared ONE common
+<code>.git</code>; a stale <code>.git/index.lock</code> +
+<code>.git/.push_all.lock</code> holding a DEAD PID froze commits/pushes
+across ALL tracks ~9 h; all worktrees had basename
+<code>atmosphere</code> → session-name collision; a project-specific
+script was symlinked into the global toolkit PATH). §11.4.177
+Developer-tooling project-decoupling + invocation-directory operation
+(no project script wired into a global/shared PATH; shared tools operate
+on the invocation dir, never a hardcoded project path; generalises
+§11.4.28 decoupling to all shared tooling). §11.4.178 Track-qualified
+identity for parallel work streams (session/lock/log/device claims
+addressed by <code>&lt;project&gt;__&lt;track&gt;__&lt;role&gt;</code>,
+never a bare basename; generalises §11.4.111/§11.4.119 to identity).
+§11.4.179 Corruption-isolated parallel git streams (each stream its OWN
+<code>.git</code>, never a shared-common-dir worktree;
+<code>git rev-parse --git-common-dir</code> resolves inside its own
+tree; CoW/reflink-with-own-<code>.git</code> per §11.4.167 satisfies
+disk-feasibility + isolation). §11.4.180 Commit/push wrappers auto-reap
+provably-stale (dead-holder <code>kill -0</code>) locks before
+acquiring, NEVER a live-held lock (§9.2), logging each REAPED/KEPT
+decision. All Classification: universal (§11.4.17). Propagation gates
+<code>CM-COVENANT-114-177/178/179/180-PROPAGATION</code> + recommended
+gates
+<code>CM-TOOLING-PROJECT-DECOUPLED</code>/<code>CM-TRACK-QUALIFIED-IDENTITY</code>/<code>CM-GIT-STREAMS-OWN-COMMON-DIR</code>/<code>CM-WRAPPER-STALE-LOCK-AUTO-REAP</code>
+(gate-code = separate work item). CLAUDE.md + AGENTS.md + QWEN.md +
+GEMINI.md mirrors updated in lockstep (§11.4.157). Prior round: Added
+§12.11 — Maximal dynamic resource utilization for containerized builds
+(User mandate 2026-07-03): the containerized build path (its OWN cgroup
++ own MemoryMax → OOM-kills ITSELF, never user.slice) MUST use the
+maximal SAFE fraction of host capacity computed DYNAMICALLY per host —
+auto-detect nproc/MemTotal/RLIMIT_NPROC (never hardcode §11.4.6),
+reserve explicit host headroom (cores+RAM), scale -j against BOTH the
+memory model AND the process rlimit (privileged nproc-raise for full -j;
+EAGAIN-safe -j otherwise), never break/bottleneck/wedge; NO fixed low -j
+for the containerized path; the §12.6 60% ceiling + bare-metal -j cap
+REMAIN, SCOPED to user.slice-resident work — §12.11 does NOT weaken
+§12.6, it scopes it. Gate CM-MAXRES-DYNAMIC-BUILD +
+CM-COVENANT-12-11-PROPAGATION. Also added §11.4.176 — Conflict-free
+multi-track work-division + exactly-once claim registry +
+capability-aware deadlock-proof device-lock (User mandate 2026-07-02):
+two mandatory multi-track arbitration layers conflict-free by
+construction — (A) exactly-once work-item/logical-group claim registry
+(extends §11.4.147/§11.4.116; disjoint file-scope §11.4.58 L3 +
+worktree/CoW §11.4.167; no codebase loss
+§9.2/§11.4.113/§11.4.84/§11.4.41); (B) capability-aware deadlock-proof
+device-lock (§11.4.119 single-owner; all-or-nothing + non-blocking +
+TTL-reap breaks all 4 Coffman conditions; append-only JSONL + atomic
+snapshot §11.4.116); (C) universal/decoupled + evidence-based
+resource-tuning. Gates CM-WORK-DIVISION-EXCLUSIVE-CLAIM +
+CM-DEVICE-LOCK-DEADLOCK-FREE + CM-COVENANT-114-176-PROPAGATION. Both
+Classification: universal (§11.4.17). Prior round: Added §11.4.170 —
+Device-independent host-side rendered-UI visual-proof mandate (User
+mandate 2026-06-25): every change to ANY user-facing UI surface MUST be
+proven by device-independent host-side RENDERED PIXELS
+(Compose→Roborazzi/Paparazzi, web→Playwright, SwiftUI→snapshot-testing)
+per screen×state×{light,dark} theme, dual-validated by (i) golden
+image-diff AND (ii) an OCR/vision layout oracle (legibility + NO
 overlap/clip/off-screen/collapsed-or-giant-unbounded widget);
 VALUE/TOKEN-EQUALITY UI tests are FORBIDDEN as the proof a UI is correct
 (the giant-button bluff: green token-equality tests while the real
@@ -9310,7 +9368,37 @@ fork) will produce a correspondingly large index (30-40 GB for the first
 init, with subsequent <code>codegraph sync</code> operations fast
 because they use <code>git diff</code>). The large initial size is
 expected and correct — the index represents the full codebase the AI
-agent needs to understand cross-references.</p></li>
+agent needs to understand cross-references.</p>
+<p><strong>Universal mandatory-exclude baseline set (§11.4.78 + §11.4.79
+refinement — binds EVERY consuming project).</strong> Independently of
+project, the CodeGraph index MUST NEVER include the following
+file-classes anywhere — they are indexed-rubbish in every project; a
+consuming project MAY add its own project-specific rubbish paths on top
+per §11.4.35 but MUST NOT drop any baseline class: (a) <strong>build
+outputs / regenerable artifacts</strong> — <code>/out/</code>,
+<code>/build/</code>, <code>/dist/</code>, <code>/target/</code>,
+<code>bin/</code>, <code>obj/</code>, <code>.compressed/</code>, and any
+generator-produced tree; (b) <strong>caches / dependency / tooling
+dirs</strong> — <code>**/ccache/</code>, <code>**/.ccache/</code>,
+<code>.gradle/</code>, <code>__pycache__/</code>,
+<code>.pytest_cache/</code>, <code>.mypy_cache/</code>,
+<code>.ruff_cache/</code>, <code>node_modules/</code>,
+<code>.next/</code>, <code>.cache/</code>, <code>.terraform/</code>,
+<code>.venv/</code>, <code>logs/</code>; (c) <strong>credentials /
+secrets</strong> — <code>.env</code>, <code>.env.*</code>,
+<code>**/*.env</code>, <code>secrets/</code>, <code>**/*secret*</code>,
+keystores / signing-keys / service-account JSON, and every
+credential-bearing path per §11.4.10 (a secret reaching the index is a
+§11.4.10 violation, never negotiable); (d) <strong>QA / recording /
+large regenerable corpora</strong> — <code>**/qa-results/</code>,
+<code>**/recordings/</code>, and prebuilt-binary trees. Realized via
+root-anchored <code>.gitignore</code> patterns (CodeGraph v1.x
+zero-config filter = built-in skip list + root <code>.gitignore</code>,
+NOT <code>config.json</code> include/exclude). Own-org submodule sources
+stay INCLUDED per §11.4.79; third-party vendored trees EXCLUDED. This
+baseline is UNIVERSAL (§11.4.17) — dropping any class is a §11.4.78 /
+§11.4.79 violation, and no source-code tree may be excluded to satisfy
+it.</p></li>
 <li><p><strong>Wire every supported CLI agent.</strong> The CodeGraph
 MCP server (<code>codegraph serve --mcp</code>, stdio transport) MUST be
 registered with every AI coding CLI agent the project’s developers use.
@@ -15909,17 +15997,24 @@ silently dropped — the agent asks which registered action was meant
 (§11.4.66 + §11.4.105) or treats it literally; it NEVER invents an
 expansion (§11.4.6). (7) Any prompt not satisfying the grammar is an
 ordinary prompt; the system is a no-op. The carrier-block
-GRAMMAR_ADDENDUM (2026-06-09) additionally recognises three EQUIVALENT
-forms of every action — <code>PREFIX::ACTION_NAME :: &lt;rest&gt;</code>
+GRAMMAR_ADDENDUM (2026-06-09, extended with the arrow form 2026-07-02)
+additionally recognises FOUR EQUIVALENT forms of every action beyond the
+bare <code>::</code> — <code>PREFIX::ACTION_NAME :: &lt;rest&gt;</code>
 (namespaced <code>::</code>), <code>/ACTION_NAME &lt;rest&gt;</code>
 (bare slash), <code>/PREFIX::ACTION_NAME &lt;rest&gt;</code> (namespaced
-slash) — where <code>PREFIX</code> is an action NAMESPACE (reserved
-default <code>DEFAULT</code>) and the namespace separator
-<code>::</code> carries NO surrounding spaces (distinct from the
-action-body <code>&quot; :: &quot;</code>); forms 3/4 are honoured with the same
-expansion/execution, the bare slash form yielding to a colliding
-built-in/host slash command while the namespaced slash form is always
-unambiguous.</p>
+slash), and <code>ACTION_NAME ---&gt; &lt;rest&gt;</code> (bare arrow,
+with the namespaced
+<code>PREFIX::ACTION_NAME ---&gt; &lt;rest&gt;</code> variant) — where
+<code>PREFIX</code> is an action NAMESPACE (reserved default
+<code>DEFAULT</code>) and the namespace separator <code>::</code>
+carries NO surrounding spaces (distinct from the action-body
+<code>&quot; :: &quot;</code> and the arrow-body <code>&quot; ---&gt; &quot;</code>, each
+one ASCII space on either side); the slash, arrow, and namespaced forms
+are honoured with the same expansion/execution, the bare slash form
+yielding to a colliding built-in/host slash command while the namespaced
+slash form is always unambiguous. A leading <code>\</code> escapes any
+of these forms (<code>\BACKGROUND :: x</code>,
+<code>\BACKGROUND ---&gt; x</code>, <code>\/BACKGROUND x</code>).</p>
 <p><strong>Registry is the single source of truth + the extension
 contract.</strong> Adding a new action = adding ONE
 <code>actions[]</code> row (<code>name</code>, <code>version</code>,
@@ -15931,11 +16026,19 @@ registry entry is <code>BACKGROUND</code> with the operator’s verbatim
 expansion above; it composes §11.4.20/§11.4.70 (subagent-driven),
 §11.4.58/§11.4.103 (parallel streams), §11.4.89 (background execution),
 and §11.4.5/§11.4.69/§11.4.107 (captured physical evidence) + §11.4
-(anti-bluff). Decoupled + reusable (§11.4.28): the registry + hook +
-expander carry zero project-specific data and are consumed by reference
-(the §11.4.80 <code>codegraph_*</code> pattern); a consuming project
-ships its own registry or inherits the constitution default. Loads
-out-of-the-box via the §11.4.75 install seam.</p>
+(anti-bluff). The second registry entry is <code>REMINDER</code> — it
+re-surfaces previously-scheduled, CRITICAL, status-UNCERTAIN work: the
+agent FIRST verifies the ACTUAL current status from captured evidence
+(never assuming done or not-done — §11.4.6 no-guessing), THEN acts on
+the delta (report the captured proof if genuinely complete, resume from
+the exact point if partial, action it NOW if not started, or surface the
+block per §11.4.66 / §11.4.101), ALWAYS producing a status verdict; it
+composes §11.4.6 / §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 /
+§11.4.108 / §11.4.130 / §11.4.147. Decoupled + reusable (§11.4.28): the
+registry + hook + expander carry zero project-specific data and are
+consumed by reference (the §11.4.80 <code>codegraph_*</code> pattern); a
+consuming project ships its own registry or inherits the constitution
+default. Loads out-of-the-box via the §11.4.75 install seam.</p>
 <p>Classification: universal (§11.4.17). Composes §11.4 / §11.4.5 /
 §11.4.6 / §11.4.17 / §11.4.20 / §11.4.28 / §11.4.35 / §11.4.58 /
 §11.4.66 / §11.4.69 / §11.4.70 / §11.4.75 / §11.4.80 / §11.4.89 /
@@ -19282,6 +19385,156 @@ ephemeral external systems as the only source of truth.</li>
 <p><strong>No escape hatch.</strong> §12.10 has NO operator-facing
 override flag for the existence requirement. The discipline exists for
 the operator’s own protection.</p>
+<h3 id="maximal-dynamic-resource-utilization-for-containerized-builds-user-mandate-2026-07-03">§12.11
+— Maximal dynamic resource utilization for containerized builds (User
+mandate, 2026-07-03)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-07-03):</strong></p>
+<blockquote>
+<p>“Use full workstation system capacity — all resources to build and
+test! Give maximal number of cores and memory! Use dynamic capabilities!
+No limiting to -j2 anymore! … MUST NOT break the system, create
+bottlenecks, or get stuck! … MUST BE now part of constitution Submodule!
+On each System we use, aim for maximal use of available resources for
+maximal efficiency!”</p>
+</blockquote>
+<p><strong>The reconciliation (the load-bearing logic).</strong> The
+existing memory-and-parallelism caps were born from a specific,
+forensically-captured failure mode: <strong>heavy build work running
+inside the user login session’s cgroup
+(<code>user@&lt;uid&gt;.service</code> / <code>user.slice</code>)
+overran memory and the kernel OOM-killer escalated to the session
+itself, SIGKILLing the operator’s desktop, terminals, and the
+agent</strong> (the §12.6 forensic anchor: “three consecutive
+session-loss SIGKILLs” during a bare-metal <code>m -j5</code>;
+consuming-project instantiations extend this — a bare-metal AOSP
+<code>m -j</code> was hard-capped at -j2 because
+<code>soong_build</code> alone holds a large constant RSS inside
+user.slice). Those caps — <strong>§12.6’s 60%-of-total-RAM
+ceiling</strong> and the consuming project’s bare-metal <code>-j</code>
+cap — are CORRECT and REMAIN in force for <strong>any heavy work that
+executes inside <code>user@&lt;uid&gt;.service</code> /
+<code>user.slice</code></strong>, because such work shares the session’s
+OOM fate.</p>
+<p>A build that runs in <strong>its OWN container cgroup with its OWN
+<code>MemoryMax</code></strong> (the rootless-Podman containerized build
+path — generically “the sanctioned containerized build”) is a
+<strong>fundamentally different accounting domain</strong>: it is NOT a
+child of <code>user.slice</code>, so the kernel OOM-killer and any
+userspace OOM watchdog (systemd-oomd’s <code>user.slice</code> PSI
+watch) act on the <strong>container’s own cgroup FIRST</strong> — the
+container OOM-kills ITSELF, it does not escalate to and cannot SIGKILL
+the operator session. Therefore a high memory / CPU / <code>-j</code>
+envelope in the containerized path is <strong>host-SAFE by
+construction</strong> — the exact hazard the §12.6 ceiling guards
+against does not reach the session across the cgroup boundary.</p>
+<p><strong>The mandate.</strong> For the <strong>containerized build
+path only</strong>, the project MUST use the <strong>maximal SAFE
+fraction</strong> of the host’s real capacity, computed
+<strong>dynamically per host</strong> — NOT a fixed low <code>-j</code>
+count, NOT clamped to the §12.6 60% figure (which governs
+user.slice-resident work, a different domain). Concretely (ALL hold):
+(1) <strong>Auto-detect host capacity, never hardcode</strong> — read
+this host’s real <code>nproc</code>, <code>MemTotal</code>,
+<code>SwapTotal</code>, and the hard process/thread rlimit
+(<code>RLIMIT_NPROC</code> / <code>ulimit -Hu</code>) at launch; every
+number driving the envelope MUST be measured on the running host, never
+assumed (§11.4.6 no-guessing); a launcher that prints a build envelope
+it did not measure is a §11.4.6 violation. (2) <strong>Reserve explicit
+host headroom (cores AND RAM)</strong> — the maximal-safe fraction is
+“all capacity MINUS a reserved slice kept free for the operator’s live
+session + other workloads”; the headroom MUST be explicit and captured
+in the printed envelope; this preserves the SPIRIT of §12.6 (the
+operator’s session keeps functioning) via a reserved-headroom mechanism,
+WITHOUT importing §12.6’s 60% number — the container’s cgroup, not a
+user.slice budget line, bounds it. (3) <strong><code>-j</code> scales
+nproc-awarely, not just memory-awarely</strong> — the parallel-job count
+MUST respect BOTH the memory governor
+(<code>floor((container_mem_gb − build_constant_overhead_gb) / per_job_peak_rss_gb)</code>)
+AND the process/thread rlimit, because each <code>-j</code> unit spawns
+compiler/linker worker THREADS that count against
+<code>RLIMIT_NPROC</code> and exceeding it causes <code>EAGAIN</code>
+“fork: retry” storms that stall/wedge the build (the “never get stuck”
+clause); where the login’s hard <code>nproc</code> is too low for the
+full memory-and-CPU-derived <code>-j</code>, the launcher MUST either
+(a) run at the proven-safe lower <code>-j</code> under the rlimit, OR
+(b) on a privileged path raise the rlimit (e.g. <code>prlimit</code>)
+and drop back to the unprivileged uid (e.g. <code>setpriv</code>) before
+launching so the container keeps its rootless identity; the launcher
+MUST print which mode it chose (§11.4.6 — the envelope is captured
+evidence). (4) <strong>The caps REMAIN for the bare-metal / user.slice
+path</strong> — §12.6’s 60% ceiling and the consuming project’s
+bare-metal <code>-j</code> cap are NOT relaxed for any work inside
+<code>user@&lt;uid&gt;.service</code>; §12.11 grants the maximal
+envelope ONLY across the container-cgroup boundary; a bare-metal heavy
+build is still forbidden from claiming the §12.11 envelope (that would
+reproduce the original session-loss incident); §12.11 does NOT weaken
+§12.6, it SCOPES it. (5) <strong>Never break, never bottleneck, never
+get stuck</strong> — the envelope MUST leave the reserved host headroom
+genuinely free (verifiable post-launch: session memory-available stays
+above the reserved floor), MUST NOT drive swap-thrash inside the
+container (bound <code>MemorySwapMax</code> so the container hits its
+own OOM before pathological swap), and MUST NOT exceed the process
+rlimit (per clause 3); “maximal” means maximal-SAFE, not
+maximal-reckless — an envelope that wedges the host is a §12.11
+violation, not compliance. (6) <strong>Evidence-based tuning, no
+guessing (§11.4.6 + §11.4.24)</strong> — the chosen envelope is driven
+by captured host metrics + the build’s own resource profile (§11.4.24
+build-resource stats); “use a bigger <code>-j</code>” without captured
+headroom evidence proving the host can absorb it is a §11.4.6 +
+§12.11(5) violation; when in doubt, the reserved-headroom floor
+wins.</p>
+<p><strong>Reference implementation (consuming project).</strong> A thin
+DYNAMIC wrapper over the sanctioned containerized build (ATMOSphere:
+<code>scripts/build_maxres.sh</code> over
+<code>scripts/build_containerized.sh</code>) reserves a fixed core count
++ a RAM floor (e.g. 72% of MemTotal to the container, clamped so a
+fixed-GiB slice stays free for the session), computes
+<code>JOBS_MEM = floor((container_mem_gb − constant_overhead_gb) / per_job_peak_rss_gb)</code>,
+and governs <code>-j</code> against the real hard <code>nproc</code>:
+unprivileged → the proven-no-<code>EAGAIN</code> job count; privileged
+(root re-exec raises <code>RLIMIT_NPROC</code> via <code>prlimit</code>
+then <code>setpriv</code>-drops back to the unprivileged uid) → full
+<code>-j = min(cpus, JOBS_MEM)</code>; <code>--dry-run</code> prints the
+full envelope and launches nothing. This is the §11.4.35 project
+instantiation; the mechanism above is universal.</p>
+<p><strong>Composes with</strong> §12.1 / §12.2 / §12.3 (host-session
+safety — §12.11 is a strengthening within, not a relaxation of, host
+safety) / <strong>§12.6</strong> (the 60% ceiling — §12.11 SCOPES it to
+user.slice-resident work, does NOT weaken it) / §12.10 (the launcher’s
+envelope is a live-state anchor for the resumption file) / §11.4.6
+(no-guessing — every envelope number measured) / §11.4.24
+(build-resource stats feed the tuning) / §11.4.133 (target/hardware
+safety — the reserved-headroom + rlimit governors are the host-safety
+equivalent) / §9.2 (the containerized path is the non-destructive
+default). The consuming project supplies its containerized-build path,
+cgroup mechanism, and per-host detection per §11.4.35.</p>
+<p><strong>Classification: universal (§11.4.17)</strong> — the
+reconciliation logic (caps bind user.slice-resident work; the
+containerized cgroup is separately accounted so it may claim the maximal
+safe fraction) is platform-agnostic and true on every host. Propagation
+gate <strong><code>CM-COVENANT-12-11-PROPAGATION</code></strong>
+(literal anchor <code>12.11</code> present across the consumer fleet’s
+CLAUDE.md / AGENTS.md / QWEN.md / GEMINI.md) + recommended gate
+<strong><code>CM-MAXRES-DYNAMIC-BUILD</code></strong> (the
+containerized-build launcher (a) auto-detects
+<code>nproc</code>/<code>MemTotal</code>/<code>RLIMIT_NPROC</code>, (b)
+reserves explicit host headroom, (c) governs <code>-j</code> against
+BOTH the memory model AND the process rlimit, (d) prints the chosen
+envelope, (e) does NOT hardcode a fixed low <code>-j</code> for the
+containerized path AND does NOT relax §12.6 for any user.slice path) +
+paired §1.1 meta-test mutations (strip the <code>12.11</code> literal →
+propagation gate FAILs; replace the dynamic detection with a hardcoded
+<code>-j2</code> in the containerized launcher OR strip the rlimit-aware
+<code>-j</code> governor → <code>CM-MAXRES-DYNAMIC-BUILD</code> FAILs;
+gate-code = a separate tracked work item).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §12.11.
+Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--fixed-jobs</code>,
+<code>--no-dynamic-detection</code>,
+<code>--ignore-host-capacity</code>,
+<code>--relax-user-slice-cap</code>, <code>--bare-metal-maximal</code>
+flag exists.</p>
 <hr />
 <h2 id="appendix-a-mutation-testing-academic-and-industrial-foundations">Appendix
 A — Mutation testing — academic and industrial foundations</h2>
@@ -19497,6 +19750,236 @@ is a release blocker. No escape hatch — no
 <code>--assume-process-ours</code>, <code>--loose-pgrep-ok</code>,
 <code>--kill-any-matching-process</code>,
 <code>--skip-ownership-check</code> flag.</p>
+<p><strong>§11.4.176 — Conflict-free multi-track work-division +
+exactly-once claim registry + capability-aware deadlock-proof
+device-lock (User mandate, 2026-07-02).</strong> When a project runs
+multiple concurrent work-STREAM tracks (§11.4.167 feature work-stream
+lifecycle; §11.4.58/§11.4.103 parallel streams) that share (a) a common
+pool of workable items and (b) a scarce pool of exclusive
+hardware/resources, TWO cooperating arbitration layers are MANDATORY —
+both conflict-free BY CONSTRUCTION, not by convention. Forensic anchor —
+verbatim user mandate (2026-07-02, REM-17): “MUST prevent multiple
+Tracks working the same workable item OR the same group of workable
+items resembling one consistent logical group of functionalities.
+Division of work assigned to Tracks MUST be conflict-free: no conflicts,
+misunderstandings, race conditions, data corruptions, codebase loss.
+Risk-free + safe; results ALWAYS produced; no false results, no bluff.”
+(REM-02): “there MUST exist proper synchronization mechanism for
+flashing and use of device … lock … release … available test devices
+pool and information about held locks … dead-lock-proof … a track locks
+one OR more devices selected by required capability.” <strong>(A)
+Work-item layer — exactly-once claim registry (REM-17).</strong> Every
+workable item, OR every logical GROUP of items that share files /
+subsystem / feature / schema (a hidden-coupling cohort), is assigned to
+AT MOST ONE track at a time. (1) <strong>Exactly-once</strong> — a
+lock-arbitrated, append-only claim registry (extending §11.4.147
+no-work-loss registry + §11.4.116 real-time sync substrate) records
+<code>claim(item|group, track, ts, ttl)</code>; a track MUST
+claim-before-touch; a second claim on an already-claimed item is DENIED
+(no silent overlap). (2) <strong>Logical-group cohesion</strong> — items
+that share a file-scope / subsystem / feature / schema are one group
+claimed WHOLE by one track (prevents the hidden-coupling race two tracks
+editing the same seam would create — §11.4.58 L3 disjoint-file-scope is
+the enforcement). (3) <strong>Conflict-free by construction</strong> —
+disjoint file-scope partition (§11.4.58 L3) + per-track worktree/CoW
+isolation (§11.4.167) means two tracks physically cannot touch the same
+bytes. (4) <strong>No codebase loss</strong> — §9.2 hardlinked backups,
+§11.4.113 ff-only merge-onto-latest-main (NEVER force-push), §11.4.84
+working-tree quiescence, §11.4.41 merge-first. (5)
+<strong>Anti-bluff</strong> — the assignment + the merge are verifiable
+(registry event stream + captured merge evidence); results are ALWAYS
+produced (a claimed-but-abandoned item’s claim TTL-expires and returns
+to the pool, §11.4.147). <strong>(B) Hardware layer — capability-aware
+deadlock-proof device-lock (REM-02).</strong> When N tracks outnumber M
+exclusive test devices, exactly ONE track owns each device at a time
+(§11.4.119 single-resource-owner). A track leases ONE OR MORE devices
+selected by required CAPABILITY (not merely identity) — the pool records
+per-device capabilities; leases are capability-matched; multi-device
+leases are supported. The arbiter is DEADLOCK-FREE by construction — all
+four Coffman conditions broken: hold-and-wait ELIMINATED (multi-device
+acquire is ALL-OR-NOTHING inside one critical section — never a partial
+hold while waiting); circular-wait ELIMINATED (acquire is NON-BLOCKING —
+wins the whole set at once or returns EBUSY immediately, never waits on
+another track’s device); no-preemption RELAXED (lease TTL + heartbeat +
+reap — a crashed holder’s lease auto-expires, §11.4.147, so a dead track
+never holds the pool hostage); the only lock ever held is a short
+bounded flock over the atomic check-and-claim critical section, released
+before any device work. Registry = append-only JSONL event stream +
+atomically-rewritten snapshot (§11.4.116). <strong>(C) Universal
+decoupling + evidence-based resource-tuning (REM-03).</strong> Both
+layers are universal, decoupled, project-not-aware, reusable
+(§11.4.17/§11.4.28/§11.4.35) — the consuming project injects its
+claim-store, device pool, and metric sources at runtime; nothing
+project-specific lands in the canonical root. Resource-tuning decisions
+(parallel-stream count, per-stream memory budget §12.6, device-lease
+breadth, build-queue depth §11.4.167) MUST be EVIDENCE-BASED — driven by
+captured metrics (§11.4.24 / §11.4.5), never guessed (§11.4.6). Composes
+§11.4.6 / §11.4.17 / §11.4.24 / §11.4.28 / §11.4.35 / §11.4.41 /
+§11.4.58 / §11.4.84 / §11.4.85 / §11.4.103 / §11.4.113 / §11.4.116 /
+§11.4.119 / §11.4.147 / §11.4.167 / §12.6 / §9.2. Classification:
+universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-176-PROPAGATION</code> (literal
+<code>11.4.176</code> across the consumer fleet) + recommended gates
+<code>CM-WORK-DIVISION-EXCLUSIVE-CLAIM</code> +
+<code>CM-NO-CROSS-TRACK-SCOPE-OVERLAP</code> +
+<code>CM-LOGICAL-GROUP-COHESION</code> +
+<code>CM-DEVICE-LOCK-DEADLOCK-FREE</code> (device-lock arbiter ships an
+all-or-nothing + non-blocking + TTL-reap stress/chaos proof with a
+paired §1.1 mutation) + paired §1.1 meta-test mutations (gate-code =
+separate work item). <strong>Canonical authority:</strong> constitution
+submodule <a href="Constitution.md"><code>Constitution.md</code></a>
+§11.4.176. Non-compliance is a release blocker. No escape hatch — no
+<code>--allow-cross-track-overlap</code>,
+<code>--skip-claim-registry</code>, <code>--split-logical-group</code>,
+<code>--blocking-device-acquire</code>,
+<code>--allow-partial-device-hold</code>,
+<code>--tune-resources-by-guess</code> flag.</p>
+<p><strong>§11.4.177 — Developer-tooling project-decoupling +
+invocation-directory operation (User mandate, 2026-07-04).</strong> No
+project-specific script, hook, alias, or binary may be wired — copied,
+symlinked, PATH-exported, or aliased — into a global or shared
+developer-tooling PATH; shared tooling MUST be project-agnostic and
+operate on the INVOCATION directory (the cwd, or an explicit path/config
+argument), NEVER on a hardcoded project path. A project-specific helper
+lives in and runs from its own repo; a genuinely reusable helper is
+promoted to the shared toolkit ONLY after it is stripped of every
+project-specific assumption (paths, device serials, package names,
+region endpoints) and takes its target from the invocation context. A
+project script reachable on the global/shared PATH is a decoupling
+violation of equal severity to importing project-specific code into a
+shared submodule (§11.4.28). The forensic case (FACT, 2026-07-04): a
+project cwd-hook symlinked into the global Claude-Toolkit PATH
+re-coupled every alias to one hardcoded checkout. Honest boundary
+(§11.4.6): decoupling guarantees the tool is project-agnostic — it does
+NOT by itself prove the tool is correct (that still needs the tool’s own
+tests). Composes §11.4.28 (submodules-as-equal-codebase decoupling) /
+§11.4.29 (naming) / §11.4.35 (canonical-root layer split) / §11.4.11
+(file-layout discipline) / §11.4.6 (no-guessing). Classification:
+universal (§11.4.17) — the consuming project supplies its concrete tool
+paths + invocation-config mechanism per §11.4.35. Propagation gate
+<code>CM-COVENANT-114-177-PROPAGATION</code> (literal
+<code>11.4.177</code>) + recommended gate
+<code>CM-TOOLING-PROJECT-DECOUPLED</code> (no tracked project script is
+symlinked/PATH-wired into a global toolkit dir; shared tools take their
+target from cwd/arg/config, never a hardcoded project path) + paired
+§1.1 meta-test mutation (wire a project script into the shared PATH, or
+hardcode a project path into a shared tool → gate FAILs; strip the
+literal → propagation gate FAILs; gate-code = separate work item).
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.177.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--global-symlink-ok</code>, <code>--hardcode-project-path</code>,
+<code>--wire-into-shared-path</code> flag.</p>
+<p><strong>§11.4.178 — Track-qualified identity for parallel work
+streams (session-name collision ban) (User mandate,
+2026-07-04).</strong> Parallel work streams that share hardware, a git
+backing store, a tmux/session namespace, a lock namespace, or any
+single-owner resource MUST be addressed by a TRACK-QUALIFIED identity
+(<code>&lt;project&gt;__&lt;track&gt;__&lt;role&gt;</code>), NEVER a
+bare directory basename. Multiple checkouts/clones/worktrees sharing
+basename <code>atmosphere</code> collapse into one session/lock/log key
+and cross-wire tmux targets, lock files, device claims, and log
+directories (the observed collision, 2026-07-04). Every registry row,
+session name, lock path, log directory, and device claim MUST carry the
+track-qualified key; a bare-basename identity for a resource with ≥ 2
+concurrent claimants is a violation. Honest boundary (§11.4.6): a unique
+identity prevents cross-wiring — it does not itself arbitrate ownership
+(that is §11.4.119 + <strong>§11.4.176</strong> (the multi-track
+work-division + exactly-once-claim + device-lock arbitration anchor)).
+Composes §11.4.111 (resolve-by-stable-name-not-by-index) / §11.4.119
+(single-resource-owner partitioning) / <strong>§11.4.176</strong> (the
+multi-track work-division + exactly-once-claim + device-lock arbitration
+anchor) / §11.4.29 (naming) / §11.4.58 (parallel PWU). Classification:
+universal (§11.4.17) — the consuming project supplies its
+<code>&lt;project&gt;</code>/<code>&lt;track&gt;</code>/<code>&lt;role&gt;</code>
+vocabulary per §11.4.35. Propagation gate
+<code>CM-COVENANT-114-178-PROPAGATION</code> (literal
+<code>11.4.178</code>) + recommended gate
+<code>CM-TRACK-QUALIFIED-IDENTITY</code> (every session name / lock path
+/ log dir / device claim for a multi-claimant resource carries the
+track-qualified key, never a bare basename) + paired §1.1 meta-test
+mutation (address a shared resource by bare basename → gate FAILs; strip
+the literal → propagation gate FAILs; gate-code = separate work item).
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.178.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--bare-basename-ok</code>, <code>--skip-track-qualifier</code>,
+<code>--shared-session-name</code> flag.</p>
+<p><strong>§11.4.179 — Corruption-isolated parallel git streams
+(own-.git independent clones, not shared-common-dir worktrees) (User
+mandate, 2026-07-04).</strong> When corruption-isolation is a
+requirement, parallel git work streams MUST each be an isolated
+repository with its OWN <code>.git</code> (own object store, own index,
+own lock namespace), NOT <code>git worktree</code> checkouts sharing one
+common <code>.git</code>. A shared common-dir is a single point of
+failure: one stale <code>index.lock</code> /
+<code>.commit_all.lock</code> / <code>.push_all.lock</code> freezes
+EVERY stream at once (the observed 9-h all-track freeze, 2026-07-04),
+and one corrupted object store loses every stream. Each stream’s
+<code>git rev-parse --git-common-dir</code> MUST resolve INSIDE the
+stream’s own tree; a common-dir resolving to a shared parent is a
+violation. Where CoW/reflink disk-feasibility is the constraint, use the
+§11.4.167 reflink-clone-with-own-<code>.git</code> path — a
+btrfs/XFS/ZFS/APFS reflink shares extents on disk while keeping a
+per-stream <code>.git</code>, so isolation and disk-feasibility are BOTH
+satisfied. Honest boundary (§11.4.6): own-<code>.git</code> isolation
+contains lock/corruption blast radius — it does NOT remove the need for
+per-repo stale-lock reaping (§11.4.180) nor for ff-only no-force
+integration (§11.4.113). Composes §11.4.167 (feature work-stream
+lifecycle / CoW clone) / §11.4.119 (single-resource-owner) /
+<strong>§11.4.176</strong> (the multi-track work-division +
+exactly-once-claim + device-lock arbitration anchor) / §9.2 (data
+safety) / §11.4.58 (parallel PWU). Classification: universal (§11.4.17)
+— the consuming project supplies its reflink mechanism + clone layout
+per §11.4.35. Propagation gate
+<code>CM-COVENANT-114-179-PROPAGATION</code> (literal
+<code>11.4.179</code>) + recommended gate
+<code>CM-GIT-STREAMS-OWN-COMMON-DIR</code> (every registered parallel
+stream’s <code>git rev-parse --git-common-dir</code> resolves inside its
+own tree, never a shared parent) + paired §1.1 meta-test mutation
+(register a stream whose common-dir points to a shared parent → gate
+FAILs; strip the literal → propagation gate FAILs; gate-code = separate
+work item). <strong>Canonical authority:</strong> constitution submodule
+<a href="Constitution.md"><code>Constitution.md</code></a> §11.4.179.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--shared-common-git</code>,
+<code>--worktree-when-isolation-required</code>,
+<code>--skip-git-isolation</code> flag.</p>
+<p><strong>§11.4.180 — Commit/push (single-writer) wrappers MUST
+auto-reap provably-stale locks before acquiring (User mandate,
+2026-07-04).</strong> Every commit / push / single-writer wrapper MUST,
+before acquiring its own lock, auto-reap any PROVABLY-stale git lock — a
+lock whose recorded holder PID is DEAD (<code>kill -0</code> fails), OR
+(no PID recorded) older than a defined threshold AND with no live
+wrapper/git process holding that repo. The reap covers the wrapper’s own
+lock plus the git-internal existence-based locks
+(<code>index.lock</code>, <code>HEAD.lock</code>,
+<code>refs/**/*.lock</code>) that git does NOT auto-release on holder
+death. It MUST NEVER remove a lock whose holder is ALIVE (removing a
+live-held lock corrupts a concurrent writer — §9.2). Each reap decision
+(REAPED / KEPT + reason) is logged as captured evidence (§11.4.6 —
+liveness PROVEN via <code>kill -0</code>, never assumed). A wrapper that
+blocks indefinitely on a dead-holder lock (the observed 9-h freeze,
+2026-07-04) is a violation. Honest boundary (§11.4.6): reaping clears
+dead-holder deadlock — it does NOT substitute for the
+own-<code>.git</code> isolation of §11.4.179 (which shrinks the blast
+radius from all-streams to one). Composes §11.4.84 (working-tree
+quiescence) / §11.4.88 (commit-lock-release-immediately + detached push)
+/ §11.4.6 (no-guessing) / §9.2 (data safety) / §11.4.116 (evidence
+stream) / §11.4.179 (own-<code>.git</code> isolation companion).
+Classification: universal (§11.4.17) — the consuming project supplies
+its concrete wrapper + reap helper + stale-age threshold per §11.4.35.
+Propagation gate <code>CM-COVENANT-114-180-PROPAGATION</code> (literal
+<code>11.4.180</code>) + recommended gate
+<code>CM-WRAPPER-STALE-LOCK-AUTO-REAP</code> (every single-writer
+wrapper reaps provably-stale locks before acquiring, never removes a
+live-held lock, and logs each REAPED/KEPT decision) + paired §1.1
+meta-test mutation (make the reaper remove a live-held lock, OR skip the
+reap-before-acquire step → gate FAILs; strip the literal → propagation
+gate FAILs; gate-code = separate work item). <strong>Canonical
+authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.180.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-stale-lock-reap</code>,
+<code>--force-remove-live-lock</code>,
+<code>--block-on-dead-holder</code> flag.</p>
 <hr />
 <h2 id="appendix-c-multi-upstream-push">Appendix C — Multi-upstream
 push</h2>

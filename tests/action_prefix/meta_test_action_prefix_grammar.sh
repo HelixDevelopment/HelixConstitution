@@ -13,6 +13,14 @@
 #   M3  corrupt the python parse path's DEFAULT-namespace default (returns
 #       "WRONG" instead of "DEFAULT") so the python path diverges from both the
 #       awk path AND the expected tuple → parity + form-1/3 namespace cases FAIL.
+#   M4  break the arrow-form regex in the python parse path (the ` ---> ` branch)
+#       → the form-5 arrow cases + parity FAIL → suite exit != 0. Proves the
+#       arrow-form coverage is not a bluff.
+#   M5  break the arrow-form match in the awk parse path (the ` ---> ` index
+#       anchor) → python/awk parity diverges on arrow inputs → suite exit != 0.
+#   M6  strip the registered REMINDER action from the registry → every REMINDER
+#       expansion case flips from `expand` to `ask` + REM-registered-nonempty
+#       FAILs → suite exit != 0. Proves the REMINDER action coverage is real.
 #
 # §11.4.84 quiescence: each mutation is serialised — mutate, run, RESTORE from a
 # pristine backup BEFORE the next mutation; the working tree is restored on EXIT
@@ -128,10 +136,35 @@ mut_python_ns_default() {
   sed -i 's/ns = m.group(1) or "DEFAULT"/ns = m.group(1) or "WRONG"/g' "$LIB"
 }
 
+# M4 — break the arrow-form regex in the python parse path so ` ---> ` never
+# matches. The fragment `([A-Z][A-Z0-9_]*) ---> (.*)$` occurs ONLY in the python
+# arrow match line inside $LIB, so replacing its ` ---> ` separator with a token
+# that never appears in a real prompt disables the arrow branch there.
+mut_python_arrow() {
+  sed -i 's#(\[A-Z\]\[A-Z0-9_\]\*) ---> (\.\*)\$#([A-Z][A-Z0-9_]*) __NOARROW__ (.*)$#' "$LIB"
+}
+
+# M5 — break the arrow-form match in the awk parse path so the awk arrow branch
+# never fires: rewrite its ` ---> ` index anchor to a token that never occurs, so
+# arrow inputs fall through in awk while python still matches → parity diverges.
+mut_awk_arrow() {
+  sed -i 's/      ai = index(line, " ---> ")/      ai = index(line, " __NEVER_AWK_ARROW__ ")/' "$LIB"
+}
+
+# M6 — strip the registered REMINDER action from the registry (it is the last
+# action block) so REMINDER is no longer registered → the suite's REMINDER
+# expansion cases + REM-registered-nonempty FAIL.
+mut_strip_reminder() {
+  sed -i '/^  - name: REMINDER$/,$d' "$REG"
+}
+
 echo "=== META-TEST: paired §1.1 mutations for the §11.4.140 grammar suite ==="
 check_mutation "M1-python-slash-regex" mut_python_slash
 check_mutation "M2-awk-slash-match"    mut_awk_slash
 check_mutation "M3-python-ns-default"  mut_python_ns_default
+check_mutation "M4-python-arrow-regex" mut_python_arrow
+check_mutation "M5-awk-arrow-match"    mut_awk_arrow
+check_mutation "M6-strip-reminder"     mut_strip_reminder
 
 # Final restore handled by trap; explicit for clarity.
 restore_all

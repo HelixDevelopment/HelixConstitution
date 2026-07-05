@@ -13,20 +13,24 @@
 # by reference, like the §11.4.80 codegraph_* scripts). The scripts read the
 # registry path from $HELIX_ACTION_REGISTRY (default: this file).
 #
-# Grammar (precise spec, §11.4.140 + GRAMMAR_ADDENDUM 2026-06-09): every
-# registered action is invocable in FOUR equivalent forms — same action, same
-# expansion, same execution — anchored to the prompt's first non-blank line:
+# Grammar (precise spec, §11.4.140 + GRAMMAR_ADDENDUM 2026-06-09 + arrow form
+# 2026-07-02): every registered action is invocable in FIVE equivalent forms —
+# same action, same expansion, same execution — anchored to the prompt's first
+# non-blank line:
 #   (1) `ACTION :: <rest>`            bare `::` form (default namespace)
 #   (2) `PREFIX::ACTION :: <rest>`    namespaced `::` form
 #   (3) `/ACTION <rest>`             bare slash form (honored unless host-command collision)
 #   (4) `/PREFIX::ACTION <rest>`     namespaced slash form (ALWAYS unambiguous)
+#   (5) `ACTION ---> <rest>`          bare arrow form (default namespace);
+#       `PREFIX::ACTION ---> <rest>`  namespaced arrow form
 # The token is UPPERCASE-only ([A-Z][A-Z0-9_]*). `PREFIX` is an action NAMESPACE;
 # the reserved default namespace is `DEFAULT`. The namespace separator `::` inside
 # the token carries NO surrounding spaces (`PREFIX::ACTION`) — DISTINCT from the
-# action-body separator ` :: ` (one ASCII space on each side) used in forms 1/2
-# between the token and `<rest>`, and the slash-body separator ` ` (one space)
-# used in forms 3/4. A leading backslash escapes the prefix (literal, no
-# expansion) for BOTH `::` and slash forms (`\BACKGROUND :: x`, `\/BACKGROUND x`).
+# action-body separator ` :: ` (one ASCII space on each side) used in forms 1/2,
+# the arrow-body separator ` ---> ` (one ASCII space on each side) used in form 5,
+# and the slash-body separator ` ` (one space) used in forms 3/4. A leading
+# backslash escapes the prefix (literal, no expansion) for the `::`, arrow, and
+# slash forms (`\BACKGROUND :: x`, `\BACKGROUND ---> x`, `\/BACKGROUND x`).
 # Stacked prefixes ("A :: B :: rest") apply outer-to-inner. An unknown
 # grammar-shaped token is NEVER silently expanded or dropped — ask which
 # registered action was meant (§11.4.66 / §11.4.105), never invent an expansion
@@ -41,6 +45,9 @@ grammar:
   colon_form_regex: '^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*) :: (.*)$'  # forms 1+2: g1=optional PREFIX, g2=ACTION, g3=rest
   # ── slash form (forms 3 + 4) ─────────────────────────────────────────────
   slash_form_regex: '^/(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*)\s+(.*)$'   # forms 3+4: g1=optional PREFIX, g2=ACTION, g3=rest
+  # ── arrow form (form 5) ──────────────────────────────────────────────────
+  arrow_form_regex: '^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*) ---> (.*)$'  # form 5: g1=optional PREFIX, g2=ACTION, g3=rest
+  arrow_body_separator: ' ---> '                 # token <-> rest, spaces both sides (arrow form)
   default_namespace: DEFAULT                     # reserved default-namespace literal
   namespace_separator: '::'                      # inside the token, NO surrounding spaces
   body_separator: ' :: '                         # token <-> rest, spaces both sides ('::' form)
@@ -99,3 +106,40 @@ actions:
       - "11.4.5"
       - "11.4.69"
       - "11.4.107"
+
+  - name: REMINDER
+    version: 1
+    namespaces: [DEFAULT]                         # which namespaces this action is registered under
+    slash_bare: auto                              # bare /REMINDER honored unless a host-command collision
+    slash_conflicts: []                           # known colliding host slash commands (forces /DEFAULT::REMINDER)
+    summary: >-
+      Re-surface previously-scheduled, critical, status-UNCERTAIN work; verify
+      actual status from captured evidence before acting (never assume done).
+    expansion: >-
+      REMINDER — the following names work that was scheduled or requested
+      earlier, is CRITICAL, and whose CURRENT STATUS IS UNCERTAIN; the operator is
+      re-surfacing it. Do NOT assume it is done or not done (§11.4.6 no-guessing —
+      a false 'already done' is a §11.4 PASS-bluff, a false 'not started' wastes
+      effort). FIRST verify the ACTUAL current status from captured evidence: git
+      log/state, the task list, running and queued background work (incl. the
+      §11.4.140 BACKGROUND durable queue docs/requests/background_queue.md), test
+      artifacts, the workable-items DB + docs, the recording corpus. THEN act on
+      the delta: if genuinely complete AND evidence-verified, report the captured
+      proof; if partially done, resume from the exact point; if not started or
+      blocked, action it NOW with high priority — or surface the block per
+      §11.4.66/§11.4.101 while keeping every non-blocked part progressing per
+      §11.4.94/§11.4.97. Treat as high priority.
+    rules:
+      - "The expansion REPLACES the 'REMINDER ---> ' / 'REMINDER :: ' / '/REMINDER' prefix; the remainder of the prompt is the work being reminded about."
+      - "VERIFY-BEFORE-REPORT is mandatory — a REMINDER response that claims status without captured evidence is a §11.4 bluff (§11.4.6 / §11.4.123)."
+      - "A REMINDER never silently no-ops: it ALWAYS produces a status verdict (done+proof / resuming-from-X / starting-now / blocked-because-Y)."
+      - "Compose §11.4.6 (no-guessing), §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 (endless-loop + zero-idle + parallel streams), §11.4.108 (four-layer verification of 'done'), §11.4.130 (validate-just-fixed-first), §11.4.147 (crashed/lost-work never forgotten)."
+    composes_with:
+      - "11.4.6"
+      - "11.4.87"
+      - "11.4.94"
+      - "11.4.97"
+      - "11.4.103"
+      - "11.4.108"
+      - "11.4.130"
+      - "11.4.147"

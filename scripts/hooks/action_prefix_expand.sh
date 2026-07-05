@@ -86,7 +86,7 @@ apx_hook_main() {
       local namespace form ctx
       namespace="$(apx__json_get "$result" namespace)"
       form="$(apx__json_get "$result" form)"
-      ctx="[Action-Prefix System §11.4.140] The user's prompt began with the registered action prefix for '${action}' (namespace '${namespace}', grammar form '${form}' — one of the four equivalent forms ACTION ::, PREFIX::ACTION ::, /ACTION, /PREFIX::ACTION). Apply this action's registered expansion and execute the remainder under it. Expansion: ${expansion} Task (remainder of the prompt): ${residual}"
+      ctx="[Action-Prefix System §11.4.140] The user's prompt began with the registered action prefix for '${action}' (namespace '${namespace}', grammar form '${form}' — one of the five equivalent forms ACTION ::, PREFIX::ACTION ::, /ACTION, /PREFIX::ACTION, ACTION ---> ). Apply this action's registered expansion and execute the remainder under it. Expansion: ${expansion} Task (remainder of the prompt): ${residual}"
       apx_hook_emit_context "$ctx"
       return 0
       ;;
@@ -94,7 +94,7 @@ apx_hook_main() {
       action="$(apx__json_get "$result" action)"
       closest="$(apx__json_get "$result" closest)"
       local note
-      note="[Action-Prefix System §11.4.140] The prompt's first line matches the action-prefix grammar (one of the four forms ACTION ::, PREFIX::ACTION ::, /ACTION, /PREFIX::ACTION) with action token '${action}', but '${action}' is NOT a registered action in actions/registry.yaml. Per §11.4.66/§11.4.105: do NOT silently expand or drop it and do NOT invent an expansion (§11.4.6). Ask the user which registered action was meant"
+      note="[Action-Prefix System §11.4.140] The prompt's first line matches the action-prefix grammar (one of the five forms ACTION ::, PREFIX::ACTION ::, /ACTION, /PREFIX::ACTION, ACTION ---> ) with action token '${action}', but '${action}' is NOT a registered action in actions/registry.yaml. Per §11.4.66/§11.4.105: do NOT silently expand or drop it and do NOT invent an expansion (§11.4.6). Ask the user which registered action was meant"
       if [ -n "$closest" ]; then
         note="$note (closest registered action: '${closest}')"
       fi

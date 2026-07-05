@@ -2,15 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
+  <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Status</title>
   <style>
 
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
 ul.task-list[class]{list-style: none;}
@@ -47,8 +50,10 @@ vertical-align: middle;
 --od-warn: #f59e0b; 
 --od-danger: #ef4444; 
 
---od-font-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-"Helvetica Neue", Arial, "Noto Sans", sans-serif,
+
+--od-font-body: "Source Sans 3", "Source Sans Pro", "Source Sans", Inter,
+-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+"Helvetica Neue", Arial, "Noto Sans", "DejaVu Sans", sans-serif,
 "Apple Color Emoji", "Segoe UI Emoji";
 --od-font-mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace,
 SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
@@ -233,6 +238,11 @@ border-bottom: 1px solid var(--doc-border-soft);
 border-right: 1px solid var(--doc-border-soft);
 padding: 0.55em 0.8em;
 vertical-align: top;
+
+overflow-wrap: break-word;
+word-break: normal;
+white-space: normal;
+hyphens: auto;
 }
 tr > th:last-child, tr > td:last-child { border-right: 0; }
 tbody tr:last-child > td { border-bottom: 0; }
@@ -595,6 +605,28 @@ codegraph version check</h2>
 <li>current: <code>1.1.2</code></li>
 <li>latest: <code>1.1.2</code></li>
 <li>action: <strong>no-op</strong> (already at latest)</li>
+</ul>
+<h2 id="2026-06-29t134438z--codegraph-version-check">2026-06-29T13:44:38Z —
+codegraph version check</h2>
+<ul>
+<li>current: <code>1.1.3</code></li>
+<li>latest: <code>1.1.3</code></li>
+<li>action: <strong>no-op</strong> (already at latest)</li>
+</ul>
+<h2 id="2026-06-29t170030z--codegraph-version-check">2026-06-29T17:00:30Z —
+codegraph version check</h2>
+<ul>
+<li>current: <code>1.1.3</code></li>
+<li>latest: <code>1.1.3</code></li>
+<li>action: <strong>no-op</strong> (already at latest)</li>
+</ul>
+<h2 id="2026-07-02t050301z--codegraph-updated">2026-07-02T05:03:01Z —
+codegraph updated</h2>
+<ul>
+<li>before: <code>1.1.6</code></li>
+<li>after: <code>1.2.0</code></li>
+<li>npm command:
+<code>npm install -g @colbymchenry/codegraph@1.2.0</code></li>
 </ul>
 </body>
 </html>

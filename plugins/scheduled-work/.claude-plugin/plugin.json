@@ -1,0 +1,9 @@
+{
+  "name": "scheduled-work",
+  "version": "0.1.0",
+  "description": "Scheduled-work / reminder tracking for autonomous agents. Records background-queue work items and lets a REMINDER re-verify uncertain/blocked/overdue work before an agent reports it done (§11.4.6 / §11.4.108). Wraps the decoupled scheduled-work-engine Go MCP server (REST + MCP over HTTP/3 + brotli, plus MCP/ACP over stdio).",
+  "author": {
+    "name": "HelixDevelopment"
+  },
+  "keywords": ["reminder", "scheduled-work", "background-queue", "mcp", "anti-bluff"]
+}

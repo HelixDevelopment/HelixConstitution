@@ -29,6 +29,7 @@ Subcommands:
   sync db-to-md --db <p> [--out-issues <p>] [--out-fixed <p>]  Regenerate trackers from DB.
   diff --db <p> [--issues <p>] [--fixed <p>]            Show DB vs Markdown divergence.
   validate --db <p>                                     Closed-set + §11.4.91 invariants.
+  repair-bodies --db <p> [--dry-run]                    Canonicalize stale body **Status:** lines + populate empty bodies from columns (ATM-627/task #20).
   add <type> <severity> --db <p> --title <T> --description <D> [--id <id>] [--prefix <P>] [--created-by <h>] [--assigned-to <h>]
                                                         Create a new Queued item in Issues.
   update --id <ID> --db <p> [--title|--severity|--description|--type|--status|--created-by|--assigned-to ...] [--location Issues|Fixed]
@@ -52,8 +53,33 @@ Subcommands:
   export --db <p> [--out-dir <d>] [--issues <p>] [--fixed <p>] [--out-issues <p>] [--out-fixed <p>]
                                                         Regenerate Issues.md + Fixed.md + Summary docs + HTML/PDF/DOCX (§11.4.12/§11.4.53).
   version-tags --db <p> --repo <p> [--issues <p>] [--fixed <p>]  Derive + persist release-tag column (feature 2026-05-30).
+  group add <group_id> <destination> <priority> --title <T> [--state s]
+            [--scope-note <T>] [--roadmap-ref <T>] --db <p>
+                                                        Create a logic_groups row (ASSIGNMENT_MECHANISM_DESIGN.md §3.2).
+  group list [--destination <D>] [--state <S>] --db <p>  List logic_groups, priority-then-group_id ordered (read-only).
+  group set <group_id> [--title|--destination|--priority|--scope-note|--roadmap-ref ...] --db <p>
+            group set --item <ATM-ID> --group <group_id> [--location Issues|Fixed] --db <p>
+                                                        Edit a group's fields, OR classify one item into a group
+                                                        (destination inherited from the group — §3.1 agreement).
+  group state <group_id> <open|in-progress|group-complete> --db <p>
+                                                        Set a group's lifecycle state (raw setter; the gated
+                                                        group-complete check is a later phase).
+  validate-groups --db <p>                               §3.1 group-atomic invariants: single-valued,
+                                                        destination-agreement, totality, referential, urgent-routing.
+  assign next-group --track T --destinations D1[,D2,...] --claim-script <path>
+            [--ttl SEC] --db <p>                          Priority-ordered group pick + exactly-once claim via the
+                                                        §11.4.176-A registry (ASSIGNMENT_MECHANISM_DESIGN.md §5).
+  assign next-item --track T --group <group_id> [--exclude ID1[,ID2,...]] --db <p>
+                                                        Next open member item of a group, by STORED logic_group
+                                                        (never a substring re-derivation — design §5).
+  assign group-complete <group_id> --db <p>              Refuses unless every member item is terminal-with-evidence
+                                                        (design §4 group-atomic completion gate).
+  classify --propose --db <p> [--out <path-prefix>]      Propose logic_group/destination per unclassified item from
+                                                        STRUCTURED signals + a title-scoped weak hint (NEVER
+                                                        description) — writes a review file, never the DB (design §9).
 
-Canonical authority: Constitution.md §11.4.93.
+Canonical authority: Constitution.md §11.4.93; docs/tracks/ASSIGNMENT_MECHANISM_DESIGN.md §3 (group subcommands),
+§5 (assigner), §9 (classifier).
 `)
 }
 
@@ -71,6 +97,8 @@ func main() {
 		runDiff(args[1:])
 	case "validate":
 		runValidate(args[1:])
+	case "repair-bodies":
+		runRepairBodies(args[1:])
 	case "version-tags":
 		os.Exit(versionTagsCmd(args[1:]))
 	case "add":
@@ -91,6 +119,14 @@ func main() {
 		runDiary(args[1:])
 	case "export":
 		runExport(args[1:])
+	case "group":
+		runGroup(args[1:])
+	case "validate-groups":
+		runValidateGroups(args[1:])
+	case "assign":
+		runAssign(args[1:])
+	case "classify":
+		runClassify(args[1:])
 	case "-h", "--help", "help":
 		usage()
 		os.Exit(exitOK)

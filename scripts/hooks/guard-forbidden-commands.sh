@@ -201,9 +201,13 @@ SUDO_MSG="§6.U forbids sudo / su in any committed artifact or agent tool call. 
 if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)sudo([[:space:]]|$) ]]; then
   block "§6.U no-sudo" "$SUDO_MSG"
 fi
-# `su`, `su -`, `su -l`, `su <user>` (but NOT words merely containing 'su' such
-# as `subl`, `sudo` already handled above, or `--summary`).
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)su([[:space:]]+-?l?([[:space:]]|$)|[[:space:]]*$) ]]; then
+# `su`, `su -`, `su -l`, `su <user>`, `su <user> -c ...`, `su -c ...` (but NOT
+# words merely containing 'su' such as `subl`, `sudo` already handled above, or
+# `--summary`). A standalone `su` token (start/space/;/|/& before, space/EOL
+# after) is blocked regardless of its arguments — the earlier
+# `su([[:space:]]+-?l?...)` form let `su root -c '<anything>'` bypass the §6.U
+# gate because the char after the space was neither `-`, `l`, nor EOL (F3-B1).
+if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)su([[:space:]]|$) ]]; then
   block "§6.U no-su" "$SUDO_MSG"
 fi
 

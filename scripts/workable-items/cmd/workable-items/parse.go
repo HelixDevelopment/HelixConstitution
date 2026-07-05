@@ -441,6 +441,220 @@ func normalizeStatus(v string) string {
 	}
 }
 
+// lastBodyStatus reconstructs the Status the md→db parser (buildItem) would derive
+// from a body_md block, returning (normalizedStatus, true) when the body carries at
+// least one `**Status:**` meta line and ("", false) when it carries none. It mirrors
+// buildItem EXACTLY: walk every `**Key:** value` line via metaLineRe and let the LAST
+// `**Status:**` line win, normalised through normalizeStatus (buildItem's switch
+// overwrites it.Status on each `status` key, so last-wins is the faithful semantics).
+//
+// This shared derivation is the generator-symmetric oracle for the ATM-627 (task #20)
+// column↔body Status invariant: a body whose Status line carries trailing prose, a
+// `**Priority:**` tail on the same line, or multiple `**Status:**` tokens normalises to
+// the SAME value the column was first set to — so those shapes are NOT false-positive
+// desyncs (the 8 false-positives the reconciliation plan calls out are resolved here).
+func lastBodyStatus(body string) (string, bool) {
+	status := ""
+	found := false
+	for _, mm := range metaLineRe.FindAllStringSubmatch(body, -1) {
+		if strings.EqualFold(mm[1], "status") {
+			status = normalizeStatus(strings.TrimSpace(mm[2]))
+			found = true
+		}
+	}
+	return status, found
+}
+
+// canonicalizeBodyStatusLine returns body with the value of its LAST `**Status:**`
+// line forced to columnStatus, so `sync db-to-md` emits a Status line consistent with
+// the authoritative items.status column even if a direct `UPDATE items SET status=…`
+// (bypassing renderItemBody) left body_md stale — the ATM-627 (task #20) generator-
+// symmetry / defense-in-depth half of the durable fix.
+//
+// It is a STRICT no-op — body returned unchanged, byte-for-byte — when the body has no
+// `**Status:**` line OR already derives columnStatus (lastBodyStatus == columnStatus).
+// Because every freshly md→db-synced item satisfies lastBodyStatus(body)==status BY
+// CONSTRUCTION (buildItem sets the column from exactly this derivation), the entire
+// clean DB round-trips BYTE-IDENTICALLY through this function; only a genuinely desynced
+// item's line is rewritten. Only the Status line's value changes — every other line,
+// including `**Reopened-Details:**` / `**Operator-Block-Details:**` blocks and all prose,
+// is preserved verbatim (surgical single-line replacement). Composes with the R3
+// dangling-segment guard (sync.go danglingItemSegments) — that guards segment↔item
+// location; this guards column↔body Status; the two are orthogonal invariants.
+func canonicalizeBodyStatusLine(body, columnStatus string) string {
+	if cur, ok := lastBodyStatus(body); !ok || cur == columnStatus {
+		return body
+	}
+	lines := splitKeepNewlines(body)
+	lastIdx := -1
+	for i, ln := range lines {
+		if strings.HasPrefix(strings.TrimRight(ln, "\n"), "**Status:**") {
+			lastIdx = i
+		}
+	}
+	if lastIdx < 0 {
+		return body // defensive: lastBodyStatus said a Status line exists → unreachable
+	}
+	nl := ""
+	if strings.HasSuffix(lines[lastIdx], "\n") {
+		nl = "\n"
+	}
+	lines[lastIdx] = "**Status:** " + columnStatus + nl
+	return strings.Join(lines, "")
+}
+
+// operatorBlock is the reconstruction of an item's §11.4.21
+// `**Operator-Block-Details:**` block, so the md→db sync can repopulate the
+// operator_block_details sub-table (§11.4.148 D3). The four fields mirror the
+// schema columns what / why_exhausted_alternatives / unblock_condition / who.
+type operatorBlock struct {
+	what    string
+	why     string
+	unblock string
+	who     string
+}
+
+// parseOperatorBlockDetails reconstructs the §11.4.21 Operator-Block-Details
+// fields from an item body_md. Returns ok=false when the body carries NO
+// `**Operator-Block-Details` block — the item then gets no sub-table row, which
+// the §11.4.148 D3 validator correctly flags for a genuinely-missing block.
+//
+// The live trackers use several real shapes for the block (all six live
+// Operator-blocked items exercised): an inline single line
+// (`… WHAT: … WHY: … UNBLOCK: [A]…·[B]… WHO: …`, ATM-356/388/651); a bulleted
+// bold block (`- **WHAT operator must do:** …` / `- **WHY …:** …` / …,
+// ATM-387/474); and a By/On/Reason/Evidence bullet list whose enumerated
+// choices live in a SEPARATE `**Unblock-Choices:**` line (ATM-015/356). The
+// captured block runs from the marker line up to the first blank line, sibling
+// `**Label:**` field, heading, or `---`. unblock_condition folds in the
+// `**Unblock-Choices:**` line + the block's own UNBLOCK text + the whole block,
+// so the §11.4.148 D3 enumerated-choice assertion always sees the real choices.
+//
+// It is READ-ONLY over body_md and never touches the round-trip path
+// (renderDocument reassembles documents from body_md/segments, NOT from the
+// operator_block_details sub-table), so this reconstruction cannot perturb the
+// byte-identical md↔db round-trip.
+func parseOperatorBlockDetails(body string) (operatorBlock, bool) {
+	lines := strings.Split(body, "\n")
+	start := -1
+	for i, ln := range lines {
+		if strings.HasPrefix(strings.TrimSpace(ln), "**Operator-Block-Details") {
+			start = i
+			break
+		}
+	}
+	if start < 0 {
+		return operatorBlock{}, false
+	}
+	// Capture the marker line + continuation lines up to the first blank line,
+	// sibling `**Label:**` field, heading, or `---` separator. Bullet lines
+	// (`- …` / `* …`) are continuation, NOT siblings, so they are included.
+	block := []string{lines[start]}
+	for j := start + 1; j < len(lines); j++ {
+		t := strings.TrimSpace(lines[j])
+		if t == "" ||
+			(strings.HasPrefix(t, "**") && strings.Contains(t, ":**")) ||
+			strings.HasPrefix(t, "## ") || strings.HasPrefix(t, "### ") ||
+			strings.HasPrefix(t, "---") {
+			break
+		}
+		block = append(block, lines[j])
+	}
+	blockText := strings.TrimSpace(strings.Join(block, "\n"))
+
+	// A separate `**Unblock-Choices:**` line (ATM-015/356) carries the enumerated
+	// [A]…·[B]… choices OUTSIDE the OBD block; fold it into the unblock text so
+	// the §11.4.148 D3 enumerated-choice assertion sees it.
+	choices := ""
+	for _, mm := range metaLineRe.FindAllStringSubmatch(body, -1) {
+		if strings.EqualFold(mm[1], "Unblock-Choices") {
+			choices = strings.TrimSpace(mm[2])
+		}
+	}
+
+	ob := operatorBlock{
+		what: firstNonEmpty(extractOBDField(blockText, "WHAT"), blockText),
+		why:  firstNonEmpty(extractOBDField(blockText, "WHY"), blockText),
+		who:  extractOBDField(blockText, "WHO"), // nullable column → "" is fine
+	}
+	var parts []string
+	if choices != "" {
+		parts = append(parts, choices)
+	}
+	if u := extractOBDField(blockText, "UNBLOCK"); u != "" {
+		parts = append(parts, u)
+	}
+	parts = append(parts, blockText) // safety net: the whole block (its bullets satisfy the enumeration check)
+	ob.unblock = strings.TrimSpace(strings.Join(parts, "\n"))
+	return ob, true
+}
+
+// extractOBDField pulls the text of a single §11.4.21 field (key one of
+// WHAT/WHY/UNBLOCK/WHO) from an OBD block, recognising BOTH the bulleted bold
+// form (`- **WHAT operator must do:** <text>`) and the inline form
+// (`… WHAT: <text> WHY: …`). Returns "" when the field is absent (callers fall
+// back to the whole block for the NOT-NULL what/why columns; who is nullable).
+func extractOBDField(block, key string) string {
+	// (1) bulleted bold form: a bullet whose payload is **<key…>:** <text>.
+	for _, ln := range strings.Split(block, "\n") {
+		t := strings.TrimSpace(ln)
+		t = strings.TrimPrefix(t, "- ")
+		t = strings.TrimPrefix(t, "* ")
+		if !strings.HasPrefix(t, "**") {
+			continue
+		}
+		closeIdx := strings.Index(t, ":**")
+		if closeIdx < 0 {
+			continue
+		}
+		label := strings.ToUpper(strings.TrimSpace(t[2:closeIdx]))
+		if strings.HasPrefix(label, key) {
+			return strings.TrimSpace(t[closeIdx+3:])
+		}
+	}
+	// (2) inline form: find `KEY:` at a word boundary; the value runs to the
+	//     next WHAT:/WHY:/UNBLOCK:/WHO: label or the end of the block.
+	upper := strings.ToUpper(block)
+	inlineKeys := []string{"WHAT:", "WHY:", "UNBLOCK:", "WHO:"}
+	find := func(k string) int {
+		from := 0
+		for {
+			idx := strings.Index(upper[from:], k)
+			if idx < 0 {
+				return -1
+			}
+			pos := from + idx
+			if pos == 0 || !isOBDWordChar(upper[pos-1]) {
+				return pos
+			}
+			from = pos + len(k)
+		}
+	}
+	kk := key + ":"
+	pos := find(kk)
+	if pos < 0 {
+		return ""
+	}
+	valStart := pos + len(kk)
+	valEnd := len(block)
+	for _, other := range inlineKeys {
+		if other == kk {
+			continue
+		}
+		if oi := find(other); oi >= valStart && oi < valEnd {
+			valEnd = oi
+		}
+	}
+	return strings.TrimSpace(block[valStart:valEnd])
+}
+
+// isOBDWordChar reports whether b is an ASCII letter/digit — used to enforce a
+// word boundary before an inline `KEY:` so a substring hit inside a larger word
+// is not mistaken for the field label.
+func isOBDWordChar(b byte) bool {
+	return (b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z') || (b >= '0' && b <= '9')
+}
+
 // fixedRowRe matches a LEGACY Fixed.md closure table data row:
 // `| <date> | <title> | <Type> | <Status> | <Round> | <Commit(s)> | <Evidence> |`
 // The title cell holds `<ID>[ (...)]: <title>` (colon separator in Fixed.md).

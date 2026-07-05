@@ -206,6 +206,80 @@ func validateCmd(args []string) int {
 		}
 	}
 
+	// §11.4.93 renderability + §11.4.111 current_location closed-set (ATM-627).
+	// The DB is the single source of truth (§11.4.95); a DB that `db-to-md`
+	// cannot render is NOT a faithful source — regen is silently blocked. The
+	// prior validate checked status/type/description only and returned exit 0
+	// on such a DB (a §11.4.6/§11.4.93 bluff gate: green while regen impossible).
+	// These two checks fail-closed on exactly that corruption class.
+
+	// (a) current_location closed-set {Issues, Fixed}. A stray value such as the
+	// half-migration artifact "Fixed.md" orphans the item: renderDocument scopes
+	// its body lookup to current_location=document, so a "Fixed.md" item is
+	// invisible to BOTH the Issues and the Fixed render (§11.4.19 atomic-migration
+	// invariant broken).
+	for _, it := range items {
+		switch it.CurrentLocation {
+		case "Issues", "Fixed":
+			// ok
+		default:
+			violations = append(violations, fmt.Sprintf(
+				"%s: current_location %q not in closed-set {Issues,Fixed} (§11.4.93/§11.4.111) [%s]",
+				it.AtmID, it.CurrentLocation, it.repOrDefault()))
+		}
+	}
+
+	// (b) renderability guard: every doc_segment item-reference MUST resolve to
+	// an item at (current_location=document, representation). renderDocument
+	// returns a hard error on the first dangling segment; surfacing it here as a
+	// validation violation turns the silent regen-blocker into a caught, actionable
+	// failure (§11.4.120 — the gate asserts the real "DB is renderable" invariant).
+	for _, document := range []string{"Issues", "Fixed"} {
+		if _, err := renderDocument(db, document); err != nil {
+			violations = append(violations, fmt.Sprintf(
+				"%s: DB not renderable by db-to-md (§11.4.93): %v", document, err))
+		}
+	}
+
+	// (c) §11.4.135 DIRECT dangling-doc_segment integrity guard (ATM-627 defect
+	// class). renderDocument (b) catches this INDIRECTLY — it aborts on the FIRST
+	// unresolvable segment per document. danglingItemSegments asserts the same
+	// invariant DIRECTLY via an explicit segment↔item join, so EVERY offending
+	// segment is enumerated (not just the first-in-seq per document) and the
+	// finding is a self-documenting integrity violation rather than a "not
+	// renderable" side-effect. Composes with (b); does not replace it.
+	if dangling, derr := danglingItemSegments(db); derr != nil {
+		violations = append(violations, fmt.Sprintf("dangling-segment integrity query: %v", derr))
+	} else {
+		violations = append(violations, dangling...)
+	}
+
+	// (d) §11.4.93 / ATM-627 — REVERSE dangling-segment guard: item exists with NO
+	// doc_segments row for its (atm_id, current_location, representation). (c) above
+	// catches segment->no-item; renderDocument silently DROPS this class instead of
+	// erroring (it only iterates existing doc_segments rows, so an item lacking one
+	// is invisible to db-to-md with NO error surfaced) — the exact "db-to-md drops
+	// segmentless items" defect ATM-627 reports. Without this guard, validate
+	// reported OK on a DB that would silently regenerate Issues.md/Fixed.md missing
+	// every segmentless item (a §11.4.6/§11.4.93 bluff gate).
+	if missing, merr := itemsMissingSegments(db); merr != nil {
+		violations = append(violations, fmt.Sprintf("missing-segment integrity query: %v", merr))
+	} else {
+		violations = append(violations, missing...)
+	}
+
+	// (e) §11.4.93 / ATM-627 (task #20) — column↔body Status desync guard. items.status
+	// is authoritative (§11.4.95); when a direct `UPDATE items SET status=…` bypasses
+	// renderItemBody it advances the column while body_md's `**Status:**` line stays
+	// stale → `sync db-to-md` (renderDocument) would emit the stale line, misreporting
+	// the item to every reader. The prior validate checked the status CLOSED-SET only,
+	// never column↔body agreement, so a desynced item passed exit 0 (a §11.4.6/§11.4.93
+	// bluff gate). This guard fails-closed on exactly that class; the generator-symmetry
+	// half (canonicalizeBodyStatusLine, wired into renderDocument, parse.go) prevents
+	// recurrence by emitting the Status line from the column. Composes with (b)/(c) —
+	// orthogonal invariants (those: segment↔item location; this: column↔body Status).
+	violations = append(violations, statusColumnBodyDesyncs(items)...)
+
 	if len(violations) > 0 {
 		sort.Strings(violations)
 		fmt.Fprintf(os.Stderr, "validate: %d violation(s):\n", len(violations))
@@ -216,6 +290,156 @@ func validateCmd(args []string) int {
 	}
 	fmt.Printf("validate: OK — %d items, all invariants satisfied\n", len(items))
 	return exitOK
+}
+
+// danglingItemSegments returns, for the ATM-627 dangling-doc_segment defect
+// CLASS, a human-readable description of every doc_segments row with kind='item'
+// whose (atm_id, document, representation) has NO matching item at
+// (atm_id, current_location=document, representation) — i.e. the invariant
+// "item.current_location must equal the document of every doc_segment that
+// belongs to that item" is violated.
+//
+// This is the DIRECT, first-class integrity assertion of the §11.4.135 guard,
+// decoupled from renderDocument's control-flow side-effect. It is read-only, so
+// it can never break an existing valid DB.
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with
+// `return nil, nil` removes the guard; atm627_integrity_guard_test.go then FAILs
+// — proving the guard is not a tautology.
+func danglingItemSegments(db *sql.DB) ([]string, error) {
+	// A kind='item' segment is DANGLING when the LEFT JOIN to items on
+	// (atm_id, current_location=document, representation) finds no partner. The
+	// representation defaults to 'section' on both sides (COALESCE) to mirror
+	// renderDocument's body-lookup key exactly.
+	rows, err := db.Query(`
+		SELECT s.document, s.seq, s.atm_id, COALESCE(s.representation,'section')
+		FROM doc_segments s
+		LEFT JOIN items i
+		  ON i.atm_id = s.atm_id
+		 AND i.current_location = s.document
+		 AND COALESCE(i.representation,'section') = COALESCE(s.representation,'section')
+		WHERE s.kind = 'item'
+		  AND s.atm_id IS NOT NULL
+		  AND i.atm_id IS NULL
+		ORDER BY s.document, s.seq`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []string
+	for rows.Next() {
+		var document, atmID, rep string
+		var seq int
+		if err := rows.Scan(&document, &seq, &atmID, &rep); err != nil {
+			return nil, err
+		}
+		out = append(out, fmt.Sprintf(
+			"dangling item-segment (document=%s, seq=%d, atm_id=%s, rep=%s): no item at current_location=%s (§11.4.135/ATM-627)",
+			document, seq, atmID, rep, document))
+	}
+	return out, rows.Err()
+}
+
+// itemsMissingSegments is the REVERSE of danglingItemSegments: it returns, for
+// EVERY item at (atm_id, current_location, representation) that has NO matching
+// doc_segments row (kind='item', document=current_location, atm_id, representation),
+// a human-readable description of the gap. This is the direct-integrity assertion of
+// the ATM-627 "db-to-md drops N segmentless items" defect class: renderDocument
+// (validateCmd check (b)) walks doc_segments in seq order and only ever emits items
+// THAT HAVE a segment row — an item with none is simply never visited, so
+// renderDocument returns NO error and a naive `db-to-md` regen SILENTLY OMITS the
+// item from the regenerated Markdown. Before this guard, `validate` reported "OK"
+// on a DB in exactly that state (112 items on the live tree, captured 2026-07-05) —
+// a §11.4.6/§11.4.93 bluff gate: green while regen is lossy.
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with `return nil, nil`
+// removes the guard; TestATM627_SegmentBackfill_ValidateCatchesMissingSegments (RED
+// polarity per §11.4.115) then FAILs — proving the guard is not a tautology.
+func itemsMissingSegments(db *sql.DB) ([]string, error) {
+	rows, err := db.Query(`
+		SELECT i.atm_id, i.current_location, COALESCE(i.representation,'section')
+		FROM items i
+		LEFT JOIN doc_segments s
+		  ON s.atm_id = i.atm_id
+		 AND s.document = i.current_location
+		 AND COALESCE(s.representation,'section') = COALESCE(i.representation,'section')
+		 AND s.kind = 'item'
+		WHERE s.id IS NULL
+		ORDER BY i.current_location, i.atm_id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []string
+	for rows.Next() {
+		var atmID, document, rep string
+		if err := rows.Scan(&atmID, &document, &rep); err != nil {
+			return nil, err
+		}
+		out = append(out, fmt.Sprintf(
+			"missing item-segment (atm_id=%s, rep=%s): item at current_location=%s has NO doc_segments row — db-to-md would silently drop it (§11.4.93/ATM-627)",
+			atmID, rep, document))
+	}
+	return out, rows.Err()
+}
+
+// statusColumnBodyDesyncs returns a human-readable description of every item whose
+// authoritative items.status column DISAGREES with the Status the md→db parser would
+// derive from its body_md (lastBodyStatus). This is the ATM-627 (task #20) DURABLE
+// guard for the column↔body Status desync CLASS: a direct `UPDATE items SET status=…`
+// that bypasses renderItemBody advances the column while body_md's `**Status:**` line
+// stays stale → `sync db-to-md` would emit the stale line, misreporting the item's
+// state to every tracker reader. The prior validate checked the status CLOSED-SET only,
+// never column↔body agreement, so a desynced item passed exit 0 (a §11.4.6/§11.4.93
+// bluff gate: green while db-to-md emits a wrong Status).
+//
+// Read-only — it can never break a valid DB. Items whose body carries NO `**Status:**`
+// line are SKIPPED (nothing to compare); only a PRESENT-but-disagreeing line is a
+// violation. Generator-symmetric (§11.4.93): the oracle IS the parser's own column
+// derivation (lastBodyStatus → normalizeStatus, last-Status-line-wins), so a body whose
+// Status line carries trailing prose / a `**Priority:**` tail / multiple `**Status:**`
+// tokens normalises to the column it was first derived from and is NOT a false positive.
+// Composes with the R3 dangling-segment guard (danglingItemSegments) — orthogonal
+// invariants (that: segment↔item location; this: column↔body Status).
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with `return nil`
+// removes the guard; atm627_status_desync_test.go then FAILs — proving the guard is
+// NOT a tautology.
+func statusColumnBodyDesyncs(items []item) []string {
+	var out []string
+	for _, it := range items {
+		// The `**Status:**`-line invariant governs H2 'section' bodies. A 'table'
+		// representation carries its Status in the pipe cell (emitLegacyTable /
+		// export.go pipe-row synthesizer), NOT a `**Status:**` line, so it is out of
+		// scope for THIS guard (skipping it avoids a false positive against a valid
+		// pipe row that legitimately has no `**Status:**` line).
+		if it.repOrDefault() != "section" {
+			continue
+		}
+		// deriveStatusFromBody: mirror buildItem's FULL column derivation for a section
+		// body — the normalised last `**Status:**` line, OR buildItem's struct-default
+		// "Queued" when the section body carries NO `**Status:**` line at all (an empty
+		// / status-less body: md→db would set the column to "Queued", so a column that
+		// is NOT "Queued" is NOT recoverable from body_md — the SPK-512/519/609
+		// empty-body class). This is the exact generator-symmetric oracle.
+		want, hasLine := lastBodyStatus(it.BodyMD)
+		if !hasLine {
+			want = "Queued"
+		}
+		if want == it.Status {
+			continue
+		}
+		detail := fmt.Sprintf("body_md **Status:** line derives %q", want)
+		if !hasLine {
+			detail = "body_md has NO **Status:** line (md→db would derive \"Queued\")"
+		}
+		out = append(out, fmt.Sprintf(
+			"%s [%s/%s]: items.status=%q but %s (§11.4.93/ATM-627 column↔body desync)",
+			it.AtmID, it.CurrentLocation, it.repOrDefault(), it.Status, detail))
+	}
+	return out
 }
 
 // diffCmd reports items whose parsed-from-Markdown state differs from the DB.
