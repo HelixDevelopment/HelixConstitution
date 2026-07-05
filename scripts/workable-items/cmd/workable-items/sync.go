@@ -254,7 +254,21 @@ func validateCmd(args []string) int {
 		violations = append(violations, dangling...)
 	}
 
-	// (d) §11.4.93 / ATM-627 (task #20) — column↔body Status desync guard. items.status
+	// (d) §11.4.93 / ATM-627 — REVERSE dangling-segment guard: item exists with NO
+	// doc_segments row for its (atm_id, current_location, representation). (c) above
+	// catches segment->no-item; renderDocument silently DROPS this class instead of
+	// erroring (it only iterates existing doc_segments rows, so an item lacking one
+	// is invisible to db-to-md with NO error surfaced) — the exact "db-to-md drops
+	// segmentless items" defect ATM-627 reports. Without this guard, validate
+	// reported OK on a DB that would silently regenerate Issues.md/Fixed.md missing
+	// every segmentless item (a §11.4.6/§11.4.93 bluff gate).
+	if missing, merr := itemsMissingSegments(db); merr != nil {
+		violations = append(violations, fmt.Sprintf("missing-segment integrity query: %v", merr))
+	} else {
+		violations = append(violations, missing...)
+	}
+
+	// (e) §11.4.93 / ATM-627 (task #20) — column↔body Status desync guard. items.status
 	// is authoritative (§11.4.95); when a direct `UPDATE items SET status=…` bypasses
 	// renderItemBody it advances the column while body_md's `**Status:**` line stays
 	// stale → `sync db-to-md` (renderDocument) would emit the stale line, misreporting
@@ -323,6 +337,50 @@ func danglingItemSegments(db *sql.DB) ([]string, error) {
 		out = append(out, fmt.Sprintf(
 			"dangling item-segment (document=%s, seq=%d, atm_id=%s, rep=%s): no item at current_location=%s (§11.4.135/ATM-627)",
 			document, seq, atmID, rep, document))
+	}
+	return out, rows.Err()
+}
+
+// itemsMissingSegments is the REVERSE of danglingItemSegments: it returns, for
+// EVERY item at (atm_id, current_location, representation) that has NO matching
+// doc_segments row (kind='item', document=current_location, atm_id, representation),
+// a human-readable description of the gap. This is the direct-integrity assertion of
+// the ATM-627 "db-to-md drops N segmentless items" defect class: renderDocument
+// (validateCmd check (b)) walks doc_segments in seq order and only ever emits items
+// THAT HAVE a segment row — an item with none is simply never visited, so
+// renderDocument returns NO error and a naive `db-to-md` regen SILENTLY OMITS the
+// item from the regenerated Markdown. Before this guard, `validate` reported "OK"
+// on a DB in exactly that state (112 items on the live tree, captured 2026-07-05) —
+// a §11.4.6/§11.4.93 bluff gate: green while regen is lossy.
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with `return nil, nil`
+// removes the guard; TestATM627_SegmentBackfill_ValidateCatchesMissingSegments (RED
+// polarity per §11.4.115) then FAILs — proving the guard is not a tautology.
+func itemsMissingSegments(db *sql.DB) ([]string, error) {
+	rows, err := db.Query(`
+		SELECT i.atm_id, i.current_location, COALESCE(i.representation,'section')
+		FROM items i
+		LEFT JOIN doc_segments s
+		  ON s.atm_id = i.atm_id
+		 AND s.document = i.current_location
+		 AND COALESCE(s.representation,'section') = COALESCE(i.representation,'section')
+		 AND s.kind = 'item'
+		WHERE s.id IS NULL
+		ORDER BY i.current_location, i.atm_id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []string
+	for rows.Next() {
+		var atmID, document, rep string
+		if err := rows.Scan(&atmID, &document, &rep); err != nil {
+			return nil, err
+		}
+		out = append(out, fmt.Sprintf(
+			"missing item-segment (atm_id=%s, rep=%s): item at current_location=%s has NO doc_segments row — db-to-md would silently drop it (§11.4.93/ATM-627)",
+			atmID, rep, document))
 	}
 	return out, rows.Err()
 }

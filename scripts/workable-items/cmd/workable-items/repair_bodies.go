@@ -2,8 +2,10 @@
 //
 // §11.4.93 / §11.4.95: items.status is the authoritative single source of truth;
 // body_md is a derived surface that `sync db-to-md` (renderDocument) replays into
-// the trackers. Two classes of body_md drift accumulate when a direct
-// `UPDATE items SET status=…` bypasses renderItemBody:
+// the trackers. THREE classes of drift accumulate when items are inserted/mutated
+// directly against the DB (added DB-direct without a follow-up `sync md-to-db`
+// reparse, or a direct `UPDATE items SET status=…`) instead of through the
+// md<->db round-trip:
 //
 //   - STALE-LINE (38 items on the live tree): a NON-empty section body whose LAST
 //     `**Status:**` line disagrees with the column. renderDocument's
@@ -22,10 +24,25 @@
 //     `**Type:**` / `**Severity:**` / `**Created-By:**` / `**Assigned-To:**`
 //     block + the description from the authoritative columns.
 //
-// After repair-bodies, `validate` reports 0 column↔body desyncs. The operation is
-// IDEMPOTENT: a second run classifies every item as noop (a populated body already
-// derives its column; a rewritten line already equals its column) and issues NO
-// UPDATE — the DB is byte-identical.
+//   - MISSING-SEGMENT (112 items on the live tree, captured 2026-07-05): an item
+//     with a populated body_md but NO doc_segments row for its
+//     (atm_id, current_location, representation). renderDocument (db.go) walks
+//     doc_segments in seq order and only ever emits an item THAT HAS a segment
+//     row — an item lacking one is simply never visited, so `sync db-to-md`
+//     returns exitOK and SILENTLY DROPS the item from the regenerated Markdown
+//     (no error, no warning — the exact "db-to-md drops N segmentless items"
+//     symptom ATM-627 reports). repair-bodies BACKFILLS a `kind='item'` segment
+//     row for every such item, appended after the current MAX(seq) for that
+//     item's document (deterministic ORDER BY atm_id so the operation is
+//     reproducible run-to-run) — restoring the item to db-to-md's output without
+//     touching any EXISTING segment's seq/position (so the byte-identical
+//     round-trip of every already-segmented item is unaffected).
+//
+// After repair-bodies, `validate` reports 0 column↔body desyncs AND 0
+// missing-item-segments. The operation is IDEMPOTENT: a second run classifies
+// every item as noop (a populated body already derives its column; a rewritten
+// line already equals its column; a backfilled item now HAS a segment row) and
+// issues NO UPDATE / INSERT — the DB is byte-identical.
 //
 // HARD CONSTRAINT (§11.4.95 / §9.2): the conductor runs this against the live
 // docs/workable_items.db inside the §9.2-backed sync pipeline
@@ -34,9 +51,11 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -90,6 +109,96 @@ func classifyRepair(it item) (repairAction, string) {
 
 func runRepairBodies(args []string) {
 	os.Exit(repairBodiesCmd(args))
+}
+
+// segmentBackfillPlan is one item that needs a NEW doc_segments row.
+type segmentBackfillPlan struct {
+	it  item
+	seq int
+}
+
+// existingItemSegmentKeys returns the set of (atm_id, document, representation)
+// keys that already have a `kind='item'` doc_segments row, keyed exactly as
+// itemsMissingSegments (sync.go) joins them.
+func existingItemSegmentKeys(db *sql.DB) (map[string]bool, error) {
+	rows, err := db.Query(`SELECT atm_id, document, COALESCE(representation,'section')
+		FROM doc_segments WHERE kind='item' AND atm_id IS NOT NULL`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	keys := map[string]bool{}
+	for rows.Next() {
+		var atmID, document, rep string
+		if err := rows.Scan(&atmID, &document, &rep); err != nil {
+			return nil, err
+		}
+		keys[atmID+"\x00"+document+"\x00"+rep] = true
+	}
+	return keys, rows.Err()
+}
+
+// maxSeqPerDocument returns the current MAX(seq) per document, defaulting to -1
+// for a document with zero rows so the first backfilled segment gets seq=0.
+func maxSeqPerDocument(db *sql.DB) (map[string]int, error) {
+	maxSeq := map[string]int{"Issues": -1, "Fixed": -1}
+	rows, err := db.Query(`SELECT document, MAX(seq) FROM doc_segments GROUP BY document`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var document string
+		var seq int
+		if err := rows.Scan(&document, &seq); err != nil {
+			return nil, err
+		}
+		maxSeq[document] = seq
+	}
+	return maxSeq, rows.Err()
+}
+
+// planSegmentBackfill computes, for every item lacking a doc_segments row, the
+// NEW segment it needs — appended after the document's current MAX(seq), assigned
+// in a DETERMINISTIC order (sorted by current_location then atm_id) so re-running
+// repair-bodies on the same drifted DB always produces the identical plan
+// (§11.4.50 deterministic consistency). Existing segments (and their seq values)
+// are never touched — this is purely additive, so every already-segmented item's
+// byte-identical round-trip is unaffected.
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with
+// `return nil, nil` disables the backfill; TestRepairBodies_BackfillsMissingSegments
+// (RED polarity per §11.4.115) then FAILs — proving the backfill is not a tautology.
+func planSegmentBackfill(db *sql.DB, items []item) ([]segmentBackfillPlan, error) {
+	existing, err := existingItemSegmentKeys(db)
+	if err != nil {
+		return nil, err
+	}
+	maxSeq, err := maxSeqPerDocument(db)
+	if err != nil {
+		return nil, err
+	}
+
+	var missing []item
+	for _, it := range items {
+		key := it.AtmID + "\x00" + it.CurrentLocation + "\x00" + it.repOrDefault()
+		if !existing[key] {
+			missing = append(missing, it)
+		}
+	}
+	sort.Slice(missing, func(i, j int) bool {
+		if missing[i].CurrentLocation != missing[j].CurrentLocation {
+			return missing[i].CurrentLocation < missing[j].CurrentLocation
+		}
+		return missing[i].AtmID < missing[j].AtmID
+	})
+
+	var plan []segmentBackfillPlan
+	for _, it := range missing {
+		maxSeq[it.CurrentLocation]++
+		plan = append(plan, segmentBackfillPlan{it: it, seq: maxSeq[it.CurrentLocation]})
+	}
+	return plan, nil
 }
 
 // repairBodiesCmd implements `repair-bodies [--dry-run] [--db PATH]`.
@@ -148,19 +257,29 @@ func repairBodiesCmd(args []string) int {
 		}
 	}
 
+	backfillPlan, err := planSegmentBackfill(db, items)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "repair-bodies: plan segment backfill: %v\n", err)
+		return exitUsage
+	}
+
 	if *dryRun {
-		fmt.Printf("repair-bodies (dry-run): scanned %d items — %d rewrite, %d populate, %d noop (nothing written)\n",
-			len(items), nRewrite, nPopulate, nNoop)
+		for _, bp := range backfillPlan {
+			fmt.Printf("  %s [%s/%s]: backfill-segment (seq=%d, no prior doc_segments row)\n",
+				bp.it.AtmID, bp.it.CurrentLocation, bp.it.repOrDefault(), bp.seq)
+		}
+		fmt.Printf("repair-bodies (dry-run): scanned %d items — %d rewrite, %d populate, %d noop, %d backfill-segment (nothing written)\n",
+			len(items), nRewrite, nPopulate, nNoop, len(backfillPlan))
 		return exitOK
 	}
 
-	if len(toApply) == 0 {
-		fmt.Printf("repair-bodies: scanned %d items — already canonical (0 rewrite, 0 populate); no changes\n", len(items))
+	if len(toApply) == 0 && len(backfillPlan) == 0 {
+		fmt.Printf("repair-bodies: scanned %d items — already canonical (0 rewrite, 0 populate, 0 backfill-segment); no changes\n", len(items))
 		return exitOK
 	}
 
-	// Single transaction (WAL journal per schema_embed.sql): every body_md write
-	// commits atomically or not at all.
+	// Single transaction (WAL journal per schema_embed.sql): every body_md write +
+	// every backfilled doc_segments row commits atomically or not at all.
 	tx, err := db.Begin()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "repair-bodies: begin: %v\n", err)
@@ -188,12 +307,29 @@ func repairBodiesCmd(args []string) int {
 			return exitUsage
 		}
 	}
+
+	if len(backfillPlan) > 0 {
+		segStmt, err := tx.Prepare(`INSERT INTO doc_segments (document, seq, kind, atm_id, representation, raw)
+			VALUES (?, ?, 'item', ?, ?, '')`)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "repair-bodies: prepare segment insert: %v\n", err)
+			return exitUsage
+		}
+		defer segStmt.Close()
+		for _, bp := range backfillPlan {
+			if _, err := segStmt.Exec(bp.it.CurrentLocation, bp.seq, bp.it.AtmID, bp.it.repOrDefault()); err != nil {
+				fmt.Fprintf(os.Stderr, "repair-bodies: backfill segment %s: %v\n", bp.it.AtmID, err)
+				return exitUsage
+			}
+		}
+	}
+
 	if err := tx.Commit(); err != nil {
 		fmt.Fprintf(os.Stderr, "repair-bodies: commit: %v\n", err)
 		return exitUsage
 	}
 
-	fmt.Printf("repair-bodies: scanned %d items — applied %d change(s): %d rewrite, %d populate, %d noop\n",
-		len(items), len(toApply), nRewrite, nPopulate, nNoop)
+	fmt.Printf("repair-bodies: scanned %d items — applied %d change(s): %d rewrite, %d populate, %d noop, %d backfill-segment\n",
+		len(items), len(toApply)+len(backfillPlan), nRewrite, nPopulate, nNoop, len(backfillPlan))
 	return exitOK
 }
