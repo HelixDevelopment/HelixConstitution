@@ -1,10 +1,13 @@
 // migrate_v3_to_v4_test.go — §11.4.149 schema v3→v4 migration unit tests.
 //
 // Proves the migration is NON-DESTRUCTIVE: a DB materialised under an OLDER
-// schema (items table WITHOUT parent_atm_id / session_ref) is brought up to v4
-// by openDB→migrateColumns with every pre-existing row preserved + backfilled as
-// top-level (parent_atm_id IS NULL), schema_version advanced to '4', and the new
-// test_diary table + view + indexes present.
+// schema (items table WITHOUT parent_atm_id / session_ref) is brought up to
+// the CURRENT schema by openDB→migrateColumns with every pre-existing row
+// preserved + backfilled as top-level (parent_atm_id IS NULL), schema_version
+// advanced to the current version (currently '6' — see the in-body assertions
+// + §11.4.120 reconciliation note where the literal is checked; this header
+// intentionally does not hardcode the number twice), and the new test_diary
+// table + view + indexes present.
 package main
 
 import (
@@ -88,12 +91,15 @@ func TestMigrateV3ToV4NonDestructive(t *testing.T) {
 		t.Fatalf("top-level (NULL parent) count = %d, want 3 (backfill)", topLevel)
 	}
 
-	// schema_version advanced to 5 (the GAP-A representation rebuild + GAP-B
-	// closure-metadata columns landed after the original v4 sub-task/diary work).
+	// schema_version advanced to 6 (the v6 destination/logic_group +
+	// logic_groups group-atomic track-assignment columns — §11.4.120
+	// reconciliation of this literal on top of the GAP-A representation
+	// rebuild + GAP-B closure-metadata columns that landed after the original
+	// v4 sub-task/diary work).
 	var ver string
 	_ = db.QueryRow(`SELECT value FROM meta WHERE key='schema_version'`).Scan(&ver)
-	if ver != "5" {
-		t.Fatalf("post schema_version = %q, want 5", ver)
+	if ver != "6" {
+		t.Fatalf("post schema_version = %q, want 6", ver)
 	}
 
 	// Live sync state preserved (INSERT OR IGNORE did NOT clobber it).
@@ -150,8 +156,8 @@ func TestMigrateIdempotent(t *testing.T) {
 		}
 		var ver string
 		_ = db.QueryRow(`SELECT value FROM meta WHERE key='schema_version'`).Scan(&ver)
-		if ver != "5" {
-			t.Fatalf("re-open #%d schema_version = %q, want 5", i, ver)
+		if ver != "6" {
+			t.Fatalf("re-open #%d schema_version = %q, want 6", i, ver)
 		}
 		var total int
 		_ = db.QueryRow(`SELECT COUNT(*) FROM items`).Scan(&total)

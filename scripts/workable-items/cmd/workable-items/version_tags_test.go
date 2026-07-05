@@ -209,11 +209,17 @@ func TestVersionTagsMigrationIdempotent(t *testing.T) {
 		t.Fatalf("version_tags column unexpectedly present before migration")
 	}
 
-	// First migration adds the column. schema_version is already '5' here: openDB
-	// seeds a fresh DB at the current schema version ('5' since the GAP-A
-	// representation rebuild + GAP-B closure-metadata columns landed), and
+	// First migration adds the column. schema_version is already '6' here: openDB
+	// seeds a fresh DB at the current schema version ('6' since the v6
+	// destination/logic_group + logic_groups group-atomic track-assignment
+	// columns landed — ASSIGNMENT_MECHANISM_DESIGN.md §3.1/§3.2 — on top of the
+	// prior GAP-A representation rebuild + GAP-B closure-metadata columns), and
 	// migrateVersionTagsColumn bumps only FORWARD (its `ver < "3"` guard), so it
-	// never downgrades a v5 DB.
+	// never downgrades a v6 DB. §11.4.120: this literal is reconciled to the new
+	// correct current-version value on every schema_version bump — it is NOT a
+	// version_tags-specific invariant, just this test's fixture assumption about
+	// "what a fresh DB's schema_version already is" before migrateVersionTagsColumn
+	// runs.
 	if err := migrateVersionTagsColumn(db); err != nil {
 		t.Fatalf("migrateVersionTagsColumn (1st): %v", err)
 	}
@@ -222,20 +228,20 @@ func TestVersionTagsMigrationIdempotent(t *testing.T) {
 	} else if !has {
 		t.Fatalf("version_tags column missing after first migration")
 	}
-	if ver := readSchemaVersion(t, db); ver != "5" {
-		t.Fatalf("schema_version = %q after first migration, want \"5\"", ver)
+	if ver := readSchemaVersion(t, db); ver != "6" {
+		t.Fatalf("schema_version = %q after first migration, want \"6\"", ver)
 	}
 
 	// Second migration is a no-op (idempotent) — must not error, must not
-	// duplicate the column, must leave schema_version at 5 (forward-only).
+	// duplicate the column, must leave schema_version at 6 (forward-only).
 	if err := migrateVersionTagsColumn(db); err != nil {
 		t.Fatalf("migrateVersionTagsColumn (2nd): %v", err)
 	}
 	if n := countVersionTagsColumns(t, db); n != 1 {
 		t.Fatalf("version_tags column count = %d after 2nd migration, want exactly 1", n)
 	}
-	if ver := readSchemaVersion(t, db); ver != "5" {
-		t.Fatalf("schema_version = %q after second migration, want \"5\"", ver)
+	if ver := readSchemaVersion(t, db); ver != "6" {
+		t.Fatalf("schema_version = %q after second migration, want \"6\"", ver)
 	}
 }
 
