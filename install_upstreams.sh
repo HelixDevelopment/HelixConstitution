@@ -3,9 +3,9 @@
 # git remote so a single push fans out to every provider.
 #
 # Reads ./upstreams/*.sh (preferred, §11.4.29 / CONST-052 lowercase
-# snake_case) OR ./Upstreams/*.sh (legacy, kept working during the
+# snake_case) OR ./upstreams/*.sh (legacy, kept working during the
 # migration window). When both directories exist, the lowercase
-# variant wins; old projects with only `Upstreams/` continue to
+# variant wins; old projects with only `upstreams/` continue to
 # function unchanged.
 #
 # Each declaration MUST export UPSTREAMABLE_REPOSITORY=<git-url>.
@@ -28,7 +28,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -d "${SCRIPT_DIR}/upstreams" ]]; then
     UPSTREAMS_DIR="${SCRIPT_DIR}/upstreams"
 elif [[ -d "${SCRIPT_DIR}/Upstreams" ]]; then
-    UPSTREAMS_DIR="${SCRIPT_DIR}/Upstreams"
+    UPSTREAMS_DIR="${SCRIPT_DIR}/upstreams"
     echo "WARN: using legacy 'Upstreams/' — please rename to 'upstreams/' per §11.4.29" >&2
 else
     echo "ERROR: upstreams directory not found (expected ${SCRIPT_DIR}/upstreams or ${SCRIPT_DIR}/Upstreams)" >&2
@@ -70,7 +70,7 @@ remote_name_for_url() {
     esac
 }
 
-# Read every Upstreams/*.sh declaration
+# Read every upstreams/*.sh declaration
 shopt -s nullglob
 for decl in "${UPSTREAMS_DIR}"/*.sh; do
     # shellcheck disable=SC1090
