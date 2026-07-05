@@ -404,6 +404,8 @@ type item struct {
 	ClosureDate     string // GAP B: pipe-table "Closure" cell ("" = none)
 	Round           string // GAP B: pipe-table "Round" cell ("" = none)
 	CommitRef       string // GAP B: pipe-table "Commit(s)" cell ("" = none)
+	Destination     string // ASSIGNMENT_MECHANISM_DESIGN.md §3.1 — "" = not yet classified
+	LogicGroup      string // ASSIGNMENT_MECHANISM_DESIGN.md §3.1 — "" = not yet classified
 }
 
 // repOrDefault normalises an item's Representation, defaulting an empty value to
@@ -553,6 +555,13 @@ func nullableRaw(s, kind string) any {
 }
 
 // loadItems returns every item row, ordered by atm_id.
+//
+// ASSIGNMENT_MECHANISM_DESIGN.md §3.1: destination + logic_group (added to the
+// `items` table by P1, ATM-659) are included here so every caller of loadItems
+// — validate-groups (P2, this phase) foremost — can read them. Purely
+// additive: two new trailing struct fields + two new SELECT columns; every
+// existing caller (validateCmd, export, sync round-trip) is unaffected because
+// none of them constructs an `item{}` via positional (unkeyed) literal.
 func loadItems(db *sql.DB) ([]item, error) {
 	rows, err := db.Query(`SELECT atm_id, type, status,
 		COALESCE(severity,''), title, description,
@@ -561,7 +570,8 @@ func loadItems(db *sql.DB) ([]item, error) {
 		COALESCE(created_by,''), COALESCE(assigned_to,''),
 		current_location, COALESCE(body_md,''),
 		COALESCE(representation,'section'), COALESCE(closure_date,''),
-		COALESCE(round,''), COALESCE(commit_ref,'')
+		COALESCE(round,''), COALESCE(commit_ref,''),
+		COALESCE(destination,''), COALESCE(logic_group,'')
 		FROM items ORDER BY atm_id, current_location, representation`)
 	if err != nil {
 		return nil, err
@@ -575,7 +585,7 @@ func loadItems(db *sql.DB) ([]item, error) {
 			&it.ClosureCriteria, &it.ComposesWith,
 			&it.CreatedBy, &it.AssignedTo, &it.CurrentLocation,
 			&it.BodyMD, &it.Representation, &it.ClosureDate,
-			&it.Round, &it.CommitRef); err != nil {
+			&it.Round, &it.CommitRef, &it.Destination, &it.LogicGroup); err != nil {
 			return nil, err
 		}
 		out = append(out, it)

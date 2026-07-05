@@ -53,8 +53,21 @@ Subcommands:
   export --db <p> [--out-dir <d>] [--issues <p>] [--fixed <p>] [--out-issues <p>] [--out-fixed <p>]
                                                         Regenerate Issues.md + Fixed.md + Summary docs + HTML/PDF/DOCX (§11.4.12/§11.4.53).
   version-tags --db <p> --repo <p> [--issues <p>] [--fixed <p>]  Derive + persist release-tag column (feature 2026-05-30).
+  group add <group_id> <destination> <priority> --title <T> [--state s]
+            [--scope-note <T>] [--roadmap-ref <T>] --db <p>
+                                                        Create a logic_groups row (ASSIGNMENT_MECHANISM_DESIGN.md §3.2).
+  group list [--destination <D>] [--state <S>] --db <p>  List logic_groups, priority-then-group_id ordered (read-only).
+  group set <group_id> [--title|--destination|--priority|--scope-note|--roadmap-ref ...] --db <p>
+            group set --item <ATM-ID> --group <group_id> [--location Issues|Fixed] --db <p>
+                                                        Edit a group's fields, OR classify one item into a group
+                                                        (destination inherited from the group — §3.1 agreement).
+  group state <group_id> <open|in-progress|group-complete> --db <p>
+                                                        Set a group's lifecycle state (raw setter; the gated
+                                                        group-complete check is a later phase).
+  validate-groups --db <p>                               §3.1 group-atomic invariants: single-valued,
+                                                        destination-agreement, totality, referential, urgent-routing.
 
-Canonical authority: Constitution.md §11.4.93.
+Canonical authority: Constitution.md §11.4.93; docs/tracks/ASSIGNMENT_MECHANISM_DESIGN.md §3 (group subcommands).
 `)
 }
 
@@ -94,6 +107,10 @@ func main() {
 		runDiary(args[1:])
 	case "export":
 		runExport(args[1:])
+	case "group":
+		runGroup(args[1:])
+	case "validate-groups":
+		runValidateGroups(args[1:])
 	case "-h", "--help", "help":
 		usage()
 		os.Exit(exitOK)
