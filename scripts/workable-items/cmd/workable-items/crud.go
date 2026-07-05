@@ -264,10 +264,23 @@ func closeCmd(args []string) int {
 	}
 
 	// Insert the Fixed item row + append its Fixed item-segment (atomic move in).
+	//
+	// destination/logic_group (ASSIGNMENT_MECHANISM_DESIGN.md §3.1 "Nullable
+	// for closed: Fixed-location items may carry the group they were closed
+	// under (kept for audit) but are not re-dispatched") are carried over
+	// from src. P3 plumbing fix (docs/tracks/ASSIGNMENT_MECHANISM_PLAN.md P3),
+	// in scope not scope-creep, mirroring the loadItems/loadItem plumbing fix
+	// P2 already made: without this, every item closed via THIS subcommand
+	// silently lost its logic_group the instant it closed (these two columns
+	// were absent from this INSERT's column list), so `assign group-complete
+	// <g>` could never see a closed item as a member and would vacuously
+	// report a group "complete" the moment its real members all closed —
+	// exactly the PASS-bluff §11.4 forbids, and directly load-bearing for
+	// P3's own group-complete gate.
 	if _, err := tx.Exec(`INSERT INTO items
-		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md)
-		VALUES (?,?,?,?,?,?,?,?,?,?)`,
-		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, src.CreatedBy, src.AssignedTo, "Fixed", closedBody); err != nil {
+		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md, destination, logic_group)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, src.CreatedBy, src.AssignedTo, "Fixed", closedBody, nullable(src.Destination), nullable(src.LogicGroup)); err != nil {
 		fmt.Fprintf(os.Stderr, "close: insert into Fixed: %v\n", err)
 		return exitUsage
 	}
@@ -344,18 +357,28 @@ func itemExists(db *sql.DB, id, location string) (bool, error) {
 }
 
 // loadItem returns the single item at (id, location), or nil when absent.
+//
+// ASSIGNMENT_MECHANISM_DESIGN.md §3.1 (P2, ATM-659): destination + logic_group
+// are included in the SELECT so every caller of THIS loader — group.go's
+// groupSetItemMode foremost — observes the item's current classification, not
+// a stale Go zero-value. Mirrors the same fix already applied to loadItems
+// (plural, db.go); purely additive (two new trailing columns/scan targets),
+// every existing caller is unaffected because each accesses fields by name
+// (cur.Title, cur.Severity, ...), never by struct-literal position.
 func loadItem(db *sql.DB, id, location string) (*item, error) {
 	row := db.QueryRow(`SELECT atm_id, type, status,
 		COALESCE(severity,''), title, description,
 		COALESCE(forensic_anchor,''), COALESCE(closure_criteria,''),
 		COALESCE(composes_with,''),
 		COALESCE(created_by,''), COALESCE(assigned_to,''),
-		current_location, COALESCE(body_md,'')
+		current_location, COALESCE(body_md,''),
+		COALESCE(destination,''), COALESCE(logic_group,'')
 		FROM items WHERE atm_id=? AND current_location=?`, id, location)
 	var it item
 	err := row.Scan(&it.AtmID, &it.Type, &it.Status, &it.Severity,
 		&it.Title, &it.Description, &it.ForensicAnchor, &it.ClosureCriteria,
-		&it.ComposesWith, &it.CreatedBy, &it.AssignedTo, &it.CurrentLocation, &it.BodyMD)
+		&it.ComposesWith, &it.CreatedBy, &it.AssignedTo, &it.CurrentLocation, &it.BodyMD,
+		&it.Destination, &it.LogicGroup)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}

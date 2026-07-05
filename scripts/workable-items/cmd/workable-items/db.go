@@ -92,6 +92,14 @@ func migrateColumns(db *sql.DB) error {
 		{"closure_date", `ALTER TABLE items ADD COLUMN closure_date TEXT`},
 		{"round", `ALTER TABLE items ADD COLUMN round TEXT`},
 		{"commit_ref", `ALTER TABLE items ADD COLUMN commit_ref TEXT`},
+		// v5→v6 (ASSIGNMENT_MECHANISM_DESIGN.md §3.1; §11.4.176/§11.4.119/
+		// §11.4.111) group-atomic track-assignment. NULLABLE (no DEFAULT): NULL
+		// means "not yet classified" — the correct starting state for every
+		// pre-existing row; a later phase's one-time classification pass sets
+		// real values, and a later phase's `validate-groups` enforces the
+		// totality invariant (every OPEN item must carry non-null values).
+		{"destination", `ALTER TABLE items ADD COLUMN destination TEXT`},
+		{"logic_group", `ALTER TABLE items ADD COLUMN logic_group TEXT`},
 	}
 	for _, c := range wanted {
 		if have[c.name] {
@@ -108,10 +116,20 @@ func migrateColumns(db *sql.DB) error {
 	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_parent ON items(parent_atm_id)`); err != nil {
 		return fmt.Errorf("create idx_items_parent: %w", err)
 	}
+	// v5→v6 (ASSIGNMENT_MECHANISM_DESIGN.md §3.1): same reasoning — created here,
+	// not in the embedded schema, because destination/logic_group are guaranteed
+	// present only AFTER the ADD COLUMN steps above have run.
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_logic_group ON items(logic_group)`); err != nil {
+		return fmt.Errorf("create idx_items_logic_group: %w", err)
+	}
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_destination ON items(destination)`); err != nil {
+		return fmt.Errorf("create idx_items_destination: %w", err)
+	}
 	// Keep the schema_version meta marker honest after a successful migration: a
-	// DB materialised under an older schema (2/3/4) is now at v5. Lexical string
-	// compare is safe for single-digit versions ('2' < '3' < '4' < '5').
-	if _, err := db.Exec(`UPDATE meta SET value='5' WHERE key='schema_version' AND value < '5'`); err != nil {
+	// DB materialised under an older schema (2/3/4/5) is now at v6 (destination +
+	// logic_group + logic_groups, ASSIGNMENT_MECHANISM_DESIGN.md). Lexical string
+	// compare is safe for single-digit versions ('2' < '3' < '4' < '5' < '6').
+	if _, err := db.Exec(`UPDATE meta SET value='6' WHERE key='schema_version' AND value < '6'`); err != nil {
 		return err
 	}
 	return nil
@@ -386,6 +404,8 @@ type item struct {
 	ClosureDate     string // GAP B: pipe-table "Closure" cell ("" = none)
 	Round           string // GAP B: pipe-table "Round" cell ("" = none)
 	CommitRef       string // GAP B: pipe-table "Commit(s)" cell ("" = none)
+	Destination     string // ASSIGNMENT_MECHANISM_DESIGN.md §3.1 — "" = not yet classified
+	LogicGroup      string // ASSIGNMENT_MECHANISM_DESIGN.md §3.1 — "" = not yet classified
 }
 
 // repOrDefault normalises an item's Representation, defaulting an empty value to
@@ -535,6 +555,13 @@ func nullableRaw(s, kind string) any {
 }
 
 // loadItems returns every item row, ordered by atm_id.
+//
+// ASSIGNMENT_MECHANISM_DESIGN.md §3.1: destination + logic_group (added to the
+// `items` table by P1, ATM-659) are included here so every caller of loadItems
+// — validate-groups (P2, this phase) foremost — can read them. Purely
+// additive: two new trailing struct fields + two new SELECT columns; every
+// existing caller (validateCmd, export, sync round-trip) is unaffected because
+// none of them constructs an `item{}` via positional (unkeyed) literal.
 func loadItems(db *sql.DB) ([]item, error) {
 	rows, err := db.Query(`SELECT atm_id, type, status,
 		COALESCE(severity,''), title, description,
@@ -543,7 +570,8 @@ func loadItems(db *sql.DB) ([]item, error) {
 		COALESCE(created_by,''), COALESCE(assigned_to,''),
 		current_location, COALESCE(body_md,''),
 		COALESCE(representation,'section'), COALESCE(closure_date,''),
-		COALESCE(round,''), COALESCE(commit_ref,'')
+		COALESCE(round,''), COALESCE(commit_ref,''),
+		COALESCE(destination,''), COALESCE(logic_group,'')
 		FROM items ORDER BY atm_id, current_location, representation`)
 	if err != nil {
 		return nil, err
@@ -557,7 +585,7 @@ func loadItems(db *sql.DB) ([]item, error) {
 			&it.ClosureCriteria, &it.ComposesWith,
 			&it.CreatedBy, &it.AssignedTo, &it.CurrentLocation,
 			&it.BodyMD, &it.Representation, &it.ClosureDate,
-			&it.Round, &it.CommitRef); err != nil {
+			&it.Round, &it.CommitRef, &it.Destination, &it.LogicGroup); err != nil {
 			return nil, err
 		}
 		out = append(out, it)
