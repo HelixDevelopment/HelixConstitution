@@ -291,6 +291,26 @@ mt_config_conductor() {
     ' "$cfg"
 }
 
+# Print the top-level `worktree_subdir:` value (§11.4.111 stable-name resolution
+# — the G2b resolver fix). Mirrors mt_config_conductor(): greps the top-level
+# `^worktree_subdir:` key, strips surrounding quotes + trailing comment. Empty
+# output when the key is absent, so consumers without it fall through to the
+# basename default = zero change (§11.4.92 additive/opt-in).
+mt_config_worktree_subdir() {
+    cfg=${1:-}
+    [ -r "$cfg" ] || return 1
+    awk '
+    BEGIN{ sq=sprintf("%c",39); dq=sprintf("%c",34); done=0 }
+    function strip(v,   i){
+        gsub(/^[ \t]+|[ \t]+$/,"",v)
+        if (substr(v,1,1)==sq){ v=substr(v,2); i=index(v,sq); if(i>0)v=substr(v,1,i-1); return v }
+        if (substr(v,1,1)==dq){ v=substr(v,2); i=index(v,dq); if(i>0)v=substr(v,1,i-1); return v }
+        sub(/[ \t]*#.*$/,"",v); gsub(/^[ \t]+|[ \t]+$/,"",v); return v
+    }
+    /^worktree_subdir:/ && !done { v=$0; sub(/^worktree_subdir:[ \t]*/,"",v); print strip(v); done=1 }
+    ' "$cfg"
+}
+
 # Print the `fallback.signatures:` list, ONE signature per line (§11.4.177
 # auto-fallback / DESIGN §4(b)). Block-style YAML only:
 #   fallback:

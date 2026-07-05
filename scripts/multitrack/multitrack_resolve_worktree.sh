@@ -91,7 +91,9 @@ _mrw_self_dir() {
 MRW_DIR="$(_mrw_self_dir)"
 # repo root = scripts/multitrack -> ../.. ; overridable for tests.
 MRW_REPO_ROOT="${MT_REPO_ROOT:-$(cd "$MRW_DIR/../.." 2>/dev/null && pwd)}"
-MRW_WT_SUBDIR="${MT_WORKTREE_SUBDIR:-$(basename "$MRW_REPO_ROOT")}"
+# §11.4.111 G2b env→config→basename precedence: defer here (env only). The
+# config + basename fallback resolve after _mrw_load_cfg in _mrw_pick + _mrw_map.
+MRW_WT_SUBDIR="${MT_WORKTREE_SUBDIR:-}"
 
 # Orchestrator runtime bindings (same default as the orchestrator).
 MRW_ALIAS_DIR="${MT_ALIAS_DIR:-${XDG_RUNTIME_DIR:-/tmp}/$(basename "$MRW_REPO_ROOT")/multitrack/aliasorch}"
@@ -227,6 +229,9 @@ _mrw_pick() {
     # Escape hatch: switch disabled -> no worktree (caller stays on /home).
     [ "${MULTITRACK_DISABLE:-0}" = "1" ] && return 10
     _mrw_load_cfg || return 3
+    # §11.4.111 G2b env→config→basename: resolve worktree-subdir after config load.
+    [ -n "$MRW_WT_SUBDIR" ] || MRW_WT_SUBDIR="$(mt_config_worktree_subdir "$MRW_CFG" 2>/dev/null || true)"
+    [ -n "$MRW_WT_SUBDIR" ] || MRW_WT_SUBDIR="$(basename "$MRW_REPO_ROOT")"
     # §11.4.177 auto-conductor: the configured conductor alias stays on /home
     # (no worktree, never a bindings.snapshot row). Empty/absent conductor key
     # => no alias is special-cased. mt_config_conductor is provided by the
@@ -302,6 +307,9 @@ _mrw_resolve_track() {
 # --- map: table over all native aliases --------------------------------------
 _mrw_map() {
     _mrw_load_cfg || { echo "resolve-worktree: config load failed" >&2; return 1; }
+    # §11.4.111 G2b env→config→basename: resolve worktree-subdir after config load.
+    [ -n "$MRW_WT_SUBDIR" ] || MRW_WT_SUBDIR="$(mt_config_worktree_subdir "$MRW_CFG" 2>/dev/null || true)"
+    [ -n "$MRW_WT_SUBDIR" ] || MRW_WT_SUBDIR="$(basename "$MRW_REPO_ROOT")"
     printf '%-10s %-9s %-32s %s\n' ALIAS TRACK WORKTREE STATE
     local a cond
     cond="$(mt_config_conductor "$MRW_CFG" 2>/dev/null || true)"
