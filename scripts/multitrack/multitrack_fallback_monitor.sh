@@ -54,6 +54,12 @@
 #   multitrack_fallback_monitor.sh --help
 #
 #   Options:  --alias A --track T --transcript P   (all three REQUIRED)
+#             --route R            (optional; RB-06 — the balance route this
+#                                   headless worker uses. When given, a HEADLESS
+#                                   rate-limit signature ALSO fires the balance
+#                                   DROP-HOOK mt_balance_mark_fail so the route
+#                                   is dropped from the rotation. Absent => the
+#                                   interactive-only behaviour, unchanged.)
 #             --config PATH        (optional; else $MT_CONFIG; else built-in sigs)
 #
 #   START-MECHANISM CONTRACT (documented here; the actual auto-start wiring into
@@ -120,6 +126,23 @@ MT_FBMON_QUOTA_DEFAULT=$'resets\nweekly limit\nsession limit'
 # transient markers (Claude self-heals — acting would thrash)
 MT_FBMON_TRANSIENT_DEFAULT=$'not your usage limit'
 
+# --- RB-06 HEADLESS rate-limit signature (the stream-json worker path) --------
+# The interactive account path writes an "apiErrorStatus":429 transcript line;
+# a HEADLESS `claude -p --output-format stream-json` worker instead emits a
+# stream-json event when it hits a rate-limit. RB-06 adds this second structural
+# signature so the monitor also detects the headless worker's limit and fires
+# the balance DROP-HOOK (mt_balance_mark_fail — drop the worker's route from the
+# rotation so mt_balance_select re-picks among the remaining live routes).
+# UNCONFIRMED (§11.4.6): the EXACT production stream-json rate-limit event shape
+# is pending a real-token capture (Monday — all accounts quota-exhausted this
+# week). These DEFAULTS match the documented `system/api_retry`{error:rate_limit}
+# shape used by the RB-06 mock + plan; they are DATA, config-overridable via a
+# one-line pin (MT_MONITOR_HEADLESS_SIGNATURES / MT_MONITOR_HEADLESS_QUOTA_MARKERS),
+# never a code change (§11.4.111 resolve-by-stable-data). The mechanism (sig
+# match -> drop-hook) is proven NOW against the mock; Monday swaps the sig only.
+MT_FBMON_HEADLESS_SIG_DEFAULT=$'"type":"system"\n"api_retry"'
+MT_FBMON_HEADLESS_QUOTA_DEFAULT=$'rate_limit\nrate-limit'
+
 # --- knobs (env-overridable, safe defaults) -----------------------------------
 MT_MONITOR_COOLDOWN=${MT_MONITOR_COOLDOWN:-300}
 MT_MONITOR_MAX_SECONDS=${MT_MONITOR_MAX_SECONDS:-0}
@@ -136,6 +159,9 @@ MT_FBMON_MODE=""
 MT_FBMON_SIGNATURES=""
 MT_FBMON_QUOTA_MARKERS=""
 MT_FBMON_TRANSIENT_MARKERS=""
+MT_FBMON_ROUTE=""                 # RB-06: the balance route this worker uses (drop-hook target)
+MT_FBMON_HEADLESS_SIGNATURES=""   # RB-06: headless stream-json rate-limit structural sig
+MT_FBMON_HEADLESS_QUOTA_MARKERS="" # RB-06: headless quota sub-markers
 MT_FBMON_TAIL_PID=""
 MT_FBMON_FIRED_IN_RUN=0   # in-process idempotency guard (belt; state file = suspenders)
 
@@ -194,6 +220,20 @@ mt_fbmon_load_markers() {
     [ -n "$MT_FBMON_TRANSIENT_MARKERS" ] || MT_FBMON_TRANSIENT_MARKERS="$MT_FBMON_TRANSIENT_DEFAULT"
 }
 
+# RB-06 headless signature + quota-marker loading (env override → default).
+mt_fbmon_load_headless() {
+    if [ -n "${MT_MONITOR_HEADLESS_SIGNATURES:-}" ]; then
+        MT_FBMON_HEADLESS_SIGNATURES="$(mt_fbmon_norm_list "$MT_MONITOR_HEADLESS_SIGNATURES")"
+    else
+        MT_FBMON_HEADLESS_SIGNATURES="$MT_FBMON_HEADLESS_SIG_DEFAULT"
+    fi
+    if [ -n "${MT_MONITOR_HEADLESS_QUOTA_MARKERS:-}" ]; then
+        MT_FBMON_HEADLESS_QUOTA_MARKERS="$(mt_fbmon_norm_list "$MT_MONITOR_HEADLESS_QUOTA_MARKERS")"
+    else
+        MT_FBMON_HEADLESS_QUOTA_MARKERS="$MT_FBMON_HEADLESS_QUOTA_DEFAULT"
+    fi
+}
+
 # --- matching (literal substring, no regex — cheap per §11.4.128) -------------
 # structural: line must contain EVERY configured signature (AND). Empty set ⇒ no
 # match (never a vacuous true). Case-SENSITIVE (JSON tokens are fixed-case).
@@ -208,6 +248,24 @@ mt_fbmon_line_has_all_signatures() {
         esac
     done <<EOF
 $MT_FBMON_SIGNATURES
+EOF
+    [ "$count" -gt 0 ]
+}
+
+# RB-06: headless stream-json rate-limit structural signature (AND-set over the
+# headless signatures). Empty set ⇒ no match (never a vacuous true).
+mt_fbmon_line_has_all_headless_signatures() {
+    local line=$1 sig count=0
+    [ -n "$MT_FBMON_HEADLESS_SIGNATURES" ] || return 1
+    while IFS= read -r sig; do
+        [ -n "$sig" ] || continue
+        count=$((count + 1))
+        case "$line" in
+            *"$sig"*) : ;;
+            *) return 1 ;;
+        esac
+    done <<EOF
+$MT_FBMON_HEADLESS_SIGNATURES
 EOF
     [ "$count" -gt 0 ]
 }
@@ -286,23 +344,62 @@ mt_fbmon_fire_fallback() {
     return 0   # best-effort — a non-zero orchestrator (e.g. exit 5 all-cooled) never kills the monitor
 }
 
+# --- RB-06 balance DROP-HOOK: drop this worker's route from the rotation ------
+# Best-effort, idempotency-guarded by the balance registry itself (mark_fail is
+# a monotonic counter). ONLY fires when a --route was supplied (a headless
+# worker). Sources multitrack_balance.sh (sibling) and calls mt_balance_mark_fail
+# so mt_balance_select re-picks among the remaining live routes (reuse/rebalance).
+mt_fbmon_fire_drop_hook() {
+    [ -n "$MT_FBMON_ROUTE" ] || { mt_fbmon_log "DROP-HOOK skipped (no --route given)"; return 0; }
+    local bal="$MT_FBMON_DIR/multitrack_balance.sh"
+    if [ ! -f "$bal" ]; then
+        mt_fbmon_log "DROP-HOOK: balance lib missing ($bal) — route not dropped (honest, §11.4.6)"
+        return 0
+    fi
+    (
+        MT_BALANCE_SELF="$bal"
+        # shellcheck source=/dev/null
+        . "$bal" 2>/dev/null || exit 0
+        mt_balance_mark_fail "$MT_FBMON_ROUTE" rate-limit >/dev/null 2>&1 || true
+    )
+    mt_fbmon_log "DROP-HOOK fired: mt_balance_mark_fail route=$MT_FBMON_ROUTE reason=rate-limit"
+    return 0
+}
+
 # --- per-line classification + action -----------------------------------------
 mt_fbmon_process_line() {
-    local line=$1
-    mt_fbmon_line_has_all_signatures "$line" || return 0   # no 429 signature → ignore
+    local line=$1 kind=""
+    # match EITHER the interactive 429 transcript signature (existing) OR the
+    # RB-06 headless stream-json rate-limit signature. Interactive path behaviour
+    # is unchanged; headless is purely additive.
+    if mt_fbmon_line_has_all_signatures "$line"; then
+        kind="interactive"
+    elif mt_fbmon_line_has_all_headless_signatures "$line"; then
+        kind="headless"
+    else
+        return 0   # no limit signature → ignore
+    fi
 
     # transient takes precedence over quota — the guard against false fallback:
     # a "not your usage limit" throttle self-heals, so NEVER act on it.
     if mt_fbmon_line_matches_any "$line" "$MT_FBMON_TRANSIENT_MARKERS"; then
-        mt_fbmon_log "MATCH transient-throttle (alias=$MT_FBMON_ALIAS track=$MT_FBMON_TRACK) — NO-OP (self-heals)"
+        mt_fbmon_log "MATCH transient-throttle ($kind alias=$MT_FBMON_ALIAS track=$MT_FBMON_TRACK) — NO-OP (self-heals)"
         return 0
     fi
-    if mt_fbmon_line_matches_any "$line" "$MT_FBMON_QUOTA_MARKERS"; then
-        mt_fbmon_log "MATCH quota-exhausted (alias=$MT_FBMON_ALIAS track=$MT_FBMON_TRACK)"
-        mt_fbmon_fire_fallback
+
+    # quota classification: interactive uses its markers; headless ALSO honors
+    # the headless quota markers (rate_limit / rate-limit).
+    local is_quota=0
+    if mt_fbmon_line_matches_any "$line" "$MT_FBMON_QUOTA_MARKERS"; then is_quota=1; fi
+    if [ "$kind" = "headless" ] && mt_fbmon_line_matches_any "$line" "$MT_FBMON_HEADLESS_QUOTA_MARKERS"; then is_quota=1; fi
+
+    if [ "$is_quota" = "1" ]; then
+        mt_fbmon_log "MATCH quota-exhausted ($kind alias=$MT_FBMON_ALIAS track=$MT_FBMON_TRACK route=${MT_FBMON_ROUTE:-<none>})"
+        mt_fbmon_fire_fallback                            # existing: rebind track to next alias
+        [ "$kind" = "headless" ] && mt_fbmon_fire_drop_hook  # RB-06: drop route from balance rotation
         return 0
     fi
-    mt_fbmon_log "MATCH 429-unclassified (alias=$MT_FBMON_ALIAS track=$MT_FBMON_TRACK) — NO-OP (no quota marker; safe default)"
+    mt_fbmon_log "MATCH ${kind}-limit-unclassified (alias=$MT_FBMON_ALIAS track=$MT_FBMON_TRACK) — NO-OP (no quota marker; safe default)"
     return 0
 }
 
@@ -364,6 +461,8 @@ mt_fbmon_parse_args() {
             --track=*)     MT_FBMON_TRACK="${1#--track=}" ;;
             --transcript)  MT_FBMON_TRANSCRIPT="${2:-}"; shift ;;
             --transcript=*) MT_FBMON_TRANSCRIPT="${1#--transcript=}" ;;
+            --route)       MT_FBMON_ROUTE="${2:-}"; shift ;;
+            --route=*)     MT_FBMON_ROUTE="${1#--route=}" ;;
             --config)      MT_FBMON_CONFIG="${2:-}"; shift ;;
             --config=*)    MT_FBMON_CONFIG="${1#--config=}" ;;
             -h|--help)     mt_fbmon_usage; exit 0 ;;
@@ -392,6 +491,7 @@ mt_fbmon_main() {
 
     mt_fbmon_load_signatures
     mt_fbmon_load_markers
+    mt_fbmon_load_headless
 
     case "$MT_FBMON_MODE" in
         once)   mt_fbmon_run_once ;;
