@@ -89,13 +89,25 @@ _mrw_self_dir() {
 }
 
 MRW_DIR="$(_mrw_self_dir)"
-# repo root = scripts/multitrack -> ../.. ; overridable for tests.
+# RB-01 (§11.4.111 / §11.4.35): remember whether the operator explicitly pinned
+# MT_REPO_ROOT / MT_ALIAS_DIR (e.g. a consumer shim). When MT_REPO_ROOT was NOT
+# pinned, _mrw_load_cfg lets multitrack_config.sh:mt_repo_root() self-locate the
+# CONSUMER project root (git superproject when embedded as a submodule) instead
+# of the ../.. guess that resolves to the SUBMODULE root — the twin of the
+# mt_repo_root bug (a bare `constitution/…/resolve … map` from any cwd must find
+# the consumer config, not the submodule's non-existent config/multitrack).
+MRW_REPO_ROOT_EXPLICIT="${MT_REPO_ROOT:+1}"
+MRW_ALIAS_DIR_EXPLICIT="${MT_ALIAS_DIR:+1}"
+# repo root = scripts/multitrack -> ../.. ; overridable for tests. When NOT
+# operator-pinned this is only a provisional value; _mrw_load_cfg replaces it
+# with the config-driven self-located consumer root before any config lookup.
 MRW_REPO_ROOT="${MT_REPO_ROOT:-$(cd "$MRW_DIR/../.." 2>/dev/null && pwd)}"
 # §11.4.111 G2b env→config→basename precedence: defer here (env only). The
 # config + basename fallback resolve after _mrw_load_cfg in _mrw_pick + _mrw_map.
 MRW_WT_SUBDIR="${MT_WORKTREE_SUBDIR:-}"
 
-# Orchestrator runtime bindings (same default as the orchestrator).
+# Orchestrator runtime bindings (same default as the orchestrator). Recomputed in
+# _mrw_load_cfg if the repo root is self-located (RB-01) and MT_ALIAS_DIR unset.
 MRW_ALIAS_DIR="${MT_ALIAS_DIR:-${XDG_RUNTIME_DIR:-/tmp}/$(basename "$MRW_REPO_ROOT")/multitrack/aliasorch}"
 MRW_BIND="$MRW_ALIAS_DIR/bindings.snapshot"
 
@@ -105,10 +117,25 @@ MRW_CFG=""   # resolved per-host config path (set by _mrw_load_cfg)
 _mrw_load_cfg() {
     local cfglib="$MRW_DIR/multitrack_config.sh"
     [ -r "$cfglib" ] || { echo "resolve-worktree: missing $cfglib" >&2; return 1; }
-    # Pin repo root so config.sh resolves the right config dir regardless of $0.
-    MT_REPO_ROOT="$MRW_REPO_ROOT"; export MT_REPO_ROOT
     # shellcheck source=scripts/multitrack/multitrack_config.sh
     . "$cfglib" || return 1
+    # RB-01 (§11.4.111 / §11.4.35): resolve the CONSUMER project root. An
+    # operator-pinned MT_REPO_ROOT (a consumer shim) wins as-is; otherwise let
+    # config.sh's mt_repo_root() self-locate it — base/config directly, else the
+    # git superproject when embedded as a submodule — so a bare
+    # `constitution/…/resolve … map` from ANY cwd finds the consumer config
+    # instead of the submodule root's non-existent config/multitrack. (The
+    # subshell forces mt_repo_root's discovery via an empty MT_REPO_ROOT +
+    # MT_SELF pinned to this engine's config.sh path — robust vs $0.)
+    if [ -z "$MRW_REPO_ROOT_EXPLICIT" ]; then
+        MRW_REPO_ROOT="$(MT_REPO_ROOT= MT_SELF="$cfglib" mt_repo_root)"
+        if [ -z "$MRW_ALIAS_DIR_EXPLICIT" ]; then
+            MRW_ALIAS_DIR="${XDG_RUNTIME_DIR:-/tmp}/$(basename "$MRW_REPO_ROOT")/multitrack/aliasorch"
+            MRW_BIND="$MRW_ALIAS_DIR/bindings.snapshot"
+        fi
+    fi
+    # Pin the resolved root so config.sh's config-dir lookup is deterministic.
+    MT_REPO_ROOT="$MRW_REPO_ROOT"; export MT_REPO_ROOT
     local host cfg
     host="$(mt_resolve_host)"
     cfg="$(mt_config_file "$host" 2>/dev/null)" || return 1
