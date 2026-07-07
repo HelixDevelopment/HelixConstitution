@@ -22,7 +22,14 @@ var issueHeadingRe = regexp.MustCompile(`^## ([A-Z]{3}-[0-9A-Za-z]+)(?: \([^)]*\
 
 // atmBracketIDRe matches an ATMOSphere `[ATM-NNN]` bracket id appearing
 // anywhere in a heading line, e.g. `## §GL CRITICAL — [ATM-238] Netflix …`.
-var atmBracketIDRe = regexp.MustCompile(`\[(ATM-\d+|BOB-\d+)\]`)
+// SPK-NNN (Mistiq/Vader "Speaker" workstream prefix, e.g. `## §JY [SPK-478]
+// JetKVM remote control …`) is included alongside ATM/BOB — without it a
+// Shape-1/Shape-3 heading whose real id is `[SPK-NNN]` silently falls through
+// to the section-letter code ("AD") or a content-hash "ATM-DERIVED-xxxxxxxx"
+// pseudo-id instead of the real SPK-NNN, producing phantom sync divergences
+// (audited 2026-07-07: SPK-373/478/481 each already existed correctly bracketed
+// in Issues.md but were mis-parsed for this reason).
+var atmBracketIDRe = regexp.MustCompile(`\[(ATM-\d+|BOB-\d+|SPK-\d+)\]`)
 
 // atmCandidateHeadingRe recognises ATMOSphere's real tracker heading SHAPES
 // that MAY be workable items (subject to the Status-block test below). THREE
