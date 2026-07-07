@@ -31,13 +31,13 @@ var issueHeadingRe = regexp.MustCompile(`^## ([A-Z]{3}-[0-9A-Za-z]+)(?: \([^)]*\
 // divergences.
 var atmBracketIDRe = regexp.MustCompile(`\[([A-Z]{2,}-\d+)\]`)
 
-// atmCandidateHeadingRe recognises ATMOSphere's real tracker heading SHAPES
-// that MAY be workable items (subject to the Status-block test below). THREE
-// shapes are accepted — the three the real docs/Fixed.md uses:
+// atmCandidateHeadingRe recognises a consuming project's real tracker heading
+// SHAPES that MAY be workable items (subject to the Status-block test below).
+// THREE shapes are accepted — the three the real docs/Fixed.md uses:
 //
 //	shape 1: ## <CODE>. <title> …      letter-code + a DOT, NO § (dominant ~29 items)
 //	                                   e.g. `## GO. …`, `## GS-2. …`, `## BJ-SOURCE. …`
-//	shape 2: ## [ATM-NNN] <title> …    heading STARTS with an [ATM-NNN] bracket
+//	shape 2: ## [PREFIX-NNN] <title> … heading STARTS with a `[PREFIX-NNN]` bracket
 //	                                   e.g. `## [ATM-248] D11 — VideoOutputManager …`
 //	shape 3: ## §<code> <title> …      §-prefixed
 //	                                   e.g. `## §FL …`, `## §GB …`
@@ -45,21 +45,24 @@ var atmBracketIDRe = regexp.MustCompile(`\[([A-Z]{2,}-\d+)\]`)
 // shape 1's CODE is one uppercase letter followed by [A-Za-z0-9]* and an
 // optional `-<suffix>` (so `GS-2`, `BJ-SOURCE`, `AD.0`'s `AD` all match), then a
 // literal `. ` (dot + space). Single-letter codes (`## U. …`, `## T. …`) match
-// too. A heading matching ANY shape is treated as an item ONLY when its body
-// carries a `**Status:**` metadata line BEFORE any nested `### ` subheading
-// (see statusBeforeSubheading) — without one it is a section header
-// (`## A. Tooling …`, `## AI/AK. … closure cycle`, whose Status sits under a
-// `### `) and is skipped, kept raw. Backward-compat note: the canonical
-// `## ABC-123 — …` form is handled by issueHeadingRe FIRST and never reaches
-// this path.
+// too. shape 2's PREFIX is any uppercase-alpha token of ≥2 chars (§11.4.28
+// project-decoupling — this UNIVERSAL tool MUST NOT hardcode any consuming
+// project's specific ticket prefix; a project registering a `[XYZ-NNN]`
+// heading is recognised without a code change). A heading matching ANY shape
+// is treated as an item ONLY when its body carries a `**Status:**` metadata
+// line BEFORE any nested `### ` subheading (see statusBeforeSubheading) —
+// without one it is a section header (`## A. Tooling …`, `## AI/AK. …
+// closure cycle`, whose Status sits under a `### `) and is skipped, kept raw.
+// Backward-compat note: the canonical `## ABC-123 — …` form is handled by
+// issueHeadingRe FIRST and never reaches this path.
 var (
 	atmShape1HeadingRe = regexp.MustCompile(`^## [A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)?\. \S`)
-	atmShape2HeadingRe = regexp.MustCompile(`^## \[ATM-\d+\] \S`)
+	atmShape2HeadingRe = regexp.MustCompile(`^## \[[A-Z]{2,}-\d+\] \S`)
 	atmShape3HeadingRe = regexp.MustCompile(`^## §\S`)
 )
 
 // isATMCandidateHeading reports whether a heading line matches any of the three
-// ATMOSphere item-heading shapes. The Status-block test (statusBeforeSubheading)
+// project item-heading shapes. The Status-block test (statusBeforeSubheading)
 // is applied separately to confirm it is an item and not a section header.
 func isATMCandidateHeading(trimmed string) bool {
 	return atmShape1HeadingRe.MatchString(trimmed) ||
@@ -197,22 +200,24 @@ func parseIssues(content string) ([]item, []segment) {
 
 // atmShape1CodeRe captures the shape-1 letter-code that precedes the `. `
 // boundary, e.g. `GO`, `GS-2`, `BJ-SOURCE`, `U`. atmShape2CodeRe captures the
-// leading `[ATM-NNN]` bracket; atmShape3CodeRe captures the §-code token.
+// leading `[PREFIX-NNN]` bracket (any ≥2-char uppercase prefix per §11.4.28
+// project-decoupling — see atmBracketIDRe / atmShape2HeadingRe); atmShape3CodeRe
+// captures the §-code token.
 var (
 	atmShape1CodeRe = regexp.MustCompile(`^([A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)?)\. (.*)$`)
-	atmShape2CodeRe = regexp.MustCompile(`^\[(ATM-\d+)\] (.*)$`)
+	atmShape2CodeRe = regexp.MustCompile(`^\[([A-Z]{2,}-\d+)\] (.*)$`)
 	atmShape3CodeRe = regexp.MustCompile(`^§(\S+)\s*(.*)$`)
 )
 
-// parseATMHeading extracts the (id, title) pair from an ATMOSphere-shaped H2
+// parseATMHeading extracts the (id, title) pair from a project-shaped H2
 // heading line (the leading `## ` already present in `headingLine`). It
 // dispatches on the heading shape:
 //
-//	shape 2 `## [ATM-NNN] <rest>`  -> id = ATM-NNN (the bracket), title = trim(rest)
-//	shape 3 `## §<code> <rest>`    -> id = a `[ATM-NNN]` bracket anywhere in the
+//	shape 2 `## [PREFIX-NNN] <rest>` -> id = PREFIX-NNN (the bracket), title = trim(rest)
+//	shape 3 `## §<code> <rest>`    -> id = a `[PREFIX-NNN]` bracket anywhere in the
 //	                                 heading if present, else derived from the
 //	                                 §-code; title = trim(rest)
-//	shape 1 `## <CODE>. <rest>`    -> id = a `[ATM-NNN]` bracket anywhere in the
+//	shape 1 `## <CODE>. <rest>`    -> id = a `[PREFIX-NNN]` bracket anywhere in the
 //	                                 heading if present, else the CODE itself
 //	                                 (`GO`, `GS-2`, `BJ-SOURCE`); title = trim(rest)
 //
