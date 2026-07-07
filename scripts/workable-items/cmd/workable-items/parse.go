@@ -20,16 +20,16 @@ import (
 // is recognised unconditionally (no Status-block requirement).
 var issueHeadingRe = regexp.MustCompile(`^## ([A-Z]{3}-[0-9A-Za-z]+)(?: \([^)]*\))? — (.+)$`)
 
-// atmBracketIDRe matches an ATMOSphere `[ATM-NNN]` bracket id appearing
-// anywhere in a heading line, e.g. `## §GL CRITICAL — [ATM-238] Netflix …`.
-// SPK-NNN (Mistiq/Vader "Speaker" workstream prefix, e.g. `## §JY [SPK-478]
-// JetKVM remote control …`) is included alongside ATM/BOB — without it a
-// Shape-1/Shape-3 heading whose real id is `[SPK-NNN]` silently falls through
-// to the section-letter code ("AD") or a content-hash "ATM-DERIVED-xxxxxxxx"
-// pseudo-id instead of the real SPK-NNN, producing phantom sync divergences
-// (audited 2026-07-07: SPK-373/478/481 each already existed correctly bracketed
-// in Issues.md but were mis-parsed for this reason).
-var atmBracketIDRe = regexp.MustCompile(`\[(ATM-\d+|BOB-\d+|SPK-\d+)\]`)
+// atmBracketIDRe matches a project-neutral `[PREFIX-NNN]` ticket id appearing
+// anywhere in a heading line, e.g. `## §GL CRITICAL — [ATM-238] title …` or
+// `## §JY [SPK-478] title …`. §11.4.28 project-decoupling: this UNIVERSAL tool
+// MUST NOT hardcode any consuming project's specific ticket prefixes — the
+// prefix is any uppercase-alpha token of ≥2 chars, so a project registering a
+// `[XYZ-NNN]` heading id is recognised without a code change. Without a match a
+// Shape-1/Shape-3 heading whose real id is bracketed silently falls through to
+// the section-letter code or a content-hash pseudo-id, producing phantom sync
+// divergences.
+var atmBracketIDRe = regexp.MustCompile(`\[([A-Z]{2,}-\d+)\]`)
 
 // atmCandidateHeadingRe recognises ATMOSphere's real tracker heading SHAPES
 // that MAY be workable items (subject to the Status-block test below). THREE
