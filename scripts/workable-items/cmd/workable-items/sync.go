@@ -468,6 +468,25 @@ func diffCmd(args []string) int {
 		fmt.Fprintf(os.Stderr, "diff: %v\n", err)
 		return exitUsage
 	}
+
+	// §11.4.93/ATM-627 defense-in-depth: diff ALSO surfaces the column<->body_md
+	// Status DESYNC class (items.status disagreeing with the last **Status:**
+	// line in body_md) independently of the Markdown-vs-DB comparison below.
+	// validateCmd (the "correct home" per Constitution.md §11.4.93, since it is
+	// the DB-internal-integrity gate) already asserts this via
+	// statusColumnBodyDesyncs; wiring the SAME check into diff closes a real gap
+	// in diff's OWN invocation surface: `diff --db <path>` with NEITHER
+	// --issues NOR --fixed given performs no Markdown comparison at all (every
+	// DB item is trivially reported "absent in Markdown" — uninformative noise
+	// for this purpose), so a pure DB-internal desync was invisible to that
+	// invocation shape. Reproduced + fixed 2026-07-07 (workable-items §11.4.93
+	// tooling-integrity gate); see sync_diff_desync_test.go for the RED/GREEN
+	// polarity proof.
+	desyncs := statusColumnBodyDesyncs(dbItems)
+	for _, d := range desyncs {
+		fmt.Printf("! %s\n", d)
+	}
+
 	// Key by the COMPOSITE identity (atm_id, current_location, representation) —
 	// the schema PRIMARY KEY — NOT by atm_id alone. loadItems returns one row per
 	// composite key (an atm_id MAY appear once per tracker AND once per
@@ -535,6 +554,8 @@ func diffCmd(args []string) int {
 			differences++
 		}
 	}
+
+	differences += len(desyncs)
 
 	if differences == 0 {
 		fmt.Println("diff: DB and Markdown are in sync")
