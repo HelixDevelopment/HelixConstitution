@@ -1,0 +1,3 @@
+[submodule "submodules/token_optimizer"]
+	path = submodules/token_optimizer
+	url = git@github.com:vasic-digital/token_optimizer.git

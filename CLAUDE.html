@@ -1532,7 +1532,13 @@ at:</p>
 submodule MUST NOT have its own <code>.gitmodules</code> entries pulling
 in further owned- by-us repos. Add the dependency at the parent&#39;s root
 path; the submodule reaches it via documented import / SDK / runtime
-resolver. Third-party submodules exempt.</p>
+resolver. Third-party submodules exempt. <strong>EXCEPTION (operator
+Option-2, 2026-07-07; §11.4.28(C) carve-out):</strong> the constitution
+submodule ITSELF MAY host depth-1 reusable-engine submodules under
+<code>constitution/submodules/&lt;name&gt;/</code>, PROVIDED each ships
+a §11.4.31 <code>helix-deps.yaml</code> AND nests zero further own-org
+submodules (depth-1 only, no recursive chain). This applies to NO other
+submodule — consumer submodules stay forbidden from nesting.</p>
 <p>Gates: <code>CM-OWNED-SUBMODULE-EQUAL-ENGINEERING</code>
 (release-gate sweep audits parity),
 <code>CM-OWNED-SUBMODULE-DECOUPLING</code> (pre-commit greps for
@@ -5760,19 +5766,26 @@ Non-compliance is a release blocker. No escape hatch — no
 every operator-facing work-stream reference (User mandate,
 2026-07-05).</strong> Compact summary: EVERY agent / subagent /
 work-stream label AND every operator-facing reference to a work stream
-MUST START with a <code>(T&lt;N&gt;/&lt;branch&gt;)</code> prefix
-identifying the track + git branch (e.g.
-<code>(T1/main) ATM-312 MPV drm_prime investigation</code>,
-<code>(T2/feature/mistiq-vader) SPK-XXX ...</code>) so parallel-track
-work (<code>/mnt/track1..4</code>, each on its own branch) is never
-ambiguous; (1) universal label form on every agent-dispatch description,
-status report, resume/handoff doc, progress line; (2) DETERMINISTIC
-derivation never guessed (§11.4.6) — <code>&lt;N&gt;</code> from the
-checkout path <code>/mnt/track&lt;N&gt;/…</code> (honest <code>?</code>
-off-track, never a guessed number), <code>&lt;branch&gt;</code> from
-<code>git rev-parse --abbrev-ref HEAD</code> (reference labeler
-<code>scripts/multitrack/track_branch_label.sh</code>); (3) mechanical
-enforcement (§11.4.75 / §11.4.109-class) — a PreToolUse guard hook
+MUST START with a
+<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt;)</code> prefix
+identifying the track + git branch + the claude-toolkit alias in use
+(e.g.
+<code>(T1/main - claude1) ATM-312 MPV drm_prime investigation</code>,
+<code>(T2/feature/mistiq-vader - deepseek) SPK-XXX ...</code>) so
+parallel-track work (<code>/mnt/track1..4</code>, each on its own
+branch, each driven by a distinct toolkit alias) is never ambiguous; (1)
+universal label form on every agent-dispatch description, status report,
+resume/handoff doc, progress line; (2) DETERMINISTIC derivation never
+guessed (§11.4.6) — <code>&lt;N&gt;</code> from the checkout path
+<code>/mnt/track&lt;N&gt;/…</code> (honest <code>?</code> off-track,
+never a guessed number), <code>&lt;branch&gt;</code> from
+<code>git rev-parse --abbrev-ref HEAD</code>, <code>&lt;alias&gt;</code>
+from <code>CLAUDE_CONFIG_DIR</code> basename
+<code>.claude-&lt;alias&gt;</code> → <code>&lt;alias&gt;</code> (honest
+<code>?</code> when unset/non-matching, never a guessed name) (reference
+labeler <code>scripts/multitrack/track_branch_label.sh</code>); (3)
+mechanical enforcement (§11.4.75 / §11.4.109-class) — a PreToolUse guard
+hook
 (<code>constitution/scripts/hooks/guard-track-branch-label.sh</code>,
 inherited BY REFERENCE per §11.4.177, never copied) BLOCKS any
 Agent/Task/TaskCreate dispatch whose <code>description</code> (or
@@ -5782,14 +5795,14 @@ gate <code>CM-TRACK-BRANCH-LABEL</code> (labeler+hook
 exist/exec/parseable, hook wired in settings, convention doc exists) +
 propagation gate <code>CM-COVENANT-114-182-PROPAGATION</code> (literal
 <code>11.4.182</code>); (4) honest boundary (§11.4.6) — a <code>?</code>
-field is a valid honest label, never a bluff, and the enforced
-numeric-track format surfaces (blocks) an off-track dispatch rather than
-mislabeling it. Classification: universal (§11.4.17). Composes §11.4.178
-(track-qualified identity — the label-prefix instantiation applied to
-every agent/subagent label + operator-facing reference) / §11.4.29 /
-§11.4.75 / §11.4.109 / §11.4.177 / §11.4.6 / §11.4.58 / §11.4.103 /
-§11.4.119 / §11.4.116 / §11.4.147. Propagation gate
-<code>CM-COVENANT-114-182-PROPAGATION</code> (literal
+in the track OR the alias field is a valid honest label, never a bluff,
+and the enforced numeric-track format surfaces (blocks) an off-track
+dispatch rather than mislabeling it. Classification: universal
+(§11.4.17). Composes §11.4.178 (track-qualified identity — the
+label-prefix instantiation applied to every agent/subagent label +
+operator-facing reference) / §11.4.29 / §11.4.75 / §11.4.109 / §11.4.177
+/ §11.4.6 / §11.4.58 / §11.4.103 / §11.4.119 / §11.4.116 / §11.4.147.
+Propagation gate <code>CM-COVENANT-114-182-PROPAGATION</code> (literal
 <code>11.4.182</code>) + recommended gate
 <code>CM-TRACK-BRANCH-LABEL</code> + paired §1.1 mutation.
 <strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.182.
