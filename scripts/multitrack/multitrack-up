@@ -1,0 +1,241 @@
+#!/usr/bin/env bash
+# =============================================================================
+# multitrack-up  (§11.4.177 fully-automatic launch — DESIGN §3 / PWU-5)
+# -----------------------------------------------------------------------------
+# Purpose:
+#   ONE command that launches ALL feature-track worker sessions at once — one
+#   tmux window per feature track, each running that track's native alias in a
+#   login-interactive shell (`bash -lic '<alias>'`). Launching the alias drives
+#   the toolkit chain  alias -> cma_run -> cwd-hook  which, on session start,
+#   (a) binds the alias<->track lease, (b) cd's the pane into that track's
+#   worktree, and (c) starts the per-alias §4.2(C) rate-limit monitor. The
+#   launcher itself is thin: it opens the windows; the hook does the landing.
+#
+#   The conductor alias (the config `conductor:` key, read via the resolver's
+#   `map`) is NEVER launched here — its session stays on the shared /home
+#   checkout (DESIGN §5.2). Only the non-conductor native aliases that map onto
+#   a feature track are launched.
+#
+# Usage:
+#   multitrack-up                 # launch all feature-track worker windows
+#   multitrack-up up              # (explicit) same as bare invocation
+#   multitrack-up down            # tear down the windows this launcher created
+#   multitrack-up status          # print the current session's windows
+#   multitrack-up -h | --help
+#   multitrack-down [...]         # convenience alias for `multitrack-up down`
+#
+# Inputs (env, all optional — safe defaults):
+#   MT_TMUX_SESSION   tmux session name to create/attach (default: multitrack)
+#   MT_MAX_WINDOWS    hard cap on launched windows (default: 6 — §11.4.58 / §12.6)
+#   MT_DOWN_GRACE     seconds to wait after C-c before kill-session (default: 1)
+#   MT_CONFIG_DIR / MT_REPO_ROOT / MT_ALIAS_DIR / MT_WORKTREE_SUBDIR / MULTITRACK_DISABLE
+#                     honored transitively by the sibling resolver (`map`/`resolve`).
+#
+# Outputs:
+#   up:     a table  ALIAS  TRACK  WINDOW  WORKTREE  + a one-line summary; the
+#           conductor is reported as staying on /home (never launched).
+#   down:   a teardown summary. status: the tmux window list.
+#   exit:   0 ok; 2 usage; 3 environment (no tmux / resolver / per-host config).
+#
+# Side-effects:
+#   up:   creates a detached tmux session + one window per launchable alias
+#         (idempotent — never double-launches a track whose window already
+#         exists). Does NOT itself start monitors — the cwd-hook does, per
+#         launched alias (DESIGN §3.2 step-4, wired in multitrack_cwd_hook.sh).
+#   down: best-effort C-c to each window (so a live cma_run runs its on-exit
+#         state sync), a bounded grace, a best-effort scoped stop of the
+#         per-track fallback monitors, then kill-session. Idempotent (no
+#         session -> no-op, exit 0). NEVER a second heavy build (§12.8) — the
+#         worker windows are interactive agents, not builds.
+#
+# Dependencies: bash, tmux (>= session/window mgmt), pgrep/pkill (optional,
+#   for monitor scoping); sibling multitrack_resolve_worktree.sh (`map`/`resolve`)
+#   which sources multitrack_config.sh (per-host config + conductor key).
+#
+# Cross-references:
+#   scripts/multitrack/multitrack_resolve_worktree.sh  (alias<->track source: map)
+#   scripts/multitrack/multitrack_cwd_hook.sh          (bind + cd + monitor start)
+#   scripts/multitrack/multitrack_fallback_monitor.sh  (the monitor down stops)
+#   scripts/multitrack/multitrack-down                 (thin `down` wrapper)
+#   docs/research/universal_auto_multitrack_20260704/DESIGN.md §3 (launch) + §5 (conductor)
+#   §11.4.28 decoupling (zero project literal — alias/track come from config) ·
+#   §11.4.58/§12.6 agent/memory cap · §11.4.177 auto multi-track system
+# =============================================================================
+
+set -u
+
+# --- self / sibling resolution (symlink-safe) --------------------------------
+_mtu_self() {
+    src="${BASH_SOURCE[0]:-$0}"
+    while [ -h "$src" ]; do
+        d=$(cd -P "$(dirname "$src")" >/dev/null 2>&1 && pwd)
+        src=$(readlink "$src"); case "$src" in /*) ;; *) src="$d/$src" ;; esac
+    done
+    cd -P "$(dirname "$src")" >/dev/null 2>&1 && pwd
+}
+MTU_DIR="$(_mtu_self)"
+MTU_RESOLVER="$MTU_DIR/multitrack_resolve_worktree.sh"
+
+MTU_SESSION="${MT_TMUX_SESSION:-multitrack}"
+MTU_MAX="${MT_MAX_WINDOWS:-6}"
+MTU_GRACE="${MT_DOWN_GRACE:-1}"
+
+mtu_log()  { printf '%s\n' "$*"; }
+mtu_err()  { printf '%s\n' "$*" >&2; }
+
+# --- helpers ------------------------------------------------------------------
+mtu_have_tmux() { command -v tmux >/dev/null 2>&1; }
+mtu_session_exists() { tmux has-session -t "$MTU_SESSION" 2>/dev/null; }
+mtu_window_exists() {
+    # 0 IFF a window named "$1" already exists in our session
+    tmux list-windows -t "$MTU_SESSION" -F '#{window_name}' 2>/dev/null \
+        | grep -qxF "$1"
+}
+# an alias/track token is safe to embed only if it is a plain identifier: this
+# both guards `bash -lic '<alias>'` against quote-injection AND makes the pgrep
+# scoping literal (§11.4.6 no-guessing — never launch an unvetted token).
+mtu_safe_token() { case "$1" in ''|*[!A-Za-z0-9_.-]*) return 1 ;; *) return 0 ;; esac; }
+
+# --- up: launch one window per non-conductor feature-track alias --------------
+do_up() {
+    mtu_have_tmux || { mtu_err "multitrack-up: tmux not found on PATH"; return 3; }
+    [ -r "$MTU_RESOLVER" ] || { mtu_err "multitrack-up: missing resolver $MTU_RESOLVER"; return 3; }
+
+    # The resolver's `map` is the single alias<->track source (DESIGN §3.2):
+    #   columns  ALIAS  TRACK  WORKTREE  STATE
+    #   * conductor row -> STATE "conductor(/home)" (never launched)
+    #   * unmapped alias -> TRACK "-" (no feature track at its index; skipped)
+    # It derives TRACK from the stable positional default map WITHOUT needing a
+    # live mount, so the launcher pairs each alias to the SAME track the hook
+    # will later resolve it onto.
+    local map
+    map="$(bash "$MTU_RESOLVER" map 2>/dev/null)" || {
+        mtu_err "multitrack-up: resolver 'map' failed (no per-host config for this host?)"
+        return 3
+    }
+
+    local launched=0 skipped=0 seen=0 conductor="" a track state cmd
+    printf '%-12s %-10s %-22s %s\n' ALIAS TRACK WINDOW WORKTREE
+    printf '%-12s %-10s %-22s %s\n' '-----' '-----' '------' '--------'
+    while read -r a track _ state; do                  # col3 (worktree) discarded; re-resolved fresh below
+        [ -n "$a" ] || continue
+        [ "$a" = "ALIAS" ] && continue                 # header row
+        # conductor / unmapped -> report + skip (never a worker window).
+        case "$state" in
+            conductor\(/home\)) conductor="$a"; continue ;;
+        esac
+        [ "$track" = "-" ] && continue                 # unmapped alias
+        mtu_safe_token "$a" && mtu_safe_token "$track" || {
+            mtu_err "multitrack-up: refusing unsafe alias/track token: '$a'/'$track'"
+            continue
+        }
+        seen=$((seen + 1))
+        if [ "$seen" -gt "$MTU_MAX" ]; then
+            mtu_err "multitrack-up: window cap MT_MAX_WINDOWS=$MTU_MAX reached — not launching '$a' (§11.4.58/§12.6)"
+            continue
+        fi
+        cmd="exec bash -lic '$a'"
+        if mtu_session_exists; then
+            if mtu_window_exists "$track"; then
+                printf '%-12s %-10s %-22s %s\n' "$a" "$track" "$MTU_SESSION:$track" "(already up — skipped)"
+                skipped=$((skipped + 1))
+                continue
+            fi
+            tmux new-window -t "$MTU_SESSION" -n "$track" "$cmd" 2>/dev/null || {
+                mtu_err "multitrack-up: tmux new-window failed for '$a' -> $track"
+                continue
+            }
+        else
+            tmux new-session -d -s "$MTU_SESSION" -n "$track" "$cmd" 2>/dev/null || {
+                mtu_err "multitrack-up: tmux new-session failed for '$a' -> $track"
+                return 3
+            }
+        fi
+        launched=$((launched + 1))
+        # resolved worktree (may be '-' if the mount is not live yet — the hook
+        # falls the session back to /home in that case; the window still exists).
+        local rwt; rwt="$(bash "$MTU_RESOLVER" resolve "$a" 2>/dev/null || true)"
+        [ -n "$rwt" ] || rwt="(unresolved -> /home)"
+        printf '%-12s %-10s %-22s %s\n' "$a" "$track" "$MTU_SESSION:$track" "$rwt"
+    done <<EOF
+$map
+EOF
+
+    mtu_log ""
+    mtu_log "multitrack-up: launched=$launched skipped=$skipped session=$MTU_SESSION"
+    if [ -n "$conductor" ]; then
+        mtu_log "multitrack-up: conductor '$conductor' stays on /home (never launched — DESIGN §5.2)"
+    else
+        mtu_log "multitrack-up: no conductor configured — the /home session is whichever is not track-bound"
+    fi
+    # A successfully-parsed map with zero launchable aliases (e.g. a single-drive
+    # host, or every window already up) is a legitimate no-op, not an error.
+    return 0
+}
+
+# --- down: tear down the windows this launcher created ------------------------
+do_down() {
+    mtu_have_tmux || { mtu_err "multitrack-down: tmux not found on PATH"; return 3; }
+    if ! mtu_session_exists; then
+        mtu_log "multitrack-down: no session '$MTU_SESSION' (nothing to do)"
+        return 0
+    fi
+    local tracks w
+    tracks="$(tmux list-windows -t "$MTU_SESSION" -F '#{window_name}' 2>/dev/null)"
+    # 1) graceful C-c per window so a live cma_run runs its on-exit state sync.
+    while IFS= read -r w; do
+        [ -n "$w" ] || continue
+        tmux send-keys -t "$MTU_SESSION:$w" C-c 2>/dev/null || true
+    done <<EOF
+$tracks
+EOF
+    # bounded grace for the on-exit sync (workers are UUID-resumable regardless).
+    sleep "$MTU_GRACE" 2>/dev/null || true
+    # 2) best-effort scoped stop of the per-track fallback monitors those workers
+    #    started (§11.4.119 single-owner: a track's monitor belongs to its owner).
+    if command -v pkill >/dev/null 2>&1; then
+        while IFS= read -r w; do
+            mtu_safe_token "$w" || continue
+            pkill -f "multitrack_fallback_monitor.sh --daemon --alias .* --track $w" 2>/dev/null || true
+        done <<EOF
+$tracks
+EOF
+    fi
+    # 3) drop the session (removes all its windows). Idempotent.
+    tmux kill-session -t "$MTU_SESSION" 2>/dev/null || true
+    mtu_log "multitrack-down: tore down session '$MTU_SESSION' (windows: $(printf '%s' "$tracks" | tr '\n' ' '))"
+    return 0
+}
+
+# --- status: current windows --------------------------------------------------
+do_status() {
+    mtu_have_tmux || { mtu_err "multitrack-up: tmux not found on PATH"; return 3; }
+    if ! mtu_session_exists; then
+        mtu_log "multitrack: no session '$MTU_SESSION'"
+        return 0
+    fi
+    tmux list-windows -t "$MTU_SESSION" \
+        -F 'WINDOW #{window_index} name=#{window_name} path=#{pane_current_path}' 2>/dev/null
+}
+
+mtu_usage() {
+    sed -n '2,30p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+}
+
+main() {
+    local cmd="${1:-}"
+    case "$cmd" in
+        up|down|status) shift ;;
+        -h|--help|help) mtu_usage; return 0 ;;
+        '')  # infer from invocation basename (multitrack-down -> down)
+             case "$(basename "$0")" in *down*) cmd=down ;; *) cmd=up ;; esac ;;
+        *)   mtu_err "multitrack-up: unknown subcommand '$cmd'"; mtu_usage; return 2 ;;
+    esac
+    case "$cmd" in
+        up)     do_up "$@" ;;
+        down)   do_down "$@" ;;
+        status) do_status "$@" ;;
+    esac
+}
+
+main "$@"

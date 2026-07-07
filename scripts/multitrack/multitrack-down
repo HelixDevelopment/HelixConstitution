@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# =============================================================================
+# multitrack-down  (§11.4.177 fully-automatic teardown — DESIGN §3 / PWU-5)
+# -----------------------------------------------------------------------------
+# Purpose:
+#   Convenience entry point for `multitrack-up down` — cleanly tears down the
+#   feature-track worker windows that `multitrack-up` created (graceful C-c so a
+#   live cma_run runs its on-exit state sync, a bounded grace, a best-effort
+#   scoped stop of the per-track §4.2(C) fallback monitors, then kill-session).
+#   The conductor (/home) session is NEVER touched here (it was never launched
+#   by `multitrack-up`, DESIGN §5.2). Idempotent: no session -> no-op, exit 0.
+#
+# Usage:
+#   multitrack-down            # tear down the multitrack tmux session
+#   multitrack-down -h|--help  # (delegated to multitrack-up)
+#
+# Inputs (env): MT_TMUX_SESSION, MT_DOWN_GRACE (see multitrack-up).
+# Outputs: a teardown summary. exit: 0 ok; 2 usage; 3 environment (no tmux).
+# Side-effects: SEE multitrack-up `down` (this only forwards to it).
+#
+# Dependencies: bash; sibling multitrack-up (the real implementation).
+# Cross-references: scripts/multitrack/multitrack-up (do_down);
+#   docs/research/universal_auto_multitrack_20260704/DESIGN.md §3.2 (down).
+# =============================================================================
+
+set -u
+
+_mtd_self_dir() {
+    src="${BASH_SOURCE[0]:-$0}"
+    while [ -h "$src" ]; do
+        d=$(cd -P "$(dirname "$src")" >/dev/null 2>&1 && pwd)
+        src=$(readlink "$src"); case "$src" in /*) ;; *) src="$d/$src" ;; esac
+    done
+    cd -P "$(dirname "$src")" >/dev/null 2>&1 && pwd
+}
+MTD_DIR="$(_mtd_self_dir)"
+MTD_UP="$MTD_DIR/multitrack-up"
+
+[ -r "$MTD_UP" ] || { printf 'multitrack-down: missing %s\n' "$MTD_UP" >&2; exit 3; }
+
+# --help forwards verbatim; everything else means "down".
+case "${1:-}" in
+    -h|--help|help) exec bash "$MTD_UP" --help ;;
+    *)              exec bash "$MTD_UP" down "$@" ;;
+esac

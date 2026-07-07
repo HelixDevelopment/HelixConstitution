@@ -25,7 +25,8 @@ canonical-root) and supplies ONLY its own per-host config data.
 | `multitrack_registry.sh` | flock TSV get/set over `<repo>/.ws_state/streams.tsv`. |
 | `multitrack_claim.sh` | Exactly-once item→track claim + TTL reap (§11.4.176(A)). |
 | `multitrack_device_lock.sh` | Capability-aware deadlock-proof device-lock (§11.4.176(B)). |
-| `multitrack_cwd_hook.sh` | Thin toolkit adapter: prints the alias's bound worktree AND fires a best-effort, non-fatal, fully-detached `orchestrator bind` (bind-on-start, §11.4.177) for the resolved track (never for the conductor). |
+| `multitrack_cwd_hook.sh` | Thin toolkit adapter: prints the alias's bound worktree AND fires a best-effort, non-fatal, fully-detached `orchestrator bind` (bind-on-start, §11.4.177), fallback monitor, AND constitution auto-sync for the resolved track (never for the conductor). |
+| `multitrack_constitution_sync.sh` | §11.4.35 constitution auto-sync: on every track activation, ancestor-guarded **fast-forward-only** advance of the activated worktree's `constitution/` submodule to latest `<remote>/main` (WIP-preserving, never force/reset/rewind; never `git submodule update`). Keeps the constitution "always up to date with main, Everywhere!" |
 | `multitrack_alias_orchestrator.sh` | Alias↔track bind / fallback / cooldown lease. |
 | `multitrack_build.sh` | Single-builder FIFO rebuild queue. |
 

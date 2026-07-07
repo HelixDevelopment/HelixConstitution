@@ -35,24 +35,42 @@
 #
 # Outputs: stdout = one worktree path (hook mode) or human text (--status).
 # Side-effects: --install/--uninstall create/remove ONE symlink under ~/.local/bin.
-#               Hook mode: relays the resolver's worktree on stdout AND fires a
-#               §4.1 bind-on-start (PWU-3) — a BEST-EFFORT, NON-FATAL, FULLY
-#               DETACHED `orchestrator bind --alias A --track T` for the alias's
-#               resolved track. The detach (all fds -> /dev/null before `&`) makes
-#               it impossible for the bind to corrupt the stdout dir line OR block
-#               the toolkit's `cd "$(hook ...)"` command substitution. The
-#               conductor alias resolves to no track and is therefore NEVER bound.
+#               Hook mode: relays the resolver's worktree on stdout AND fires THREE
+#               BEST-EFFORT, NON-FATAL, FULLY-DETACHED side-effects for the alias's
+#               resolved track (all with all fds -> /dev/null before `&`, so NONE
+#               can corrupt the single-line stdout NOR block the toolkit's
+#               `cd "$(hook ...)"` substitution):
+#                 (a) §4.1 bind-on-start (PWU-3) — `orchestrator bind --alias A
+#                     --track T`;
+#                 (b) §4.2(C) monitor-auto-start (PWU-5) — one detached
+#                     `multitrack_fallback_monitor.sh --daemon` per alias, tailing
+#                     the alias's newest transcript for a rate-limit signature
+#                     (idempotent: one monitor per alias/track);
+#                 (c) §11.4.35 constitution auto-sync — one detached
+#                     `multitrack_constitution_sync.sh for-alias A` that ancestor-
+#                     guarded fast-forwards the worktree's constitution submodule
+#                     to latest <remote>/main (ff-only, WIP-preserving, never
+#                     force/reset — "always up to date with main, Everywhere!").
+#               The conductor alias resolves to no track and is therefore NEVER
+#               bound, NEVER monitored, and NEVER synced (same no-track path as
+#               role:main — its /home checkout is kept current by its own workflow).
 #
 # Dependencies: bash; multitrack_resolve_worktree.sh (sibling, `resolve`+`track`);
-#               multitrack_alias_orchestrator.sh (sibling, `bind`).
+#               multitrack_alias_orchestrator.sh (sibling, `bind`);
+#               multitrack_fallback_monitor.sh (sibling, `--daemon`, PWU-5);
+#               pgrep (optional idempotency guard), tail (in the monitor).
 #
 # Cross-references:
 #   scripts/multitrack/multitrack_resolve_worktree.sh   (the resolver it wraps)
 #   scripts/multitrack/multitrack_alias_orchestrator.sh (bind-on-start target)
+#   scripts/multitrack/multitrack_fallback_monitor.sh   (monitor-auto-start target)
+#   scripts/multitrack/multitrack_constitution_sync.sh  (constitution auto-sync target, §11.4.35)
+#   scripts/multitrack/multitrack-up                    (session launcher, PWU-5)
 #   claude_toolkit scripts/lib.sh  (cma_run CMA_CWD_HOOK integration)
 #   docs/guides/MULTITRACK_PERMANENT_SWITCH.md
+#   docs/research/universal_auto_multitrack_20260704/DESIGN.md §3.2 / §4.2(C)
 #   §11.4.28 decoupling (toolkit stays generic; <project> logic lives here)
-#   §11.4.177 auto bind-on-start + auto-conductor
+#   §11.4.177 auto bind-on-start + monitor-auto-start + auto-conductor
 # =============================================================================
 
 _cwh_self() {
@@ -88,6 +106,26 @@ _cwh_hook() {
     #    block, slow, or fail shell startup. Only a REAL track binds (the conductor
     #    resolves to no track, so it is never bound).
     _cwh_bind_start "$alias"
+    # 3) §4.2(C) + §3.2-step-4 monitor-auto-start (PWU-5): spawn ONE per-alias
+    #    rate-limit transcript monitor for this session, FULLY DETACHED with the
+    #    IDENTICAL never-block/never-corrupt guard the bind above uses (all fds ->
+    #    /dev/null BEFORE `&`, so it can neither corrupt this hook's single-line
+    #    stdout contract nor block cma_run's `cd "$(hook ...)"` substitution). Only
+    #    a REAL track gets a monitor (the conductor resolves to no track -> no
+    #    monitor, mirroring no-bind). Idempotent (never a 2nd monitor per alias).
+    _cwh_monitor_start "$alias"
+    # 4) §11.4.35 constitution auto-sync (operator mandate 2026-07-04: "Constitution
+    #    Submodule MUST BE ALWAYS up to date (fetch and pull all) with the main
+    #    branch! Everywhere!"). On every track activation, fast-forward the
+    #    activated worktree's constitution submodule to latest <remote>/main.
+    #    FULLY DETACHED with the IDENTICAL never-block/never-corrupt guard used by
+    #    the bind + monitor above (all fds -> /dev/null BEFORE `&`), because the
+    #    fetch is a NETWORK op that MUST NOT delay cma_run's `cd "$(hook ...)"`
+    #    substitution. The sync is ancestor-guarded, fast-forward-ONLY, WIP-
+    #    preserving, and NEVER force/reset/rewind (see multitrack_constitution_sync.sh).
+    #    Only a REAL track (a resolved worktree) is synced — the conductor resolves
+    #    to no worktree (NOOP), its /home checkout kept current by its own workflow.
+    _cwh_constitution_sync_start "$alias"
     return 0
 }
 
@@ -123,6 +161,85 @@ _cwh_bind_async() {
     track="$(bash "$CWH_RESOLVER" track "$alias" 2>/dev/null || true)"
     [ -n "$track" ] || return 0     # conductor / no valid track -> NO bind
     bash "$orch" bind --alias "$alias" --track "$track" >/dev/null 2>&1 || true
+    return 0
+}
+
+# Fire the §4.2(C) rate-limit monitor FULLY DETACHED — the EXACT same guard as
+# _cwh_bind_start: all std fds -> /dev/null BEFORE `&`, so the spawn (a) cannot
+# write a byte to this hook's fd 1 (which cma_run captures as the cd target), and
+# (b) holds NO copy of the hook's stdout pipe, so `cd "$(hook ...)"` returns the
+# instant the foreground `resolve` finishes — the long-lived `tail -F` daemon the
+# monitor starts NEVER blocks shell startup. `( ... & )` returns immediately.
+_cwh_monitor_start() {
+    local alias="$1"
+    ( _cwh_monitor_async "$alias" & ) >/dev/null 2>&1 </dev/null || true
+}
+
+# Start ONE per-alias fallback monitor (§4.2(C)) for this session, tailing the
+# alias's newest Claude Code transcript under its worktree's projects dir. Runs
+# detached (all fds already redirected by _cwh_monitor_start). Rules:
+#   * REAL track only — the resolver's validate-gated `track` verb prints a track
+#     IFF a live cd-able worktree resolved, so the conductor / unmapped / unmounted
+#     alias yields NO track and therefore NO monitor (mirrors the no-bind path).
+#   * IDEMPOTENT — never a 2nd monitor for the same (alias,track): a pgrep on the
+#     daemon's own argv is the stateless guard.
+#   * <transcript> = newest *.jsonl under $CLAUDE_CONFIG_DIR/projects/<enc>/ where
+#     <enc> is the worktree path with every '/'→'-' (the Claude Code transcript
+#     dir convention, DESIGN §4.2(C)). No transcript yet -> SKIP cleanly (a future
+#     hook run at the next session start starts it once a transcript exists).
+#   * Log under the worker's own <worktree>/qa-results/multitrack/ (§11.4.89),
+#     falling back to a tmp dir when that tree is not writable. Best-effort +
+#     non-fatal throughout; any failure is swallowed (never harms the session).
+_cwh_monitor_async() {
+    local alias="$1" mon track wt enc projdir tp logdir logf ccdir
+    mon="$CWH_DIR/multitrack_fallback_monitor.sh"
+    [ -r "$mon" ] || return 0
+    track="$(bash "$CWH_RESOLVER" track "$alias" 2>/dev/null || true)"
+    [ -n "$track" ] || return 0     # conductor / no valid track -> NO monitor
+    # Idempotency: one monitor per (alias,track). Skip if one is already live.
+    if command -v pgrep >/dev/null 2>&1; then
+        pgrep -f "multitrack_fallback_monitor.sh --daemon --alias $alias --track $track" \
+            >/dev/null 2>&1 && return 0
+    fi
+    wt="$(bash "$CWH_RESOLVER" resolve "$alias" 2>/dev/null || true)"
+    [ -n "$wt" ] || return 0
+    ccdir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+    enc="$(printf '%s' "$wt" | tr '/' '-')"
+    projdir="$ccdir/projects/$enc"
+    tp="$(ls -1t "$projdir"/*.jsonl 2>/dev/null | head -n1 || true)"
+    [ -n "$tp" ] || return 0        # no transcript yet -> skip cleanly (DESIGN §4b)
+    logdir="$wt/qa-results/multitrack"
+    mkdir -p "$logdir" 2>/dev/null || logdir="${TMPDIR:-/tmp}/multitrack_monitor_logs"
+    mkdir -p "$logdir" 2>/dev/null || true
+    logf="$logdir/monitor_${alias}_$(date +%s).log"
+    nohup bash "$mon" --daemon --alias "$alias" --track "$track" --transcript "$tp" \
+        >"$logf" 2>&1 &
+    return 0
+}
+
+# Fire the §11.4.35 constitution auto-sync FULLY DETACHED — the EXACT same guard
+# as _cwh_bind_start / _cwh_monitor_start: all std fds -> /dev/null BEFORE `&`, so
+# the sync (a) cannot write a byte to this hook's fd 1 (which cma_run captures as
+# the cd target), and (b) holds NO copy of the hook's stdout pipe, so
+# `cd "$(hook ...)"` returns the instant the foreground `resolve` finishes — the
+# sync's NETWORK fetch NEVER blocks shell startup. `( ... & )` returns immediately.
+_cwh_constitution_sync_start() {
+    local alias="$1"
+    ( _cwh_constitution_sync_async "$alias" & ) >/dev/null 2>&1 </dev/null || true
+}
+
+# Fast-forward the alias's resolved worktree's constitution submodule to latest
+# <remote>/main via the sibling helper (ancestor-guarded, ff-only, WIP-preserving,
+# never force/reset — the helper owns all safety). Runs detached (all fds already
+# redirected by _cwh_constitution_sync_start), so it never touches the hook's
+# stdout contract. `for-alias` resolves the worktree itself and NOOPs cleanly for
+# the conductor / unmapped / unmounted alias (no worktree -> nothing to sync),
+# mirroring the no-bind / no-monitor path. Inherits the hook's resolver env.
+_cwh_constitution_sync_async() {
+    local alias="$1" cs
+    cs="$CWH_DIR/multitrack_constitution_sync.sh"
+    [ -r "$cs" ] || return 0
+    bash "$cs" for-alias "$alias" >/dev/null 2>&1 || true
     return 0
 }
 
