@@ -11,9 +11,18 @@
 #   before any render.
 #
 # Usage:
-#   bash doc_integrity_gate.sh <checkset.yaml> [repo_root]
+#   bash doc_integrity_gate.sh <checkset.yaml> [repo_root] [--divergence-class-only]
 #     <checkset.yaml>  consumer-owned checkset (e.g. .atmosphere/doc_integrity/checkset.yaml)
 #     [repo_root]      root the source paths resolve against (default: $PWD)
+#     --divergence-class-only
+#                      §11.4.186 family-split: treat INTEGRITY-class findings
+#                      (orphan-ref / Status↔Type / location↔status DATA defects) as
+#                      NON-refusing (clause-6 honest boundary — plan-data correctness is
+#                      an operator decision the gate SURFACES, never MAKES). Only the
+#                      cross-document DIVERGENCE classes DEDUP / TIMELINE / CROSS-DOC /
+#                      STRUCTURAL still REFUSE. Without the flag, ANY finding refuses
+#                      (full strict). §11.4.50 ratchet: drop the flag once the plan's
+#                      orphan-dependency rows are corrected, to strengthen monotonically.
 #
 # Inputs:
 #   $DOC_INTEGRITY_BIN  optional path to a prebuilt doc-integrity binary
@@ -39,6 +48,17 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODULE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"   # constitution/scripts/doc_integrity
+
+# --- arg parse: extract --divergence-class-only anywhere; keep positional args ---
+divergence_class_only=0
+positional=()
+for _a in "$@"; do
+  case "${_a}" in
+    --divergence-class-only) divergence_class_only=1 ;;
+    *) positional+=("${_a}") ;;
+  esac
+done
+set -- "${positional[@]+"${positional[@]}"}"
 
 checkset="${1:-}"
 repo_root="${2:-$PWD}"
@@ -68,9 +88,28 @@ if [ -z "${bin}" ] || [ ! -x "${bin}" ]; then
 fi
 
 set +e
-"${bin}" verify "${checkset}" --repo-root "${repo_root}"
+out="$("${bin}" verify "${checkset}" --repo-root "${repo_root}" 2>&1)"
 rc=$?
 set -e
+printf '%s\n' "${out}"
+
+# §11.4.186 family-split (only when --divergence-class-only): INTEGRITY-class findings
+# (orphan-ref / Status↔Type / location↔status DATA defects) are NON-refusing per clause-6
+# honest boundary (plan-DATA correctness is an operator decision the gate SURFACES, never
+# MAKES); the cross-document DIVERGENCE classes DEDUP / TIMELINE / CROSS-DOC / STRUCTURAL
+# still REFUSE. Without the flag, ANY rc==1 finding refuses (full strict).
+if [ "${divergence_class_only}" -eq 1 ] && [ "${rc}" -eq 1 ]; then
+  fam="$(printf '%s\n' "${out}" | grep -E '^by family:' | tail -1 || true)"
+  div=0
+  for _f in DEDUP TIMELINE CROSS-DOC STRUCTURAL; do
+    _n="$(printf '%s' "${fam}" | grep -oE "${_f}=[0-9]+" | cut -d= -f2 || true)"
+    div=$(( div + ${_n:-0} ))
+  done
+  if [ "${div}" -eq 0 ]; then
+    echo "doc-integrity: INTEGRITY-only findings (${fam:-none}) — NON-divergence-class; export/commit PROCEEDS (§11.4.186 clause-6 honest boundary + §11.4.50 ratchet). [--divergence-class-only]" >&2
+    rc=0
+  fi
+fi
 
 case "${rc}" in
   0) echo "doc-integrity: PASS — export/commit may proceed." ;;
