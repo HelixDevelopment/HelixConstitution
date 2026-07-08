@@ -1,3 +1,6 @@
 [submodule "submodules/token_optimizer"]
 	path = submodules/token_optimizer
 	url = git@github.com:vasic-digital/token_optimizer.git
+[submodule "submodules/session_orchestrator"]
+	path = submodules/session_orchestrator
+	url = git@github.com:vasic-digital/session_orchestrator.git
