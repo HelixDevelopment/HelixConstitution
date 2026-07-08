@@ -1,0 +1,27 @@
+schema_version: 1
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    id_pattern: '^[0-9]+(\.[0-9]+)*$'
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      section: "Section"
+      start: "Start"
+      deadline: "Deadline"
+      deps: "Deps"
+  - id: issues
+    kind: markdown-headings
+    path: issues.md
+crossdoc_join:
+  key: ticket
+  compare: [timeline, status, type]
+  authoritative: plan
+dedup:
+  key_fields: [subject_norm, scope_norm]
+  ticket_field: ticket
+thresholds:
+  subject_similarity: 0.90

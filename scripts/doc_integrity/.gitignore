@@ -1,0 +1,5 @@
+# build artefacts (§11.4.30 / §11.4.77 — regenerable via `go build`)
+/bin/
+/doc_integrity
+*.test
+*.out

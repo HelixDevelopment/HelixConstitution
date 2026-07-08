@@ -1,0 +1,17 @@
+schema_version: 1
+# GOLDEN-BAD (DEDUP): the SAME task (subject+scope) appears twice with a
+# DIVERGENT deadline — the operator's exact named defect. MUST FAIL DEDUP-02.
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      start: "Start"
+      deadline: "Deadline"
+dedup:
+  key_fields: [subject_norm, scope_norm]
+  ticket_field: ticket
