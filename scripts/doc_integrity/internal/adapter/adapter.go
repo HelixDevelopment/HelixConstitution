@@ -113,15 +113,44 @@ func firstNonEmpty(vals ...string) string {
 	return ""
 }
 
+// splitDeps tokenises a dependencies cell into individual dependency-ref tokens.
+//
+// It splits in TWO stages so a date value in the deps column is never fragmented
+// into bogus refs (ATM-687): stage 1 splits on the "hard" separators that never
+// occur inside a date rendering (comma / semicolon / pipe / whitespace); each
+// coarse field is then tested by normalize.IsDateLike — a date-shaped field
+// (e.g. the spreadsheet-rendered "3/6/2001") is DROPPED (a date is not a
+// dependency reference), whereas a NON-date coarse field is stage-2 split on '/'
+// so genuine slash-separated refs ("ATM-1/ATM-2") still tokenise. A dotted
+// item-ref like "5.0.1" is not date-like, has no '/', and survives intact — so a
+// genuinely-unresolved dependency is still flagged by INTEG-01 (§11.4.146).
 func splitDeps(s string) []string {
-	fields := strings.FieldsFunc(s, func(r rune) bool {
-		return r == ',' || r == ';' || r == '/' || r == '|' || r == ' ' || r == '\t' || r == '\n'
-	})
-	var out []string
-	for _, f := range fields {
+	isCoarseSep := func(r rune) bool {
+		return r == ',' || r == ';' || r == '|' || r == ' ' || r == '\t' || r == '\n'
+	}
+	isSlashSep := func(r rune) bool { return r == '/' }
+
+	keep := func(f string) bool {
 		f = strings.TrimSpace(f)
-		if f != "" && !strings.EqualFold(f, "none") && f != "-" && f != "—" {
-			out = append(out, f)
+		return f != "" && !strings.EqualFold(f, "none") && f != "-" && f != "—"
+	}
+
+	var out []string
+	for _, coarse := range strings.FieldsFunc(s, isCoarseSep) {
+		coarse = strings.TrimSpace(coarse)
+		if !keep(coarse) {
+			continue
+		}
+		// A date/datetime in the deps column is not a dependency reference —
+		// drop it whole so its digit groups never become bogus ref candidates.
+		if normalize.IsDateLike(coarse) {
+			continue
+		}
+		for _, piece := range strings.FieldsFunc(coarse, isSlashSep) {
+			piece = strings.TrimSpace(piece)
+			if keep(piece) && !normalize.IsDateLike(piece) {
+				out = append(out, piece)
+			}
 		}
 	}
 	return out

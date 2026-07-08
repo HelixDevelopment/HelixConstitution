@@ -64,6 +64,49 @@ func Date(s string) *time.Time {
 	return nil
 }
 
+// dateTimeLayouts extends dateLayouts with the ISO/spreadsheet datetime
+// renderings (a date carrying a time-of-day component). Kept separate from
+// dateLayouts so the timeline Date() semantics (date-only) are unchanged; only
+// IsDateLike consults the superset.
+var dateTimeLayouts = []string{
+	"2006-01-02T15:04:05",
+	"2006-01-02 15:04:05",
+	"2006-01-02T15:04:05Z07:00",
+	"2006/01/02 15:04:05",
+	"01/02/2006 15:04:05",
+	// UNPADDED M/D/YYYY — the exact rendering excelize produces for a
+	// spreadsheet date cell (V9 "Реалистичный" E156 → "3/6/2001", from the
+	// serial date 2001-03-06). Go's "01/02/2006" requires ZERO-PADDED month +
+	// day (getnum fixed=true) so it REJECTS "3/6/2001"; the unpadded "1/2/2006"
+	// layout (getnum fixed=false) accepts BOTH "3/6/2001" AND "03/06/2001". Kept
+	// in the IsDateLike-only superset so Date()/timeline semantics are unchanged
+	// (ATM-687). This is the layout that actually makes the ATM-687 fix fire.
+	"1/2/2006",
+}
+
+// IsDateLike reports whether the ENTIRE trimmed value is a date (or datetime)
+// under the closed layout set — never a partial/heuristic match (§11.4.6). It is
+// the discriminator that keeps a date value in the dependencies column (e.g. the
+// spreadsheet-rendered "3/6/2001") from being fragmented into bogus dependency-
+// ref candidates (ATM-687). A dotted item-ref like "5.0.1" or a ticket like
+// "ATM-599" is NOT date-like: time.Parse rejects the out-of-range / non-year
+// components, so those genuine dependency refs still tokenize + still get flagged.
+func IsDateLike(s string) bool {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return false
+	}
+	if Date(s) != nil {
+		return true
+	}
+	for _, layout := range dateTimeLayouts {
+		if _, err := time.Parse(layout, s); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
 // Similarity returns a normalised [0,1] similarity ratio between two already-
 // normalised subjects, using Levenshtein edit distance. Used only for the
 // CROSS-DOC fuzzy fallback join when a ticket is absent; the threshold is
