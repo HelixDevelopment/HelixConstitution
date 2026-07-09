@@ -581,14 +581,43 @@ cmd_reconcile() {
         function val(line,key,   re,s,q){ re="\""key"\":\""; if(match(line,re)){ s=substr(line,RSTART+length(re)); q=index(s,"\""); return substr(s,1,q-1)} return "" }
         function num(line,key,   re,s,i,c,d){ re="\""key"\":"; if(match(line,re)){ s=substr(line,RSTART+length(re)); d=""; for(i=1;i<=length(s);i++){c=substr(s,i,1); if(c ~ /[0-9]/) d=d c; else break} return d} return "" }
         {
-          ev=val($0,"event"); al=val($0,"alias"); tr=val($0,"track"); wt=val($0,"worktree"); exp=val($0,"expires"); pid=num($0,"pid"); ts=num($0,"ts")
-          if(ev=="BIND" || ev=="FALLBACK"){ if(tr!=""){ t2a[tr]=al; twt[tr]=wt; te[tr]=exp; tp[tr]=pid; tacq[tr]=ts } }
-          else if(ev=="HEARTBEAT"){ if(al!=""){ for(t in t2a) if(t2a[t]==al) te[t]=exp } }
+          # NOTE (RB-FIX2, section 11.4.111/11.4.115): xp (NOT exp) is
+          # deliberate --- exp is a gawk BUILT-IN function (exponential);
+          # gawk 5.1.0 fatal-errors with a syntax error when a built-in
+          # function name is assigned as a scalar variable. POSIX awk and
+          # mawk historically tolerated this shadowing; gawk does not.
+          # Regression-guarded by test_multitrack_orchestrator_reconcile.sh
+          # (RED reproduces the gawk fatal on the pre-fix program; GREEN
+          # asserts a clean run plus correct reconciled snapshot).
+          ev=val($0,"event"); al=val($0,"alias"); tr=val($0,"track"); wt=val($0,"worktree"); xp=val($0,"expires"); pid=num($0,"pid"); ts=num($0,"ts")
+          if(ev=="BIND" || ev=="FALLBACK"){ if(tr!=""){ t2a[tr]=al; twt[tr]=wt; te[tr]=xp; tp[tr]=pid; tacq[tr]=ts } }
+          else if(ev=="HEARTBEAT"){ if(al!=""){ for(t in t2a) if(t2a[t]==al) te[t]=xp } }
           else if(ev=="UNBIND"){ if(tr!=""){ delete t2a[tr] } if(al!=""){ for(t in t2a) if(t2a[t]==al) delete t2a[t] } }
           else if(ev=="REAP"){ if(tr!=""){ delete t2a[tr] } else if(al!=""){ for(t in t2a) if(t2a[t]==al) delete t2a[t] } }
         }
         END{ for(t in t2a) if(t!="") printf "%s|%s|%s|%s|%s|%s|%s\n", t2a[t], t, twt[t], tp[t], tacq[t], te[t], "active" }
-      ' "$EVENTS" > "$BIND.tmp.$$" && mv -f "$BIND.tmp.$$" "$BIND"
+      ' "$EVENTS" > "$BIND.tmp.$$"
+      # RB-FIX3 (I-b): capture the awk pipeline's OWN exit status explicitly.
+      # The previous `awk '...' > tmp && mv ...` form let `&&` short-circuit
+      # `mv` on a genuine awk failure (correctly leaving bindings.snapshot
+      # un-clobbered) but then fell through to an UNCONDITIONAL success
+      # `echo` as the subshell's last command -- so `cmd_reconcile` ALWAYS
+      # returned 0 regardless of whether the rebuild actually happened (an
+      # independent code review reproduced this live on the pre-fix `exp`
+      # gawk-fatal artifact: "syntax error" on stderr + bindings.snapshot
+      # stays empty/stale, yet rc=0 and "RECONCILE: ... rebuilt" still
+      # prints -- a PASS-bluff at the tooling layer). On failure: discard
+      # the (possibly partial/empty) tmp file, print a clearly-labelled
+      # error to stderr, and return non-zero -- NEVER the false-success
+      # message, NEVER a silent rc=0. The happy path (awk succeeds) is
+      # byte-for-byte unchanged: mv + reap + the SAME success echo.
+      _reconcile_awk_rc=$?
+      if [ "$_reconcile_awk_rc" -ne 0 ]; then
+          rm -f "$BIND.tmp.$$" 2>/dev/null || true
+          echo "ERECONCILE: awk rebuild FAILED (rc=$_reconcile_awk_rc) -- bindings.snapshot NOT rebuilt, prior state preserved (see $EVENTS + the stderr above)" >&2
+          exit 1
+      fi
+      mv -f "$BIND.tmp.$$" "$BIND"
       _reap
       echo "RECONCILE: bindings snapshot rebuilt from $EVENTS"
     ) 9<"$LOCKF"

@@ -149,7 +149,34 @@ func updateCmd(args []string) int {
 		cur.AssignedTo = strings.TrimSpace(*assignedTo)
 	}
 
-	newBody := renderItemBody(cur.AtmID, cur.Title, cur.Type, cur.Severity, cur.Description, cur.Status, cur.CreatedBy, cur.AssignedTo)
+	// §11.4.93 data-integrity: a field-only update MUST mutate only the specified
+	// column(s) and PRESERVE the authored body_md. A real md→db-synced item carries
+	// multi-KB of operator-authored freeform content; regenerating it from
+	// renderItemBody's minimal template collapses it to ~250 bytes — the truncation
+	// defect this fixes (forensic anchor: SPK-481 10 KB → 294 bytes on `update
+	// --severity`). Regeneration is permitted ONLY when --description explicitly
+	// replaces the freeform content.
+	//
+	// For a field-only update we start from the existing body and surgically sync
+	// only the two slots the tool treats as column-authoritative:
+	//   - the `## <ID> — <title>` heading, when --title changes (the item's rendered
+	//     display identity; renderDocument emits it from body_md, not the column);
+	//   - the `**Status:**` line, when --status changes (the sole column↔body
+	//     invariant enforced by statusColumnBodyDesyncs). canonicalizeBodyStatusLine
+	//     is a STRICT no-op when status is unchanged, so a non-status field-only
+	//     update (e.g. --severity) leaves body_md byte-identical (diff stays 0).
+	// Every other line — the entire authored freeform body plus the
+	// severity/type/attribution meta lines — is preserved verbatim.
+	var newBody string
+	if set["description"] {
+		newBody = renderItemBody(cur.AtmID, cur.Title, cur.Type, cur.Severity, cur.Description, cur.Status, cur.CreatedBy, cur.AssignedTo)
+	} else {
+		newBody = cur.BodyMD
+		if set["title"] {
+			newBody = replaceHeadingTitle(newBody, cur.AtmID, cur.Title)
+		}
+		newBody = canonicalizeBodyStatusLine(newBody, cur.Status)
+	}
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -418,6 +445,30 @@ func renderBlockedBody(it *item, what, why, unblock, who string) string {
 		fmt.Fprintf(&b, " WHO: %s", who)
 	}
 	return insertMetaLine(body, b.String())
+}
+
+// replaceHeadingTitle surgically rewrites the title portion of an item body's
+// canonical `## <ID> — <title>` heading line to newTitle, preserving every other
+// line byte-for-byte (the heading-analogue of canonicalizeBodyStatusLine). It
+// rewrites the FIRST line whose prefix is `## <id> — `; when no such canonical
+// heading is present (a rich body may use a non-canonical heading form) the body
+// is returned UNCHANGED — the title column still updates, and no authored content
+// is ever disturbed. This keeps a field-only --title update's heading in sync with
+// the column without regenerating (and thus truncating) the authored body.
+func replaceHeadingTitle(body, id, newTitle string) string {
+	prefix := "## " + id + " — "
+	lines := splitKeepNewlines(body)
+	for i, ln := range lines {
+		if strings.HasPrefix(strings.TrimRight(ln, "\n"), prefix) {
+			nl := ""
+			if strings.HasSuffix(ln, "\n") {
+				nl = "\n"
+			}
+			lines[i] = prefix + newTitle + nl
+			return strings.Join(lines, "")
+		}
+	}
+	return body
 }
 
 // insertMetaLine inserts a `**Key:** …` metadata line into a rendered item body

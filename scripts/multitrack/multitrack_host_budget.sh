@@ -209,8 +209,15 @@ MT_HOST_BUDGET_WORKER_RSS_GB="${MT_HOST_BUDGET_WORKER_RSS_GB:-2}"
 # Heavy-build detection pattern. Aligned with the CLAUDE.md §12.7/§12.8
 # concurrency-hardening precedent (host_check_aosp_preflight's JVM-daemon
 # regex in scripts/lib/host_session_safety.sh) plus the AOSP `m -j` /
-# containerised `build_maxres` entry points themselves.
-MT_HOST_BUDGET_BUILD_PGREP_PATTERN="${MT_HOST_BUDGET_BUILD_PGREP_PATTERN:-m -j|gradle|build_maxres|GradleDaemon|GradleWorkerMain|KotlinCompileDaemon}"
+# containerised `build_maxres` entry points themselves. I3 fix: the default
+# previously omitted 4 tokens of the project's own documented §12.8b
+# "complete" JVM-daemon set (`gradle-launcher`, `ScalaCompileDaemon`,
+# `GroovyCompileDaemon`, `kotlin-compiler-embeddable`) -- an independent
+# review found a worker spawn could proceed concurrently with one of those
+# four processes alive without this build-guard firing, narrower protection
+# than the project's own documented complete pattern for the same
+# concurrency-hardening concern this doc-comment cites as its precedent.
+MT_HOST_BUDGET_BUILD_PGREP_PATTERN="${MT_HOST_BUDGET_BUILD_PGREP_PATTERN:-m -j|gradle|build_maxres|GradleDaemon|GradleWorkerMain|gradle-launcher|KotlinCompileDaemon|ScalaCompileDaemon|GroovyCompileDaemon|kotlin-compiler-embeddable}"
 # <<MT_BUILD_PGREP_GUARD
 
 # Live-worker detection pattern (auto-detect fallback when the caller does

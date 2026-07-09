@@ -454,7 +454,7 @@ Universal AGENTS.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>38</td>
+<td>39</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -462,7 +462,7 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-07-07T19:05:34Z</td>
+<td>2026-07-09T11:37:44Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -470,7 +470,46 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.184 — Mandatory SonarQube static-analysis CLI + local
+<td>Added §11.4.187 — Automatic multi-track ruler orchestration (User
+mandate 2026-07-04; landed 2026-07-09): every project incorporating this
+constitution MUST ship its multi-track parallel-development
+orchestration as a UNIVERSAL, AUTOMATIC, OUT-OF-THE-BOX, INHERITED
+capability, not a per-project reimplementation, via a single conductor
+session that programmatically spawns/drives/resumes/monitors/controls
+per-track headless workers (native headless
+<code>claude -p --output-format stream-json</code>, session_id captured
+from the first <code>init</code> event, success read from
+<code>result.is_error</code> never the process exit code,
+<code>--resume</code> invoked from the same cwd+env); per-subscription
+auth (<code>unset ANTHROPIC_API_KEY</code> + per-alias
+<code>CLAUDE_CODE_OAUTH_TOKEN</code>/<code>CLAUDE_CONFIG_DIR</code>)
+with rate-limit→rebind-to-healthy-alias→provider-fallback→bounded-park
+(§11.4.101); crash-resilient ruler self-supervisor (durable
+write-temp-then-rename state + watchdog rehydrate, never tmpfs);
+idempotent bootstrap auto-installed via the §11.4.164
+<code>post_update_hook.sh</code> seam; conductor-stays-home (never bound
+into a track worktree); the entire mechanism lives at
+<code>constitution/scripts/multitrack/</code> inherited BY REFERENCE
+(§11.4.28(B)/§11.4.177), carrying NO project literal — every consumer
+supplies its own <code>config/multitrack/&lt;hostname&gt;.yaml</code> as
+DATA. Honest boundary §11.4.6: this anchor mandates the MECHANISM; real
+per-subscription quota-isolation proof needs live tokens (an
+operator-scheduled acceptance window), never conflated with a
+mock-driven spawn/resume/fallback-contract GREEN. Classification:
+universal (§11.4.17). Composes
+§11.4.20/.28/.58/.70/.101/.103/.111/.116/.119/.126/.128/.131/.147/.164/.167/.176/§12.6/§12.8.
+Propagation gate <code>CM-COVENANT-114-187-PROPAGATION</code> +
+recommended gates
+<code>CM-MULTITRACK-ENGINE-IN-CONSTITUTION</code>/<code>CM-MULTITRACK-AUTOINSTALL-WIRED</code>/<code>CM-MULTITRACK-BOOTSTRAP-IDEMPOTENT</code>/<code>CM-MULTITRACK-BIND-ON-START</code>/<code>CM-MULTITRACK-FALLBACK-MONITOR</code>/<code>CM-MULTITRACK-HEADLESS-SPAWN</code>/<code>CM-MULTITRACK-RULER-SUPERVISOR</code>
++ paired §1.1 mutation. Also landed the previously-missing
+<code>CM-COVENANT-114-167-PROPAGATION</code> +
+<code>CM-COVENANT-114-176-PROPAGATION</code> standalone gate scripts
+(closing the §11.4.167/§11.4.176 gate-code gap flagged since their
+original landing) + <code>CM-MULTITRACK-ENGINE-IN-CONSTITUTION</code>
+mechanism gate, each with a paired §1.1 mutation test under
+<code>constitution/scripts/gates/</code>. CLAUDE.md + AGENTS.md +
+QWEN.md + GEMINI.md mirrors updated in lockstep (§11.4.157). Prior
+round: Added §11.4.184 — Mandatory SonarQube static-analysis CLI + local
 tooling installed and PATH-discoverable (User mandate 2026-07-06): the
 SonarQube scanner CLI (<code>sonar-scanner</code>) MUST be installed AND
 durably PATH-discoverable via <code>.bashrc</code>/<code>.zshrc</code>
@@ -7079,5 +7118,103 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--cross-doc-check-not-applicable</code>,
 <code>--unvalidated-analyzer-OK</code>,
 <code>--divergent-commit-OK</code> flag.</p>
+<p><strong>§11.4.187 — Automatic multi-track ruler orchestration (User
+mandate, 2026-07-04; landed 2026-07-09).</strong> Compact summary: every
+project incorporating this constitution MUST ship its multi-track
+parallel-development orchestration as a UNIVERSAL, AUTOMATIC,
+OUT-OF-THE-BOX, INHERITED capability — not a per-project
+reimplementation — via a single conductor session that programmatically
+SPAWNS, DRIVES, RESUMES, MONITORS, and CONTROLS per-track headless
+workers. (1) <strong>Headless spawn primitive</strong> — workers launch
+via native headless
+<code>claude -p --output-format stream-json --verbose</code>; the
+worker&#39;s <code>session_id</code> is captured from the FIRST
+<code>init</code> event (never invented); success/failure is read from
+the terminal event&#39;s <code>result.is_error</code> field, NEVER the
+process exit code (a CLI can exit non-zero on a successful
+<code>result</code>, or zero on a failed one —
+exit-code-as-success-signal is a §11.4.6 guess); continuation of an
+existing worker uses <code>--resume &lt;session_id&gt;</code> invoked
+from the SAME cwd + env the spawn used (the storage/resume-collision
+gotcha). (2) <strong>Per-subscription auth + rate-limit
+fallback</strong> — every spawn <code>unset</code>s any ambient
+<code>ANTHROPIC_API_KEY</code> (the precedence trap that silently routes
+a &quot;subscription&quot; worker onto pay-per-token API billing) and sets the
+selected alias&#39;s
+<code>CLAUDE_CODE_OAUTH_TOKEN</code>/<code>CLAUDE_CONFIG_DIR</code>; on
+a captured rate-limit signature
+(<code>isApiErrorMessage</code>+<code>apiErrorStatus:429</code>,
+quota-exhausted vs transient distinguished by evidence, never guessed)
+the ruler REBINDS the affected track onto the next healthy alias
+(cross-track reuse permitted), falls back to a provider alias where
+configured, and bounded-parks (§11.4.101) rather than hanging when every
+alias is cooled. (3) <strong>Crash-resilient ruler
+self-supervisor</strong> — the ruler&#39;s OWN state (per-track
+alias/session_id/worktree/last-verdict) is persisted durably
+(write-temp-then-rename, NEVER tmpfs) so an external watchdog detects a
+dead ruler PID and re-hydrates every track&#39;s binding from the durable
+state + the §11.4.116 event stream — no work is silently lost to a ruler
+crash (§11.4.147 at the ruler layer). (4) <strong>Idempotent bootstrap +
+auto-install + conductor-stays-home</strong> — one idempotent bootstrap
+command wires the whole system out of the box (cwd-hook install, config
+validation, reconciliation), auto-invoked on every constitution pull via
+the §11.4.164 <code>post_update_hook.sh</code> skill-register seam; the
+<code>conductor:</code>-designated alias/session is NEVER bound into a
+track worktree (the resolver returns nothing for it) so the conductor
+always runs from the main checkout. (5) <strong>Project-agnostic engine,
+consumer-owned data</strong> — the entire mechanism (config loader,
+alias→worktree resolver, cwd-hook, bind/fallback/cooldown orchestrator,
+session launcher, rate-limit monitor, supervisor) lives at
+<code>constitution/scripts/multitrack/</code>, inherited BY REFERENCE
+(§11.4.28(B)/§11.4.177), carrying NO project literal; every consuming
+project supplies its own per-host
+<code>config/multitrack/&lt;hostname&gt;.yaml</code>
+(tracks/mounts/serials/aliases/conductor) as DATA, never as an engine
+edit. Anti-bluff (§11.4/§11.4.108): every piece carries four-layer
+coverage (pre-build gate + on-host test + paired §1.1 mutation +
+captured evidence per §11.4.69), and each fix declares a runtime
+signature verified on a clean host — never a claim the mechanism &quot;should
+work.&quot; Honest boundary (§11.4.6): this anchor mandates the MECHANISM;
+genuine per-subscription quota-isolation proof requires live tokens
+exercising real rate-limit boundaries (an operator-scheduled live
+acceptance window) — a mock-driven GREEN proves the
+spawn/resume/fallback CONTRACT, never live-quota behaviour, and the two
+are never conflated or substituted for each other. Classification:
+universal (§11.4.17). Composes §11.4.20 (subagent-driven-by-default) /
+§11.4.28 (submodule decoupling + dependency layout) / §11.4.58
+(parallel-development PWU pipeline) / §11.4.70 (subagent-driven
+execution default) / §11.4.101 (autonomous-decision-over-blocking — the
+bounded-park-on-all-cooled behaviour) / §11.4.103 (continuous
+parallel-stream routine) / §11.4.111 (resolve-by-stable-name — config by
+serial, never by index) / §11.4.116 (real-time conductor↔︎framework sync
+channel) / §11.4.119 (single-resource-owner partitioning) / §11.4.126
+(default autonomous-loop mode) / §11.4.128 (always-on device-recording —
+the analogous host-safety discipline) / §11.4.131 (standing
+session-resumption file) / §11.4.147 (crashed-agent
+respawn-until-complete — the ruler-self-supervisor is its ruler-layer
+instantiation) / §11.4.164 (constitution auto-propagation hook seam) /
+§11.4.167 (feature work-stream lifecycle) / §11.4.176 (multi-track
+work-division + exactly-once claim + device-lock) / §12.6/§12.8
+(host-safety memory + concurrency ceilings — the spawn/launch pool is
+budget-gated). Propagation gate
+<code>CM-COVENANT-114-187-PROPAGATION</code> (literal
+<code>11.4.187</code>) + recommended gates
+<code>CM-MULTITRACK-ENGINE-IN-CONSTITUTION</code> (the generic ruler
+scripts present under <code>constitution/scripts/multitrack/</code>,
+carrying no project literal, <code>bash -n</code>+<code>sh -n</code>
+clean per §11.4.67) / <code>CM-MULTITRACK-AUTOINSTALL-WIRED</code> /
+<code>CM-MULTITRACK-BOOTSTRAP-IDEMPOTENT</code> /
+<code>CM-MULTITRACK-BIND-ON-START</code> /
+<code>CM-MULTITRACK-FALLBACK-MONITOR</code> /
+<code>CM-MULTITRACK-HEADLESS-SPAWN</code> /
+<code>CM-MULTITRACK-RULER-SUPERVISOR</code> + paired §1.1 mutation
+(strip the literal → propagation gate FAILs; re-introduce a project
+literal into the engine, or downgrade a rate-limit rebind to
+exit-code-based success detection → the corresponding mechanism gate
+FAILs). <strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.187.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-multitrack</code>, <code>--manual-multitrack-only</code>,
+<code>--no-auto-install</code>, <code>--per-project-reimpl-OK</code>,
+<code>--exit-code-is-success-signal</code> flag.</p>
 </body>
 </html>

@@ -116,6 +116,9 @@ esac
 
 MTS_BUDGET_LIB="$MTS_DIR/multitrack_host_budget.sh"
 MTS_RESOLVER="$MTS_DIR/multitrack_resolve_worktree.sh"
+# RB-FIX3 (I-a): sibling RB-07 durable-state supervisor (read BY CONTRACT,
+# never sourced -- see multitrack_supervisor.sh's own docstring for why).
+MTS_SUPERVISOR="$MTS_DIR/multitrack_supervisor.sh"
 
 _mts_repo_root() {
     if [ -n "${MT_REPO_ROOT:-}" ]; then printf '%s\n' "$MT_REPO_ROOT"; return 0; fi
@@ -199,15 +202,66 @@ _mts_snapshot() {
         > "$_tmp" && mv -f "$_tmp" "$MTS_TRACKS/$_t.json"
 }
 
-# number of live (non-stopped) session records -- the authoritative live-worker
-# count handed to the RB-02 budget guard (RB-02 doc: "caller-supplied count").
+# ---------------------------------------------------------------------------
+# RB-FIX3 (I-a): best-effort durable-state snapshot on every ruler-state
+# change (spawn/stop). An independent code review found `multitrack_
+# supervisor.sh`'s `snapshot`/`watch` primitives (RB-07) were built + tested
+# but reachable from NOTHING except the supervisor's own test -- no real
+# caller ever populated the durable ruler_state.json. This wires the REAL
+# caller: every time this file records a track's alias/session_id/cwd via
+# `_mts_snapshot` (a genuine ruler-state change), it ALSO asks the sibling
+# supervisor to fold the just-updated live registry into its durable side
+# channel.
+#
+# Guarded, never a hard dependency (§11.4.1 -- a missing/failing supervisor
+# call must NEVER fail the primary spawn/stop operation this file exists
+# for): (1) MT_SUPERVISOR_SNAPSHOT_DISABLE=1 opts a caller out entirely
+# (e.g. an isolated unit test that does not want ANY side effect outside
+# its own scratch dirs); (2) this file NEVER invents a repo-root of its own
+# for the durable side channel -- MTS_DIR sits INSIDE the constitution
+# submodule (which has its OWN `.git`), so a bare, unguarded call here would
+# make multitrack_supervisor.sh's OWN `git rev-parse --show-toplevel`
+# fallback resolve to the SUBMODULE's root (not the consuming project's),
+# silently writing an untracked ruler_state.json into a tree other tracks
+# may be concurrently working in (§11.4.84 quiescence) -- never guessed
+# (§11.4.6). The engagement gate is therefore explicit: only fire when the
+# caller has ALREADY established a real durable-state target (MT_REPO_ROOT
+# and/or MT_RULER_STATE_DIR set -- exactly what multitrack_bootstrap.sh's
+# `export MT_REPO_ROOT="$PROJECT_ROOT"` already does for the real ruler
+# path), or when a caller explicitly forces it via
+# MT_SUPERVISOR_SNAPSHOT_FORCE=1 (used by this fix's own test to prove the
+# call genuinely happens end-to-end). Failure is swallowed (`|| true`) and
+# never printed to this file's own stdout -- kept out of the SPAWN:/STOP:
+# contract other callers/tests already assert on.
+# ---------------------------------------------------------------------------
+_mts_supervisor_snapshot() {
+    [ "${MT_SUPERVISOR_SNAPSHOT_DISABLE:-0}" = "1" ] && return 0
+    [ -r "$MTS_SUPERVISOR" ] || return 0
+    if [ -z "${MT_REPO_ROOT:-}" ] && [ -z "${MT_RULER_STATE_DIR:-}" ] \
+       && [ "${MT_SUPERVISOR_SNAPSHOT_FORCE:-0}" != "1" ]; then
+        return 0
+    fi
+    MT_SESSIONS_DIR="$MTS_DIR_REG" \
+        sh "$MTS_SUPERVISOR" snapshot >/dev/null 2>&1 || true
+}
+
+# number of live (genuinely still-running) session records -- the authoritative
+# live-worker count handed to the RB-02 budget guard (RB-02 doc: "caller-supplied
+# count"). C3 fix: count ONLY status=="running" as live -- everything else
+# (completed/failed/stopped/empty) is a FINISHED track and must NOT count
+# against MT_MAX_WORKERS. Previously this counted anything != stopped/"" as
+# live, so a track's own terminal "completed"/"failed" status (which
+# cmd_spawn now writes -- see the C3 fix above) would ALSO have been
+# miscounted had the "not stopped" logic been left in place; "running" is
+# reserved for a genuinely still-executing worker (a future backgrounded-spawn
+# design), which cmd_spawn's synchronous design never itself writes.
 _mts_live_count() {
     _n=0
     [ -d "$MTS_TRACKS" ] || { printf '0\n'; return 0; }
     for _f in "$MTS_TRACKS"/*.json; do
         [ -e "$_f" ] || continue
         _s=$(grep '"status"' "$_f" 2>/dev/null | _mts_json_str status)
-        case "$_s" in stopped|"") : ;; *) _n=$((_n+1)) ;; esac
+        case "$_s" in running) _n=$((_n+1)) ;; *) : ;; esac
     done
     printf '%s\n' "$_n"
 }
@@ -274,11 +328,29 @@ cmd_spawn() {
     [ -n "$_alias_track" ] || { echo "spawn: missing <track-alias>" >&2; return 2; }
     _opt_cwd=""; _opt_cfg="${MT_WORKER_CONFIG_DIR:-}"; _opt_alias="${MT_WORKER_ALIAS:-}"
     _opt_tok="${MT_WORKER_OAUTH_TOKEN:-}"
+    # C1 fix: verify a value is present BEFORE ever calling `shift 2`. A
+    # value-taking flag given as the LAST token (no value) used to make
+    # `shift 2` a no-op (per POSIX/bash semantics `shift N` with N > $# does
+    # NOT shift), leaving `$1` unchanged and looping forever (a genuine
+    # unbounded busy-loop DoS, verified: 11.5MB of "shift count out of range"
+    # stderr in 2s under sh, silent infinite CPU spin under bash --
+    # qa-results/multitrack/rbfix_20260709T104854Z/C1_red_repro.log). Every
+    # `shift 2` below is now reached ONLY after `[ $# -ge 2 ]` is proven, so
+    # it can never under-shift; a dangling flag errors cleanly instead.
     while [ $# -gt 0 ]; do
         case "$1" in
-            --cwd) _opt_cwd="${2:-}"; shift 2 ;;
-            --config-dir) _opt_cfg="${2:-}"; shift 2 ;;
-            --alias) _opt_alias="${2:-}"; shift 2 ;;
+            --cwd|--config-dir|--alias)
+                if [ $# -lt 2 ]; then
+                    echo "spawn: missing value for $1" >&2
+                    return 2
+                fi
+                case "$1" in
+                    --cwd) _opt_cwd="$2" ;;
+                    --config-dir) _opt_cfg="$2" ;;
+                    --alias) _opt_alias="$2" ;;
+                esac
+                shift 2
+                ;;
             --) shift; break ;;
             *) break ;;
         esac
@@ -299,6 +371,34 @@ cmd_spawn() {
         return "$_brc"
     fi
 
+    # I2 (RB-06 wiring, opt-in): when the caller supplied NO explicit alias
+    # selector (--alias / MT_WORKER_ALIAS) AND opts in via
+    # MT_BALANCE_AUTOSELECT=1, consult RB-06's proactive route balancer
+    # (multitrack_balance.sh) to PICK the alias -- an independent review found
+    # mt_balance_select/mark_spawn/mark_done reachable ONLY from RB-06's own
+    # test, never from the real spawn path (the "proactive balance" design
+    # goal was unwired). Native-tier routes only here (a `provider,model`
+    # route needs ccr-invocation plumbing multitrack_sessions.sh does not
+    # have -- NOT wired here, tracked as a follow-up, never invented,
+    # §11.4.6). Default OFF: with MT_BALANCE_AUTOSELECT unset (the default),
+    # this block is a complete no-op -- byte-identical to pre-fix behaviour,
+    # so it cannot regress any existing caller.
+    _bal_picked_route=""
+    if [ -z "$_opt_alias" ] && [ "${MT_BALANCE_AUTOSELECT:-0}" = "1" ]; then
+        _bal_lib="$MTS_DIR/multitrack_balance.sh"
+        if [ -f "$_bal_lib" ]; then
+            # shellcheck source=/dev/null
+            . "$_bal_lib"
+            if command -v mt_balance_select >/dev/null 2>&1; then
+                _bal_route=$(mt_balance_select 2>/dev/null)
+                case "$_bal_route" in
+                    *,*|"") : ;;   # provider route or none selected -- honest no-op (not wired)
+                    *) _opt_alias="$_bal_route"; _bal_picked_route="$_bal_route" ;;
+                esac
+            fi
+        fi
+    fi
+
     # (2) resolve the worker cwd for the track (RB-01 resolver / override).
     _cwd=$(_mts_resolve_cwd "$_alias_track" "$_opt_cwd") || {
         echo "REFUSE: could not resolve worker cwd for '$_alias_track' (set MT_WORKER_CWD/--cwd or a live worktree)" >&2
@@ -308,10 +408,25 @@ cmd_spawn() {
     # (5) launch headless + capture the stream-json transcript.
     _stream="$MTS_DIR_REG/spawn_${_alias_track}_$$.jsonl"
     mkdir -p "$MTS_DIR_REG" 2>/dev/null || true
+    [ -n "$_bal_picked_route" ] && mt_balance_mark_spawn "$_bal_picked_route" "$$" 2>/dev/null
     _mts_run_worker "$_cwd" "$_opt_cfg" "$_opt_tok" "$_stream" \
         -p --output-format stream-json --verbose "$@"
     _child_rc=$?   # NOT the success signal -- see mts_result_ok.
-    _spawn_pid=$$
+    [ -n "$_bal_picked_route" ] && mt_balance_mark_done "$_bal_picked_route" "$$" 2>/dev/null
+    # C2 fix: `_mts_run_worker` runs SYNCHRONOUSLY (no trailing `&`) -- by this
+    # line the worker has ALREADY EXITED (child_rc was just captured above).
+    # `$$` here is the PID of THIS wrapper process itself, not any worker --
+    # there is no live child this could correctly refer to under the current
+    # (synchronous) design. Recording it as a "live, killable" pid let
+    # `cmd_stop` later `kill` an ARBITRARY unrelated process once the kernel
+    # recycled this exited PID (verified:
+    # qa-results/multitrack/rbfix_20260709T104854Z/C2_red_repro.log --
+    # recorded_pid == wrapper $! == an already-dead process). A synchronous
+    # spawn has NOTHING to kill by the time it returns, so no pid is recorded
+    # (empty). If a future design backgrounds the worker, capture the REAL
+    # child pid via `&`+`$!` here -- `cmd_stop`'s /proc/cmdline identity guard
+    # (below) still applies before any kill either way.
+    _spawn_pid=""
 
     # session_id from the first init (mandatory).
     _sid=$(mts_capture_session_id "$_stream") || {
@@ -321,9 +436,23 @@ cmd_spawn() {
     _pr=$(mts_parse_result "$_stream") || { echo "FAIL: no terminal result event" >&2; return 6; }
     _is_error=${_pr%% *}; _subtype=${_pr##* }
 
+    # C3 fix: persist the ACTUAL terminal status from the parsed result,
+    # never the literal "running" -- the worker has already finished
+    # (synchronous design) by the time this line runs, and a status that
+    # never demotes away from "running" made `_mts_live_count` (RB-02's
+    # caller-supplied live-worker count) count every past, long-finished
+    # spawn as permanently "live" -- once all MT_MAX_WORKERS tracks had been
+    # spawned once, EVERY future re-spawn attempt was wrongly REFUSED as
+    # "pool at cap" even though nothing was actually running (verified:
+    # qa-results/multitrack/rbfix_20260709T104854Z/C3_red_repro.log --
+    # live_count=1 after one already-finished spawn). `_mts_live_count`
+    # (below) is updated in lockstep to count only a genuinely-live status.
+    if [ "$_is_error" = "false" ]; then _term_status="completed"; else _term_status="failed"; fi
+
     # persist (§11.4.116).
-    _mts_event spawn "$_alias_track" "$_opt_alias" "$_sid" "$_cwd" "$_spawn_pid" "$_is_error" "$_subtype" running
-    _mts_snapshot "$_alias_track" "$_opt_alias" "$_sid" "$_cwd" "$_spawn_pid" running "$_opt_cfg"
+    _mts_event spawn "$_alias_track" "$_opt_alias" "$_sid" "$_cwd" "$_spawn_pid" "$_is_error" "$_subtype" "$_term_status"
+    _mts_snapshot "$_alias_track" "$_opt_alias" "$_sid" "$_cwd" "$_spawn_pid" "$_term_status" "$_opt_cfg"
+    _mts_supervisor_snapshot   # RB-FIX3 (I-a): real caller into RB-07's durable side channel
 
     # (5) AUTHORITATIVE success from result.is_error, NEVER $child_rc.
     printf 'SPAWN: track=%s alias=%s session_id=%s cwd=%s is_error=%s subtype=%s child_rc=%s\n' \
@@ -343,10 +472,21 @@ cmd_resume() {
     _sid="${1:-}"; shift 2>/dev/null || true
     [ -n "$_sid" ] || { echo "resume: missing <session_id>" >&2; return 2; }
     _opt_cwd=""; _opt_cfg="${MT_WORKER_CONFIG_DIR:-}"; _opt_tok="${MT_WORKER_OAUTH_TOKEN:-}"; _track=""
+    # C1 fix -- see cmd_spawn's identical comment: bounded shift, never a
+    # no-op `shift 2` on a dangling value-taking flag (infinite-loop DoS).
     while [ $# -gt 0 ]; do
         case "$1" in
-            --cwd) _opt_cwd="${2:-}"; shift 2 ;;
-            --config-dir) _opt_cfg="${2:-}"; shift 2 ;;
+            --cwd|--config-dir)
+                if [ $# -lt 2 ]; then
+                    echo "resume: missing value for $1" >&2
+                    return 2
+                fi
+                case "$1" in
+                    --cwd) _opt_cwd="$2" ;;
+                    --config-dir) _opt_cfg="$2" ;;
+                esac
+                shift 2
+                ;;
             --) shift; break ;;
             *) break ;;
         esac
@@ -400,10 +540,33 @@ cmd_stop() {
     _t=$(_mts_json_str track < "$_f"); _a=$(_mts_json_str alias < "$_f")
     _sid=$(_mts_json_str session_id < "$_f"); _cwd=$(_mts_json_str cwd < "$_f")
     _cfg=$(_mts_json_str config_dir < "$_f"); _pid=$(_mts_json_str pid < "$_f")
-    # kill a live worker pid if one is recorded and still alive (bounded).
-    if [ -n "$_pid" ] && kill -0 "$_pid" 2>/dev/null; then kill "$_pid" 2>/dev/null || true; fi
+    # C2 fix: kill a live worker pid ONLY if it is recorded, alive, AND its
+    # /proc cmdline still matches OUR OWN worker invocation signature
+    # (the same `stream-json` token RB-02's own MT_HOST_BUDGET_WORKER_PGREP_
+    # PATTERN default keys on). A bare "recorded AND alive" check is a
+    # PID-reuse hazard (§11.4.133 host-safety): the Linux kernel freely
+    # recycles PIDs, so a stale/garbage recorded pid (including one written
+    # by a pre-C2-fix registry entry, or any future path) can legitimately
+    # belong to an unrelated live process by the time `stop` runs --
+    # `kill -0` would succeed against THAT process and `kill` would signal
+    # it. On a host with no /proc (non-Linux), the identity check honestly
+    # cannot be made, so no kill is issued (safe-by-omission: never guess,
+    # §11.4.6 -- declining to kill an unverified target is always the safe
+    # choice, never signalling an unrelated process is more important than
+    # cleaning up a genuinely-orphaned worker).
+    if [ -n "$_pid" ] && kill -0 "$_pid" 2>/dev/null; then
+        _cmdline=""
+        if [ -r "/proc/$_pid/cmdline" ]; then
+            _cmdline=$(tr '\0' ' ' < "/proc/$_pid/cmdline" 2>/dev/null)
+        fi
+        case "$_cmdline" in
+            *stream-json*) kill "$_pid" 2>/dev/null || true ;;
+            *) echo "stop: recorded pid=$_pid does not match a live worker cmdline -- NOT signalling it (PID-reuse guard)" >&2 ;;
+        esac
+    fi
     _mts_event stop "$_t" "$_a" "$_sid" "$_cwd" "$_pid" "" "" stopped
     _mts_snapshot "$_t" "$_a" "$_sid" "$_cwd" "$_pid" stopped "$_cfg"
+    _mts_supervisor_snapshot   # RB-FIX3 (I-a): real caller into RB-07's durable side channel
     echo "STOP: track=$_t session_id=$_sid marked stopped"
 }
 
