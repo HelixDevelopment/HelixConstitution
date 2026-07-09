@@ -38,6 +38,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -63,15 +64,18 @@ type logicGroup struct {
 	RoadmapRef  string
 }
 
-// runGroup dispatches the `group` subcommand group (add | list | set | state).
+// runGroup dispatches the `group` subcommand group
+// (add | branch | list | set | state).
 func runGroup(args []string) {
 	if len(args) < 1 {
-		fmt.Fprintln(os.Stderr, "group: missing subcommand (add | list | set | state)")
+		fmt.Fprintln(os.Stderr, "group: missing subcommand (add | branch | list | set | state)")
 		os.Exit(exitUsage)
 	}
 	switch args[0] {
 	case "add":
 		os.Exit(groupAddCmd(args[1:]))
+	case "branch":
+		os.Exit(groupBranchCmd(args[1:]))
 	case "list":
 		os.Exit(groupListCmd(args[1:]))
 	case "set":
@@ -79,9 +83,110 @@ func runGroup(args []string) {
 	case "state":
 		os.Exit(groupStateCmd(args[1:]))
 	default:
-		fmt.Fprintf(os.Stderr, "group: unknown subcommand: %s (want add | list | set | state)\n", args[0])
+		fmt.Fprintf(os.Stderr, "group: unknown subcommand: %s (want add | branch | list | set | state)\n", args[0])
 		os.Exit(exitUsage)
 	}
+}
+
+// ---- branch (§11.4.181 registry-driven feature-branch mint) ----
+
+// groupBranchCmd implements `group branch <group_id> --db <p> [--repo <dir>]
+// [--print-only]`.
+//
+// This is the ONLY sanctioned feature-branch create path (§11.4.181): it
+// RESOLVES the canonical branch name `feature/<slug>` from the group's
+// registered `logic_groups.destination` (`feature:<slug>`) and creates it — the
+// name is a LOOKED-UP FACT, never re-invented (§11.4.6 / §11.4.181(2)). The
+// §11.4.109-class PreToolUse guard hook `guard-branch-consistency.sh` blocks any
+// ad-hoc `git checkout -b feature/*` whose name is not a registered destination,
+// so a divergent branch cannot be created at all — this helper is how the
+// CORRECT branch is created.
+//
+// Refusals (exit exitUsage — never a wrong/ambiguous create, §11.4.6):
+//   - group_id not registered in logic_groups   (cannot mint for an unknown group)
+//   - group's destination is not 'feature:<slug>' (a 'main' group lands on the
+//     main branch; there is no feature branch to mint)
+//
+// Idempotent success (exit exitOK): a group has EXACTLY ONE canonical branch
+// (deterministic from its destination), so if `feature/<slug>` already exists it
+// IS this group's branch — never a "different" one; we `git checkout` (switch)
+// to it instead of failing `git checkout -b`.
+func groupBranchCmd(args []string) int {
+	fs := flag.NewFlagSet("group branch", flag.ContinueOnError)
+	dbPath := fs.String("db", "", "path to the workable-items SQLite DB")
+	repo := fs.String("repo", ".", "git repository directory to create the branch in")
+	printOnly := fs.Bool("print-only", false, "resolve + print the canonical branch name; do NOT touch git")
+	pos, flagArgs := partitionArgs(args, map[string]bool{"print-only": true})
+	if err := fs.Parse(flagArgs); err != nil {
+		return exitUsage
+	}
+	if len(pos) < 1 {
+		fmt.Fprintln(os.Stderr, "group branch: missing positional <group_id>")
+		return exitUsage
+	}
+	groupID := strings.TrimSpace(pos[0])
+	if *dbPath == "" {
+		fmt.Fprintln(os.Stderr, "group branch: --db is required")
+		return exitUsage
+	}
+	if groupID == "" {
+		fmt.Fprintln(os.Stderr, "group branch: <group_id> must be non-empty")
+		return exitUsage
+	}
+
+	db, err := openDB(*dbPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "group branch: %v\n", err)
+		return exitUsage
+	}
+	defer db.Close()
+
+	g, err := loadGroup(db, groupID)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "group branch: %v\n", err)
+		return exitUsage
+	}
+	if g == nil {
+		fmt.Fprintf(os.Stderr, "group branch: group %s is not registered in logic_groups — cannot mint a branch for an unknown group (§11.4.181: the canonical name is a looked-up fact, never invented)\n", groupID)
+		return exitUsage
+	}
+	if !strings.HasPrefix(g.Destination, "feature:") {
+		fmt.Fprintf(os.Stderr, "group branch: group %s has destination %q — only 'feature:<slug>' groups get a feature branch (a 'main' group lands on the main branch; there is no feature branch to mint)\n", groupID, g.Destination)
+		return exitUsage
+	}
+	// Canonical branch name = the registry's destination, mapped
+	// feature:<slug> -> feature/<slug> (the §11.4.181 D naming scheme).
+	canonical := "feature/" + strings.TrimPrefix(g.Destination, "feature:")
+
+	if *printOnly {
+		fmt.Println(canonical)
+		return exitOK
+	}
+
+	exists := gitBranchExists(*repo, canonical)
+	var cmd *exec.Cmd
+	if exists {
+		cmd = exec.Command("git", "-C", *repo, "checkout", canonical)
+	} else {
+		cmd = exec.Command("git", "-C", *repo, "checkout", "-b", canonical)
+	}
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "group branch: git checkout failed: %v\n%s", err, string(out))
+		return exitUsage
+	}
+	if exists {
+		fmt.Printf("group branch: %s -> %s (already existed; checked out)\n", groupID, canonical)
+	} else {
+		fmt.Printf("group branch: %s -> %s (created + checked out)\n", groupID, canonical)
+	}
+	return exitOK
+}
+
+// gitBranchExists reports whether refs/heads/<branch> exists in the repo at dir.
+func gitBranchExists(dir, branch string) bool {
+	cmd := exec.Command("git", "-C", dir, "rev-parse", "--verify", "--quiet", "refs/heads/"+branch)
+	return cmd.Run() == nil
 }
 
 // ---- add ----

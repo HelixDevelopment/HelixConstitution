@@ -56,6 +56,11 @@ Subcommands:
   group add <group_id> <destination> <priority> --title <T> [--state s]
             [--scope-note <T>] [--roadmap-ref <T>] --db <p>
                                                         Create a logic_groups row (ASSIGNMENT_MECHANISM_DESIGN.md §3.2).
+  group branch <group_id> --db <p> [--repo <dir>] [--print-only]
+                                                        §11.4.181 SANCTIONED feature-branch mint: resolve feature/<slug>
+                                                        from the group's registered destination and git-checkout -b it
+                                                        (refuses unknown group / non-feature destination; idempotent if
+                                                        the canonical branch already exists). --print-only just resolves.
   group list [--destination <D>] [--state <S>] --db <p>  List logic_groups, priority-then-group_id ordered (read-only).
   group set <group_id> [--title|--destination|--priority|--scope-note|--roadmap-ref ...] --db <p>
             group set --item <ATM-ID> --group <group_id> [--location Issues|Fixed] --db <p>
