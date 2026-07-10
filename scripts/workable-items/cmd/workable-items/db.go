@@ -637,6 +637,26 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 	defer rows.Close()
 
 	var sb []byte
+	// ATM-627 (WRITER, §11.4.115): a `## <heading>` at the START of a segment
+	// (an item body always begins with its H2 heading; a raw section-header
+	// segment does too) MUST land at a line-start so the `^## `-anchored reader
+	// (parseIssues) can see it. When the PRECEDING content ends on a non-newline
+	// byte — the data state the `update`/`repair-bodies` body-mutation path leaves
+	// (item body_md ending `…PROGRESS.md.` with NO trailing "\n") — a verbatim
+	// concatenation glues the heading mid-line (`…PROGRESS.md.## AP. [ATM-381] …`),
+	// SILENTLY ABSORBING the next item into the previous body (wrong
+	// body/status/type) + reporting it "absent in Markdown". appendSegment inserts
+	// exactly ONE separating "\n" iff the about-to-append content starts with a
+	// heading AND sb does not already end with "\n" — idempotent (fires ONLY on the
+	// non-newline-terminated case, never double-inserts) and byte-identical for
+	// every already-well-formed item (whose preceding body ends "\n\n", so sb ends
+	// "\n" and no separator is added). Fix at the WRITER, not the reader.
+	appendSegment := func(content string) {
+		if strings.HasPrefix(content, "## ") && len(sb) > 0 && sb[len(sb)-1] != '\n' {
+			sb = append(sb, '\n')
+		}
+		sb = append(sb, content...)
+	}
 	for rows.Next() {
 		var seq int
 		var kind, atmID, rep, raw string
@@ -645,7 +665,7 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 		}
 		switch kind {
 		case "raw":
-			sb = append(sb, raw...)
+			appendSegment(raw)
 		case "item":
 			if rep == "" {
 				rep = "section"
@@ -654,7 +674,7 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 			if !ok {
 				return "", fmt.Errorf("segment references unknown item %q [%s]", atmID, rep)
 			}
-			sb = append(sb, body...)
+			appendSegment(body)
 		}
 	}
 	return string(sb), rows.Err()
