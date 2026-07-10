@@ -52,6 +52,20 @@
 # §11.4.93/§11.4.95 universal DB (via the resolver) + cwd + git, zero project
 # literals. Companion doc: constitution/docs/scripts/guard-work-track-binding.md.
 #
+# SUBMODULE-COMMIT DB RESOLUTION: when this guard's own cwd is INSIDE a
+# submodule (e.g. this constitution submodule, committed per §11.4.26), the
+# shared resolver's own auto-discovery binds to `git rev-parse
+# --show-toplevel` — the SUBMODULE's innermost root — so `docs/
+# workable_items.db` never exists there and the resolver fail-closed BLOCKs
+# every legitimate submodule commit unconditionally. `resolve_workable_items_db`
+# (below) walks UP through every nested submodule -> superproject link
+# (`git rev-parse --show-superproject-working-tree`) so the guard passes an
+# explicit `--db` pointing at the real registry in the PARENT (super)project
+# root whenever one is found there; when none is found anywhere the walk
+# resolves to empty and `--db` is simply omitted, so the resolver's own
+# unchanged auto-discovery + fail-closed BLOCK still applies (§11.4.6 — no
+# weakening of the fail-closed guarantee).
+#
 # Classification: universal.
 
 set -uo pipefail
@@ -134,6 +148,62 @@ current_track() {
   esac
 }
 
+# --------------------------------------------------------------------------
+# resolve_workable_items_db — locate the §11.4.93/§11.4.95 workable-items DB
+# from THIS guard's own git context, walking UP through every nested
+# submodule -> superproject link (`git rev-parse --show-superproject-working-
+# tree`) so a commit/dispatch whose cwd is INSIDE a submodule (e.g. this
+# constitution submodule itself, committed per §11.4.26) resolves against the
+# PARENT (super)project's registry — never a submodule-relative path where
+# the DB does not live. Without this walk, `multitrack_work_binding.sh`'s own
+# auto-discovery binds `git rev-parse --show-toplevel` to the SUBMODULE's own
+# root (its innermost repo), so `<submodule-root>/docs/workable_items.db`
+# never exists and the resolver fail-closes — BLOCKING every legitimate
+# submodule commit unconditionally, regardless of file-scope classification.
+#
+# $WI_DB (if set) wins outright — same override the resolver itself honours;
+# this function returns it verbatim (even if the path doesn't exist) so the
+# existing fail-closed behaviour for an explicit-but-absent override is
+# unchanged. Otherwise: walk from `git rev-parse --show-toplevel` up through
+# every `--show-superproject-working-tree` hop (depth-bounded to 10 — no
+# realistic nesting exceeds the §11.4.28(C) depth-1 carve-out plus a safety
+# margin) and probe each root, OUTERMOST first, for
+# `docs/workable_items.db` / `docs/.workable_items.db`. Prints the first
+# match, or empty when none is found (in which case the caller omits --db so
+# the resolver's own — unchanged — auto-discovery + fail-closed applies,
+# preserving today's behaviour for the non-submodule / DB-genuinely-absent
+# case). This function NEVER itself fails or blocks — it only WIDENS where a
+# real registry is discovered; the resolver alone owns the fail-closed BLOCK
+# decision (§11.4.6).
+# --------------------------------------------------------------------------
+resolve_workable_items_db() {
+  if [ -n "${WI_DB:-}" ]; then
+    printf '%s' "$WI_DB"
+    return 0
+  fi
+  local git_top d sp hops=0
+  git_top="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+  [ -n "$git_top" ] || { printf ''; return 0; }
+  local roots=("$git_top")
+  d="$git_top"
+  while [ "$hops" -lt 10 ]; do
+    sp="$(cd "$d" 2>/dev/null && git rev-parse --show-superproject-working-tree 2>/dev/null || true)"
+    [ -n "$sp" ] || break
+    roots+=("$sp")
+    d="$sp"
+    hops=$((hops + 1))
+  done
+  # Probe OUTERMOST-first (the last element walked to) — the real registry
+  # lives at the ultimate parent project's root, never a submodule's own.
+  local i cand
+  for (( i = ${#roots[@]} - 1; i >= 0; i-- )); do
+    for cand in "${roots[$i]}/docs/workable_items.db" "${roots[$i]}/docs/.workable_items.db"; do
+      if [ -f "$cand" ]; then printf '%s' "$cand"; return 0; fi
+    done
+  done
+  printf ''
+}
+
 # ==========================================================================
 # DISPATCH path — Agent | Task | TaskCreate.
 # ==========================================================================
@@ -161,6 +231,8 @@ if [ "$TOOL_NAME" = "Agent" ] || [ "$TOOL_NAME" = "Task" ] || [ "$TOOL_NAME" = "
   [ -n "$TICKETS" ] || exit 0   # nothing to bind against; label hook enforced format
 
   ARGS=(check --branch "$B_LBL" --track "$T_LBL")
+  WTB_DB="$(resolve_workable_items_db)"
+  [ -n "$WTB_DB" ] && ARGS+=(--db "$WTB_DB")
   while IFS= read -r _t; do
     [ -n "$_t" ] && ARGS+=(--ticket "$_t")
   done <<EOF
@@ -278,7 +350,14 @@ B_CUR="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 T_CUR="$(current_track)"
 
 # --- Delegate to the shared resolver (fail-closed on unreadable DB / ambiguity).
-RES_OUT="$(printf '%s\n' "$FILESET" | bash "$RESOLVER" check --branch "$B_CUR" --track "$T_CUR" --files-from - 2>&1)"
+#     WTB_DB_ARGS carries an explicit --db when this guard's OWN submodule-
+#     aware walk (resolve_workable_items_db) finds the real registry — e.g.
+#     when cwd is inside a submodule and the resolver's own toplevel-only
+#     auto-discovery would otherwise miss the parent (super)project's DB.
+WTB_DB="$(resolve_workable_items_db)"
+WTB_DB_ARGS=()
+[ -n "$WTB_DB" ] && WTB_DB_ARGS=(--db "$WTB_DB")
+RES_OUT="$(printf '%s\n' "$FILESET" | bash "$RESOLVER" check --branch "$B_CUR" --track "$T_CUR" "${WTB_DB_ARGS[@]}" --files-from - 2>&1)"
 RES_RC=$?
 if [ "$RES_RC" -eq 0 ]; then
   exit 0

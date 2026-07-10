@@ -188,6 +188,87 @@ else
   printf '  FAIL  %-58s (got: %s)\n' "resolve prints owning group 'mistiq-vader'" "$RESOLVE_OUT"; FAIL=$((FAIL+1))
 fi
 
+# ===========================================================================
+# D. SUBMODULE-CONTEXT DB resolution (§11.4.191 forensic fix, this cycle).
+#
+# The guard's cwd is INSIDE a REAL git submodule (own `.git` file, gitlink in
+# the outer superproject's index — built with `git submodule add`, not a bare
+# nested `git init`). BEFORE the fix, the shared resolver's own auto-discovery
+# bound to `git rev-parse --show-toplevel` — the SUBMODULE's own innermost
+# root — so `<submodule-root>/docs/workable_items.db` never existed and the
+# resolver fail-closed BLOCKed every commit issued from inside ANY submodule,
+# unconditionally, regardless of file-scope classification (reproduced
+# manually: `cd constitution && git commit`-class payload -> exit 2 even
+# though the real parent registry at `<repo-root>/docs/workable_items.db`
+# exists and is readable).
+#
+# This section proves all three properties in one hermetic pass:
+#   (1) the real PARENT registry is FOUND — an unclassified submodule file no
+#       longer falsely fail-closed-BLOCKs (the direct regression case);
+#   (2) it is GENUINELY CONSULTED, not merely found-and-ignored — a submodule
+#       file owned by a group whose canonical branch != the submodule's
+#       current branch is still BLOCKED, and the correctly-placed branch is
+#       still ALLOWED;
+#   (3) the fail-closed guarantee is UNWEAKENED — an explicit-but-absent
+#       $WI_DB override still fail-closes even from submodule cwd (§11.4.6).
+# ===========================================================================
+echo "-- D. submodule-context DB resolution --"
+
+OUTER="$TMP/outer"
+SUBSRC="$TMP/subsrc"
+git init -q -b main "$OUTER"
+git -C "$OUTER" config user.email t@t
+git -C "$OUTER" config user.name  t
+mkdir -p "$OUTER/docs"
+cp "$DB" "$OUTER/docs/workable_items.db"
+sqlite3 "$OUTER/docs/workable_items.db" "
+INSERT INTO logic_groups (group_id,title,destination,priority,state,canonical_track) VALUES
+ ('sub-work','t','feature:sub-work',9,'open',NULL);
+INSERT INTO group_paths (group_id,path_glob) VALUES
+ ('sub-work','tracked.kt');
+"
+echo seed > "$OUTER/seed.txt"
+git -C "$OUTER" add seed.txt docs/workable_items.db
+git -C "$OUTER" commit -qm seed
+
+git init -q -b main "$SUBSRC"
+git -C "$SUBSRC" config user.email t@t
+git -C "$SUBSRC" config user.name  t
+echo x > "$SUBSRC/seed.txt"
+git -C "$SUBSRC" add seed.txt
+git -C "$SUBSRC" commit -qm seed
+git -C "$SUBSRC" branch feature/sub-work
+
+git -C "$OUTER" -c protocol.file.allow=always submodule add -q "$SUBSRC" sub >/dev/null 2>&1
+git -C "$OUTER" commit -qm "add submodule" -q
+
+SUB="$OUTER/sub"
+echo new > "$SUB/bar.txt"       # unclassified — no group_paths glob owns it
+echo new > "$SUB/tracked.kt"    # owned by 'sub-work' -> canonical branch feature/sub-work
+
+# submodule_hook <branch> <payload> — checkout branch INSIDE the submodule,
+# run the guard from cwd=$SUB with WI_DB explicitly UNSET (so ONLY the guard's
+# own submodule-aware walk can find the registry — the exact bug scenario).
+submodule_hook() {
+  local branch="$1" payload="$2"
+  git -C "$SUB" checkout -q "$branch"
+  ( cd "$SUB" && unset WI_DB && bash "$HOOK" <<<"$payload" >/dev/null 2>&1 ); echo $?
+}
+stage_sub()   { git -C "$SUB" reset -q; git -C "$SUB" add "$@" 2>/dev/null || true; }
+
+stage_sub bar.txt
+assert "submodule: unclassified file on main allowed (parent DB found)" 0 "$(submodule_hook main '{"tool_name":"Bash","tool_input":{"command":"git commit -m wip"}}')"
+stage_sub tracked.kt
+assert "submodule: sub-work file on main BLOCKED (parent DB enforced)"  2 "$(submodule_hook main '{"tool_name":"Bash","tool_input":{"command":"git commit -m wip"}}')"
+stage_sub tracked.kt
+assert "submodule: sub-work file on feature/sub-work allowed"          0 "$(submodule_hook feature/sub-work '{"tool_name":"Bash","tool_input":{"command":"git commit -m wip"}}')"
+# Fail-closed unweakened: an explicit-but-absent $WI_DB override still BLOCKs
+# even from submodule cwd (the walk NEVER overrides an explicit $WI_DB).
+git -C "$SUB" checkout -q main
+stage_sub bar.txt
+SUB_ABSENT_RC="$(cd "$SUB" && WI_DB="$TMP/does-not-exist.db" bash "$HOOK" <<<'{"tool_name":"Bash","tool_input":{"command":"git commit -m wip"}}' >/dev/null 2>&1; echo $?)"
+assert "submodule: explicit absent WI_DB override still fail-closed BLOCK" 2 "$SUB_ABSENT_RC"
+
 echo
 echo "  total: PASS=$PASS FAIL=$FAIL"
 if [ "$FAIL" -gt 0 ]; then

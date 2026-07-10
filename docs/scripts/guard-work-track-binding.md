@@ -1,7 +1,7 @@
 # guard-work-track-binding.sh
 
-**Revision:** 1
-**Last modified:** 2026-07-10T18:24:43Z
+**Revision:** 2
+**Last modified:** 2026-07-10T21:50:00Z
 **Authority:** constitution §11.4.191 (work-to-track/branch binding enforcement)
 **Maintainer:** constitution submodule (inherited by reference per §11.4.177 / §11.4.28(B))
 **Scope:** §11.4.18 companion doc for `constitution/scripts/hooks/guard-work-track-binding.sh`
@@ -30,8 +30,13 @@ two entry points — this hook + the commit wrapper / pre-build gate).
 - `sqlite3` on `PATH` (via the resolver; absent ⇒ fail-closed BLOCK, §11.4.6).
 - `git` (only for the commit-path branch/file-set derivation).
 - The §11.4.93/§11.4.95 workable-items DB (schema **v4**: `logic_groups.canonical_track`
-  + the `group_paths` file-scope manifest). Discovered relative to the git
-  toplevel, or overridden via `$WI_DB`.
+  + the `group_paths` file-scope manifest). Resolved by `resolve_workable_items_db`
+  (see "Submodule-context DB resolution" below) — `$WI_DB` wins outright; otherwise
+  the guard walks UP from `git rev-parse --show-toplevel` through every nested
+  submodule → superproject link (`git rev-parse --show-superproject-working-tree`)
+  so a commit issued from INSIDE a submodule (per §11.4.26) resolves against the
+  PARENT superproject's registry, never a submodule-relative path where the DB
+  does not live.
 - Wired as a `PreToolUse` hook under BOTH the `Bash` and `Agent|Task|TaskCreate`
   matchers in `.claude/settings.json` (a later, consumer-side task — this hook
   ships the mechanism, not the wiring).
@@ -91,6 +96,26 @@ echo '{"tool_name":"Agent","tool_input":{"description":"(T1/main - claude4) ATM-
   owners) — branch-enforced-only until the manifest lands; ticket resolution
   still works.
 
+## Submodule-context DB resolution (§11.4.26 / §11.4.191)
+
+When this guard's own cwd is INSIDE a submodule (e.g. this constitution submodule,
+committed per §11.4.26), the shared resolver's own auto-discovery binds
+`git rev-parse --show-toplevel` to the SUBMODULE's innermost root — where
+`docs/workable_items.db` does not exist — so it fail-closed BLOCKed every
+legitimate submodule commit unconditionally, regardless of file-scope
+classification. `resolve_workable_items_db` closes this: `$WI_DB` (if set) wins
+verbatim (unchanged precedence + unchanged fail-closed-on-absent behaviour);
+otherwise it walks UP from `git rev-parse --show-toplevel` through every
+`git rev-parse --show-superproject-working-tree` hop (depth-bounded to 10),
+probing each root OUTERMOST-first for `docs/workable_items.db` /
+`docs/.workable_items.db`. The guard passes the found path as an explicit
+`--db <path>` to the resolver at BOTH call sites; when NOTHING is found anywhere,
+`--db` is omitted and the resolver's own unchanged auto-discovery + fail-closed
+BLOCK applies exactly as before (§11.4.6 — no weakening of the fail-closed
+guarantee for the genuinely-no-DB case). This function itself NEVER fails or
+blocks — it only WIDENS where a real registry is discovered; the resolver alone
+owns the fail-closed BLOCK decision.
+
 ## Honest boundary (§11.4.6)
 
 Best-effort prevention, NOT a security boundary. The file set is derived from
@@ -117,7 +142,7 @@ as `guard-branch-consistency.sh`).
 - [`multitrack_work_binding.sh`](multitrack_work_binding.md) — the shared resolver this hook calls.
 - `guard-branch-consistency.sh` — the §11.4.181 create-time sibling (branch NAME).
 - `guard-track-branch-label.sh` — the §11.4.182 label-FORMAT sibling.
-- `test_guard_work_track_binding.sh` — the hermetic test suite (27 cases, both paths).
+- `test_guard_work_track_binding.sh` — the hermetic test suite (34 cases, both paths; section D covers submodule-context DB resolution).
 
 ## Testing
 
@@ -132,5 +157,6 @@ load-bearing branch comparison lands in the consumer meta-test (a separate
 work item per §11.4.191(§6)).
 
 **Last verified:** 2026-07-10 — `bash -n` + `sh -n` clean (§11.4.67); hermetic
-suite 27/27 PASS; the resolver branch-comparison mutation flips a planted
-mis-placement from BLOCK to ALLOW (clause proven load-bearing).
+suite 34/34 PASS (incl. section D: submodule-context DB resolution — parent DB
+enforced, fail-closed preserved); the resolver branch-comparison mutation flips a
+planted mis-placement from BLOCK to ALLOW (clause proven load-bearing).
