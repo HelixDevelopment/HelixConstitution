@@ -9,13 +9,20 @@
 # registry cannot be read — so the enforcement itself provably cannot bluff.
 #
 # The create-detection is argv-INTENT-aware, not a raw whole-text scan (Finding
-# 1.1, 2026-07-10): it covers checkout -b/-B/--branch, switch -c/-C/--create,
-# branch [-f], `worktree add -b`, and fetch/push refspec `SRC:[refs/heads/]
-# feature/…` creates; it fail-closes (exit 2) on a dynamic `$(…)`/variable create
-# name or a create embedded in a will-execute substitution; and it does NOT
-# over-block a `git …` create merely MENTIONED inside echo/grep/a `#`comment
-# (those exit 0). Compound `A && <create>` is segment-split so segment-2 is
-# judged on its own.
+# 1.1, 2026-07-10): it covers checkout -b/-B/--branch/--orphan, switch
+# -c/-C/--create/--orphan, branch [-f], `worktree add -b`, and fetch/push refspec
+# `SRC:[refs/heads/]feature/…` creates — each in SPACED (`-b NAME`), GLUED
+# (`-bNAME`), and =-joined (`--branch=NAME`) forms (Finding 2, 2026-07-10). It
+# fail-closes (exit 2) on a same-segment `$(…)`/variable create name or a create
+# embedded in a will-execute substitution; and it does NOT over-block a `git …`
+# create merely MENTIONED inside echo/grep/a `#`comment (those exit 0). Compound
+# `A && <create>` is segment-split so segment-2 is judged on its own.
+#
+# KNOWN LIMIT (documented, exit 0 by-hook — the L1/L2 DETECTIVE pre-build gate is
+# the enforcement boundary): a create whose name is a CROSS-SEGMENT shell variable
+# (`b=feature/x; git checkout -b $b`) is NOT resolvable by a text-matching hook —
+# the branch name is not literally present in the git segment. This suite asserts
+# the current honest behaviour (allow-by-hook) rather than pretending it blocks.
 #
 # The registry SoT is a throwaway sqlite DB built here (only the logic_groups
 # table the hook SELECTs), pointed at via $WI_DB — no project DB, no binary
@@ -90,6 +97,15 @@ run_case "echo MENTION of create (not executed)"       0 '{"tool_name":"Bash","t
 run_case "grep MENTION of create (not executed)"       0 '{"tool_name":"Bash","tool_input":{"command":"grep -rn git checkout -b feature/mentioned ."}}'
 run_case "comment-line MENTION (not executed)"         0 '{"tool_name":"Bash","tool_input":{"command":"# git checkout -b feature/mentioned"}}'
 run_case "compound: status then REGISTERED create"     0 '{"tool_name":"Bash","tool_input":{"command":"git status && git checkout -b feature/mistiq-vader"}}'
+# --- ALLOW: glued/=-joined REGISTERED forms (Finding 2 — glued short/long opts) --
+run_case "glued -b REGISTERED allowed"                 0 '{"tool_name":"Bash","tool_input":{"command":"git checkout -bfeature/mistiq-vader"}}'
+run_case "--branch= REGISTERED allowed"                0 '{"tool_name":"Bash","tool_input":{"command":"git checkout --branch=feature/mistiq-vader"}}'
+run_case "glued switch -c REGISTERED allowed"          0 '{"tool_name":"Bash","tool_input":{"command":"git switch -cfeature/mistiq-vader"}}'
+# --- ALLOW: KNOWN LIMIT — cross-segment $VAR create (detective-gate enforced) ----
+# A text-matching hook cannot resolve a name that is not literally in the git
+# segment; this asserts the honest current behaviour, NOT a pretend-block.
+run_case "KNOWN-LIMIT cross-segment \$VAR create (allow-by-hook)" 0 '{"tool_name":"Bash","tool_input":{"command":"b=feature/evil; git checkout -b $b"}}'
+run_case "worktree add: -b inside a PATH token (not a create)"    0 '{"tool_name":"Bash","tool_input":{"command":"git worktree add ../my-branch main"}}'
 
 # --- BLOCK cases (exit 2) --------------------------------------------------
 run_case "checkout -b UNREGISTERED name blocked"       2 '{"tool_name":"Bash","tool_input":{"command":"git checkout -b feature/unregistered-name"}}'
@@ -106,6 +122,16 @@ run_case "push refspec UNREGISTERED dst blocked"       2 '{"tool_name":"Bash","t
 run_case "checkout -b DYNAMIC name (unverifiable)"     2 '{"tool_name":"Bash","tool_input":{"command":"git checkout -b $(printf feature/dyn-divergent)"}}'
 run_case "create inside will-execute substitution"     2 '{"tool_name":"Bash","tool_input":{"command":"echo $(git checkout -b feature/sub-divergent)"}}'
 run_case "compound: status then UNREGISTERED create"   2 '{"tool_name":"Bash","tool_input":{"command":"git status && git checkout -b feature/compound-divergent"}}'
+# --- BLOCK: glued short-opt + =-joined long-opt + --orphan (Finding 2, 2026-07-10) --
+run_case "glued -b<name> UNREGISTERED blocked"         2 '{"tool_name":"Bash","tool_input":{"command":"git checkout -bfeature/glued-divergent"}}'
+run_case "glued -B<name> UNREGISTERED blocked"         2 '{"tool_name":"Bash","tool_input":{"command":"git checkout -Bfeature/glued-force-divergent"}}'
+run_case "glued switch -c<name> UNREGISTERED blocked"  2 '{"tool_name":"Bash","tool_input":{"command":"git switch -cfeature/glued-switch-divergent"}}'
+run_case "glued switch -C<name> UNREGISTERED blocked"  2 '{"tool_name":"Bash","tool_input":{"command":"git switch -Cfeature/glued-switch-force-divergent"}}'
+run_case "glued worktree -b<name> UNREGISTERED blocked" 2 '{"tool_name":"Bash","tool_input":{"command":"git worktree add -bfeature/glued-wt-divergent ../wt"}}'
+run_case "--branch=<name> UNREGISTERED blocked"        2 '{"tool_name":"Bash","tool_input":{"command":"git checkout --branch=feature/eq-branch-divergent"}}'
+run_case "--create=<name> UNREGISTERED blocked"        2 '{"tool_name":"Bash","tool_input":{"command":"git switch --create=feature/eq-create-divergent"}}'
+run_case "--orphan <name> UNREGISTERED blocked"        2 '{"tool_name":"Bash","tool_input":{"command":"git checkout --orphan feature/orphan-divergent"}}'
+run_case "--orphan=<name> UNREGISTERED blocked"        2 '{"tool_name":"Bash","tool_input":{"command":"git switch --orphan=feature/orphan-eq-divergent"}}'
 
 echo
 echo "  total: PASS=$PASS FAIL=$FAIL"

@@ -19,13 +19,30 @@
 #
 # WHAT IT BLOCKS: a manual git feature-branch CREATE whose name is NOT a
 # registered logic_groups.destination in the workable-items DB — i.e. an ad-hoc
-# DIVERGENT name (§11.4.181's exact defect). The three create forms:
-#     git checkout -b|-B feature/<name>
-#     git switch   -c|-C feature/<name>
-#     git branch [-f|--force] feature/<name>
-# A DELETE (`git branch -d/-D`), a plain LIST, or any non-feature branch is
-# untouched (exit 0) — reconciliation (§11.4.181(4)) merges + deletes, never
-# force-creates, so those paths stay open.
+# DIVERGENT name (§11.4.181's exact defect). The create forms it catches, each in
+# SPACED (`-b NAME`), GLUED (`-bNAME`), and =-joined (`--branch=NAME`) shape:
+#     git checkout -b|-B|--branch|--orphan   feature/<name>
+#     git switch   -c|-C|--create|--orphan   feature/<name>
+#     git branch  [-f|--force]               feature/<name>
+#     git worktree add … -b|-B               feature/<name>
+#     git fetch|push … <src>:[refs/heads/]feature/<name>   # refspec create
+# A DELETE (`git branch -d/-D`, a bare-src `push …:refs/heads/feature/<name>`),
+# a plain LIST, or any non-feature branch is untouched (exit 0) — reconciliation
+# (§11.4.181(4)) merges + deletes, never force-creates, so those paths stay open.
+#
+# BEST-EFFORT PREVENTION, NOT A SECURITY BOUNDARY (honest coverage, §11.4.6). This
+# hook is a text-matching PreToolUse convenience that catches the common
+# create-at-source forms EARLY. It CANNOT catch every dynamic form a text scan is
+# blind to. What it CATCHES: literal `feature/<name>` creates; a create whose name
+# is a `$(…)`/backtick command-substitution OR a same-segment variable when the
+# segment itself contains `feature/`; a create embedded in a will-execute
+# `$(…)`/backtick substitution (both fail-closed BLOCK). What it does NOT catch:
+# a CROSS-SEGMENT variable whose value is not literally in the git segment
+# (`b=feature/x; git checkout -b $b`), `eval`, base64/printf-encoded indirection,
+# or any other name a static scan cannot resolve. Those are caught by the L1/L2
+# DETECTIVE gate `CM-BRANCH-NAME-CONSISTENCY` at pre-build, which inspects real
+# `refs/heads/feature/*` branch state regardless of HOW a branch was created —
+# THAT gate is the actual enforcement boundary; this hook is defense-in-depth.
 #
 # WHAT IT ALLOWS:
 #   - The SANCTIONED MINT PATH `workable-items group branch <group_id>` (which
@@ -138,20 +155,26 @@ fi
 # INTENT-aware (NOT a raw whole-text scan): the command is split into shell
 # segments (on ; && || | and newlines); a create form is honoured ONLY when the
 # segment's executable is `git` — so `echo …` / `grep …` / a leading `#` comment
-# that merely MENTIONS a create no longer over-blocks. Covered create forms are
-# broadened to close the argv-vs-text bypass: checkout -b/-B/--branch, switch
-# -c/-C/--create, branch [-f] <name>, `worktree add … -b <name>`, and fetch/push
-# refspec `SRC:[refs/heads/]feature/…` creates (a bare-src `:dst` delete refspec
-# is excluded). Two fail-closed cases (§11.4.6) can never be resolved against the
-# registry and so BLOCK: (a) a git-create whose NAME is a dynamic command-
-# substitution / variable — `git checkout -b $(…)`; (b) a create embedded inside
-# a `$(…)` / backtick substitution that WILL execute — `echo $(git checkout -b
-# feature/x)`. Quotes are stripped first so `… 'feature/x'` matches the bare
-# form. RESIDUAL (intended fail-safe, documented): because the quote strip loses
-# quote context, a contrived MENTION that literally contains `$(git … feature/…)`
-# inside quotes (e.g. `grep '$(git checkout -b feature/x)'`) fail-closes to BLOCK;
-# clear it with `# guardrails:allow <reason>`. The L1/L2 DETECTIVE pre-build gate
-# remains the backstop for anything argv-parsing misses.
+# that merely MENTIONS a create no longer over-blocks. Covered create forms
+# (SPACED `-b NAME`, GLUED `-bNAME`, and =-joined `--branch=NAME` shapes, via
+# create_name() below): checkout -b/-B/--branch/--orphan, switch
+# -c/-C/--create/--orphan, branch [-f] <name>, `worktree add … -b <name>`, and
+# fetch/push refspec `SRC:[refs/heads/]feature/…` creates (a bare-src `:dst`
+# delete refspec is excluded). Two fail-closed cases (§11.4.6) that resolve to a
+# BLOCK: (a) a git-create whose NAME is a `$(…)` command-substitution, OR a
+# SAME-SEGMENT variable whose segment itself carries `feature/` (classify()'s DYN
+# branch) — `git checkout -b $(…)`; (b) a create embedded inside a `$(…)` /
+# backtick substitution that WILL execute — `echo $(git checkout -b feature/x)`.
+# NOT caught (a CROSS-SEGMENT variable — `b=feature/x; git checkout -b $b` — whose
+# name is not literally in the git segment; `eval`/encoded indirection): this is a
+# text-matching hook's inherent blind spot, NOT a fail-closed case — the L1/L2
+# DETECTIVE pre-build gate is those forms' enforcement boundary. Quotes are
+# stripped first so `… 'feature/x'` matches the bare form. RESIDUAL (intended
+# fail-safe, documented): because the quote strip loses quote context, a contrived
+# MENTION that literally contains `$(git … feature/…)` inside quotes (e.g.
+# `grep '$(git checkout -b feature/x)'`) fail-closes to BLOCK; clear it with
+# `# guardrails:allow <reason>`. The L1/L2 DETECTIVE pre-build gate remains the
+# backstop for anything this argv scan misses.
 # --------------------------------------------------------------------------
 CMD_NOQUOTES="$(printf '%s' "$CMD" | tr -d "\"'")"
 
@@ -165,16 +188,21 @@ _bnc_detect() {
         print "DYN"
       }
     }
-    function tokafter(seg, re,   rest, t) {
-      if (match(seg, re)) {
-        rest = substr(seg, RSTART + RLENGTH); sub(/^[ \t]+/, "", rest)
-        t = rest; sub(/[ \t].*$/, "", t); return t
-      }
-      return ""
+    # Extract the branch name that follows a create flag, tolerating the SPACED
+    # (-b NAME / --branch NAME), GLUED (-bNAME), and =-joined (--branch=NAME)
+    # forms with one helper. flagre is a STRING regex (never a /re/ literal — an
+    # awk /re/ argument is evaluated as $0~/re/, the arg-as-boolean gotcha, so it
+    # MUST be quoted). Returns "" when the flag is absent.
+    function create_name(seg, flagre,   rest, t) {
+      if (! match(seg, flagre)) return ""
+      rest = substr(seg, RSTART + RLENGTH)
+      sub(/^=/, "", rest)          # --branch=NAME / --create=NAME / --orphan=NAME
+      sub(/^[ \t]+/, "", rest)     # --flag NAME / -b NAME (spaced)
+      t = rest; sub(/[ \t].*$/, "", t); return t
     }
     {
       # (b) create embedded in a substitution that WILL execute -> fail-closed
-      if ($0 ~ /(\$\(|`)[^)`]*git[ \t]+(checkout[ \t]+-[bB]|checkout[ \t]+--branch|switch[ \t]+-[cC]|switch[ \t]+--create|branch[ \t]|worktree[ \t]+add|fetch[ \t]|push[ \t])[^)`]*feature\//)
+      if ($0 ~ /(\$\(|`)[^)`]*git[ \t]+(checkout[ \t]+-[bB]|checkout[ \t]+--branch|checkout[ \t]+--orphan|switch[ \t]+-[cC]|switch[ \t]+--create|switch[ \t]+--orphan|branch[ \t]|worktree[ \t]+add|fetch[ \t]|push[ \t])[^)`]*feature\//)
         print "DYN"
       n = split($0, seg, /&&|\|\||;|\|/)
       for (i = 1; i <= n; i++) {
@@ -188,12 +216,26 @@ _bnc_detect() {
         }
         first = s; sub(/[ \t].*$/, "", first); sub(/^.*\//, "", first)
         if (first != "git") continue
-        if (s ~ /^([^ \t]*\/)?git[ \t]+checkout[ \t]+(-[bB]|--branch)[ \t]/) {
-          classify(tokafter(s, "checkout[ \t]+(-[bB]|--branch)[ \t]+"), s)
-        } else if (s ~ /^([^ \t]*\/)?git[ \t]+switch[ \t]+(-[cC]|--create)[ \t]/) {
-          classify(tokafter(s, "switch[ \t]+(-[cC]|--create)[ \t]+"), s)
-        } else if (s ~ /^([^ \t]*\/)?git[ \t]+worktree[ \t]+add[ \t].*-[bB][ \t]/) {
-          classify(tokafter(s, "-[bB][ \t]+"), s)
+        nm = ""
+        if (s ~ /^([^ \t]*\/)?git[ \t]+checkout([ \t]|$)/) {
+          # checkout create flags: -b/-B (short, spaced OR glued -bNAME),
+          # --branch (spaced/=), --orphan (spaced/=).
+          nm = create_name(s, "checkout[ \t]+-[bB]")
+          if (nm == "") nm = create_name(s, "checkout[ \t]+--branch")
+          if (nm == "") nm = create_name(s, "checkout[ \t]+--orphan")
+          if (nm != "") classify(nm, s)
+        } else if (s ~ /^([^ \t]*\/)?git[ \t]+switch([ \t]|$)/) {
+          # switch create flags: -c/-C (short, spaced OR glued -cNAME),
+          # --create (spaced/=), --orphan (spaced/=).
+          nm = create_name(s, "switch[ \t]+-[cC]")
+          if (nm == "") nm = create_name(s, "switch[ \t]+--create")
+          if (nm == "") nm = create_name(s, "switch[ \t]+--orphan")
+          if (nm != "") classify(nm, s)
+        } else if (s ~ /^([^ \t]*\/)?git[ \t]+worktree[ \t]+add([ \t]|$)/) {
+          # worktree add -b/-B (spaced OR glued -bNAME); the flag is a standalone
+          # option token (whitespace-preceded), so a "-b" inside a path is skipped.
+          nm = create_name(s, "[ \t]-[bB]")
+          if (nm != "") classify(nm, s)
         } else if (s ~ /^([^ \t]*\/)?git[ \t]+branch([ \t]|$)/) {
           if (s ~ /[ \t](-d|-D|--delete|-m|-M|--move|-c|-C|--copy|--list|-a|--all|-r|--remotes|--merged|--no-merged|--contains|--points-at|--edit-description|--show-current|--set-upstream-to|-u|--unset-upstream|--track|--no-track)([ \t=]|$)/) continue
           bn = s; sub(/^([^ \t]*\/)?git[ \t]+branch[ \t]+/, "", bn)
@@ -271,14 +313,17 @@ emit_block() {
 }
 
 # Unverifiable feature-branch create -> fail-closed (§11.4.6). A create whose
-# name is a dynamic command-substitution / variable, OR a create embedded inside
-# a will-execute $(…)/backtick substitution, cannot be resolved to a concrete
-# name, so it cannot be proven registered. Blocked BEFORE the registry check
-# (which has no name to look up). The sanctioned mint helper (line above) and the
-# `# guardrails:allow` escape both run earlier, so a legitimate dynamic create
-# still has an audited path.
+# name is a `$(…)` command-substitution OR a same-segment variable (the segment
+# carrying `feature/`), OR a create embedded inside a will-execute $(…)/backtick
+# substitution, cannot be resolved to a concrete name, so it cannot be proven
+# registered. Blocked BEFORE the registry check (which has no name to look up).
+# The sanctioned mint helper (line above) and the `# guardrails:allow` escape both
+# run earlier, so a legitimate dynamic create still has an audited path. (A
+# cross-segment `$VAR` create whose value is not literally in the git segment is
+# the text-scan blind spot the L1/L2 DETECTIVE gate covers — it never reaches
+# here.)
 if [ -n "$BNC_UNVERIFIABLE" ]; then
-  emit_block "a feature/* branch is being created from a dynamic command-substitution / variable name (or inside a will-execute \$(…)/backtick substitution) that cannot be resolved and verified against the registry (§11.4.6 fail-closed)."
+  emit_block "a feature/* branch is being created from a \$(…) command-substitution / same-segment variable name (or inside a will-execute \$(…)/backtick substitution) that cannot be resolved and verified against the registry (§11.4.6 fail-closed)."
 fi
 
 # FAIL-CLOSED when the registry cannot be read (§11.4.6 — never fail-open).
