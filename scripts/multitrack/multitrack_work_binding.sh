@@ -129,6 +129,33 @@ fail_closed() {
 # --------------------------------------------------------------------------
 # Resolve the workable-items DB (registry SoT). $DB_ARG overrides; else $WI_DB;
 # else the §11.4.93/§11.4.95 convention path relative to the git toplevel/cwd.
+#
+# SUBMODULE-CWD SUPERPROJECT-WALK (§11.4.191 fix, mirrors
+# guard-work-track-binding.sh's resolve_workable_items_db — see that script's
+# header for the forensic anchor). When THIS process's own cwd is INSIDE a
+# nested submodule (e.g. the constitution submodule itself, edited/committed
+# per §11.4.26), `$GIT_TOP` binds to the SUBMODULE's own innermost root, so
+# `<submodule-root>/docs/workable_items.db` never exists there — the single
+# project-level registry (§11.4.93/§11.4.95) lives at the OUTERMOST
+# (super)project root, never inside a submodule. Previously ANY caller of
+# this resolver invoked without an explicit `--db` (the guard now always
+# supplies one; the detective gate `CM-WORK-TRACK-BINDING-ENFORCED` and any
+# other direct invocation may not) fail-closed BLOCKed unconditionally from
+# submodule cwd, regardless of file-scope classification.
+#
+# Fix: walk UP from `$GIT_TOP` through every `git rev-parse
+# --show-superproject-working-tree` hop (depth-bounded to 10 — no realistic
+# nesting exceeds the §11.4.28(C) depth-1 carve-out plus a safety margin),
+# then probe every discovered OUTER root (excluding `$GIT_TOP` itself, which
+# is already covered by the unchanged candidate list below) OUTERMOST-first
+# for `docs/workable_items.db` / `docs/.workable_items.db`. This WIDENS
+# discovery only — a non-nested checkout (no superproject) walks to zero
+# outer roots, so the candidate list is byte-identical to the pre-fix
+# behaviour. `$WI_DB` (checked first) and the plain cwd-relative /
+# `$GIT_TOP`-relative candidates (checked after, in their original order)
+# bracket the new outer-root candidates unchanged, so neither existing
+# precedence nor the fail-closed-when-nothing-found guarantee (§11.4.6 — no
+# weakening) below is disturbed.
 # --------------------------------------------------------------------------
 GIT_TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 DB_PATH=""
@@ -139,8 +166,27 @@ if [ -n "$DB_ARG" ]; then
   # a different one instead would fail-OPEN on a stale/empty registry (§11.4.6).
   [ -f "$DB_ARG" ] && DB_PATH="$DB_ARG"
 else
+  _wtb_outer_cands=()
+  if [ -n "$GIT_TOP" ]; then
+    _wtb_d="$GIT_TOP"
+    _wtb_hops=0
+    _wtb_outer_roots=()
+    while [ "$_wtb_hops" -lt 10 ]; do
+      _wtb_sp="$(cd "$_wtb_d" 2>/dev/null && git rev-parse --show-superproject-working-tree 2>/dev/null || true)"
+      [ -n "$_wtb_sp" ] || break
+      _wtb_outer_roots+=("$_wtb_sp")
+      _wtb_d="$_wtb_sp"
+      _wtb_hops=$((_wtb_hops + 1))
+    done
+    # Outermost-first: the real registry lives at the ultimate parent
+    # project's root, never a submodule's own (mirrors the guard's walk).
+    for (( _wtb_i = ${#_wtb_outer_roots[@]} - 1; _wtb_i >= 0; _wtb_i-- )); do
+      _wtb_outer_cands+=("${_wtb_outer_roots[$_wtb_i]}/docs/workable_items.db" "${_wtb_outer_roots[$_wtb_i]}/docs/.workable_items.db")
+    done
+  fi
   for _cand in \
       "${WI_DB:-}" \
+      ${_wtb_outer_cands[@]+"${_wtb_outer_cands[@]}"} \
       "${GIT_TOP:+$GIT_TOP/docs/workable_items.db}" \
       "docs/workable_items.db" \
       "${GIT_TOP:+$GIT_TOP/docs/.workable_items.db}" \

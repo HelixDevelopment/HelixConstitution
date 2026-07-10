@@ -1,7 +1,7 @@
 # multitrack_work_binding.sh
 
-**Revision:** 1
-**Last modified:** 2026-07-10T18:24:43Z
+**Revision:** 2
+**Last modified:** 2026-07-10T22:10:00Z
 **Authority:** constitution §11.4.191 (work-to-track/branch binding enforcement)
 **Maintainer:** constitution submodule (inherited by reference per §11.4.177 / §11.4.28(B))
 **Scope:** §11.4.18 companion doc for `constitution/scripts/multitrack/multitrack_work_binding.sh`
@@ -30,9 +30,10 @@ ticket, then checked against `logic_groups.destination` (authoritative branch) +
 - `sqlite3` on `PATH` (absent ⇒ fail-closed BLOCK, §11.4.6). **No `jq`.**
 - `git` — only when `--staged` (or cwd-track derivation) is used.
 - The §11.4.93/§11.4.95 workable-items DB at schema **v4** (`logic_groups.canonical_track`
-  + `group_paths`). Resolution order: `--db P` → `$WI_DB` →
-  `<git-top>/docs/workable_items.db` → `docs/workable_items.db` → the
-  `.workable_items.db` variants.
+  + `group_paths`). Resolution order: `--db P` → `$WI_DB` → **superproject-walk
+  outer roots** (see "Submodule-context DB resolution" below — a call from INSIDE
+  a submodule finds the PARENT project's registry) → `<git-top>/docs/workable_items.db`
+  → `docs/workable_items.db` → the `.workable_items.db` variants.
 
 ## Usage
 
@@ -120,11 +121,30 @@ group's canonical branch/track — actionable per §11.4.6.
    the §11.4.191(§6) mutation target) and, when the group is track-pinned and the
    track is known, `ctrack != TRACK`.
 
+## Submodule-context DB resolution (§11.4.191 / §11.4.26)
+
+When this resolver's own cwd is INSIDE a nested submodule (e.g. the constitution
+submodule itself, edited/committed per §11.4.26), `git rev-parse --show-toplevel`
+binds to the SUBMODULE's own innermost root — where `docs/workable_items.db` does
+not exist — so a caller invoking the resolver WITHOUT an explicit `--db` (the
+detective gate `CM-WORK-TRACK-BINDING-ENFORCED`, or any direct invocation) would
+fail-closed BLOCK unconditionally, regardless of file-scope classification. The
+resolver's own auto-discovery therefore walks UP from `git rev-parse
+--show-toplevel` through every `git rev-parse --show-superproject-working-tree`
+hop (depth-bounded to 10), probing each discovered OUTER root — OUTERMOST-first —
+for `docs/workable_items.db` / `docs/.workable_items.db`. This WIDENS discovery
+only: a non-nested checkout walks to zero outer roots, so the candidate list is
+byte-identical to the pre-fix behaviour, and `$WI_DB` / `--db` precedence plus the
+fail-closed-when-nothing-found guarantee are unchanged (§11.4.6 — no weakening).
+The guard `guard-work-track-binding.sh` also passes an explicit `--db` (defence in
+depth); both paths coexist.
+
 ## Related scripts
 
 - [`guard-work-track-binding.sh`](guard-work-track-binding.md) — the PreToolUse guard that calls this resolver.
 - `multitrack_claim.sh` — the §11.4.176 exactly-once group-claim registry (sibling).
 - `test_guard_work_track_binding.sh` — the hermetic suite; its section C exercises this resolver directly (track dimension, glob precision, ambiguity, fail-closed).
+- `test_multitrack_work_binding_submodule_db.sh` — the §11.4.135 permanent guard for the submodule-context superproject-walk (parent DB resolved from submodule cwd; fail-closed preserved).
 
 ## Decoupling (§11.4.177 / §11.4.28(B))
 
@@ -134,5 +154,7 @@ and git. Consumer-owned DATA (the `group_paths` rows, `canonical_track` values)
 lives in the consuming project's DB.
 
 **Last verified:** 2026-07-10 — `bash -n` + `sh -n` clean (§11.4.67); 12/12
-resolver smoke assertions PASS; the load-bearing `dest != BRANCH` clause proven
-via an isolated mutation (BLOCK→ALLOW when neutered).
+resolver smoke assertions PASS; the guard's 34/34 hermetic suite green with the
+submodule-context superproject-walk added; the resolver resolves the parent DB
+from submodule cwd (EXIT=0, was fail-closed); the load-bearing `dest != BRANCH`
+clause proven via an isolated mutation (BLOCK→ALLOW when neutered).
