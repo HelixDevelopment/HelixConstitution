@@ -454,7 +454,7 @@ Universal CLAUDE.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>40</td>
+<td>43</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -462,7 +462,7 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-07-09T11:37:44Z</td>
+<td>2026-07-10T18:45:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -470,16 +470,123 @@ Universal CLAUDE.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.187 — Automatic multi-track ruler orchestration (User
-mandate 2026-07-04; landed 2026-07-09): every project incorporating this
-constitution MUST ship its multi-track parallel-development
-orchestration as a UNIVERSAL, AUTOMATIC, OUT-OF-THE-BOX, INHERITED
-capability, not a per-project reimplementation, via a single conductor
-session that programmatically spawns/drives/resumes/monitors/controls
-per-track headless workers (native headless
-<code>claude -p --output-format stream-json</code>, session_id captured
-from the first <code>init</code> event, success read from
-<code>result.is_error</code> never the process exit code,
+<td>Added §11.4.191 — Work-to-track/branch binding enforcement: a
+logic-group&#39;s work can NEVER be committed OR dispatched onto the wrong
+track/branch (research-derived 2026-07-10): every logical group of
+workable items binds to EXACTLY ONE canonical
+<code>(track, branch)</code> recorded ONCE in the §11.4.93
+workable-items DB (<code>logic_groups.destination</code> authoritative
+branch + a <code>canonical_track</code> column + a
+<code>group_paths</code> file-scope manifest), and NO change belonging
+to a group may LAND on nor be DISPATCHED to a track/branch other than
+that group&#39;s canonical one — the file-scope generalisation of
+§11.4.181/.182 from branch-NAME to work-PLACEMENT consistency (forensic
+FACT 2026-07-10: scrcpy/Remote-app work — group
+<code>mistiq-vader</code>, canonical
+<code>feature/mistiq-vader</code>/T2 — was committed onto
+<code>main</code>/T1; §11.4.181&#39;s
+<code>guard-branch-consistency.sh</code> never fired because committing
+onto an existing branch is not a feature-branch CREATE, no gate checked
+which FILES land on which BRANCH); (1) single source of truth
+looked-up-never-reinvented (§11.4.6); (2) preventive PreToolUse hook
+<code>guard-work-track-binding.sh</code> (§11.4.109/.177, BLOCKS a
+git-commit-class Bash call OR an Agent/Task dispatch whose
+file-scope/label track+branch ≠ canonical; fail-closed on unreadable
+registry); (3) detective gate
+<code>CM-WORK-TRACK-BINDING-ENFORCED</code> (§11.4.110/.108, asserts on
+<code>merge-base(HEAD,main)..HEAD</code> that every
+<code>group_paths</code>-owned file&#39;s group destination == current
+branch); (4) risk-free reconciliation by MERGE-onto-canonical-branch,
+ff-only, NEVER force-push (§9.2/.113/.84). Classification: universal
+(§11.4.17). Propagation gate
+<code>CM-COVENANT-114-191-PROPAGATION</code> + recommended gate
+<code>CM-WORK-TRACK-BINDING-ENFORCED</code> + paired §1.1 mutation.
+CLAUDE.md + AGENTS.md + QWEN.md + GEMINI.md mirrors updated in lockstep
+(§11.4.157). Prior round: Added §11.4.190 — Website engineering-quality
+mandate (User mandate 2026-07-10): every website / web-UI a project
+ships — INCLUDING this project&#39;s OWN website — MUST satisfy AND PROVE
+with captured physical evidence (§11.4.5/.69/.107/.170, never a bare
+claim §11.4.6) ALL of — (A) FULL RESPONSIVENESS across all major browser
+engines (Chromium/Firefox/WebKit) + all OSes + all device classes
+(desktop/laptop/tablet/phone/large-display) + the full range of screen
+sizes/orientations/pixel-densities, NO broken
+layout/overflow/clipping/overlap/off-screen/unusable control at ANY
+breakpoint; (B) COMPLETE SEO OPTIMIZATION — semantic HTML + document
+outline, per-page unique title + meta description, Open Graph + Twitter
+cards, canonical URLs, schema.org/JSON-LD structured data, robots + XML
+sitemap, crawlable/indexable markup, WCAG AA + Core Web Vitals; (C)
+UNIQUE OpenDesign-AUTHORED templates/layouts (§11.4.162), NOT
+generic/off-the-shelf/templated, visually
+unique/innovative/creative/brand-distinct; (D) BLEEDING-EDGE ENTERPRISE
+VISUAL QUALITY, stunning polished look-and-feel in BOTH light+dark
+themes; (E) ANTI-BLUFF PROOF — responsiveness by device-independent
+host-rendered screenshots across the real breakpoint×engine matrix + an
+OCR/vision layout oracle, SEO by automated audit (Lighthouse SEO +
+structured-data validation + meta/OG/sitemap/robots presence) meeting a
+defined score floor, visual quality by §11.4.170 host-rendered pixel
+proof per screen×state×{light,dark}, uniqueness by OpenDesign-token
+provenance; a website reported
+responsive/SEO-optimized/unique/enterprise-quality WITHOUT these
+captured proofs is a §11.4 PASS-bluff at the web-UI layer; strict
+WEB-quality expansion of §11.4.162 (OpenDesign) binding §11.4.170
+host-rendered pixel proof as the correctness oracle. Classification:
+universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-190-PROPAGATION</code> + recommended gates
+<code>CM-WEBSITE-RESPONSIVE-PROVEN</code>/<code>CM-WEBSITE-SEO-OPTIMIZED</code>/<code>CM-WEBSITE-OPENDESIGN-UNIQUE</code>
++ paired §1.1 mutation. CLAUDE.md + AGENTS.md + QWEN.md + GEMINI.md
+mirrors updated in lockstep (§11.4.157). Prior round: Added §11.4.189 —
+Most-reopened cases get extra-depth live-testing scrutiny FIRST (User
+mandate 2026-07-10): all LIVE TESTING MUST give EXTRA-DEPTH retest +
+in-depth investigation + FULL validation/verification with REAL PHYSICAL
+captured evidence (§11.4.5/.69/.107) and NO bluff ANYWHERE to the cases
+REOPENED THE MOST TIMES (highest §11.4.55 reopens-count) — the
+empirically-most-fragile set gets the DEEPEST live scrutiny FIRST, ahead
+of the rest of the suite (§11.4.132 risk-descending, most-reopened the
+load-bearing key); each most-reopened case&#39;s live PASS cites
+captured-evidence on a CLEAN deployment (§11.4.108 runtime-signature)
+with the §11.4.115 RED→GREEN flip where a §11.4.135 guard exists;
+STRENGTHENS/REFINES §11.4.132(d) (promotes most-reopened into its OWN
+extra-depth mandate at the LIVE-TEST layer, not merely one ranking
+factor) + §11.4.55 + §11.4.129/.130. Classification: universal
+(§11.4.17). Propagation gate
+<code>CM-COVENANT-114-189-PROPAGATION</code> + recommended gate
+<code>CM-MOST-REOPENED-EXTRA-DEPTH-LIVE-TEST</code> + paired §1.1
+mutation. CLAUDE.md + AGENTS.md + QWEN.md + GEMINI.md mirrors updated in
+lockstep (§11.4.157). Prior round: Added §11.4.188 — Regular
+main→feature merge cadence (User mandate 2026-07-09): every long-lived
+feature branch AND every parallel-development track
+(§11.4.58/.103/.167/.176/.178/.179) MUST regularly
+<code>git merge origin/main</code> INTO its own branch THROUGHOUT the
+work, NEVER only at the end, so no branch drifts far from main + the
+back-merge stays small/low-conflict/low-risk; GENERALISES §11.4.167(D)
+(trunk-into-every-BIG-feature-stream) to EVERY feature branch on EVERY
+track (§11.4.167(D) remains the big-item specialisation); cadence =
+after every trunk tag / ≥ daily / before any significant new work chunk
+(many small merges); HOW = MERGE never rebase a shared/tagged branch
+(§9/§11.4.113), fetch-first (§11.4.37/.71/.6), §9.2 pre-op backup before
+large/risky merges, resolve conflicts with ZERO markers + ZERO dropped
+files + union preserved (§11.4.41 step 3), quiescent-only (§11.4.84),
+background merge+verify (§11.4.88/.89/.103), NEVER force-push
+(§11.4.113); ANTI-BLUFF = post-merge smoke GREEN (§11.4.42) +
+conflict-marker scan empty + no-lost-commit, captured evidence
+(§11.4.5/.69), a merge claimed &quot;clean&quot; without those checks is a
+§11.4/.1 integration-layer bluff; honest boundary §11.4.6 — keeps the
+branch mergeable + low-conflict, does NOT prove its own work correct
+(still §11.4.108/.40) nor replace the approval-gated back-merge
+(§11.4.167(I)/.40/.41). Classification: universal (§11.4.17).
+Propagation gate <code>CM-COVENANT-114-188-PROPAGATION</code> +
+recommended gate <code>CM-REGULAR-MAIN-MERGE-INTO-FEATURE</code> +
+paired §1.1 mutation. CLAUDE.md + AGENTS.md + QWEN.md + GEMINI.md
+mirrors updated in lockstep (§11.4.157). Prior round: Added §11.4.187 —
+Automatic multi-track ruler orchestration (User mandate 2026-07-04;
+landed 2026-07-09): every project incorporating this constitution MUST
+ship its multi-track parallel-development orchestration as a UNIVERSAL,
+AUTOMATIC, OUT-OF-THE-BOX, INHERITED capability, not a per-project
+reimplementation, via a single conductor session that programmatically
+spawns/drives/resumes/monitors/controls per-track headless workers
+(native headless <code>claude -p --output-format stream-json</code>,
+session_id captured from the first <code>init</code> event, success read
+from <code>result.is_error</code> never the process exit code,
 <code>--resume</code> invoked from the same cwd+env); per-subscription
 auth (<code>unset ANTHROPIC_API_KEY</code> + per-alias
 <code>CLAUDE_CODE_OAUTH_TOKEN</code>/<code>CLAUDE_CONFIG_DIR</code>)
@@ -5725,7 +5832,25 @@ exactly-once-claim + device-lock arbitration anchor). Propagation gate
 <code>CM-COVENANT-114-178-PROPAGATION</code> (literal
 <code>11.4.178</code>) + recommended gate
 <code>CM-TRACK-QUALIFIED-IDENTITY</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.178.
+<strong>Multi-project-per-track layout clarification
+(2026-07-10):</strong> a <code>/mnt/track&lt;N&gt;</code> track parent
+is NOT single-project — MULTIPLE projects coexist on the same track
+parents, each in its OWN project-named subdirectory
+<code>/mnt/track&lt;N&gt;/&lt;project_name&gt;/</code> (e.g.
+<code>/mnt/track1/atmosphere/</code> AND
+<code>/mnt/track1/helix_ota/</code> side by side); the per-track working
+copy of project P on track N is ALWAYS
+<code>/mnt/track&lt;N&gt;/&lt;project_name&gt;/</code> (canonical
+lowercase snake_case dir-name per §11.4.29), never the bare track root
+and never a shared basename; this is WHY the identity carries the
+<code>&lt;project&gt;</code> component
+(<code>&lt;project&gt;__&lt;track&gt;__&lt;role&gt;</code>) — so two
+coexisting projects&#39; track-N sessions / locks / logs / device-claims /
+registry rows never collide; a project adopting the multi-track engine
+(§11.4.187) MUST create AND register its own
+<code>/mnt/track&lt;N&gt;/&lt;project_name&gt;/</code> per track and
+MUST NOT assume it owns the track root or that a track hosts only one
+project. <strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.178.
 Non-compliance is a release blocker. No escape hatch — no
 <code>--bare-basename-ok</code>, <code>--skip-track-qualifier</code>,
 <code>--shared-session-name</code> flag.</p>
@@ -6190,5 +6315,268 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-multitrack</code>, <code>--manual-multitrack-only</code>,
 <code>--no-auto-install</code>, <code>--per-project-reimpl-OK</code>,
 <code>--exit-code-is-success-signal</code> flag.</p>
+<p><strong>§11.4.188 — Regular main→feature merge cadence: every track /
+feature-branch MUST FREQUENTLY merge canonical <code>main</code> into
+itself DURING the work, never only at the end (User mandate,
+2026-07-09).</strong> Compact summary: every long-lived feature branch
+AND every parallel-development track (§11.4.58/§11.4.103 parallel
+streams; §11.4.167 feature work-streams; §11.4.176/§11.4.178/§11.4.179
+multi-track) MUST regularly <code>git merge origin/main</code> (the
+canonical trunk/master) INTO its own branch THROUGHOUT the work — NOT
+only at the end — so no branch ever drifts far from main and the
+eventual back-merge stays a small, low-conflict, low-risk operation.
+GENERALISES §11.4.167(D) (trunk-merged-INTO-every-BIG-feature-STREAM, at
+minimum after every trunk tag / daily, <code>git merge</code> never
+rebase, stale-if-not-synced) from the big-work-item feature-stream
+lifecycle to EVERY feature branch on EVERY track — a small/medium
+feature branch, or any <code>git worktree</code>/CoW track that never
+earned a full §11.4.167 stream, is STILL bound to this cadence (the
+§11.4.167(D) discipline promoted to the general standalone rule;
+§11.4.167(D) remains its big-item specialisation). (1)
+<strong>WHAT</strong> — fetch the latest canonical
+<code>main</code>/<code>master</code> and merge it INTO the working
+branch, keeping the branch continuously close to trunk; a branch that
+has NOT integrated trunk within the cadence is flagged STALE (the exact
+long-lived-branch conflict-storm + integration-risk anti-pattern this
+forbids). (2) <strong>CADENCE</strong> — merge trunk in FREQUENTLY:
+after EVERY trunk tag, at minimum DAILY while the branch is live, AND
+before starting any significant new chunk of work on the branch — MANY
+SMALL merges, never one big deferred end-of-branch merge (small frequent
+merges minimise the divergence + conflict surface). (3) <strong>HOW
+(safe-by-construction)</strong> — MERGE, NEVER rebase a
+shared/tagged/pushed branch (no commit-loss, no history rewrite —
+§9/§11.4.113); FETCH-FIRST every remote before the merge
+(§11.4.37/§11.4.71 — remote state is unknowable without a fetch,
+§11.4.6); take a §9.2 hardlinked pre-op backup before any LARGE /
+conflict-heavy / risky merge; resolve every conflict CAREFULLY — ZERO
+conflict markers committed, ZERO file silently dropped, union of both
+sides preserved (§11.4.41 step 3 / §9 no-loss); integrate ONLY when the
+branch is QUIESCENT (§11.4.84 — no in-flight mutation gate, no
+unaccounted uncommitted work); prefer running the merge + its
+verification in the BACKGROUND parallel to the main stream so it never
+stalls other work (§11.4.88/§11.4.89/§11.4.103); NEVER force-push the
+merged result (§11.4.113 — the merged branch fast-forwards its own
+mirrors). (4) <strong>CONSISTENCY + ANTI-BLUFF</strong> — after EVERY
+merge the branch MUST be PROVEN consistent, never ASSUMED: a pre-build
+smoke gate runs post-merge (§11.4.42 step-3 smoke) and is GREEN, a
+<code>git grep</code> for conflict markers
+(<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> / <code>=======</code> /
+<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>) returns EMPTY, and no commit
+present pre-merge on either side is lost — captured evidence per
+§11.4.5/§11.4.69; a merge claimed &quot;clean&quot; without the post-merge smoke +
+marker-scan + no-lost-commit check is a §11.4/§11.4.1 bluff at the
+integration layer. (5) <strong>HONEST BOUNDARY (§11.4.6)</strong> —
+regular trunk-integration keeps the branch MERGEABLE + low-conflict; it
+does NOT by itself prove the branch&#39;s own work is correct (each change
+still crosses §11.4.108 runtime-signature + §11.4.40 retest), and it is
+NOT the approval-gated back-merge TO trunk (that stays
+§11.4.167(I)/§11.4.40/§11.4.41 no-merge-until-approved). Classification:
+universal (§11.4.17) — the consuming project supplies its
+canonical-trunk ref name, cadence unit, post-merge smoke-gate command,
+and per-track worktree/CoW mechanism per §11.4.35. Composes
+§9/§9.2/§11.4.6/§11.4.17/§11.4.37/§11.4.41/§11.4.42/§11.4.71/§11.4.84/§11.4.88/§11.4.89/§11.4.103/§11.4.113/§11.4.167/§11.4.176/§11.4.178/§11.4.179/§11.4.181.
+Propagation gate <code>CM-COVENANT-114-188-PROPAGATION</code> (literal
+<code>11.4.188</code>) + recommended gate
+<code>CM-REGULAR-MAIN-MERGE-INTO-FEATURE</code> (every live feature
+branch / track has integrated the canonical trunk within the declared
+cadence; its last integration is a real <code>git merge</code> not a
+rebase; the post-merge smoke + zero-conflict-marker + no-lost-commit
+checks passed) + paired §1.1 mutation (let a live branch go stale past
+the cadence, OR record a rebase of a shared branch in place of a merge,
+OR commit a conflict marker → the gate FAILs; gate-code = separate work
+item). <strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.188.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-main-merge</code>, <code>--merge-only-at-end</code>,
+<code>--rebase-shared-branch</code>, <code>--defer-trunk-sync</code>,
+<code>--no-post-merge-smoke</code>,
+<code>--force-push-after-merge</code>,
+<code>--big-items-only-trunk-sync</code> flag.</p>
+<p><strong>§11.4.189 — Most-reopened cases get extra-depth live-testing
+scrutiny FIRST (User mandate, 2026-07-10).</strong> Verbatim operator
+mandate: &quot;All live testing MUST pay extra attention to cases which have
+been reopened numerous times and those cases in depth retested,
+investigated, fully validated and verified with real physical results
+and no bluff of any kind anywhere!&quot; All LIVE TESTING (on-device /
+on-target runtime validation, deploy-and-observe) MUST give EXTRA-DEPTH
+retest + in-depth investigation + FULL validation/verification with REAL
+PHYSICAL captured evidence (§11.4.5/§11.4.69/§11.4.107 — captured
+audio/video/sysfs/dumpsys/sink-side/runtime-signature) and NO bluff of
+any kind ANYWHERE to the cases that have been REOPENED THE MOST TIMES
+(highest §11.4.55 reopens-count) — the empirically-most-fragile set gets
+the DEEPEST live scrutiny, and it gets it FIRST. (1)
+<strong>WHAT</strong> — for the highest-reopens-count cases, live
+testing is NOT a single pass: it re-runs the case at EXTRA DEPTH (more
+iterations per §11.4.50 deterministic consistency, wider edge-case +
+regression coverage), RE-INVESTIGATES the underlying defect per
+§11.4.102 systematic-debugging + §11.4.146 reproduce-first, and CONFIRMS
+with rock-solid captured physical evidence per §11.4.123 — never
+metadata-only / config-only / absence-of-error / grep-without-runtime
+(§11.4/§11.4.1), never a false result. (2) <strong>ORDER</strong> — the
+most-reopened set is scrutinised FIRST, ahead of the rest of the
+live-test suite (the §11.4.132 risk-descending discipline, with
+most-reopened the load-bearing key). (3) <strong>KEY</strong> — priority
+is keyed off the §11.4.55 reopens-count (the consuming project supplies
+its reopens-count source per §11.4.35, e.g. the §11.4.93 workable-items
+DB <code>reopens_count</code>); a high reopens-count is the strongest
+empirical fragility signal (§11.4.132(d)). (4) <strong>PROOF</strong> —
+each most-reopened case&#39;s live PASS cites its captured-evidence artefact
+path (§11.4.69/§11.4.107) on a CLEAN/fresh deployment (§11.4.108
+runtime-signature), with the §11.4.115 RED→GREEN polarity flip captured
+where a permanent regression guard exists (§11.4.135).
+STRENGTHENS/REFINES §11.4.132 (risk-ordered validation factor (d)
+most-reopened — §11.4.189 promotes most-reopened into its OWN
+EXTRA-DEPTH mandate at the LIVE-TEST layer, not merely one ranking
+factor among four) + §11.4.55 (reopens-count as the priority key) +
+§11.4.129/§11.4.130 (validate-the-just-fixed / highest-risk-first after
+redeploy). Classification: universal (§11.4.17) — references no
+project-specific hardware; the consuming project supplies its
+reopens-count source per §11.4.35. Composes
+§11.4.5/§11.4.6/§11.4.55/§11.4.69/§11.4.107/§11.4.108/§11.4.115/§11.4.129/§11.4.130/§11.4.132/§11.4.135/§11.4.146.
+Propagation gate <code>CM-COVENANT-114-189-PROPAGATION</code> (literal
+<code>11.4.189</code>) + recommended gate
+<code>CM-MOST-REOPENED-EXTRA-DEPTH-LIVE-TEST</code> (the live-test suite
+orders + extra-depth-scrutinises the highest-reopens-count cases FIRST,
+each with captured physical evidence on a clean deployment) + paired
+§1.1 mutation (drop the most-reopened extra-depth pass, OR run it AFTER
+the rest of the suite, OR PASS a most-reopened case on metadata-only
+evidence → the gate FAILs; strip the literal → propagation gate FAILs;
+gate-code = separate work item). <strong>Canonical authority:</strong>
+constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.189.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-most-reopened-depth</code>,
+<code>--reopened-same-as-any</code>, <code>--live-test-any-order</code>,
+<code>--metadata-pass-for-reopened-OK</code>,
+<code>--defer-reopened-scrutiny</code> flag.</p>
+<p><strong>§11.4.190 — Website engineering-quality mandate: every
+project website MUST be fully responsive + completely SEO-optimized +
+uniquely OpenDesign-authored + bleeding-edge enterprise-quality, each
+PROVEN with captured evidence (User mandate, 2026-07-10).</strong>
+Verbatim operator mandate: &quot;every website we create inside our projects
+MUST BE fully responsive - working on all browsers, all operating
+systems, all platforms and all devices and screen sizes! Every Website
+MUST BE completely SEO optimized! Layouts and templates done MUST BE
+unique and everything fully designed from OpenDesign! Make sure this
+applies to our project Website as well! Everything must be bleeding-edge
+enterprise quality, stunning visual look and feel, innovative, creative
+and unique! There MUST BE no false or faulty result or bluff of any kind
+anywhere!&quot; Every website / web-UI surface a project ships — INCLUDING
+this project&#39;s OWN website — MUST satisfy AND PROVE with captured
+physical evidence (§11.4.5/§11.4.69/§11.4.107/§11.4.170 — never a bare
+claim, §11.4.6) ALL of: <strong>(A) FULL RESPONSIVENESS</strong> —
+correct, usable rendering across ALL major browser engines
+(Chromium/Firefox/WebKit), all operating systems, all device classes
+(desktop/laptop/tablet/phone/large-display) and the full range of screen
+sizes/orientations/pixel-densities; NO broken layout / overflow /
+clipping / overlap / off-screen or unusable control at ANY breakpoint.
+<strong>(B) COMPLETE SEO OPTIMIZATION</strong> — semantic HTML + correct
+document outline; per-page unique <code>&lt;title&gt;</code> + meta
+description; Open Graph + Twitter cards; canonical URLs; structured data
+(schema.org / JSON-LD); <code>robots</code> + XML sitemap; crawlable /
+indexable markup; WCAG AA accessibility + Core Web Vitals performance
+(both feed ranking). <strong>(C) UNIQUE OpenDesign-AUTHORED
+templates/layouts</strong> — EVERY layout + template designed FROM the
+OpenDesign design-token system (§11.4.162), NOT generic / off-the-shelf
+/ templated; visually unique, innovative, creative, brand-distinct.
+<strong>(D) BLEEDING-EDGE ENTERPRISE VISUAL QUALITY</strong> — stunning,
+polished, professional look-and-feel in BOTH light AND dark themes
+(§11.4.162 tokens). <strong>(E) ANTI-BLUFF PROOF</strong> — NONE of
+(A)–(D) may be CLAIMED without captured physical evidence:
+responsiveness PROVEN by device-independent host-rendered screenshots
+across the real breakpoint × engine matrix + an OCR/vision layout oracle
+(no overlap / label-over-label / clip / overflow / off-screen); SEO
+PROVEN by an automated audit (Lighthouse SEO + structured-data
+validation + meta / OG / sitemap / robots presence) meeting a defined
+score floor; visual quality PROVEN by the §11.4.170 device-independent
+host-rendered pixel proof per screen × state × {light,dark}; uniqueness
+PROVEN by OpenDesign-token provenance. A website reported responsive /
+SEO-optimized / unique / enterprise-quality WITHOUT these captured
+proofs is a §11.4 PASS-bluff at the web-UI layer. §11.4.190 is the
+strict WEB-quality expansion of §11.4.162 (OpenDesign — it applies
+§11.4.162&#39;s design-token mandate to the full responsive + SEO +
+enterprise-quality web surface) and binds §11.4.170&#39;s device-independent
+host-rendered pixel proof as the correctness oracle; sibling of
+§11.4.168 (exported-document independent visual validation) at the
+web-UI layer. Classification: universal (§11.4.17) — references no
+project-specific hardware; the consuming project supplies its concrete
+breakpoint × engine matrix, SEO score-floor, and OpenDesign token set
+per §11.4.35. Composes
+§11.4.5/§11.4.6/§11.4.69/§11.4.107/§11.4.162/§11.4.168/§11.4.170.
+Propagation gate <code>CM-COVENANT-114-190-PROPAGATION</code> (literal
+<code>11.4.190</code>) + recommended gates
+<code>CM-WEBSITE-RESPONSIVE-PROVEN</code> (host-rendered screenshots
+across the breakpoint × engine matrix + layout oracle — no
+overlap/clip/overflow/off-screen) /
+<code>CM-WEBSITE-SEO-OPTIMIZED</code> (automated SEO audit meets the
+score floor + structured-data / meta / OG / sitemap / robots present) /
+<code>CM-WEBSITE-OPENDESIGN-UNIQUE</code> (every layout/template&#39;s
+OpenDesign-token provenance, no generic/off-the-shelf template) + paired
+§1.1 mutation (report a website responsive/SEO/unique/enterprise-quality
+with NO captured proof, OR ship a generic non-OpenDesign template, OR
+skip the light/dark host-rendered pixel proof → the recommended gate
+FAILs; strip the literal → propagation gate FAILs; gate-code = separate
+work item). <strong>Canonical authority:</strong> constitution submodule
+<a href="Constitution.md"><code>Constitution.md</code></a> §11.4.190.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--skip-responsive-proof</code>, <code>--seo-optional</code>,
+<code>--generic-template-OK</code>, <code>--visual-quality-later</code>,
+<code>--claim-without-render</code> flag.</p>
+<p><strong>§11.4.191 — Work-to-track/branch binding enforcement: a
+logic-group&#39;s work can NEVER be committed OR dispatched onto the wrong
+track/branch (research-derived, 2026-07-10).</strong> Compact summary:
+every logical group of workable items binds to EXACTLY ONE canonical
+<code>(track, branch)</code> recorded ONCE in the single source of truth
+(the §11.4.93 workable-items DB <code>logic_groups.destination</code> =
+authoritative branch + a <code>canonical_track</code> column + a
+<code>group_paths</code> file-scope manifest), and NO change belonging
+to a group may LAND on, nor be DISPATCHED to, a track/branch other than
+that group&#39;s canonical one — the file-scope generalisation of
+§11.4.181/§11.4.182 from branch-NAME consistency to work-PLACEMENT
+consistency (forensic FACT 2026-07-10: scrcpy/Remote-app work — group
+<code>mistiq-vader</code>, canonical
+<code>feature/mistiq-vader</code>/T2 — was committed onto
+<code>main</code>/T1; §11.4.181&#39;s
+<code>guard-branch-consistency.sh</code> never fired because committing
+onto an existing branch is not a feature-branch CREATE, and no gate
+checked which FILES land on which BRANCH). (1) <strong>Single source of
+truth</strong> — the
+<code>logic_group → (branch, track, path-globs)</code> binding is
+recorded ONCE in the DB and LOOKED UP, never re-invented (a
+commit/dispatch placing a group&#39;s file-scope on a non-canonical
+branch/track is a §11.4.6 no-guessing violation). (2) <strong>Preventive
+hook (§11.4.109/§11.4.177)</strong> — a PreToolUse guard
+<code>guard-work-track-binding.sh</code> (inherited BY REFERENCE, never
+copied) BLOCKS (exit 2) a git-commit-class Bash call whose
+to-be-committed file set contains a path owned by a group whose
+canonical branch/track ≠ the current checkout, AND BLOCKS an Agent/Task
+dispatch whose §11.4.182 label track/branch ≠ the canonical (track,
+branch) of the ticket&#39;s group; fail-closed on unreadable registry,
+<code># guardrails:allow &lt;reason&gt;</code> audited escape. (3)
+<strong>Detective gate (§11.4.110/§11.4.108)</strong> —
+<code>CM-WORK-TRACK-BINDING-ENFORCED</code> asserts, on the current
+branch&#39;s own added commits (<code>merge-base(HEAD,main)..HEAD</code>),
+that every <code>group_paths</code>-owned file&#39;s group destination ==
+current branch (and canonical_track == current track when pinned) — the
+actual enforcement boundary regardless of how the commit was made, the
+runtime signature being FAIL-on-wrong-placement /
+PASS-on-canonical-placement on a clean checkout. (4) <strong>Risk-free
+reconciliation (§9.2/§11.4.113/§11.4.84)</strong> — a mis-placed change
+is reconciled by MERGING its commits onto the group&#39;s canonical branch
+(union, no commit lost, no <code>-s ours</code>/reset), ff-only push to
+all upstreams (NEVER force-push), then removing it from the wrong branch
+only after the merge is confirmed on all mirrors. Classification:
+universal (§11.4.17) — references no project hardware; the consuming
+project supplies its <code>(track, branch)</code> map,
+<code>group_paths</code> seed, and commit-wrapper wiring per §11.4.35.
+Composes
+§11.4.6/.28/.29/.35/.58/.75/.84/.93/.95/.109/.110/.113/.119/.167/.176/.177/.178/.181/.182/§9.2.
+Propagation gate <code>CM-COVENANT-114-191-PROPAGATION</code> (literal
+<code>11.4.191</code>) + recommended gate
+<code>CM-WORK-TRACK-BINDING-ENFORCED</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.191.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--allow-cross-track-commit</code>,
+<code>--skip-work-binding</code>, <code>--commit-any-branch-OK</code>,
+<code>--dispatch-any-track-OK</code>, <code>--no-file-scope-check</code>
+flag.</p>
 </body>
 </html>
