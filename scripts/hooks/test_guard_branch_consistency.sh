@@ -8,6 +8,15 @@
 # branch / non-git / non-Bash (exit 0), and FAILS-CLOSED (exit 2) when the
 # registry cannot be read — so the enforcement itself provably cannot bluff.
 #
+# The create-detection is argv-INTENT-aware, not a raw whole-text scan (Finding
+# 1.1, 2026-07-10): it covers checkout -b/-B/--branch, switch -c/-C/--create,
+# branch [-f], `worktree add -b`, and fetch/push refspec `SRC:[refs/heads/]
+# feature/…` creates; it fail-closes (exit 2) on a dynamic `$(…)`/variable create
+# name or a create embedded in a will-execute substitution; and it does NOT
+# over-block a `git …` create merely MENTIONED inside echo/grep/a `#`comment
+# (those exit 0). Compound `A && <create>` is segment-split so segment-2 is
+# judged on its own.
+#
 # The registry SoT is a throwaway sqlite DB built here (only the logic_groups
 # table the hook SELECTs), pointed at via $WI_DB — no project DB, no binary
 # dependency; fully self-contained.
@@ -73,6 +82,14 @@ run_case "documented-exception escape marker"          0 '{"tool_name":"Bash","t
 run_case "branch DELETE (-d) not a create"             0 '{"tool_name":"Bash","tool_input":{"command":"git branch -d feature/old-divergent"}}'
 run_case "branch DELETE (-D) not a create"             0 '{"tool_name":"Bash","tool_input":{"command":"git branch -D feature/gone"}}'
 run_case "non-feature branch create untouched"         0 '{"tool_name":"Bash","tool_input":{"command":"git checkout -b hotfix/urgent"}}'
+# --- ALLOW: newly-handled forms (Finding 1.1 — argv-vs-text) ----------------
+run_case "worktree add -b REGISTERED allowed"          0 '{"tool_name":"Bash","tool_input":{"command":"git worktree add -b feature/mistiq-vader ../wt"}}'
+run_case "fetch refspec REGISTERED dst allowed"        0 '{"tool_name":"Bash","tool_input":{"command":"git fetch origin main:feature/mistiq-vader"}}'
+run_case "push DELETE refspec (bare src) not a create" 0 '{"tool_name":"Bash","tool_input":{"command":"git push origin :refs/heads/feature/old-divergent"}}'
+run_case "echo MENTION of create (not executed)"       0 '{"tool_name":"Bash","tool_input":{"command":"echo git checkout -b feature/mentioned"}}'
+run_case "grep MENTION of create (not executed)"       0 '{"tool_name":"Bash","tool_input":{"command":"grep -rn git checkout -b feature/mentioned ."}}'
+run_case "comment-line MENTION (not executed)"         0 '{"tool_name":"Bash","tool_input":{"command":"# git checkout -b feature/mentioned"}}'
+run_case "compound: status then REGISTERED create"     0 '{"tool_name":"Bash","tool_input":{"command":"git status && git checkout -b feature/mistiq-vader"}}'
 
 # --- BLOCK cases (exit 2) --------------------------------------------------
 run_case "checkout -b UNREGISTERED name blocked"       2 '{"tool_name":"Bash","tool_input":{"command":"git checkout -b feature/unregistered-name"}}'
@@ -82,6 +99,13 @@ run_case "git branch UNREGISTERED name blocked"        2 '{"tool_name":"Bash","t
 run_case "git branch -f UNREGISTERED blocked"          2 '{"tool_name":"Bash","tool_input":{"command":"git branch -f feature/forced-divergent"}}'
 run_case "quoted UNREGISTERED name blocked"            2 '{"tool_name":"Bash","tool_input":{"command":"git checkout -b '"'"'feature/quoted-divergent'"'"'"}}'
 run_case "fail-closed: registry unreadable blocks"     2 '{"tool_name":"Bash","tool_input":{"command":"git checkout -b feature/whatever"}}' failclosed
+# --- BLOCK: newly-closed bypass forms (Finding 1.1 — argv-vs-text) ----------
+run_case "worktree add -b UNREGISTERED blocked"        2 '{"tool_name":"Bash","tool_input":{"command":"git worktree add -b feature/wt-divergent ../wt"}}'
+run_case "fetch refspec UNREGISTERED dst blocked"      2 '{"tool_name":"Bash","tool_input":{"command":"git fetch origin main:feature/fetch-divergent"}}'
+run_case "push refspec UNREGISTERED dst blocked"       2 '{"tool_name":"Bash","tool_input":{"command":"git push . HEAD:refs/heads/feature/push-divergent"}}'
+run_case "checkout -b DYNAMIC name (unverifiable)"     2 '{"tool_name":"Bash","tool_input":{"command":"git checkout -b $(printf feature/dyn-divergent)"}}'
+run_case "create inside will-execute substitution"     2 '{"tool_name":"Bash","tool_input":{"command":"echo $(git checkout -b feature/sub-divergent)"}}'
+run_case "compound: status then UNREGISTERED create"   2 '{"tool_name":"Bash","tool_input":{"command":"git status && git checkout -b feature/compound-divergent"}}'
 
 echo
 echo "  total: PASS=$PASS FAIL=$FAIL"

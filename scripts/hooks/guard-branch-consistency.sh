@@ -116,22 +116,111 @@ case "$TOOL_NAME" in
 esac
 
 CMD="$(json_field .tool_input.command)"
-[ -n "$CMD" ] || exit 0
+if [ -z "$CMD" ]; then
+  # FAIL-CLOSED on our OWN parse failure (§11.4.6 — never allow-because-
+  # unverifiable; contrast the DB-unreadable hard block below). If the payload
+  # DOES carry a non-empty command field we failed to extract (jq absent + the
+  # awk fallback mis-parses), fall back to the raw payload text: BLOCK only when
+  # it shows a feature/* branch-create shape we could not parse; a non-create
+  # unparseable Bash call is still allowed (bounded availability). A genuinely
+  # absent / empty command field passes through.
+  if printf '%s' "$PAYLOAD" | grep -qE '"command"[[:space:]]*:[[:space:]]*"[^"]'; then
+    if printf '%s' "$PAYLOAD" | grep -qE 'git[^"]*(checkout[[:space:]]+-[bB]|checkout[[:space:]]+--branch|switch[[:space:]]+-[cC]|switch[[:space:]]+--create|branch|worktree[[:space:]]+add|fetch|push)[^"]*feature/'; then
+      echo "guardrails: BLOCKED — §11.4.181: a Bash command containing a possible feature/* branch create could not be parsed for verification (fail-closed, §11.4.6). Re-issue via 'workable-items group branch <group_id>' or append '# guardrails:allow <reason>'." >&2
+      exit 2
+    fi
+  fi
+  exit 0
+fi
 
 # --------------------------------------------------------------------------
 # Detect feature-branch CREATE forms + capture the target name(s).
-# Strip quotes first so `git checkout -b 'feature/foo'` matches like the bare
-# form. The three alternations below match ONLY create forms (a `-d`/`-D`
-# delete breaks the `branch feature/` adjacency, so deletes are not captured).
+# INTENT-aware (NOT a raw whole-text scan): the command is split into shell
+# segments (on ; && || | and newlines); a create form is honoured ONLY when the
+# segment's executable is `git` — so `echo …` / `grep …` / a leading `#` comment
+# that merely MENTIONS a create no longer over-blocks. Covered create forms are
+# broadened to close the argv-vs-text bypass: checkout -b/-B/--branch, switch
+# -c/-C/--create, branch [-f] <name>, `worktree add … -b <name>`, and fetch/push
+# refspec `SRC:[refs/heads/]feature/…` creates (a bare-src `:dst` delete refspec
+# is excluded). Two fail-closed cases (§11.4.6) can never be resolved against the
+# registry and so BLOCK: (a) a git-create whose NAME is a dynamic command-
+# substitution / variable — `git checkout -b $(…)`; (b) a create embedded inside
+# a `$(…)` / backtick substitution that WILL execute — `echo $(git checkout -b
+# feature/x)`. Quotes are stripped first so `… 'feature/x'` matches the bare
+# form. RESIDUAL (intended fail-safe, documented): because the quote strip loses
+# quote context, a contrived MENTION that literally contains `$(git … feature/…)`
+# inside quotes (e.g. `grep '$(git checkout -b feature/x)'`) fail-closes to BLOCK;
+# clear it with `# guardrails:allow <reason>`. The L1/L2 DETECTIVE pre-build gate
+# remains the backstop for anything argv-parsing misses.
 # --------------------------------------------------------------------------
 CMD_NOQUOTES="$(printf '%s' "$CMD" | tr -d "\"'")"
 
-CREATE_RE='git[[:space:]]+checkout[[:space:]]+(-[bB]|--branch)[[:space:]]+feature/[A-Za-z0-9._/-]+|git[[:space:]]+switch[[:space:]]+(-[cC]|--create)[[:space:]]+feature/[A-Za-z0-9._/-]+|git[[:space:]]+branch[[:space:]]+(-f[[:space:]]+|--force[[:space:]]+)?feature/[A-Za-z0-9._/-]+'
+_bnc_detect() {
+  printf '%s' "$1" | awk '
+    function classify(name, seg) {
+      if (name ~ /^feature\//) {
+        gsub(/[^A-Za-z0-9._\/-].*$/, "", name)
+        if (name != "") print "LIT " name
+      } else if (name ~ /[$`]/ && seg ~ /feature\//) {
+        print "DYN"
+      }
+    }
+    function tokafter(seg, re,   rest, t) {
+      if (match(seg, re)) {
+        rest = substr(seg, RSTART + RLENGTH); sub(/^[ \t]+/, "", rest)
+        t = rest; sub(/[ \t].*$/, "", t); return t
+      }
+      return ""
+    }
+    {
+      # (b) create embedded in a substitution that WILL execute -> fail-closed
+      if ($0 ~ /(\$\(|`)[^)`]*git[ \t]+(checkout[ \t]+-[bB]|checkout[ \t]+--branch|switch[ \t]+-[cC]|switch[ \t]+--create|branch[ \t]|worktree[ \t]+add|fetch[ \t]|push[ \t])[^)`]*feature\//)
+        print "DYN"
+      n = split($0, seg, /&&|\|\||;|\|/)
+      for (i = 1; i <= n; i++) {
+        s = seg[i]; sub(/^[ \t]+/, "", s)
+        if (s ~ /^#/) continue
+        chg = 1
+        while (chg) {
+          chg = 0
+          if (s ~ /^[A-Za-z_][A-Za-z0-9_]*=[^ \t]*[ \t]+/) { sub(/^[A-Za-z_][A-Za-z0-9_]*=[^ \t]*[ \t]+/, "", s); chg = 1 }
+          if (s ~ /^(sudo|env|command|nohup|time|nice|ionice)[ \t]+/) { sub(/^(sudo|env|command|nohup|time|nice|ionice)[ \t]+/, "", s); chg = 1 }
+        }
+        first = s; sub(/[ \t].*$/, "", first); sub(/^.*\//, "", first)
+        if (first != "git") continue
+        if (s ~ /^([^ \t]*\/)?git[ \t]+checkout[ \t]+(-[bB]|--branch)[ \t]/) {
+          classify(tokafter(s, "checkout[ \t]+(-[bB]|--branch)[ \t]+"), s)
+        } else if (s ~ /^([^ \t]*\/)?git[ \t]+switch[ \t]+(-[cC]|--create)[ \t]/) {
+          classify(tokafter(s, "switch[ \t]+(-[cC]|--create)[ \t]+"), s)
+        } else if (s ~ /^([^ \t]*\/)?git[ \t]+worktree[ \t]+add[ \t].*-[bB][ \t]/) {
+          classify(tokafter(s, "-[bB][ \t]+"), s)
+        } else if (s ~ /^([^ \t]*\/)?git[ \t]+branch([ \t]|$)/) {
+          if (s ~ /[ \t](-d|-D|--delete|-m|-M|--move|-c|-C|--copy|--list|-a|--all|-r|--remotes|--merged|--no-merged|--contains|--points-at|--edit-description|--show-current|--set-upstream-to|-u|--unset-upstream|--track|--no-track)([ \t=]|$)/) continue
+          bn = s; sub(/^([^ \t]*\/)?git[ \t]+branch[ \t]+/, "", bn)
+          while (bn ~ /^(-f|--force)[ \t]/) sub(/^(-f|--force)[ \t]+/, "", bn)
+          sub(/[ \t].*$/, "", bn)
+          if (bn ~ /^-/) continue
+          classify(bn, s)
+        } else if (s ~ /^([^ \t]*\/)?git[ \t]+(fetch|push)([ \t]|$)/) {
+          m = split(s, tk, /[ \t]+/)
+          for (j = 2; j <= m; j++) {
+            t = tk[j]; ci = index(t, ":")
+            if (ci <= 1) continue
+            dst = substr(t, ci + 1); sub(/^refs\/heads\//, "", dst)
+            if (dst ~ /^feature\//) { gsub(/[^A-Za-z0-9._\/-].*$/, "", dst); if (dst != "") print "LIT " dst }
+          }
+        }
+      }
+    }'
+}
 
-CANDIDATES="$(printf '%s' "$CMD_NOQUOTES" | grep -oE "$CREATE_RE" 2>/dev/null | grep -oE 'feature/[A-Za-z0-9._/-]+' 2>/dev/null || true)"
+_BNC_DETECT="$(_bnc_detect "$CMD_NOQUOTES")"
+CANDIDATES="$(printf '%s\n' "$_BNC_DETECT" | sed -n 's/^LIT //p')"
+BNC_UNVERIFIABLE=""
+printf '%s\n' "$_BNC_DETECT" | grep -qx 'DYN' && BNC_UNVERIFIABLE=1
 
 # No feature-branch CREATE anywhere in this command -> not our business.
-[ -n "$CANDIDATES" ] || exit 0
+[ -n "$CANDIDATES" ] || [ -n "$BNC_UNVERIFIABLE" ] || exit 0
 
 # --------------------------------------------------------------------------
 # Sanctioned mint-helper invocation is always allowed (defensive: it never
@@ -180,6 +269,17 @@ emit_block() {
   } >&2
   exit 2
 }
+
+# Unverifiable feature-branch create -> fail-closed (§11.4.6). A create whose
+# name is a dynamic command-substitution / variable, OR a create embedded inside
+# a will-execute $(…)/backtick substitution, cannot be resolved to a concrete
+# name, so it cannot be proven registered. Blocked BEFORE the registry check
+# (which has no name to look up). The sanctioned mint helper (line above) and the
+# `# guardrails:allow` escape both run earlier, so a legitimate dynamic create
+# still has an audited path.
+if [ -n "$BNC_UNVERIFIABLE" ]; then
+  emit_block "a feature/* branch is being created from a dynamic command-substitution / variable name (or inside a will-execute \$(…)/backtick substitution) that cannot be resolved and verified against the registry (§11.4.6 fail-closed)."
+fi
 
 # FAIL-CLOSED when the registry cannot be read (§11.4.6 — never fail-open).
 if ! command -v sqlite3 >/dev/null 2>&1; then
