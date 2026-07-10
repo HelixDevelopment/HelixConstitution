@@ -153,7 +153,13 @@ COOL="$MT_ALIAS_DIR/cooldowns.snapshot"
 EVENTS="$MT_ALIAS_DIR/events.jsonl"
 LOCKF="$MT_ALIAS_DIR/registry.lock"
 
-DEFAULT_ROSTER="claude1:native claude2:native claude3:native kimi-for-coding:provider deepseek:provider xiaomi:provider"
+# Built-in fallback roster (used ONLY when neither MT_ALIAS_ROSTER nor a config
+# `aliases:` block is present). Natives FIRST, then providers in the operator-
+# mandated priority order (deepseek -> xiaomi -> opencode -> kimi-for-coding).
+# The class:kind tag on every token is load-bearing: _next_available_alias
+# partitions by kind (native before provider), so this order is a sane default
+# but the native-first GUARANTEE does not depend on it (§11.4.111).
+DEFAULT_ROSTER="claude1:native claude2:native claude3:native claude4:native deepseek:provider xiaomi:provider opencode:provider kimi-for-coding:provider"
 
 _now() { date +%s; }
 _iso() { date -u +%Y-%m-%dT%H:%M:%SZ; }
@@ -254,6 +260,20 @@ _alias_kind() {  # $1 alias-name -> kind (empty if unknown)
 }
 _alias_known() { _alias_kind "$1" >/dev/null 2>&1; }
 _all_aliases() { local tok; for tok in $ROSTER; do printf '%s\n' "${tok%%:*}"; done; }
+# alias names of a given class ("native" | "provider"), in roster order.
+# §11.4.111 resolve-by-CLASS-not-by-file-position: the native-first guarantee in
+# _next_available_alias iterates the "native" class COMPLETELY before "provider",
+# so a provider can NEVER be selected while any non-cooled native exists —
+# regardless of the order aliases happen to appear in the roster file /
+# MT_ALIAS_ROSTER (operator mandate 2026-07-08: native FIRST, providers ONLY when
+# NO native works). A token is `name:kind`; the `*:native` / `*:provider` suffix
+# match is safe because kinds are the fixed literals native|provider.
+_aliases_of_class() {  # $1 = native|provider
+    local tok
+    for tok in $ROSTER; do
+        case "$tok" in *:"$1") printf '%s\n' "${tok%%:*}" ;; esac
+    done
+}
 
 # --- snapshot helpers (callers hold the flock; writes atomic) -----------------
 _reap() {  # drop expired bindings + expired cooldowns; emit REAP. (inside lock)
@@ -290,34 +310,52 @@ _track_bound_alias() { awk -F'|' -v t="$1" '$2==t{print $1; exit}' "$BIND" 2>/de
 _alias_in_cooldown() { awk -F'|' -v a="$1" 'BEGIN{r=1} $1==a{r=0} END{exit r}' "$COOL" 2>/dev/null; }
 
 # next available alias for fallback / auto-assign (operator mandate — an alias
-# MAY serve multiple Tracks). Selection order, never $1 (the excluded alias):
-#   (a) a known alias NOT in cooldown AND NOT currently bound (fresh) — as before;
-#   (b) else a known alias NOT in cooldown even if ALREADY bound to another Track
-#       (REUSE), least-loaded first (fewest current Track bindings) — this is the
-#       "same alias may be used on more than one track" behaviour;
-#   (c) else nothing → caller exits 5 (every alias is cooled / only the excluded
-#       one is healthy). A cooled (rate-limited) alias is NEVER selected — that IS
-#       the "fallback on limit" behaviour. Track single-owner (§11.4.119) is kept
-#       by the caller's atomic same-track rewrite, so reuse never double-owns a
-#       Track. Deterministic (§11.4.50): first-in-roster ties.
+# MAY serve multiple Tracks). PROVABLY NATIVE-FIRST (operator mandate 2026-07-08:
+# native Claude aliases FIRST, providers ONLY when NO native works). The "native"
+# class is scanned COMPLETELY (both tiers below) before the "provider" class is
+# considered at all, so ANY non-cooled native — fresh OR reused — always outranks
+# EVERY provider. Within each class, selection order (never $1, the excluded /
+# limited alias; never a cooled alias):
+#   (a) a known alias of this class NOT in cooldown AND NOT currently bound
+#       (fresh) — preferred;
+#   (b) else a known alias of this class NOT in cooldown even if ALREADY bound to
+#       another Track (REUSE), least-loaded first (fewest current Track bindings)
+#       — the "same alias may be used on more than one track" behaviour;
+#   (c) only after BOTH classes yield nothing → caller exits 5 (every alias is
+#       cooled / only the excluded one is healthy). A cooled (rate-limited) alias
+#       is NEVER selected — that IS the "fallback on limit" behaviour. Track
+#       single-owner (§11.4.119) is kept by the caller's atomic same-track
+#       rewrite, so reuse never double-owns a Track. Deterministic (§11.4.50):
+#       first-in-class-order ties.
 _next_available_alias() {  # $1 exclude-alias (may be empty)
-    local a best="" bestload="" load
-    # tier (a): fresh — unbound and not cooled (preferred).
-    for a in $(_all_aliases); do
-        [ "$a" = "${1:-}" ] && continue
-        _alias_in_cooldown "$a" && continue
-        [ -n "$(_alias_bound_track "$a")" ] && continue
-        printf '%s' "$a"; return 0
+    local class a best bestload load
+    # >>MT_ALIAS_MUT_NATIVE_FIRST (paired §1.1 mutation target — the CLASS
+    #   iteration order IS the native-first guarantee. Flipping `native provider`
+    #   to `provider native` lets a provider win while a native is healthy;
+    #   test_multitrack_native_first_fallback.sh asserts the flip breaks it. Do
+    #   NOT remove this marker, and do NOT reorder the class list inline.)
+    for class in native provider; do
+        # tier (a): fresh — unbound and not cooled (preferred), within this class.
+        for a in $(_aliases_of_class "$class"); do
+            [ "$a" = "${1:-}" ] && continue
+            _alias_in_cooldown "$a" && continue
+            [ -n "$(_alias_bound_track "$a")" ] && continue
+            printf '%s' "$a"; return 0
+        done
+        # tier (b): reuse — healthy (not cooled) even if already bound to another
+        #   Track, least-loaded first, within this class.
+        best=""; bestload=""
+        for a in $(_aliases_of_class "$class"); do
+            [ "$a" = "${1:-}" ] && continue
+            _alias_in_cooldown "$a" && continue
+            load=$(_alias_load "$a")
+            if [ -z "$best" ] || [ "$load" -lt "$bestload" ]; then best=$a; bestload=$load; fi
+        done
+        [ -n "$best" ] && { printf '%s' "$best"; return 0; }
+        # no available alias in THIS class -> fall through to the next (providers).
     done
-    # tier (b): reuse — healthy (not cooled) even if already bound, least-loaded.
-    for a in $(_all_aliases); do
-        [ "$a" = "${1:-}" ] && continue
-        _alias_in_cooldown "$a" && continue
-        load=$(_alias_load "$a")
-        if [ -z "$best" ] || [ "$load" -lt "$bestload" ]; then best=$a; bestload=$load; fi
-    done
-    [ -n "$best" ] && { printf '%s' "$best"; return 0; }
-    # tier (c): no healthy alias at all.
+    # <<MT_ALIAS_MUT_NATIVE_FIRST
+    # tier (c): no healthy alias in any class.
     return 1
 }
 
