@@ -515,6 +515,30 @@ func canonicalizeBodyStatusLine(body, columnStatus string) string {
 	return strings.Join(lines, "")
 }
 
+// ensureTrailingNewline normalizes a stored `items.body_md` to end with AT LEAST
+// one trailing "\n" — the STORE-side half of the ATM-627 byte-identical
+// round-trip (the db-to-md WRITER half landed in 97d405c). Root cause it closes:
+// a stored body_md that ends with NO "\n" (the live 9-item residual, e.g.
+// `…PROGRESS.md.`) forces renderDocument (db.go) to SYNTHESIZE a separator "\n"
+// before the next heading so a heading never glues onto the prior body line — but
+// the re-parsed body is then one "\n" longer than the stored body, so
+// `workable-items diff` reports `~ <id> body differs (md=N+1 db=N)` and the
+// round-trip is not byte-identical.
+//
+// It is IDEMPOTENT and BYTE-IDENTICAL for an already-normalized body: a body that
+// already ends with "\n" is returned UNCHANGED — this deliberately PRESERVES the
+// renderItemBody "\n\n" convention (494 live items end "\n\n", 2 end "\n"); it is
+// NOT "trim to exactly one \n" (that would mutate every "\n\n" body + collapse the
+// inter-item blank line the writer relies on). An EMPTY body is left empty — the
+// empty-body class is owned by the classifyRepair populate path (renderItemBody),
+// not here, so this never fabricates a heading-less body.
+func ensureTrailingNewline(body string) string {
+	if body == "" || strings.HasSuffix(body, "\n") {
+		return body
+	}
+	return body + "\n"
+}
+
 // operatorBlock is the reconstruction of an item's §11.4.21
 // `**Operator-Block-Details:**` block, so the md→db sync can repopulate the
 // operator_block_details sub-table (§11.4.148 D3). The four fields mirror the

@@ -177,6 +177,14 @@ func updateCmd(args []string) int {
 		}
 		newBody = canonicalizeBodyStatusLine(newBody, cur.Status)
 	}
+	// ATM-627-part-2 STORE-side normalization (defense-in-depth). A field-only
+	// update PROPAGATES the existing cur.BodyMD verbatim; a pre-existing body that
+	// ended with NO "\n" (the live 9-item residual) would be re-stored no-"\n"
+	// otherwise, keeping the byte-identical round-trip broken. ensureTrailingNewline
+	// is a strict no-op on an already-"\n"-terminated body (the normal "\n\n"
+	// convention), so it preserves the "diff stays 0 for a non-status field-only
+	// update" invariant while self-healing a no-"\n" body.
+	newBody = ensureTrailingNewline(newBody)
 
 	tx, err := db.Begin()
 	if err != nil {
