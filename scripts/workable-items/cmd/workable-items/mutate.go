@@ -227,7 +227,7 @@ func reopenCmd(args []string) int {
 	fs := flag.NewFlagSet("reopen", flag.ContinueOnError)
 	dbPath := fs.String("db", "", "path to the workable-items SQLite DB")
 	id := fs.String("id", "", "ticket id of the item to reopen (required)")
-	location := fs.String("location", "Issues", "which tracker the item lives in: Issues | Fixed")
+	location := fs.String("location", "Issues", "destination tracker for the reopened item: Issues (default; non-terminal Reopened belongs in Issues) | Fixed (operator override, keep in Fixed)")
 	why := fs.String("why", "", "§11.4.34 reason (closed-set): "+reopenReasonList())
 	who := fs.String("who", "", "§11.4.34 By: AI | User")
 	when := fs.String("when", "", "§11.4.34 On: ISO date (YYYY-MM-DD)")
@@ -244,8 +244,13 @@ func reopenCmd(args []string) int {
 		fmt.Fprintln(os.Stderr, "reopen: --id is required")
 		return exitUsage
 	}
-	loc := strings.TrimSpace(*location)
-	if loc != "Issues" && loc != "Fixed" {
+	// §11.4.34 / ATM-627 INTEG-03: --location is the DESTINATION tracker for the
+	// reopened item. Reopened is a NON-terminal status, so the default destination is
+	// Issues — a reopened item BELONGS in Issues (a Fixed-location item carrying a
+	// non-terminal status is the location↔status desync validateCmd now catches). The
+	// item's CURRENT location is auto-detected below, so `reopen` finds a Fixed item
+	// too; `--location Fixed` is a deliberate operator override that keeps it in Fixed.
+	if wantLoc := strings.TrimSpace(*location); wantLoc != "Issues" && wantLoc != "Fixed" {
 		fmt.Fprintln(os.Stderr, "reopen: --location must be Issues or Fixed")
 		return exitUsage
 	}
@@ -280,15 +285,34 @@ func reopenCmd(args []string) int {
 	}
 	defer db.Close()
 
-	cur, err := loadItem(db, *id, loc)
+	// Auto-detect the item's CURRENT location (Issues first, then Fixed) so reopen
+	// works regardless of where the item lives — the pre-fix reopen searched ONLY the
+	// --location value (default Issues) and therefore could not even find a Fixed item
+	// to reopen (ATM-627 INTEG-03).
+	srcLoc := "Issues"
+	cur, err := loadItem(db, *id, srcLoc)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "reopen: %v\n", err)
 		return exitUsage
 	}
 	if cur == nil {
-		fmt.Fprintf(os.Stderr, "reopen: item %s not found in %s\n", *id, loc)
+		srcLoc = "Fixed"
+		cur, err = loadItem(db, *id, srcLoc)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "reopen: %v\n", err)
+			return exitUsage
+		}
+	}
+	if cur == nil {
+		fmt.Fprintf(os.Stderr, "reopen: item %s not found in Issues or Fixed\n", *id)
 		return exitUsage
 	}
+
+	// Destination: default Issues (non-terminal Reopened belongs in Issues); an
+	// explicit --location Fixed keeps it in Fixed (operator override). This single
+	// line is the §1.1 mutation seam — forcing `dest := srcLoc` reverts the INTEG-03
+	// migration so reopen strands a Fixed item in Fixed again.
+	dest := strings.TrimSpace(*location)
 
 	cur.Status = "Reopened"
 	newBody := renderReopenedBody(cur, byVal, *when, *why, *incident)
@@ -300,10 +324,29 @@ func reopenCmd(args []string) int {
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.Exec(`UPDATE items SET status='Reopened', body_md=?, last_modified=datetime('now')
-		WHERE atm_id=? AND current_location=?`, newBody, *id, loc); err != nil {
+	// Relocate the row to the destination in place: an UPDATE that flips
+	// current_location is LOSSLESS (it preserves forensic_anchor / closure_criteria /
+	// composes_with / parent_atm_id / session_ref / version_tags — columns a
+	// delete+insert would drop). The (atm_id, current_location, representation) PK
+	// admits the flip because the item lives in exactly one location.
+	if _, err := tx.Exec(`UPDATE items SET status='Reopened', current_location=?, body_md=?, last_modified=datetime('now')
+		WHERE atm_id=? AND current_location=?`, dest, newBody, *id, srcLoc); err != nil {
 		fmt.Fprintf(os.Stderr, "reopen: %v\n", err)
 		return exitUsage
+	}
+	// Move the doc_segment with the row when the location changes — mirrors close's
+	// atomic Issues→Fixed segment move, reversed. Without this the regenerated
+	// Markdown would still carry the item under its OLD document (the ATM-627
+	// dangling-segment class validateCmd's renderability guard flags).
+	if dest != srcLoc {
+		if err := removeItemSegment(tx, srcLoc, *id); err != nil {
+			fmt.Fprintf(os.Stderr, "reopen: remove %s segment: %v\n", srcLoc, err)
+			return exitUsage
+		}
+		if err := appendSegment(tx, dest, *id); err != nil {
+			fmt.Fprintf(os.Stderr, "reopen: append %s segment: %v\n", dest, err)
+			return exitUsage
+		}
 	}
 	// §11.4.34 audit: by + on_date + reason + evidence_path all captured.
 	if _, err := tx.Exec(`INSERT INTO item_history
@@ -318,7 +361,11 @@ func reopenCmd(args []string) int {
 		return exitUsage
 	}
 
-	fmt.Printf("reopen: %s reopened in %s (By:%s On:%s Reason:%s Evidence:%s)\n", *id, loc, byVal, *when, *why, *incident)
+	if dest != srcLoc {
+		fmt.Printf("reopen: %s reopened, relocated %s→%s (By:%s On:%s Reason:%s Evidence:%s)\n", *id, srcLoc, dest, byVal, *when, *why, *incident)
+	} else {
+		fmt.Printf("reopen: %s reopened in %s (By:%s On:%s Reason:%s Evidence:%s)\n", *id, dest, byVal, *when, *why, *incident)
+	}
 	return exitOK
 }
 

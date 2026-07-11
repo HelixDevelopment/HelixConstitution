@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 )
 
 // syncMDToDB parses Issues.md + Fixed.md and upserts the DB.
@@ -280,6 +281,18 @@ func validateCmd(args []string) int {
 	// orthogonal invariants (those: segment↔item location; this: column↔body Status).
 	violations = append(violations, statusColumnBodyDesyncs(items)...)
 
+	// (f) §11.4.15 / §11.4.148 / ATM-627 INTEG-03 — location↔status invariant. A
+	// Fixed-location item MUST carry a terminal closed-set status (a `… (→ Fixed.md)`
+	// value); a NON-terminal status at Fixed (e.g. Reopened) is the exact INTEG-03
+	// desync — the pre-fix `reopen` flipped status→Reopened WITHOUT migrating
+	// current_location Fixed→Issues, stranding a non-terminal item in the CLOSED
+	// archive. The prior validate never asserted location↔status, so such an item
+	// passed exit 0 while every tracker reader saw a non-terminal item in Fixed (a
+	// §11.4.6/§11.4.15 bluff gate). This guard fails-closed on exactly that class;
+	// composes with (e) — orthogonal invariants (that: column↔body Status agreement;
+	// this: current_location↔status closed-set agreement).
+	violations = append(violations, fixedLocationNonTerminalStatus(items)...)
+
 	if len(violations) > 0 {
 		sort.Strings(violations)
 		fmt.Fprintf(os.Stderr, "validate: %d violation(s):\n", len(violations))
@@ -339,6 +352,45 @@ func danglingItemSegments(db *sql.DB) ([]string, error) {
 			document, seq, atmID, rep, document))
 	}
 	return out, rows.Err()
+}
+
+// terminalStatuses is the closed set of Fixed-location statuses, derived from
+// closeStatusMap's terminal .status values so it can NEVER drift from the closer
+// (add a new close status keyword → this set gains it automatically). These are the
+// only statuses a current_location='Fixed' item may carry.
+func terminalStatuses() map[string]bool {
+	out := make(map[string]bool, len(closeStatusMap))
+	for _, m := range closeStatusMap {
+		out[m.status] = true
+	}
+	return out
+}
+
+// fixedLocationNonTerminalStatus returns, for the ATM-627 INTEG-03 location↔status
+// defect CLASS, a description of every item at current_location='Fixed' whose status
+// is NOT a terminal closed-set value (a `… (→ Fixed.md)` value). A non-terminal status
+// in the Fixed archive means the item is not actually closed — it belongs in Issues.
+// This is the detective gate for the reopen-does-not-relocate defect: after the fix a
+// reopened item migrates to Issues, so a correctly-reopened DB has ZERO findings here.
+// Read-only, so it can never break an already-consistent DB.
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with `return nil`
+// removes the guard; TestValidate_CatchesReopenedInFixed (RED polarity per §11.4.115)
+// then FAILs — proving the guard is not a tautology.
+func fixedLocationNonTerminalStatus(items []item) []string {
+	terminal := terminalStatuses()
+	var out []string
+	for _, it := range items {
+		if it.CurrentLocation != "Fixed" {
+			continue
+		}
+		if !terminal[strings.TrimSpace(it.Status)] {
+			out = append(out, fmt.Sprintf(
+				"%s: Fixed-location item has NON-terminal status %q — a Fixed-location item must carry a terminal `… (→ Fixed.md)` status; a non-terminal item belongs in Issues (§11.4.15/ATM-627 INTEG-03) [%s]",
+				it.AtmID, it.Status, it.repOrDefault()))
+		}
+	}
+	return out
 }
 
 // itemsMissingSegments is the REVERSE of danglingItemSegments: it returns, for
