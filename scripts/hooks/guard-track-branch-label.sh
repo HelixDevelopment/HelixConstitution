@@ -23,6 +23,19 @@
 #   EVERY OTHER tool passes through untouched (exit 0) — this hook never breaks
 #   non-agent tools.
 #
+# ALIAS-CORRECTNESS (§11.4.182): a format-valid label is NOT sufficient — the
+#   label's `<alias>` field MUST match the LIVE alias derived from
+#   CLAUDE_CONFIG_DIR (basename `.claude-<alias>` -> `<alias>`). A hand-typed /
+#   remembered / STALE alias (e.g. `claude4` while the live session is
+#   `claude3`) is BLOCKED (exit 2) with the CORRECT label printed. The live
+#   alias is derived by CALLING the reference labeler
+#   (scripts/multitrack/track_branch_label.sh) — the single source of truth, so
+#   the derivation regex is never duplicated here (DRY). Honest boundary
+#   (§11.4.6): a `?` on EITHER side — the live alias genuinely unknown
+#   (CLAUDE_CONFIG_DIR unset) OR the caller honestly declaring `?` — is ACCEPTED;
+#   the hook only BLOCKS a CONCRETE alias that provably disagrees with a KNOWN
+#   live alias, never a fabricated verdict.
+#
 # DECOUPLING (§11.4.177): this hook lives in the constitution submodule and is
 # inherited BY REFERENCE (never copied). It is project-agnostic: it validates
 # the label FORMAT and derives the expected example from the cwd (`/mnt/trackN`)
@@ -109,44 +122,94 @@ fi
 # alias MAY be '?' (honest when CLAUDE_CONFIG_DIR is unset / non-matching).
 LABEL_RE='^\(T[0-9]+/[^)]+ - [^)]+\) '
 
-if [[ -n "$LABEL" && "$LABEL" =~ $LABEL_RE ]]; then
-  exit 0
-fi
+# --------------------------------------------------------------------------
+# Canonical label for THIS checkout + session, from the reference labeler
+# (scripts/multitrack/track_branch_label.sh) — the SINGLE SOURCE OF TRUTH for
+# the T/branch/alias derivation (§11.4.182 / §11.4.177 inherited-by-reference).
+# Calling it keeps this hook DRY: the alias-derivation regex lives in ONE place,
+# and the same output drives BOTH the alias-correctness check AND the block
+# message's "correct label" line.
+# --------------------------------------------------------------------------
+_hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd -P || true)"
+[[ -n "$_hook_dir" ]] || _hook_dir="$(dirname "${BASH_SOURCE[0]:-$0}")"
+_labeler="${_hook_dir}/../multitrack/track_branch_label.sh"
 
-# --------------------------------------------------------------------------
-# BLOCK: derive the expected example inline (project-agnostic).
-#   track  = from cwd /mnt/track<N>/...  (else '?')
-#   branch = git rev-parse --abbrev-ref HEAD (else '?')
-# --------------------------------------------------------------------------
-_dir="$(pwd -P 2>/dev/null || pwd)"
-case "$_dir" in
-  /mnt/track[0-9]*)
-    _n="${_dir#/mnt/track}"; _n="${_n%%/*}"
-    case "$_n" in ''|*[!0-9]*) _n='?' ;; esac
-    ;;
-  *) _n='?' ;;
-esac
-_br="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-[[ -n "$_br" ]] || _br='?'
-# alias = CLAUDE_CONFIG_DIR basename '.claude-<alias>' -> '<alias>' (else '?', §11.4.6 honest)
-_al='?'
-if [[ -n "${CLAUDE_CONFIG_DIR:-}" ]]; then
-  _cfgbase="$(basename "$CLAUDE_CONFIG_DIR" 2>/dev/null || true)"
-  case "$_cfgbase" in
-    .claude-?*) _al="${_cfgbase#.claude-}" ;;
+_expected=""
+if [[ -r "$_labeler" ]]; then
+  _expected="$(bash "$_labeler" 2>/dev/null || true)"
+fi
+# Defensive fallback (ONLY if the sibling labeler is unreachable): derive the
+# same label inline so the hook always emits an actionable message and never
+# exits with a non-0/2 code. Mirrors track_branch_label.sh exactly.
+if [[ -z "$_expected" ]]; then
+  _dir="$(pwd -P 2>/dev/null || pwd)"
+  case "$_dir" in
+    /mnt/track[0-9]*) _n="${_dir#/mnt/track}"; _n="${_n%%/*}"; case "$_n" in ''|*[!0-9]*) _n='?' ;; esac ;;
+    *) _n='?' ;;
   esac
-fi
-_expected="(T${_n}/${_br} - ${_al})"
-
-{
-  echo "guardrails: BLOCKED — §11.4.182 track+branch work-stream label required"
-  echo "Every ${TOOL_NAME} dispatch's description MUST start with a (T<N>/<branch> - <alias>) label."
-  if [[ -z "$LABEL" ]]; then
-    echo "  Found: <no description/subagent label>"
-  else
-    echo "  Found: ${LABEL}"
+  _br="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"; [[ -n "$_br" ]] || _br='?'
+  _al='?'
+  if [[ -n "${CLAUDE_CONFIG_DIR:-}" ]]; then
+    _cfgbase="$(basename "$CLAUDE_CONFIG_DIR" 2>/dev/null || true)"
+    case "$_cfgbase" in .claude-?*) _al="${_cfgbase#.claude-}" ;; esac
   fi
-  echo "  Expected prefix for THIS checkout: '${_expected} '"
+  _expected="(T${_n}/${_br} - ${_al})"
+fi
+
+# Extract the <alias> field from a "(T<N>/<branch> - <alias>) ..." string:
+# take the parenthesised prefix (up to the first ')'), then everything after
+# the LAST ' - ' (a git ref name cannot contain a space, so ' - ' inside the
+# prefix is unambiguously the alias separator).
+_label_alias() {
+  local _pfx="${1%%)*}"
+  case "$_pfx" in
+    *' - '*) printf '%s' "${_pfx##* - }" ;;
+    *)       printf '%s' '' ;;
+  esac
+}
+_live_alias="$(_label_alias "$_expected")"
+_dispatch_alias="$(_label_alias "$LABEL")"
+
+# --------------------------------------------------------------------------
+# Decision.
+#   1. FORMAT must match LABEL_RE (existing check).
+#   2. ALIAS-CORRECTNESS (§11.4.182, new): the label's alias MUST match the LIVE
+#      alias. Honest boundary (§11.4.6): a '?' on EITHER side (live unknown OR
+#      the caller honestly declaring 'unknown') is ACCEPTED — the hook only
+#      BLOCKS a CONCRETE alias that provably disagrees with a KNOWN live alias.
+# --------------------------------------------------------------------------
+_block_reason=""
+if [[ -n "$LABEL" && "$LABEL" =~ $LABEL_RE ]]; then
+  if [[ -n "$_live_alias"     && "$_live_alias"     != '?' \
+     && -n "$_dispatch_alias" && "$_dispatch_alias" != '?' \
+     && "$_dispatch_alias" != "$_live_alias" ]]; then
+    _block_reason="alias"
+  else
+    exit 0
+  fi
+else
+  _block_reason="format"
+fi
+
+# --------------------------------------------------------------------------
+# BLOCK. Print the CORRECT label so the caller can fix the dispatch.
+# --------------------------------------------------------------------------
+{
+  if [[ "$_block_reason" == "alias" ]]; then
+    echo "guardrails: BLOCKED — §11.4.182 track+branch+alias label ALIAS MISMATCH"
+    echo "The ${TOOL_NAME} dispatch label's alias '${_dispatch_alias}' does NOT match the LIVE alias '${_live_alias}'."
+    echo "  (Live alias is derived from CLAUDE_CONFIG_DIR basename '.claude-<alias>'; a stale/remembered alias is the usual cause.)"
+    echo "  Found label:  ${LABEL}"
+  else
+    echo "guardrails: BLOCKED — §11.4.182 track+branch+alias label required"
+    echo "Every ${TOOL_NAME} dispatch's description MUST start with a (T<N>/<branch> - <alias>) label."
+    if [[ -z "$LABEL" ]]; then
+      echo "  Found: <no description/subagent label>"
+    else
+      echo "  Found: ${LABEL}"
+    fi
+  fi
+  echo "  Correct prefix for THIS checkout+session: '${_expected} '"
   echo "  Form: (T<track-number>/<git-branch> - <alias>) <space> then the task text."
   echo "  Example: '${_expected} ATM-312 MPV drm_prime investigation'"
   echo "  Derive the exact label with: scripts/multitrack/track_branch_label.sh"
