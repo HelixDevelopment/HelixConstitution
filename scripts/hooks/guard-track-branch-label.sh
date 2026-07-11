@@ -4,7 +4,7 @@
 # Claude Code PreToolUse guard hook (mechanical block) enforcing constitution
 # §11.4.182 (track+branch work-stream labeling), which composes §11.4.178
 # (track-qualified identity). Every agent / subagent / work-stream dispatch MUST
-# carry a `(T<N>/<branch>)` label prefix on its description so multi-track work
+# carry a `(T<N>/<branch> - <alias>)` label prefix on its description so multi-track work
 # (/mnt/track1..4) is never ambiguous — and enforcement MUST be independent of
 # any agent's recall (§11.4.109-class anti-forgetting hook: a rule the
 # orchestrator forgets to paste is not enforcement).
@@ -18,7 +18,7 @@
 # SCOPE: only the agent-dispatching tools carry a work-stream label:
 #   tool_name in { Agent, Task, TaskCreate }.
 #   For those, the `description` (or, as a fallback, a `subagent` label) MUST
-#   START with `^\(T[0-9]+/[^)]+\) ` — e.g. `(T1/main) ATM-312 ...`.
+#   START with `^\(T[0-9]+/[^)]+ - [^)]+\) ` — e.g. `(T1/main - claude1) ATM-312 ...`.
 #   Missing / malformed label -> exit 2 with the expected form + how to fix.
 #   EVERY OTHER tool passes through untouched (exit 0) — this hook never breaks
 #   non-agent tools.
@@ -102,8 +102,12 @@ if [[ -z "$LABEL" ]]; then
   LABEL="$(json_field .tool_input.subagent)"
 fi
 
-# The required prefix: (T<N>/<branch>) followed by a single space.
-LABEL_RE='^\(T[0-9]+/[^)]+\) '
+# The required prefix: (T<N>/<branch> - <alias>) followed by a single space.
+# §11.4.182 mandates the alias component — the claude-toolkit alias in use — so
+# parallel-track work (each track driven by a DISTINCT alias) is never ambiguous.
+# Track MUST be numeric (an off-track '?' is surfaced by a BLOCK, never mislabeled);
+# alias MAY be '?' (honest when CLAUDE_CONFIG_DIR is unset / non-matching).
+LABEL_RE='^\(T[0-9]+/[^)]+ - [^)]+\) '
 
 if [[ -n "$LABEL" && "$LABEL" =~ $LABEL_RE ]]; then
   exit 0
@@ -124,18 +128,26 @@ case "$_dir" in
 esac
 _br="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 [[ -n "$_br" ]] || _br='?'
-_expected="(T${_n}/${_br})"
+# alias = CLAUDE_CONFIG_DIR basename '.claude-<alias>' -> '<alias>' (else '?', §11.4.6 honest)
+_al='?'
+if [[ -n "${CLAUDE_CONFIG_DIR:-}" ]]; then
+  _cfgbase="$(basename "$CLAUDE_CONFIG_DIR" 2>/dev/null || true)"
+  case "$_cfgbase" in
+    .claude-?*) _al="${_cfgbase#.claude-}" ;;
+  esac
+fi
+_expected="(T${_n}/${_br} - ${_al})"
 
 {
   echo "guardrails: BLOCKED — §11.4.182 track+branch work-stream label required"
-  echo "Every ${TOOL_NAME} dispatch's description MUST start with a (T<N>/<branch>) label."
+  echo "Every ${TOOL_NAME} dispatch's description MUST start with a (T<N>/<branch> - <alias>) label."
   if [[ -z "$LABEL" ]]; then
     echo "  Found: <no description/subagent label>"
   else
     echo "  Found: ${LABEL}"
   fi
   echo "  Expected prefix for THIS checkout: '${_expected} '"
-  echo "  Form: (T<track-number>/<git-branch>) <space> then the task text."
+  echo "  Form: (T<track-number>/<git-branch> - <alias>) <space> then the task text."
   echo "  Example: '${_expected} ATM-312 MPV drm_prime investigation'"
   echo "  Derive the exact label with: scripts/multitrack/track_branch_label.sh"
 } >&2

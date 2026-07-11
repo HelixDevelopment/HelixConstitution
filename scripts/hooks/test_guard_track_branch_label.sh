@@ -35,13 +35,14 @@ echo "§11.4.182 guard-track-branch-label.sh hermetic test suite"
 echo "hook: $HOOK"
 echo
 
-# --- ALLOW cases (labeled agent dispatches, exit 0) -----------------------
-run_case "labeled Agent (T1/main)"            0 '{"tool_name":"Agent","tool_input":{"description":"(T1/main) ATM-312 investigate","prompt":"x"}}'
-run_case "labeled Task (T2/feat/x)"           0 '{"tool_name":"Task","tool_input":{"description":"(T2/feat/x) do work"}}'
-run_case "labeled TaskCreate (T3/main)"       0 '{"tool_name":"TaskCreate","tool_input":{"description":"(T3/main) create"}}'
-run_case "well-formed (T2/feature/mistiq-vader)" 0 '{"tool_name":"Agent","tool_input":{"description":"(T2/feature/mistiq-vader) SPK-1 work","prompt":"y"}}'
-run_case "multi-digit track (T12/main)"       0 '{"tool_name":"Agent","tool_input":{"description":"(T12/main) big track"}}'
-run_case "subagent-field fallback label"      0 '{"tool_name":"Agent","tool_input":{"subagent":"(T1/main) via subagent field"}}'
+# --- ALLOW cases (labeled agent dispatches WITH alias, exit 0) ------------
+run_case "labeled Agent (T1/main - claude1)"  0 '{"tool_name":"Agent","tool_input":{"description":"(T1/main - claude1) ATM-312 investigate","prompt":"x"}}'
+run_case "labeled Task (T2/feat/x - deepseek)" 0 '{"tool_name":"Task","tool_input":{"description":"(T2/feat/x - deepseek) do work"}}'
+run_case "labeled TaskCreate (T3/main - claude3)" 0 '{"tool_name":"TaskCreate","tool_input":{"description":"(T3/main - claude3) create"}}'
+run_case "well-formed (T2/feature/mistiq-vader - claude2)" 0 '{"tool_name":"Agent","tool_input":{"description":"(T2/feature/mistiq-vader - claude2) SPK-1 work","prompt":"y"}}'
+run_case "multi-digit track (T12/main - claude4)" 0 '{"tool_name":"Agent","tool_input":{"description":"(T12/main - claude4) big track"}}'
+run_case "honest '?' alias allowed (T1/main - ?)" 0 '{"tool_name":"Agent","tool_input":{"description":"(T1/main - ?) alias unknown"}}'
+run_case "subagent-field fallback label"      0 '{"tool_name":"Agent","tool_input":{"subagent":"(T1/main - claude1) via subagent field"}}'
 
 # --- ALLOW cases (non-agent tools always pass, exit 0) --------------------
 run_case "non-agent Bash always allowed"      0 '{"tool_name":"Bash","tool_input":{"command":"ls -la"}}'
@@ -50,6 +51,10 @@ run_case "non-agent Edit always allowed"      0 '{"tool_name":"Edit","tool_input
 run_case "unknown tool always allowed"        0 '{"tool_name":"SomethingElse","tool_input":{"description":"no label here"}}'
 
 # --- BLOCK cases (unlabeled / malformed agent dispatches, exit 2) ---------
+# §11.4.182: the alias component is MANDATORY — an alias-less prefix is BLOCKED.
+run_case "alias-less (T1/main) now BLOCKED"   2 '{"tool_name":"Agent","tool_input":{"description":"(T1/main) missing alias","prompt":"x"}}'
+run_case "alias-less (T2/feature/x) BLOCKED"  2 '{"tool_name":"Task","tool_input":{"description":"(T2/feature/x) missing alias"}}'
+run_case "empty alias (T1/main - ) BLOCKED"   2 '{"tool_name":"Agent","tool_input":{"description":"(T1/main - ) empty alias"}}'
 run_case "unlabeled Agent"                    2 '{"tool_name":"Agent","tool_input":{"description":"just do the thing","prompt":"x"}}'
 run_case "unlabeled Task"                      2 '{"tool_name":"Task","tool_input":{"description":"do work"}}'
 run_case "unlabeled TaskCreate"                2 '{"tool_name":"TaskCreate","tool_input":{"description":"create a task"}}'
