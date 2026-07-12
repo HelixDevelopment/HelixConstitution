@@ -129,8 +129,15 @@ func obsoleteDetailsCmd(args []string) int {
 		fmt.Fprintf(os.Stderr, "obsolete-details: write row: %v\n", err)
 		return exitUsage
 	}
+	// F-DBTOOL fix (2026-07-12): scope by representation — cur came from
+	// loadItem's now-deterministic (atm_id, location) read, which prefers the
+	// 'section' row when a dual-representation item (GAP A, e.g. HXC-044) has
+	// both. Without this scope the UPDATE matched EVERY representation row for
+	// (atm_id, location) and clobbered the sibling 'table' pipe-row's body_md
+	// with the 'section' row's content — the confirmed reproduction of the
+	// F-DBTOOL desync (see docs/research/f_dbtool_20260712/ROOTCAUSE.md).
 	if _, err := tx.Exec(`UPDATE items SET body_md=?, last_modified=datetime('now')
-		WHERE atm_id=? AND current_location=?`, newBody, id, cur.CurrentLocation); err != nil {
+		WHERE atm_id=? AND current_location=? AND representation=?`, newBody, id, cur.CurrentLocation, cur.repOrDefault()); err != nil {
 		fmt.Fprintf(os.Stderr, "obsolete-details: update body: %v\n", err)
 		return exitUsage
 	}
@@ -153,19 +160,46 @@ func obsoleteDetailsCmd(args []string) int {
 // block (the `**Field:** value` lines following the H2), so it lands within 8
 // non-blank lines of the heading. Any prior Obsolete-Details line is dropped
 // first, making the operation idempotent.
+//
+// F-DBTOOL fix (2026-07-12): the drop-then-scan used to run as ONE pass over
+// the ORIGINAL lines, so when a body ALREADY carried an Obsolete-Details line
+// (the common, intended-to-be-idempotent re-run case) the lookahead used to
+// decide "is this the LAST contiguous meta line" saw the STALE, about-to-be-
+// dropped Obsolete-Details line as lines[i+1] — which itself matches the
+// generic `**Field:** value` meta shape — so `nextIsMeta` was wrongly true at
+// the REAL last meta field, the loop never found a genuine insertion point,
+// and the code fell through to the "append at the very end" fallback: the new
+// details line landed AFTER the prose body with NO trailing newline (Join
+// never adds a trailing separator after the last element). That newline-less
+// tail is exactly what renderDocument's segment-glue logic (db.go
+// appendSegment) does not defend against for non-heading content, so the next
+// document segment glued directly onto it — corrupting parseFixed's view of
+// every subsequent item (reproduced live via `obsolete-details HXC-044` on a
+// body that already carried an Obsolete-Details line: see
+// docs/research/f_dbtool_20260712/ROOTCAUSE.md).
+//
+// Fix: drop stale Obsolete-Details line(s) in a FIRST pass, producing a
+// cleaned line list, THEN run the insertion-point scan over that cleaned list
+// — so the lookahead can never mistake a soon-to-be-removed line for a
+// genuine blocking meta field. A body with no prior Obsolete-Details line (or
+// none at all) behaves exactly as before.
 func injectObsoleteDetails(body, since, reason, superseding, evidence string) string {
 	detailsLine := fmt.Sprintf("**Obsolete-Details:** Since: %s; Reason: %s; Superseding-item: %s; Triple-check evidence: %s",
 		since, reason, superseding, evidence)
 
-	lines := strings.Split(body, "\n")
-	out := make([]string, 0, len(lines)+1)
-	inserted := false
-	for i := 0; i < len(lines); i++ {
-		ln := lines[i]
+	rawLines := strings.Split(body, "\n")
+	lines := make([]string, 0, len(rawLines))
+	for _, ln := range rawLines {
 		// Drop a pre-existing Obsolete-Details line (idempotent re-run).
 		if strings.HasPrefix(strings.TrimSpace(ln), "**Obsolete-Details:**") {
 			continue
 		}
+		lines = append(lines, ln)
+	}
+
+	out := make([]string, 0, len(lines)+1)
+	inserted := false
+	for i, ln := range lines {
 		out = append(out, ln)
 		if inserted {
 			continue

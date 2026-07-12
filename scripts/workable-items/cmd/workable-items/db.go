@@ -651,8 +651,27 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 	// non-newline-terminated case, never double-inserts) and byte-identical for
 	// every already-well-formed item (whose preceding body ends "\n\n", so sb ends
 	// "\n" and no separator is added). Fix at the WRITER, not the reader.
+	//
+	// F-DBTOOL defense-in-depth (2026-07-12): the original guard only covered a
+	// glued HEADING (content starting "## "). A newline-less body followed by
+	// a segment that does NOT start with "## " — e.g. a pipe-TABLE row
+	// (content starting "| ") — was still glued onto the tail of the preceding
+	// body with zero separation, verbatim-concatenating the two segments'
+	// TEXT into one unparseable run. Reproduced live: a body left newline-less
+	// by a mutation-path bug (see injectObsoleteDetails / docs/research/
+	// f_dbtool_20260712/ROOTCAUSE.md) glued the FOLLOWING closure pipe-row
+	// directly onto its tail, and because that pipe row no longer began a line
+	// on its own, parseFixed absorbed EVERY item from that point on into the
+	// glued body — reporting ~188 items "absent in Markdown". Generalising the
+	// separator condition to "whenever the preceding buffer doesn't already
+	// end in a newline" (dropping the "## "-only restriction) closes the WHOLE
+	// glue-defect class, not just the heading instance, while remaining a
+	// strict no-op for every well-formed body (which always ends "\n" or
+	// "\n\n") — so the existing byte-identical round-trip fixtures are
+	// unaffected (proven by the full test suite staying green after this
+	// change).
 	appendSegment := func(content string) {
-		if strings.HasPrefix(content, "## ") && len(sb) > 0 && sb[len(sb)-1] != '\n' {
+		if len(sb) > 0 && sb[len(sb)-1] != '\n' {
 			sb = append(sb, '\n')
 		}
 		sb = append(sb, content...)

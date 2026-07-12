@@ -254,7 +254,14 @@ func closeCmd(args []string) int {
 	defer tx.Rollback()
 
 	// Remove the Issues item row + its Issues item-segment (atomic move out).
-	if _, err := tx.Exec(`DELETE FROM items WHERE atm_id=? AND current_location='Issues'`, id); err != nil {
+	//
+	// F-DBTOOL fix (2026-07-12): scope by representation too — an unscoped
+	// DELETE would remove BOTH representations of a dual-representation Issues
+	// item (GAP A) while the INSERT below only recreates ONE row in Fixed,
+	// silently losing the sibling representation. No Issues-side dual-rep item
+	// exists in the live tree today (verified), so this is a latent-but-dormant
+	// defect class closed defensively, mirroring the loadItem fix above.
+	if _, err := tx.Exec(`DELETE FROM items WHERE atm_id=? AND current_location='Issues' AND representation=?`, id, src.repOrDefault()); err != nil {
 		fmt.Fprintf(os.Stderr, "close: remove from Issues: %v\n", err)
 		return exitUsage
 	}
@@ -277,10 +284,14 @@ func closeCmd(args []string) int {
 	// report a group "complete" the moment its real members all closed —
 	// exactly the PASS-bluff §11.4 forbids, and directly load-bearing for
 	// P3's own group-complete gate.
+	// F-DBTOOL fix (2026-07-12): carry the source row's OWN representation
+	// forward instead of relying on the schema's implicit 'section' DEFAULT —
+	// closing a 'table'-representation item (none exist in Issues today, but
+	// the schema permits it) would otherwise silently retag it 'section'.
 	if _, err := tx.Exec(`INSERT INTO items
-		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md, destination, logic_group)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
-		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, src.CreatedBy, src.AssignedTo, "Fixed", closedBody, nullable(src.Destination), nullable(src.LogicGroup)); err != nil {
+		(atm_id, type, status, severity, title, description, created_by, assigned_to, current_location, body_md, representation, destination, logic_group)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		id, src.Type, mapping.status, nullable(src.Severity), src.Title, src.Description, src.CreatedBy, src.AssignedTo, "Fixed", closedBody, src.repOrDefault(), nullable(src.Destination), nullable(src.LogicGroup)); err != nil {
 		fmt.Fprintf(os.Stderr, "close: insert into Fixed: %v\n", err)
 		return exitUsage
 	}
@@ -365,6 +376,36 @@ func itemExists(db *sql.DB, id, location string) (bool, error) {
 // (plural, db.go); purely additive (two new trailing columns/scan targets),
 // every existing caller is unaffected because each accesses fields by name
 // (cur.Title, cur.Severity, ...), never by struct-literal position.
+//
+// F-DBTOOL fix (2026-07-12): the schema's PRIMARY KEY is the 3-tuple
+// (atm_id, current_location, representation) — GAP A lets the SAME atm_id
+// carry BOTH a 'section' (H2 narrative) row AND a 'table' (pipe-summary) row
+// in the SAME tracker (the HXC-044 shape). This query's WHERE clause only
+// constrained (atm_id, current_location), so on a dual-representation item
+// `QueryRow` non-deterministically returned WHICHEVER row SQLite happened to
+// scan first — AND `it.Representation` was never populated (Go zero-value ""),
+// so every caller's `cur.repOrDefault()` always reported "section" regardless
+// of which row was actually loaded. Every write-path caller (update/reopen/
+// block/obsolete-details) then issued its UPDATE with a WHERE clause ALSO
+// missing `representation`, so it silently clobbered BOTH rows with the
+// content read from whichever ONE was loaded — corrupting the sibling
+// representation's body (reproduced live: `obsolete-details HXC-044` made the
+// 'table' row's body_md byte-identical to the 'section' row's, replacing its
+// pipe-row content with an H2 section body; `sync db-to-md` then rendered that
+// malformed 'table' segment, and the missing trailing-newline glued the next
+// document segment onto it, corrupting parseFixed's view of ~188 subsequent
+// items — see docs/research/f_dbtool_20260712/ROOTCAUSE.md).
+//
+// Fix: (1) SELECT + Scan the row's ACTUAL representation so `it.Representation`
+// is always correct (never a phantom "section" default); (2) ORDER BY prefers
+// the 'section' row when BOTH exist for the same (atm_id, location) — a
+// deterministic tie-break instead of "whatever SQLite returns first" — while a
+// location that has ONLY a 'table' row (the common case — ~187 of the DB's 188
+// pipe-only closure rows) is returned unchanged, LIMIT 1 is a no-op there. This
+// is purely additive for every single-representation item (the overwhelming
+// majority): the same row is loaded, its representation field is now merely
+// POPULATED rather than defaulted. Write-path callers then scope their UPDATE
+// by `cur.repOrDefault()` so they only ever touch the row they actually read.
 func loadItem(db *sql.DB, id, location string) (*item, error) {
 	row := db.QueryRow(`SELECT atm_id, type, status,
 		COALESCE(severity,''), title, description,
@@ -372,13 +413,16 @@ func loadItem(db *sql.DB, id, location string) (*item, error) {
 		COALESCE(composes_with,''),
 		COALESCE(created_by,''), COALESCE(assigned_to,''),
 		current_location, COALESCE(body_md,''),
+		COALESCE(representation,'section'),
 		COALESCE(destination,''), COALESCE(logic_group,'')
-		FROM items WHERE atm_id=? AND current_location=?`, id, location)
+		FROM items WHERE atm_id=? AND current_location=?
+		ORDER BY CASE WHEN COALESCE(representation,'section')='section' THEN 0 ELSE 1 END
+		LIMIT 1`, id, location)
 	var it item
 	err := row.Scan(&it.AtmID, &it.Type, &it.Status, &it.Severity,
 		&it.Title, &it.Description, &it.ForensicAnchor, &it.ClosureCriteria,
 		&it.ComposesWith, &it.CreatedBy, &it.AssignedTo, &it.CurrentLocation, &it.BodyMD,
-		&it.Destination, &it.LogicGroup)
+		&it.Representation, &it.Destination, &it.LogicGroup)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}

@@ -193,12 +193,18 @@ func updateCmd(args []string) int {
 	}
 	defer tx.Rollback()
 
+	// F-DBTOOL fix (2026-07-12): scope by representation — cur came from
+	// loadItem's now-deterministic (atm_id, location) read; without this the
+	// WHERE clause matches EVERY representation row sharing (atm_id, location)
+	// (GAP A dual-representation items, e.g. HXC-044's 'section'+'table' pair)
+	// and clobbers the sibling representation's body_md with cur's content.
+	// See docs/research/f_dbtool_20260712/ROOTCAUSE.md.
 	if _, err := tx.Exec(`UPDATE items SET
 		type=?, status=?, severity=?, title=?, description=?,
 		created_by=?, assigned_to=?, body_md=?, last_modified=datetime('now')
-		WHERE atm_id=? AND current_location=?`,
+		WHERE atm_id=? AND current_location=? AND representation=?`,
 		cur.Type, cur.Status, nullable(cur.Severity), cur.Title, cur.Description,
-		cur.CreatedBy, cur.AssignedTo, newBody, *id, loc); err != nil {
+		cur.CreatedBy, cur.AssignedTo, newBody, *id, loc, cur.repOrDefault()); err != nil {
 		fmt.Fprintf(os.Stderr, "update: %v\n", err)
 		return exitUsage
 	}
@@ -329,8 +335,13 @@ func reopenCmd(args []string) int {
 	// composes_with / parent_atm_id / session_ref / version_tags — columns a
 	// delete+insert would drop). The (atm_id, current_location, representation) PK
 	// admits the flip because the item lives in exactly one location.
+	//
+	// F-DBTOOL fix (2026-07-12): scope by representation (cur.repOrDefault(),
+	// now populated correctly by loadItem) so a dual-representation item's
+	// sibling row is never relocated/clobbered alongside the one actually
+	// reopened. See docs/research/f_dbtool_20260712/ROOTCAUSE.md.
 	if _, err := tx.Exec(`UPDATE items SET status='Reopened', current_location=?, body_md=?, last_modified=datetime('now')
-		WHERE atm_id=? AND current_location=?`, dest, newBody, *id, srcLoc); err != nil {
+		WHERE atm_id=? AND current_location=? AND representation=?`, dest, newBody, *id, srcLoc, cur.repOrDefault()); err != nil {
 		fmt.Fprintf(os.Stderr, "reopen: %v\n", err)
 		return exitUsage
 	}
@@ -446,8 +457,10 @@ func blockCmd(args []string) int {
 	}
 	defer tx.Rollback()
 
+	// F-DBTOOL fix (2026-07-12): scope by representation, mirroring update/
+	// reopen — see docs/research/f_dbtool_20260712/ROOTCAUSE.md.
 	if _, err := tx.Exec(`UPDATE items SET status='Operator-blocked', body_md=?, last_modified=datetime('now')
-		WHERE atm_id=? AND current_location=?`, newBody, *id, loc); err != nil {
+		WHERE atm_id=? AND current_location=? AND representation=?`, newBody, *id, loc, cur.repOrDefault()); err != nil {
 		fmt.Fprintf(os.Stderr, "block: %v\n", err)
 		return exitUsage
 	}
