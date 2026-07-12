@@ -115,10 +115,22 @@ set -u
 MT_FBMON_SELF="${BASH_SOURCE[0]}"
 MT_FBMON_DIR="$(cd "$(dirname "$MT_FBMON_SELF")" 2>/dev/null && pwd)"
 
-# --- built-in captured-FACT structural signatures (NOT project literals) ------
-# DESIGN §4.2(C): a real API-error line carries BOTH of these JSON tokens.
-MT_FBMON_SIG_DEFAULT_1='"apiErrorStatus":429'
-MT_FBMON_SIG_DEFAULT_2='"isApiErrorMessage":true'
+# --- built-in captured-FACT structural signature (NOT a project literal) ------
+# AND-set (mt_fbmon_line_has_all_signatures): a line matches only if it contains
+# EVERY token below. Pinned 2026-07-12 to the REAL captured 429 token so the
+# AUTO-launched (no --config) monitor fires on live limits — engine-default
+# parity with config/multitrack/the-factory.yaml (pinned in 66b34d3b, §11.4.26).
+# A headless probe of weekly-rejected accounts (claude1/claude4) showed Claude
+# Code's real result line carries `"api_error_status":429` (snake_case); the old
+# camelCase pair (`"apiErrorStatus":429` + `"isApiErrorMessage":true`) matched NO
+# real line, so the engine default never fired. `":429` is the substring common
+# to BOTH the interactive (`"apiErrorStatus":429`) and headless
+# (`"api_error_status":429`) shapes (AND-listing both casings would match
+# nothing). The quota-marker gate (resets / weekly limit / session limit) keeps a
+# coincidental bare 429 a NO-OP; healthy accounts emit `"api_error_status":null`
+# (no 429) so never match — verified no-false-positive (§11.4.6).
+MT_FBMON_SIG_DEFAULT_1='":429'
+MT_FBMON_SIG_DEFAULT_2='":429'
 
 # --- built-in captured-FACT sub-classification markers (overridable) ----------
 # quota-exhausted markers (session/usage limit that will NOT clear until reset)
@@ -127,20 +139,20 @@ MT_FBMON_QUOTA_DEFAULT=$'resets\nweekly limit\nsession limit'
 MT_FBMON_TRANSIENT_DEFAULT=$'not your usage limit'
 
 # --- RB-06 HEADLESS rate-limit signature (the stream-json worker path) --------
-# The interactive account path writes an "apiErrorStatus":429 transcript line;
-# a HEADLESS `claude -p --output-format stream-json` worker instead emits a
-# stream-json event when it hits a rate-limit. RB-06 adds this second structural
-# signature so the monitor also detects the headless worker's limit and fires
-# the balance DROP-HOOK (mt_balance_mark_fail — drop the worker's route from the
-# rotation so mt_balance_select re-picks among the remaining live routes).
-# UNCONFIRMED (§11.4.6): the EXACT production stream-json rate-limit event shape
-# is pending a real-token capture (Monday — all accounts quota-exhausted this
-# week). These DEFAULTS match the documented `system/api_retry`{error:rate_limit}
-# shape used by the RB-06 mock + plan; they are DATA, config-overridable via a
+# A HEADLESS `claude -p --output-format stream-json` worker emits a stream-json
+# result event when it hits a rate-limit; RB-06's DROP-HOOK (mt_balance_mark_fail)
+# drops that worker's route so mt_balance_select re-picks among the live routes.
+# CONFIRMED 2026-07-12 (§11.4.6, was UNCONFIRMED/mock): the headless probe of
+# weekly-rejected accounts (claude1/claude4) showed the real headless limit line
+# is the SAME `"api_error_status":429` result shape as interactive — NOT the
+# earlier mock `system/api_retry` shape. Pinned to `":429` so the headless
+# default mirrors the real captured token; still DATA, config-overridable via a
 # one-line pin (MT_MONITOR_HEADLESS_SIGNATURES / MT_MONITOR_HEADLESS_QUOTA_MARKERS),
-# never a code change (§11.4.111 resolve-by-stable-data). The mechanism (sig
-# match -> drop-hook) is proven NOW against the mock; Monday swaps the sig only.
-MT_FBMON_HEADLESS_SIG_DEFAULT=$'"type":"system"\n"api_retry"'
+# never a code change (§11.4.111). NOTE: `":429` also matches the interactive
+# AND-set, checked first, so a real `":429` line classifies "interactive" + fires
+# the fallback rebind; the headless-kind drop-hook path is reached only when a
+# config supplies a distinct interactive signature (honest §11.4.6).
+MT_FBMON_HEADLESS_SIG_DEFAULT='":429'
 MT_FBMON_HEADLESS_QUOTA_DEFAULT=$'rate_limit\nrate-limit'
 
 # --- knobs (env-overridable, safe defaults) -----------------------------------
