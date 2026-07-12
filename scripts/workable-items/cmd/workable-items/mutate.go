@@ -167,8 +167,32 @@ func updateCmd(args []string) int {
 	//     update (e.g. --severity) leaves body_md byte-identical (diff stays 0).
 	// Every other line — the entire authored freeform body plus the
 	// severity/type/attribution meta lines — is preserved verbatim.
+	//
+	// F-DBTOOL-2 fix (2026-07-12): renderItemBody unconditionally emits the H2
+	// "## <ID> — <title>" section shape. For a 'table'-representation item (a
+	// legacy Fixed.md pipe-table closure row — parseFixed's emitLegacyTable,
+	// parse.go) that shape is WRONG: it replaces the single "| date | title |
+	// type | status | round | commit(s) | evidence |" row line with a multi-line
+	// H2 block, which (a) issueHeadingRe / isATMCandidateHeading (parse.go) never
+	// recognise as ANY heading shape for a synthetic "FIX-<date>#<n>" id
+	// (multiple dashes + "#" fail every pattern), so the item is swallowed into
+	// raw prose on the next db-to-md + re-parse round-trip, and (b) because
+	// emitLegacyTable derives an un-ID'd row's atm_id POSITIONALLY — the Nth
+	// same-dated row encountered during the scan, not a stable identifier — every
+	// later same-dated row's re-derived id silently shifts down by one, cascading
+	// dozens of spurious "body differs" / "absent in Markdown" / status-type
+	// mismatches (docs/research/f_dbtool2_20260712/ROOTCAUSE.md; reproduced by
+	// a SINGLE `update --description` on one table-representation item). A
+	// pipe-table row has no dedicated description cell to update (Description is
+	// DERIVED from Title+Evidence at parse time, deriveDescription), so the safe,
+	// minimal fix is: update the `items.description` COLUMN (already applied
+	// above) but do NOT regenerate body_md for a table-representation item —
+	// preserve the verbatim pipe-row text via the same field-only path used for
+	// --severity/--status, which is a proven no-op-safe path for this shape
+	// (replaceHeadingTitle/canonicalizeBodyStatusLine both require "## "/"**" -
+	// prefixed lines that a pipe-row never contains, so they leave it unchanged).
 	var newBody string
-	if set["description"] {
+	if set["description"] && cur.repOrDefault() != "table" {
 		newBody = renderItemBody(cur.AtmID, cur.Title, cur.Type, cur.Severity, cur.Description, cur.Status, cur.CreatedBy, cur.AssignedTo)
 	} else {
 		newBody = cur.BodyMD
