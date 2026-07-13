@@ -363,12 +363,16 @@ WRAP
         echo "L4B_RESUME=FAIL rc=$_resumerc" >> "$_norm"
     fi
 
-    # ---- L5: inject a simulated api_retry/quota transcript line -> the ------
+    # ---- L5: inject a REAL captured 429+quota transcript line -> the --------
     # RB-04 fallback monitor (--once) classifies it -> fires 'orchestrator
     # fallback --track track-2' -> track-2 REBINDS onto claude2 (REUSE --
     # claude2 already served track-3; both bindings survive, §11.4.119).
     _transcript="$_ib/transcript_track2.jsonl"
-    printf '{"type":"system","subtype":"api_retry","error":{"type":"rate_limit_error","message":"rate_limit"}}\n' > "$_transcript"
+    # §11.4.120 reconcile 2026-07-13: monitor pinned 2026-07-12 to the REAL
+    # captured token `"api_error_status":429` (substring `":429`) + a quota marker
+    # (`resets`/`weekly limit`/`session limit`); the old mock `system/api_retry`
+    # shape matched NO real line + no quota marker, so the monitor never fired.
+    printf '{"type":"result","subtype":"error_during_execution","is_error":true,"api_error_status":429,"result":"Claude usage limit reached; your weekly limit resets 2026-07-14T00:00:00Z"}\n' > "$_transcript"
     _monout=$(MT_MONITOR_STATE_DIR="$_ib/monitor_state" bash "$FBMON" --once --alias claude1 --track track-2 --transcript "$_transcript" 2>&1); _monrc=$?
     printf '%s\n' "$_monout" > "$_ib/monitor1.log"
     _bindsnap="$_aliasdir/bindings.snapshot"

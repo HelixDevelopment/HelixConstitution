@@ -140,7 +140,7 @@ do_up() {
         # session keyed by (CLAUDE_CONFIG_DIR, cwd); WITHOUT -c the window inherits
         # the CONDUCTOR's cwd, so cma_run resumes the conductor's session instead of
         # the track's (observed 2026-07-13: 3 workers all resumed the conductor's
-        # atmosphere-t1 session). With -c <worktree> cma_run resolves the correct
+        # own session) instead of the track's. With -c <worktree> cma_run resolves the correct
         # per-track (config_dir, cwd) session. Falls back to no -c only when the
         # worktree is not a live dir (unmapped/unmounted -> hook lands it on /home).
         local rwt cdir=""
