@@ -135,26 +135,40 @@ do_up() {
             continue
         fi
         cmd="exec bash -lic '$a'"
+        # §11.4.187 resume-collision FIX: resolve the track worktree BEFORE creating
+        # the window and open the window IN it (tmux -c). cma_run resumes/starts the
+        # session keyed by (CLAUDE_CONFIG_DIR, cwd); WITHOUT -c the window inherits
+        # the CONDUCTOR's cwd, so cma_run resumes the conductor's session instead of
+        # the track's (observed 2026-07-13: 3 workers all resumed the conductor's
+        # atmosphere-t1 session). With -c <worktree> cma_run resolves the correct
+        # per-track (config_dir, cwd) session. Falls back to no -c only when the
+        # worktree is not a live dir (unmapped/unmounted -> hook lands it on /home).
+        local rwt cdir=""
+        rwt="$(bash "$MTU_RESOLVER" resolve "$a" 2>/dev/null || true)"
+        [ -n "$rwt" ] && [ -d "$rwt" ] && cdir="$rwt"
         if mtu_session_exists; then
             if mtu_window_exists "$track"; then
                 printf '%-12s %-10s %-22s %s\n' "$a" "$track" "$MTU_SESSION:$track" "(already up — skipped)"
                 skipped=$((skipped + 1))
                 continue
             fi
-            tmux new-window -t "$MTU_SESSION" -n "$track" "$cmd" 2>/dev/null || {
-                mtu_err "multitrack-up: tmux new-window failed for '$a' -> $track"
-                continue
-            }
+            if [ -n "$cdir" ]; then
+                tmux new-window -t "$MTU_SESSION" -c "$cdir" -n "$track" "$cmd" 2>/dev/null || {
+                    mtu_err "multitrack-up: tmux new-window failed for '$a' -> $track"; continue; }
+            else
+                tmux new-window -t "$MTU_SESSION" -n "$track" "$cmd" 2>/dev/null || {
+                    mtu_err "multitrack-up: tmux new-window failed for '$a' -> $track"; continue; }
+            fi
         else
-            tmux new-session -d -s "$MTU_SESSION" -n "$track" "$cmd" 2>/dev/null || {
-                mtu_err "multitrack-up: tmux new-session failed for '$a' -> $track"
-                return 3
-            }
+            if [ -n "$cdir" ]; then
+                tmux new-session -d -s "$MTU_SESSION" -c "$cdir" -n "$track" "$cmd" 2>/dev/null || {
+                    mtu_err "multitrack-up: tmux new-session failed for '$a' -> $track"; return 3; }
+            else
+                tmux new-session -d -s "$MTU_SESSION" -n "$track" "$cmd" 2>/dev/null || {
+                    mtu_err "multitrack-up: tmux new-session failed for '$a' -> $track"; return 3; }
+            fi
         fi
         launched=$((launched + 1))
-        # resolved worktree (may be '-' if the mount is not live yet — the hook
-        # falls the session back to /home in that case; the window still exists).
-        local rwt; rwt="$(bash "$MTU_RESOLVER" resolve "$a" 2>/dev/null || true)"
         [ -n "$rwt" ] || rwt="(unresolved -> /home)"
         printf '%-12s %-10s %-22s %s\n' "$a" "$track" "$MTU_SESSION:$track" "$rwt"
     done <<EOF
