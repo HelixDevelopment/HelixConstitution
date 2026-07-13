@@ -284,33 +284,39 @@ APXEOF
   printf '%s' "$first"
 }
 
-# ── Public: parse first-line prefix token across all 4 grammar forms ─────────
-# GRAMMAR_ADDENDUM (§11.4.140, 2026-06-09) — four equivalent forms:
+# ── Public: parse first-line prefix token across all 5 grammar forms ─────────
+# GRAMMAR_ADDENDUM (§11.4.140, 2026-06-09; arrow form 2026-07-02) — five
+# equivalent forms:
 #   (1) `ACTION :: rest`           bare `::`            → DEFAULT  ACTION  rest  colon
 #   (2) `PREFIX::ACTION :: rest`   namespaced `::`      → PREFIX   ACTION  rest  colon
 #   (3) `/ACTION rest`             bare slash           → DEFAULT  ACTION  rest  slash
 #   (4) `/PREFIX::ACTION rest`     namespaced slash     → PREFIX   ACTION  rest  slash
+#   (5) `ACTION ---> rest`         bare arrow           → DEFAULT  ACTION  rest  arrow
+#       `PREFIX::ACTION ---> rest` namespaced arrow     → PREFIX   ACTION  rest  arrow
 #
 # Echoes a TAB-separated 4-tuple "namespace<TAB>action<TAB>rest<TAB>matched_form"
 # (namespace is the literal PREFIX or `DEFAULT` when absent; matched_form is one
-# of `colon` / `slash`). Returns 0 with the tuple on ANY grammar match, 1 (no
+# of `colon` / `slash` / `arrow`). Returns 0 with the tuple on ANY grammar match, 1 (no
 # output) otherwise. Presence of a grammar-shaped token, NOT registry membership
 # (membership is a later step in apx_expand_prompt). Escape handling lives in
 # apx_expand_prompt — this parser sees the de-escaped line.
 #
-# The `::`-form and slash-form anchored ERE patterns are kept byte-identical
-# between the python and the awk paths (the addendum warns the awk END-block
-# double-emit bug already bit once; both paths share these exact regexes via
-# apx__parse_via_python / apx__parse_via_awk so they can never drift).
+# The `::`-form, slash-form, and arrow-form anchored ERE patterns are kept
+# byte-identical between the python and the awk paths (the addendum warns the
+# awk END-block double-emit bug already bit once; both paths share these exact
+# regexes via apx__parse_via_python / apx__parse_via_awk so they can never
+# drift). The arrow branch FALLS THROUGH to the colon check on an invalid
+# leading token so `A :: B ---> C` parses identically in both paths.
 apx_parse_prefix() {
   local prompt="$1"
   local first
   first="$(apx__first_nonblank_line "$prompt")" || return 1
 
   # Prefer python3 for the anchored capture-group parse; awk fallback otherwise.
-  # BOTH implement the SAME two anchored regexes (slash first — `/` is
-  # unambiguous — then `::`) and emit the SAME 4-tuple, so the paths are
-  # byte-identical (the §11.4.50 determinism + addendum-warned awk-parity check).
+  # BOTH implement the SAME three anchored regexes (slash first — `/` is
+  # unambiguous — then arrow ` ---> `, then `::`) and emit the SAME 4-tuple, so
+  # the paths are byte-identical (the §11.4.50 determinism + addendum-warned
+  # awk-parity check).
   local tuple
   if apx__have_python_yaml; then
     tuple="$(apx__parse_via_python "$first")" || return 1
@@ -322,7 +328,7 @@ apx_parse_prefix() {
   return 0
 }
 
-# python parse path — anchored slash-form then `::`-form, capture (ns,action,rest).
+# python parse path — anchored slash-form then arrow-form then `::`-form, capture (ns,action,rest).
 apx__parse_via_python() {
   python3 - "$1" <<'PYEOF'
 import re, sys
@@ -332,6 +338,14 @@ m = re.match(r'^/(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*)\s+(.*)$', line)
 if m:
     ns = m.group(1) or "DEFAULT"
     sys.stdout.write("%s\t%s\t%s\t%s" % (ns, m.group(2), m.group(3), "slash"))
+    sys.exit(0)
+# Form 5: [PREFIX::]ACTION ---> rest  (arrow body separator ' ---> ', one space
+# on each side). Anchored, so the arrow must sit immediately after the leading
+# token — a mid-prose ' ---> ' after a colon token never matches here.
+m = re.match(r'^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*) ---> (.*)$', line)
+if m:
+    ns = m.group(1) or "DEFAULT"
+    sys.stdout.write("%s\t%s\t%s\t%s" % (ns, m.group(2), m.group(3), "arrow"))
     sys.exit(0)
 # Forms 1+2: [PREFIX::]ACTION :: rest  (exactly one space each side of `::`).
 m = re.match(r'^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*) :: (.*)$', line)
@@ -370,6 +384,28 @@ apx__parse_via_awk() {
         if (ns !~ /^[A-Z][A-Z0-9_]*$/ || action !~ /^[A-Z][A-Z0-9_]*$/) { exit 1 }
         printf "%s\t%s\t%s\t%s", ns, action, rest, "slash"
         exit 0
+      }
+      # ── Form 5: ^[PREFIX::]ACTION ---> rest (arrow body separator " ---> ") ──
+      # anchor on the FIRST " ---> " (space-3hyphen-gt-space). A leading token
+      # that is a valid [PREFIX::]ACTION means the arrow sits immediately after
+      # the token (the python-anchored semantics). If the token is INVALID
+      # (contains spaces / an interior " :: "), the " ---> " is mid-prose → FALL
+      # THROUGH to the colon check (do NOT exit) so `A :: B ---> C` still parses
+      # as the colon form — byte-identical to the python path.
+      ai = index(line, " ---> ")
+      if (ai > 0) {
+        atok  = substr(line, 1, ai - 1)
+        arest = substr(line, ai + 6)                 # skip the 6-char " ---> "
+        ans = "DEFAULT"; aaction = atok
+        aci = index(atok, "::")
+        if (aci > 0) {
+          ans     = substr(atok, 1, aci - 1)
+          aaction = substr(atok, aci + 2)
+        }
+        if (ans ~ /^[A-Z][A-Z0-9_]*$/ && aaction ~ /^[A-Z][A-Z0-9_]*$/) {
+          printf "%s\t%s\t%s\t%s", ans, aaction, arest, "arrow"
+          exit 0
+        }
       }
       # ── Forms 1+2: ^[PREFIX::]ACTION :: rest (exactly " :: ") ─────────────
       # anchor on the body separator " :: " (space-colon-colon-space).
@@ -436,7 +472,7 @@ APXEOF
 #   verdict   : "expand" | "noop" | "escape" | "ask"
 #   action    : the matched/registered action name ("" if none)
 #   namespace : the resolved namespace (DEFAULT when the form carried none; "" if no match)
-#   form      : the matched grammar form ("colon" | "slash"; "" if no match)
+#   form      : the matched grammar form ("colon" | "slash" | "arrow"; "" if no match)
 #   expansion : the registered expansion text ("" if none)
 #   residual  : the remainder of the FIRST line after the prefix, plus any
 #               following lines ("" if no match)
@@ -446,10 +482,10 @@ APXEOF
 #                 noop/ask → the original prompt unchanged
 #   closest   : on verdict=ask, the closest registered action name (may be "")
 #
-# All FOUR grammar forms (GRAMMAR_ADDENDUM §11.4.140) resolve to the same action
-# + same expansion: `ACTION :: x` ≡ `DEFAULT::ACTION :: x` ≡ `/ACTION x` ≡
-# `/DEFAULT::ACTION x`. Escape (leading `\`) is honored for BOTH the `::` and the
-# slash form.
+# All FIVE grammar forms (GRAMMAR_ADDENDUM §11.4.140 + arrow form) resolve to the
+# same action + same expansion: `ACTION :: x` ≡ `DEFAULT::ACTION :: x` ≡
+# `/ACTION x` ≡ `/DEFAULT::ACTION x` ≡ `ACTION ---> x` ≡ `DEFAULT::ACTION ---> x`.
+# Escape (leading `\`) is honored for the `::`, arrow, and slash forms.
 apx_expand_prompt() {
   local prompt="$1"
 
@@ -461,12 +497,14 @@ apx_expand_prompt() {
   }
 
   # ----- Escape handling: a leading backslash on the first non-blank line makes
-  # the prefix literal, for BOTH the `::` form (`\TOKEN :: `, `\PREFIX::TOKEN :: `)
-  # AND the slash form (`\/TOKEN `, `\/PREFIX::TOKEN `). Strip exactly the first
+  # the prefix literal, for the `::` form (`\TOKEN :: `, `\PREFIX::TOKEN :: `),
+  # the arrow form (`\TOKEN ---> `, `\PREFIX::TOKEN ---> `), AND the slash form
+  # (`\/TOKEN `, `\/PREFIX::TOKEN `). Strip exactly the first
   # leading backslash when it guards a grammar-shaped prefix; leave the rest
   # literal (NO expansion). POSIX ERE has no non-capturing group `(?:..)`, so the
   # optional `PREFIX::` is expressed by alternating the with/without-prefix shapes.
   if printf '%s' "$first" | grep -Eq '^\\[A-Z][A-Z0-9_]*(::[A-Z][A-Z0-9_]*)? :: ' \
+     || printf '%s' "$first" | grep -Eq '^\\[A-Z][A-Z0-9_]*(::[A-Z][A-Z0-9_]*)? ---> ' \
      || printf '%s' "$first" | grep -Eq '^\\/[A-Z][A-Z0-9_]*(::[A-Z][A-Z0-9_]*)?[[:space:]]'; then
     local emitted
     emitted="$(apx__replace_first_nonblank "$prompt" "$(printf '%s' "$first" | sed -E 's/^\\//')")"
@@ -474,7 +512,7 @@ apx_expand_prompt() {
     return 0
   fi
 
-  # Grammar-shaped prefix? Parse all 4 forms → namespace, action, rest, form.
+  # Grammar-shaped prefix? Parse all 5 forms → namespace, action, rest, form.
   local tuple namespace token rest form
   if ! tuple="$(apx_parse_prefix "$prompt")"; then
     apx__emit_json "false" "noop" "" "" "" "" "" "$prompt" ""
@@ -488,7 +526,7 @@ apx_expand_prompt() {
   local first_residual="${rest%$'\t'*}"
 
   # Look the token up in the registry (namespace is recorded but the BACKGROUND
-  # action is registered under DEFAULT; lookup is by action NAME — all four forms
+  # action is registered under DEFAULT; lookup is by action NAME — all five forms
   # of the same action share one expansion).
   local expansion
   if expansion="$(apx_lookup_expansion "$token")"; then
@@ -503,7 +541,7 @@ apx_expand_prompt() {
     fi
 
     # Stacked-prefix recursion: if the residual's first non-blank line is itself
-    # a grammar-shaped registered prefix (any of the 4 forms), expand it too
+    # a grammar-shaped registered prefix (any of the 5 forms), expand it too
     # (outer-to-inner).
     local inner_json inner_verdict inner_emitted
     inner_json="$(apx_expand_prompt "$residual_all")"

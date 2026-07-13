@@ -268,8 +268,12 @@ func subtaskStatusCmd(args []string) int {
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.Exec(`UPDATE items SET status=?, last_modified=datetime('now')
-		WHERE atm_id=? AND current_location='Issues'`, target, child); err != nil {
+	// §11.4.93/ATM-627 (task #20) column↔body invariant: advancing the status column
+	// MUST also canonicalize body_md's `**Status:**` line in the SAME transaction, or
+	// `sync db-to-md` replays the stale line and `validate` (statusColumnBodyDesyncs)
+	// flags a desync. setStatusAndSyncBody is the single bare-status choke-point; it
+	// preserves all prose + detail blocks (surgical single-line rewrite).
+	if err := setStatusAndSyncBody(tx, child, "Issues", target); err != nil {
 		fmt.Fprintf(os.Stderr, "subtask-status: update: %v\n", err)
 		return exitUsage
 	}

@@ -1,0 +1,19 @@
+schema_version: 1
+# GOLDEN-BAD (anti-over-suppression for section_header_structural): the flag is
+# ON, but a row with a malformed id "4.1.x" ALSO carries a ticket + dates — so it
+# is a REAL (malformed) item, NOT a section header, and MUST still FAIL STRUCT-02.
+# Proves the structural detector suppresses ONLY true header rows (no ticket, no
+# dates), NEVER a real item whose id happens to be malformed — no over-suppression.
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    id_pattern: '^[0-9]+(\.[0-9]+)*$'
+    section_header_structural: true
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      start: "Start"
+      deadline: "Deadline"

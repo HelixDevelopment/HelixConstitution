@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
+| Revision | 2 |
 | Created | 2026-06-09 |
-| Last modified | 2026-06-09T00:00:00Z |
+| Last modified | 2026-07-02T00:00:00Z |
 | Status | active |
 | Scope | developer/maintainer manual for the §11.4.140 action-prefix system |
 | Audience | constitution maintainers + consuming-project engineers |
@@ -223,19 +223,29 @@ grammar:
   body_separator: ' :: '           # token <-> rest, spaces both sides ('::' form)
   slash_prefix: '/'
   slash_body_separator: ' '        # token <-> rest (slash form)
+  arrow_form_regex: '^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*) ---> (.*)$'  # form 5
+  arrow_body_separator: ' ---> '   # token <-> rest, spaces both sides (arrow form)
 actions:
   - name: BACKGROUND
     namespaces: [DEFAULT]           # which namespaces this action is registered under
     slash_bare: auto                # bare /BACKGROUND honored unless host-command collision
     slash_conflicts: []             # known colliding host slash commands (forces /DEFAULT::BACKGROUND)
+  - name: REMINDER                  # second registered action (verify-don't-assume status re-surfacing)
+    namespaces: [DEFAULT]
+    slash_bare: auto
+    slash_conflicts: []
 ```
 
-When these land, `apx_parse_prefix` must recognise all 4 forms (returning
-`namespace|DEFAULT, action, rest, matched_form`), `apx_expand_prompt` must
-resolve namespace+action and honour the bare-slash conflict rule, the LAYER-2
-hook must handle all 4 first-line forms, and the generator must additionally
-emit a namespaced `/default::background` artefact (or a `default-background`
-alias where the agent's command syntax forbids `::`).
+`apx_parse_prefix` recognises all 5 forms (returning
+`namespace|DEFAULT, action, rest, matched_form ∈ {colon, slash, arrow}`),
+`apx_expand_prompt` resolves namespace+action and honours the bare-slash
+conflict rule, the LAYER-2 hook handles all 5 first-line forms, and the
+generator additionally emits a namespaced `/default::background` artefact (or a
+`default-background` alias where the agent's command syntax forbids `::`). The
+arrow form (5) is a free-form/typed delimiter recognised by the grammar + hook,
+not a generated slash command. The python and awk parse paths stay
+byte-identical; the awk arrow branch falls through to the colon check on an
+invalid leading token so `A :: B ---> C` parses as the colon form in both.
 
 ---
 
@@ -352,8 +362,8 @@ bash -c 'source scripts/action_prefix_lib.sh && apx_validate_registry && echo OK
 
 ## 9. Related documents
 
-- [USER_GUIDE.md](USER_GUIDE.md) — end-user guide (4 forms, BACKGROUND effect,
-  escape, per-agent matrix, quick-start).
+- [USER_GUIDE.md](USER_GUIDE.md) — end-user guide (5 forms, BACKGROUND +
+  REMINDER effects, escape, per-agent matrix, quick-start).
 - [DIAGRAMS.md](DIAGRAMS.md) — Mermaid diagrams (expansion flow, two-layer
   architecture, 4-form decision tree, add-a-new-action sequence).
 - `docs/research/action_prefix_system/{RESEARCH.md, DESIGN.md, GRAMMAR_ADDENDUM.md,

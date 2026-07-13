@@ -23,6 +23,31 @@
  * Authority: constitution/Constitution.md §11.4.73 + §11.4.162.
  */
 
+/*
+ * §11.4.115 RED->GREEN fix — WeasyPrint text-run-reordering defect (2026-07-07).
+ *
+ * CONFIRMED DEFECT (captured evidence: subagent a5e24e32, commit 9bffbc8f0f6,
+ * evidence at docs/qa/font_digit_bug_20260707/): the OpenDesign
+ * `--od-font-body` default candidate list opens with "Source Sans 3". This
+ * font family, when selected by this WeasyPrint build (69.0), triggers
+ * text-run REORDERING in the emitted PDF content stream — `pdftotext -layout`
+ * on the rendered PDF scrambles digit/punctuation sequences (dates, §-refs,
+ * counts) so badly that a plain grep for a literal date or "§11.4.12" finds
+ * ZERO matches even though the glyphs render correctly on-screen / on paper.
+ * A/B/C/D repro isolated the trigger to "Source Sans 3" candidacy specifically
+ * (pinning to Liberation/DejaVu — a WeasyPrint-safe, widely-available metric-
+ * compatible sans stack — makes pdftotext extraction clean byte-for-byte).
+ *
+ * Fix is PDF-ONLY (this file), not default-md.css — on-screen HTML keeps the
+ * OpenDesign "Source Sans 3" typography per §11.4.162 because browsers do not
+ * exhibit this WeasyPrint-specific text-run-reordering defect.
+ */
+body, p, li, dt, dd, blockquote, h1, h2, h3, h4, h5, h6,
+table, thead, tbody, tfoot, tr, td, th, caption,
+strong, em, b, i, a, span, small {
+  font-family: "Liberation Sans", "DejaVu Sans", "Noto Sans", Arial, sans-serif;
+}
+
 /* ------------------------------------------------------------------ *
  * Page geometry — A4 with sane print margins + running page number
  * ------------------------------------------------------------------ */

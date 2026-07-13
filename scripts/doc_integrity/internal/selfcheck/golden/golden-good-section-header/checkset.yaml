@@ -1,0 +1,24 @@
+schema_version: 1
+# GOLDEN-GOOD (section_header_structural): a plan whose SECTION rows carry a
+# "N.M <title>" grouping label in the id column with NO ticket and NO dates
+# (the V9 "Реалистичный" layout). With section_header_structural: true these
+# rows are recognised as headers → STRUCT-02 (id discipline) + TIME-01b
+# (missing-dates) skip them → PASS.
+#
+# LOAD-BEARING (the §1.1 paired mutation): strip the engine's structural
+# section-header detector and the "4.1 Peripheral integration" row (which fails
+# id_pattern, has no ticket, no dates) trips STRUCT-02 + TIME-01b → this fixture
+# FAILs. So selfcheck FAILs the moment the RC1 engine change is removed.
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    id_pattern: '^[0-9]+(\.[0-9]+)*$'
+    section_header_structural: true
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      start: "Start"
+      deadline: "Deadline"

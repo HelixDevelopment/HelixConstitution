@@ -92,6 +92,14 @@ func migrateColumns(db *sql.DB) error {
 		{"closure_date", `ALTER TABLE items ADD COLUMN closure_date TEXT`},
 		{"round", `ALTER TABLE items ADD COLUMN round TEXT`},
 		{"commit_ref", `ALTER TABLE items ADD COLUMN commit_ref TEXT`},
+		// v5→v6 (ASSIGNMENT_MECHANISM_DESIGN.md §3.1; §11.4.176/§11.4.119/
+		// §11.4.111) group-atomic track-assignment. NULLABLE (no DEFAULT): NULL
+		// means "not yet classified" — the correct starting state for every
+		// pre-existing row; a later phase's one-time classification pass sets
+		// real values, and a later phase's `validate-groups` enforces the
+		// totality invariant (every OPEN item must carry non-null values).
+		{"destination", `ALTER TABLE items ADD COLUMN destination TEXT`},
+		{"logic_group", `ALTER TABLE items ADD COLUMN logic_group TEXT`},
 	}
 	for _, c := range wanted {
 		if have[c.name] {
@@ -108,10 +116,20 @@ func migrateColumns(db *sql.DB) error {
 	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_parent ON items(parent_atm_id)`); err != nil {
 		return fmt.Errorf("create idx_items_parent: %w", err)
 	}
+	// v5→v6 (ASSIGNMENT_MECHANISM_DESIGN.md §3.1): same reasoning — created here,
+	// not in the embedded schema, because destination/logic_group are guaranteed
+	// present only AFTER the ADD COLUMN steps above have run.
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_logic_group ON items(logic_group)`); err != nil {
+		return fmt.Errorf("create idx_items_logic_group: %w", err)
+	}
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_destination ON items(destination)`); err != nil {
+		return fmt.Errorf("create idx_items_destination: %w", err)
+	}
 	// Keep the schema_version meta marker honest after a successful migration: a
-	// DB materialised under an older schema (2/3/4) is now at v5. Lexical string
-	// compare is safe for single-digit versions ('2' < '3' < '4' < '5').
-	if _, err := db.Exec(`UPDATE meta SET value='5' WHERE key='schema_version' AND value < '5'`); err != nil {
+	// DB materialised under an older schema (2/3/4/5) is now at v6 (destination +
+	// logic_group + logic_groups, ASSIGNMENT_MECHANISM_DESIGN.md). Lexical string
+	// compare is safe for single-digit versions ('2' < '3' < '4' < '5' < '6').
+	if _, err := db.Exec(`UPDATE meta SET value='6' WHERE key='schema_version' AND value < '6'`); err != nil {
 		return err
 	}
 	return nil
@@ -168,7 +186,20 @@ func migrateRepresentationColumn(db *sql.DB) error {
     composes_with    TEXT,
     created_by       TEXT NOT NULL DEFAULT '',
     assigned_to      TEXT NOT NULL DEFAULT '',
-    current_location TEXT NOT NULL DEFAULT 'Issues',
+    -- ATM-627 (C1) defense-in-depth: mirror the fresh-schema CHECK
+    -- (schema_embed.sql:70) onto the MIGRATED table so a legacy DB rebuilt
+    -- through this path stops silently re-admitting an out-of-set
+    -- current_location literal (e.g. the old 'Fixed.md' half-migration class).
+    -- §11.4.6 HONEST BOUNDARY: this CHECK would NOT have prevented the ATM-627
+    -- committed-DB corruption — that corruption moved an item Issues->Fixed
+    -- (BOTH valid closed-set values) while its Issues doc_segment stayed, so the
+    -- value never left the set. The renderability guard in validateCmd (sync.go)
+    -- is the PRIMARY enforcement for that segment<->item location-mismatch class;
+    -- this CHECK guards only the earlier out-of-set literal class. The INSERT
+    -- below normalizes the known legacy 'Fixed.md' stray so this CHECK never
+    -- bricks openDB() on such a DB.
+    current_location TEXT NOT NULL
+                     CHECK (current_location IN ('Issues', 'Fixed')) DEFAULT 'Issues',
     body_md          TEXT,
     representation   TEXT NOT NULL DEFAULT 'section'
                      CHECK (representation IN ('section', 'table')),
@@ -187,6 +218,15 @@ func migrateRepresentationColumn(db *sql.DB) error {
 	// emits the column when present else the empty-string literal (the NOT NULL
 	// DEFAULT '' semantics). parent_atm_id/session_ref/version_tags are nullable,
 	// so colOrNull. migrateColumns then backfills any still-missing column.
+	//
+	// ATM-627 (C1): the projected current_location is wrapped in a CASE that maps
+	// the known legacy 'Fixed.md' half-migration stray to the closed-set 'Fixed'
+	// BEFORE it reaches items_new's new CHECK — so migrating a legacy DB that
+	// carries that stray does NOT brick openDB(). Any OTHER out-of-set literal
+	// genuinely trips the CHECK (fail-closed, never silently re-admitted). §11.4.6
+	// honest boundary: this normalization does not touch the ATM-627 corruption
+	// itself (an Issues->Fixed relocation — both valid — with a dangling segment);
+	// that class is caught by validateCmd's renderability guard, not by this CHECK.
 	if _, err := tx.Exec(`INSERT INTO items_new
 		(atm_id, type, status, severity, title, description, forensic_anchor,
 		 closure_criteria, composes_with, created_by, assigned_to,
@@ -195,7 +235,8 @@ func migrateRepresentationColumn(db *sql.DB) error {
 		SELECT atm_id, type, status, severity, title, description, forensic_anchor,
 		 closure_criteria, composes_with, ` +
 		colOrDefaultStr(have, "created_by") + `, ` + colOrDefaultStr(have, "assigned_to") + `,
-		 current_location, body_md, ` + colOrNull(have, "parent_atm_id") + `, ` +
+		 CASE current_location WHEN 'Fixed.md' THEN 'Fixed' ELSE current_location END,
+		 body_md, ` + colOrNull(have, "parent_atm_id") + `, ` +
 		colOrNull(have, "session_ref") + `, ` + colOrNull(have, "version_tags") + `,
 		 created_at, last_modified
 		FROM items`); err != nil {
@@ -363,6 +404,8 @@ type item struct {
 	ClosureDate     string // GAP B: pipe-table "Closure" cell ("" = none)
 	Round           string // GAP B: pipe-table "Round" cell ("" = none)
 	CommitRef       string // GAP B: pipe-table "Commit(s)" cell ("" = none)
+	Destination     string // ASSIGNMENT_MECHANISM_DESIGN.md §3.1 — "" = not yet classified
+	LogicGroup      string // ASSIGNMENT_MECHANISM_DESIGN.md §3.1 — "" = not yet classified
 }
 
 // repOrDefault normalises an item's Representation, defaulting an empty value to
@@ -407,6 +450,16 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 
 	// Clear segments for this document; clear items whose current_location is
 	// this document (so a full two-document sync rebuilds everything).
+	//
+	// §11.4.148 D3: also clear the operator_block_details rows OWNED by this
+	// document's items BEFORE the items are deleted (the sub-select needs the
+	// items table intact) so the reconstruction below is idempotent — a re-sync
+	// after an item leaves Operator-blocked (or leaves this tracker) drops its
+	// stale OBD row instead of orphaning it.
+	if _, err := tx.Exec(`DELETE FROM operator_block_details
+		WHERE atm_id IN (SELECT atm_id FROM items WHERE current_location = ?)`, document); err != nil {
+		return fmt.Errorf("clear operator_block_details: %w", err)
+	}
 	if _, err := tx.Exec(`DELETE FROM doc_segments WHERE document = ?`, document); err != nil {
 		return fmt.Errorf("clear segments: %w", err)
 	}
@@ -425,6 +478,19 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 	}
 	defer insItem.Close()
 
+	// §11.4.148 D3 — reconstruct the operator_block_details sub-table from each
+	// Operator-blocked item's `**Operator-Block-Details:**` body block. Without
+	// this, md→db left the sub-table empty and `validate` reported every
+	// Operator-blocked item as "no operator_block_details row" (the RED). Uses
+	// INSERT OR REPLACE (idempotent; atm_id PK) mirroring mutate.go's block path.
+	insOBD, err := tx.Prepare(`INSERT OR REPLACE INTO operator_block_details
+		(atm_id, what, why_exhausted_alternatives, unblock_condition, who)
+		VALUES (?,?,?,?,?)`)
+	if err != nil {
+		return err
+	}
+	defer insOBD.Close()
+
 	for _, it := range items {
 		if _, err := insItem.Exec(it.AtmID, it.Type, it.Status,
 			nullable(it.Severity), it.Title, it.Description,
@@ -433,6 +499,19 @@ func replaceDocument(db *sql.DB, document string, items []item, segs []segment) 
 			it.CurrentLocation, it.BodyMD, it.repOrDefault(),
 			nullable(it.ClosureDate), nullable(it.Round), nullable(it.CommitRef)); err != nil {
 			return fmt.Errorf("insert item %s [%s]: %w", it.AtmID, it.repOrDefault(), err)
+		}
+		// Repopulate operator_block_details only for Operator-blocked items whose
+		// body actually carries the block (a genuinely-missing block stays absent
+		// so the §11.4.148 D3 validator can still catch it). The 'section'
+		// representation guard skips a pipe-table 'table' row for the same id,
+		// which carries no OBD block of its own.
+		if it.Status == "Operator-blocked" && it.repOrDefault() == "section" {
+			if ob, ok := parseOperatorBlockDetails(it.BodyMD); ok {
+				if _, err := insOBD.Exec(it.AtmID, ob.what, ob.why,
+					ob.unblock, nullable(ob.who)); err != nil {
+					return fmt.Errorf("insert operator_block_details %s: %w", it.AtmID, err)
+				}
+			}
 		}
 	}
 
@@ -476,6 +555,13 @@ func nullableRaw(s, kind string) any {
 }
 
 // loadItems returns every item row, ordered by atm_id.
+//
+// ASSIGNMENT_MECHANISM_DESIGN.md §3.1: destination + logic_group (added to the
+// `items` table by P1, ATM-659) are included here so every caller of loadItems
+// — validate-groups (P2, this phase) foremost — can read them. Purely
+// additive: two new trailing struct fields + two new SELECT columns; every
+// existing caller (validateCmd, export, sync round-trip) is unaffected because
+// none of them constructs an `item{}` via positional (unkeyed) literal.
 func loadItems(db *sql.DB) ([]item, error) {
 	rows, err := db.Query(`SELECT atm_id, type, status,
 		COALESCE(severity,''), title, description,
@@ -484,7 +570,8 @@ func loadItems(db *sql.DB) ([]item, error) {
 		COALESCE(created_by,''), COALESCE(assigned_to,''),
 		current_location, COALESCE(body_md,''),
 		COALESCE(representation,'section'), COALESCE(closure_date,''),
-		COALESCE(round,''), COALESCE(commit_ref,'')
+		COALESCE(round,''), COALESCE(commit_ref,''),
+		COALESCE(destination,''), COALESCE(logic_group,'')
 		FROM items ORDER BY atm_id, current_location, representation`)
 	if err != nil {
 		return nil, err
@@ -498,7 +585,7 @@ func loadItems(db *sql.DB) ([]item, error) {
 			&it.ClosureCriteria, &it.ComposesWith,
 			&it.CreatedBy, &it.AssignedTo, &it.CurrentLocation,
 			&it.BodyMD, &it.Representation, &it.ClosureDate,
-			&it.Round, &it.CommitRef); err != nil {
+			&it.Round, &it.CommitRef, &it.Destination, &it.LogicGroup); err != nil {
 			return nil, err
 		}
 		out = append(out, it)
@@ -516,18 +603,26 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 	// representations' bodies; the segment carries which representation it points
 	// to, so the lookup key is atm_id + "\x00" + representation.
 	bodyByKey := map[string]string{}
-	brows, err := db.Query(`SELECT atm_id, representation, COALESCE(body_md,'')
+	brows, err := db.Query(`SELECT atm_id, representation, status, COALESCE(body_md,'')
 		FROM items WHERE current_location = ?`, document)
 	if err != nil {
 		return "", err
 	}
 	for brows.Next() {
-		var id, rep, body string
-		if err := brows.Scan(&id, &rep, &body); err != nil {
+		var id, rep, status, body string
+		if err := brows.Scan(&id, &rep, &status, &body); err != nil {
 			brows.Close()
 			return "", err
 		}
-		bodyByKey[id+"\x00"+rep] = body
+		// ATM-627 (task #20) generator-symmetry: emit the `**Status:**` line from the
+		// authoritative items.status column so a directly-mutated (stale-body) item
+		// still renders a column-consistent Status line. STRICT no-op for every synced
+		// item (lastBodyStatus(body)==status BY CONSTRUCTION on a clean md→db import) →
+		// the byte-identical round-trip is preserved; only a genuinely desynced item's
+		// Status line is rewritten, and its `**Reopened-Details:**` /
+		// `**Operator-Block-Details:**` blocks + all other content are preserved verbatim
+		// (see canonicalizeBodyStatusLine, parse.go).
+		bodyByKey[id+"\x00"+rep] = canonicalizeBodyStatusLine(body, status)
 	}
 	brows.Close()
 	if err := brows.Err(); err != nil {
@@ -542,6 +637,45 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 	defer rows.Close()
 
 	var sb []byte
+	// ATM-627 (WRITER, §11.4.115): a `## <heading>` at the START of a segment
+	// (an item body always begins with its H2 heading; a raw section-header
+	// segment does too) MUST land at a line-start so the `^## `-anchored reader
+	// (parseIssues) can see it. When the PRECEDING content ends on a non-newline
+	// byte — the data state the `update`/`repair-bodies` body-mutation path leaves
+	// (item body_md ending `…PROGRESS.md.` with NO trailing "\n") — a verbatim
+	// concatenation glues the heading mid-line (`…PROGRESS.md.## AP. [ATM-381] …`),
+	// SILENTLY ABSORBING the next item into the previous body (wrong
+	// body/status/type) + reporting it "absent in Markdown". appendSegment inserts
+	// exactly ONE separating "\n" iff the about-to-append content starts with a
+	// heading AND sb does not already end with "\n" — idempotent (fires ONLY on the
+	// non-newline-terminated case, never double-inserts) and byte-identical for
+	// every already-well-formed item (whose preceding body ends "\n\n", so sb ends
+	// "\n" and no separator is added). Fix at the WRITER, not the reader.
+	//
+	// F-DBTOOL defense-in-depth (2026-07-12): the original guard only covered a
+	// glued HEADING (content starting "## "). A newline-less body followed by
+	// a segment that does NOT start with "## " — e.g. a pipe-TABLE row
+	// (content starting "| ") — was still glued onto the tail of the preceding
+	// body with zero separation, verbatim-concatenating the two segments'
+	// TEXT into one unparseable run. Reproduced live: a body left newline-less
+	// by a mutation-path bug (see injectObsoleteDetails / docs/research/
+	// f_dbtool_20260712/ROOTCAUSE.md) glued the FOLLOWING closure pipe-row
+	// directly onto its tail, and because that pipe row no longer began a line
+	// on its own, parseFixed absorbed EVERY item from that point on into the
+	// glued body — reporting ~188 items "absent in Markdown". Generalising the
+	// separator condition to "whenever the preceding buffer doesn't already
+	// end in a newline" (dropping the "## "-only restriction) closes the WHOLE
+	// glue-defect class, not just the heading instance, while remaining a
+	// strict no-op for every well-formed body (which always ends "\n" or
+	// "\n\n") — so the existing byte-identical round-trip fixtures are
+	// unaffected (proven by the full test suite staying green after this
+	// change).
+	appendSegment := func(content string) {
+		if len(sb) > 0 && sb[len(sb)-1] != '\n' {
+			sb = append(sb, '\n')
+		}
+		sb = append(sb, content...)
+	}
 	for rows.Next() {
 		var seq int
 		var kind, atmID, rep, raw string
@@ -550,7 +684,7 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 		}
 		switch kind {
 		case "raw":
-			sb = append(sb, raw...)
+			appendSegment(raw)
 		case "item":
 			if rep == "" {
 				rep = "section"
@@ -559,7 +693,7 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 			if !ok {
 				return "", fmt.Errorf("segment references unknown item %q [%s]", atmID, rep)
 			}
-			sb = append(sb, body...)
+			appendSegment(body)
 		}
 	}
 	return string(sb), rows.Err()

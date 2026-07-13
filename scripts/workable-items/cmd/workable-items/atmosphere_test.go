@@ -261,6 +261,58 @@ func TestParseATM_CanonicalForm_Unchanged(t *testing.T) {
 // A mixed document with ALL shapes interleaved: backward-compat + ATMOSphere
 // items + a skipped section header — and the full text must round-trip
 // byte-identically through the (item body + raw segment) decomposition.
+// fxADSPKBlock — VERBATIM excerpt (2026-07-07 multi-track audit) of the real
+// ATMOSphere Issues.md heading for SPK-373: a Shape-1 legacy section-letter
+// ("AD.") FOLLOWED by the real bracketed id ([SPK-373]) later on the same
+// line. Before the atmBracketIDRe SPK-\d+ fix, this parsed with atm_id="AD"
+// (the section-letter code) instead of the real "SPK-373" — a phantom
+// divergence: "AD present in Markdown, absent in DB" + "SPK-373 present in
+// DB, absent in Markdown" simultaneously, though the item was never missing.
+const fxADSPKBlock = `## AD. [SPK-373] Multi-room synchronous wireless audio — "Sonos Net Protocol" workstream — ` + "`OPEN, FEATURE-WORKSTREAM`" + ` (User mandate 2026-05-13, scope grounded in ` + "`docs/research/sonos_net_protocol/`" + `)
+
+**Status:** Queued
+**Type:** Task
+`
+
+// fxSectionLetterSPKBlock — VERBATIM excerpt for SPK-478: a Shape-3 §-coded
+// heading ("§JY") whose real id is the [SPK-478] bracket later on the line.
+// Same failure mode as fxADSPKBlock, via the §-prefixed shape instead of the
+// dotted-letter shape.
+const fxSectionLetterSPKBlock = `## §JY [SPK-478] JetKVM remote control: screen doesn't flip to portrait (Bug, QA reestr 26.05.01 ORI-01, 2026-05-26)
+
+**Status:** In progress
+**Type:** Bug
+`
+
+func TestParseATM_BracketedID_SPK(t *testing.T) {
+	for _, tc := range []struct {
+		name, src, id, status, typ string
+	}{
+		{"AD./SPK-373 shape-1 legacy-letter-prefix", fxADSPKBlock, "SPK-373", "Queued", "Task"},
+		{"§JY/SPK-478 shape-3 section-letter-prefix", fxSectionLetterSPKBlock, "SPK-478", "In progress", "Bug"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			items, _ := parseIssues(tc.src)
+			if len(items) != 1 {
+				t.Fatalf("expected 1 item, got %d (%v)", len(items), itemIDs(items))
+			}
+			it := items[0]
+			if it.AtmID != tc.id {
+				t.Errorf("atm_id: got %q want %q (SPK bracket must win over the leading section-letter code)", it.AtmID, tc.id)
+			}
+			if it.Status != tc.status {
+				t.Errorf("status: got %q want %q", it.Status, tc.status)
+			}
+			if it.Type != tc.typ {
+				t.Errorf("type: got %q want %q", it.Type, tc.typ)
+			}
+			if strings.HasPrefix(it.AtmID, "ATM-DERIVED-") || it.AtmID == "AD" || it.AtmID == "JY" {
+				t.Errorf("regression: fell back to derived/section-letter id %q instead of the real SPK bracket", it.AtmID)
+			}
+		})
+	}
+}
+
 func TestParseATM_MixedDocument_RoundTrip(t *testing.T) {
 	preamble := "# ATMOSphere Issues\n\nSome preamble prose.\n\n"
 	doc := preamble + fxSectionPlain + "\n" + fxCanonical + "\n" + fxGLBlock + "\n" + fxGZBlock + "\n" + fxSectionFN + "\n" + fxGSNoBracket

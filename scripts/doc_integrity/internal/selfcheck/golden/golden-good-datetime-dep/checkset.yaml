@@ -1,0 +1,24 @@
+schema_version: 1
+# GOLDEN-GOOD (ATM-687 date-in-deps): a plan whose dependencies column holds a
+# DATE value (the spreadsheet-rendered "3/6/2001" — the exact excelize rendering
+# of the V9 "Реалистичный" E156 cell that produced the bogus "2001"/"3"/"6"
+# INTEG-01 findings). With the splitDeps date-detection fix the date is NOT a
+# dependency reference → it is dropped → no orphan → PASS.
+#
+# LOAD-BEARING (the §1.1 paired mutation): revert splitDeps to its old
+# single-stage '/'-split (or delete normalize.IsDateLike) and "3/6/2001"
+# fragments into three orphan refs "3","6","2001" → three INTEG-01 findings →
+# this fixture FAILs. So selfcheck FAILs the moment the ATM-687 fix is removed.
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    id_pattern: '^[0-9]+(\.[0-9]+)*$'
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      start: "Start"
+      deadline: "Deadline"
+      deps: "Deps"

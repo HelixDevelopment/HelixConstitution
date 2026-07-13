@@ -1,0 +1,28 @@
+schema_version: 1
+# GOLDEN-GOOD (ticket_is_epic): the plan's ticket column is an EPIC id that
+# legitimately spans several sub-task rows (ATM-800 on 3 rows). With
+# ticket_is_epic: true DEDUP-01 (ticket-on-many-rows) does NOT apply → PASS.
+#
+# LOAD-BEARING (the §1.1 paired mutation): strip the engine's ticket_is_epic
+# early-return and DEDUP-01 fires on ATM-800 (3 rows) → this fixture FAILs. So
+# selfcheck FAILs the moment the RC2 engine change is removed.
+#
+# The three rows carry IDENTICAL timelines so crossdoc sees no intra-epic
+# timeline divergence, and DISTINCT subjects so DEDUP-02 stays silent — proving
+# ticket_is_epic scopes ONLY DEDUP-01.
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    id_pattern: '^[0-9]+(\.[0-9]+)*$'
+    ticket_is_epic: true
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      start: "Start"
+      deadline: "Deadline"
+dedup:
+  key_fields: [subject_norm, scope_norm]
+  ticket_field: ticket

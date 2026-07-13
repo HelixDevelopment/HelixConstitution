@@ -20,17 +20,24 @@ import (
 // is recognised unconditionally (no Status-block requirement).
 var issueHeadingRe = regexp.MustCompile(`^## ([A-Z]{3}-[0-9A-Za-z]+)(?: \([^)]*\))? — (.+)$`)
 
-// atmBracketIDRe matches an ATMOSphere `[ATM-NNN]` bracket id appearing
-// anywhere in a heading line, e.g. `## §GL CRITICAL — [ATM-238] Netflix …`.
-var atmBracketIDRe = regexp.MustCompile(`\[(ATM-\d+|BOB-\d+)\]`)
+// atmBracketIDRe matches a project-neutral `[PREFIX-NNN]` ticket id appearing
+// anywhere in a heading line, e.g. `## §GL CRITICAL — [ATM-238] title …` or
+// `## §JY [SPK-478] title …`. §11.4.28 project-decoupling: this UNIVERSAL tool
+// MUST NOT hardcode any consuming project's specific ticket prefixes — the
+// prefix is any uppercase-alpha token of ≥2 chars, so a project registering a
+// `[XYZ-NNN]` heading id is recognised without a code change. Without a match a
+// Shape-1/Shape-3 heading whose real id is bracketed silently falls through to
+// the section-letter code or a content-hash pseudo-id, producing phantom sync
+// divergences.
+var atmBracketIDRe = regexp.MustCompile(`\[([A-Z]{2,}-\d+)\]`)
 
-// atmCandidateHeadingRe recognises ATMOSphere's real tracker heading SHAPES
-// that MAY be workable items (subject to the Status-block test below). THREE
-// shapes are accepted — the three the real docs/Fixed.md uses:
+// atmCandidateHeadingRe recognises a consuming project's real tracker heading
+// SHAPES that MAY be workable items (subject to the Status-block test below).
+// THREE shapes are accepted — the three the real docs/Fixed.md uses:
 //
 //	shape 1: ## <CODE>. <title> …      letter-code + a DOT, NO § (dominant ~29 items)
 //	                                   e.g. `## GO. …`, `## GS-2. …`, `## BJ-SOURCE. …`
-//	shape 2: ## [ATM-NNN] <title> …    heading STARTS with an [ATM-NNN] bracket
+//	shape 2: ## [PREFIX-NNN] <title> … heading STARTS with a `[PREFIX-NNN]` bracket
 //	                                   e.g. `## [ATM-248] D11 — VideoOutputManager …`
 //	shape 3: ## §<code> <title> …      §-prefixed
 //	                                   e.g. `## §FL …`, `## §GB …`
@@ -38,21 +45,24 @@ var atmBracketIDRe = regexp.MustCompile(`\[(ATM-\d+|BOB-\d+)\]`)
 // shape 1's CODE is one uppercase letter followed by [A-Za-z0-9]* and an
 // optional `-<suffix>` (so `GS-2`, `BJ-SOURCE`, `AD.0`'s `AD` all match), then a
 // literal `. ` (dot + space). Single-letter codes (`## U. …`, `## T. …`) match
-// too. A heading matching ANY shape is treated as an item ONLY when its body
-// carries a `**Status:**` metadata line BEFORE any nested `### ` subheading
-// (see statusBeforeSubheading) — without one it is a section header
-// (`## A. Tooling …`, `## AI/AK. … closure cycle`, whose Status sits under a
-// `### `) and is skipped, kept raw. Backward-compat note: the canonical
-// `## ABC-123 — …` form is handled by issueHeadingRe FIRST and never reaches
-// this path.
+// too. shape 2's PREFIX is any uppercase-alpha token of ≥2 chars (§11.4.28
+// project-decoupling — this UNIVERSAL tool MUST NOT hardcode any consuming
+// project's specific ticket prefix; a project registering a `[XYZ-NNN]`
+// heading is recognised without a code change). A heading matching ANY shape
+// is treated as an item ONLY when its body carries a `**Status:**` metadata
+// line BEFORE any nested `### ` subheading (see statusBeforeSubheading) —
+// without one it is a section header (`## A. Tooling …`, `## AI/AK. …
+// closure cycle`, whose Status sits under a `### `) and is skipped, kept raw.
+// Backward-compat note: the canonical `## ABC-123 — …` form is handled by
+// issueHeadingRe FIRST and never reaches this path.
 var (
 	atmShape1HeadingRe = regexp.MustCompile(`^## [A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)?\. \S`)
-	atmShape2HeadingRe = regexp.MustCompile(`^## \[ATM-\d+\] \S`)
+	atmShape2HeadingRe = regexp.MustCompile(`^## \[[A-Z]{2,}-\d+\] \S`)
 	atmShape3HeadingRe = regexp.MustCompile(`^## §\S`)
 )
 
 // isATMCandidateHeading reports whether a heading line matches any of the three
-// ATMOSphere item-heading shapes. The Status-block test (statusBeforeSubheading)
+// project item-heading shapes. The Status-block test (statusBeforeSubheading)
 // is applied separately to confirm it is an item and not a section header.
 func isATMCandidateHeading(trimmed string) bool {
 	return atmShape1HeadingRe.MatchString(trimmed) ||
@@ -190,22 +200,24 @@ func parseIssues(content string) ([]item, []segment) {
 
 // atmShape1CodeRe captures the shape-1 letter-code that precedes the `. `
 // boundary, e.g. `GO`, `GS-2`, `BJ-SOURCE`, `U`. atmShape2CodeRe captures the
-// leading `[ATM-NNN]` bracket; atmShape3CodeRe captures the §-code token.
+// leading `[PREFIX-NNN]` bracket (any ≥2-char uppercase prefix per §11.4.28
+// project-decoupling — see atmBracketIDRe / atmShape2HeadingRe); atmShape3CodeRe
+// captures the §-code token.
 var (
 	atmShape1CodeRe = regexp.MustCompile(`^([A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)?)\. (.*)$`)
-	atmShape2CodeRe = regexp.MustCompile(`^\[(ATM-\d+)\] (.*)$`)
+	atmShape2CodeRe = regexp.MustCompile(`^\[([A-Z]{2,}-\d+)\] (.*)$`)
 	atmShape3CodeRe = regexp.MustCompile(`^§(\S+)\s*(.*)$`)
 )
 
-// parseATMHeading extracts the (id, title) pair from an ATMOSphere-shaped H2
+// parseATMHeading extracts the (id, title) pair from a project-shaped H2
 // heading line (the leading `## ` already present in `headingLine`). It
 // dispatches on the heading shape:
 //
-//	shape 2 `## [ATM-NNN] <rest>`  -> id = ATM-NNN (the bracket), title = trim(rest)
-//	shape 3 `## §<code> <rest>`    -> id = a `[ATM-NNN]` bracket anywhere in the
+//	shape 2 `## [PREFIX-NNN] <rest>` -> id = PREFIX-NNN (the bracket), title = trim(rest)
+//	shape 3 `## §<code> <rest>`    -> id = a `[PREFIX-NNN]` bracket anywhere in the
 //	                                 heading if present, else derived from the
 //	                                 §-code; title = trim(rest)
-//	shape 1 `## <CODE>. <rest>`    -> id = a `[ATM-NNN]` bracket anywhere in the
+//	shape 1 `## <CODE>. <rest>`    -> id = a `[PREFIX-NNN]` bracket anywhere in the
 //	                                 heading if present, else the CODE itself
 //	                                 (`GO`, `GS-2`, `BJ-SOURCE`); title = trim(rest)
 //
@@ -439,6 +451,244 @@ func normalizeStatus(v string) string {
 	default:
 		return "Queued"
 	}
+}
+
+// lastBodyStatus reconstructs the Status the md→db parser (buildItem) would derive
+// from a body_md block, returning (normalizedStatus, true) when the body carries at
+// least one `**Status:**` meta line and ("", false) when it carries none. It mirrors
+// buildItem EXACTLY: walk every `**Key:** value` line via metaLineRe and let the LAST
+// `**Status:**` line win, normalised through normalizeStatus (buildItem's switch
+// overwrites it.Status on each `status` key, so last-wins is the faithful semantics).
+//
+// This shared derivation is the generator-symmetric oracle for the ATM-627 (task #20)
+// column↔body Status invariant: a body whose Status line carries trailing prose, a
+// `**Priority:**` tail on the same line, or multiple `**Status:**` tokens normalises to
+// the SAME value the column was first set to — so those shapes are NOT false-positive
+// desyncs (the 8 false-positives the reconciliation plan calls out are resolved here).
+func lastBodyStatus(body string) (string, bool) {
+	status := ""
+	found := false
+	for _, mm := range metaLineRe.FindAllStringSubmatch(body, -1) {
+		if strings.EqualFold(mm[1], "status") {
+			status = normalizeStatus(strings.TrimSpace(mm[2]))
+			found = true
+		}
+	}
+	return status, found
+}
+
+// canonicalizeBodyStatusLine returns body with the value of its LAST `**Status:**`
+// line forced to columnStatus, so `sync db-to-md` emits a Status line consistent with
+// the authoritative items.status column even if a direct `UPDATE items SET status=…`
+// (bypassing renderItemBody) left body_md stale — the ATM-627 (task #20) generator-
+// symmetry / defense-in-depth half of the durable fix.
+//
+// It is a STRICT no-op — body returned unchanged, byte-for-byte — when the body has no
+// `**Status:**` line OR already derives columnStatus (lastBodyStatus == columnStatus).
+// Because every freshly md→db-synced item satisfies lastBodyStatus(body)==status BY
+// CONSTRUCTION (buildItem sets the column from exactly this derivation), the entire
+// clean DB round-trips BYTE-IDENTICALLY through this function; only a genuinely desynced
+// item's line is rewritten. Only the Status line's value changes — every other line,
+// including `**Reopened-Details:**` / `**Operator-Block-Details:**` blocks and all prose,
+// is preserved verbatim (surgical single-line replacement). Composes with the R3
+// dangling-segment guard (sync.go danglingItemSegments) — that guards segment↔item
+// location; this guards column↔body Status; the two are orthogonal invariants.
+func canonicalizeBodyStatusLine(body, columnStatus string) string {
+	if cur, ok := lastBodyStatus(body); !ok || cur == columnStatus {
+		return body
+	}
+	lines := splitKeepNewlines(body)
+	lastIdx := -1
+	for i, ln := range lines {
+		if strings.HasPrefix(strings.TrimRight(ln, "\n"), "**Status:**") {
+			lastIdx = i
+		}
+	}
+	if lastIdx < 0 {
+		return body // defensive: lastBodyStatus said a Status line exists → unreachable
+	}
+	nl := ""
+	if strings.HasSuffix(lines[lastIdx], "\n") {
+		nl = "\n"
+	}
+	lines[lastIdx] = "**Status:** " + columnStatus + nl
+	return strings.Join(lines, "")
+}
+
+// ensureTrailingNewline normalizes a stored `items.body_md` to end with AT LEAST
+// one trailing "\n" — the STORE-side half of the ATM-627 byte-identical
+// round-trip (the db-to-md WRITER half landed in 97d405c). Root cause it closes:
+// a stored body_md that ends with NO "\n" (the live 9-item residual, e.g.
+// `…PROGRESS.md.`) forces renderDocument (db.go) to SYNTHESIZE a separator "\n"
+// before the next heading so a heading never glues onto the prior body line — but
+// the re-parsed body is then one "\n" longer than the stored body, so
+// `workable-items diff` reports `~ <id> body differs (md=N+1 db=N)` and the
+// round-trip is not byte-identical.
+//
+// It is IDEMPOTENT and BYTE-IDENTICAL for an already-normalized body: a body that
+// already ends with "\n" is returned UNCHANGED — this deliberately PRESERVES the
+// renderItemBody "\n\n" convention (494 live items end "\n\n", 2 end "\n"); it is
+// NOT "trim to exactly one \n" (that would mutate every "\n\n" body + collapse the
+// inter-item blank line the writer relies on). An EMPTY body is left empty — the
+// empty-body class is owned by the classifyRepair populate path (renderItemBody),
+// not here, so this never fabricates a heading-less body.
+func ensureTrailingNewline(body string) string {
+	if body == "" || strings.HasSuffix(body, "\n") {
+		return body
+	}
+	return body + "\n"
+}
+
+// operatorBlock is the reconstruction of an item's §11.4.21
+// `**Operator-Block-Details:**` block, so the md→db sync can repopulate the
+// operator_block_details sub-table (§11.4.148 D3). The four fields mirror the
+// schema columns what / why_exhausted_alternatives / unblock_condition / who.
+type operatorBlock struct {
+	what    string
+	why     string
+	unblock string
+	who     string
+}
+
+// parseOperatorBlockDetails reconstructs the §11.4.21 Operator-Block-Details
+// fields from an item body_md. Returns ok=false when the body carries NO
+// `**Operator-Block-Details` block — the item then gets no sub-table row, which
+// the §11.4.148 D3 validator correctly flags for a genuinely-missing block.
+//
+// The live trackers use several real shapes for the block (all six live
+// Operator-blocked items exercised): an inline single line
+// (`… WHAT: … WHY: … UNBLOCK: [A]…·[B]… WHO: …`, ATM-356/388/651); a bulleted
+// bold block (`- **WHAT operator must do:** …` / `- **WHY …:** …` / …,
+// ATM-387/474); and a By/On/Reason/Evidence bullet list whose enumerated
+// choices live in a SEPARATE `**Unblock-Choices:**` line (ATM-015/356). The
+// captured block runs from the marker line up to the first blank line, sibling
+// `**Label:**` field, heading, or `---`. unblock_condition folds in the
+// `**Unblock-Choices:**` line + the block's own UNBLOCK text + the whole block,
+// so the §11.4.148 D3 enumerated-choice assertion always sees the real choices.
+//
+// It is READ-ONLY over body_md and never touches the round-trip path
+// (renderDocument reassembles documents from body_md/segments, NOT from the
+// operator_block_details sub-table), so this reconstruction cannot perturb the
+// byte-identical md↔db round-trip.
+func parseOperatorBlockDetails(body string) (operatorBlock, bool) {
+	lines := strings.Split(body, "\n")
+	start := -1
+	for i, ln := range lines {
+		if strings.HasPrefix(strings.TrimSpace(ln), "**Operator-Block-Details") {
+			start = i
+			break
+		}
+	}
+	if start < 0 {
+		return operatorBlock{}, false
+	}
+	// Capture the marker line + continuation lines up to the first blank line,
+	// sibling `**Label:**` field, heading, or `---` separator. Bullet lines
+	// (`- …` / `* …`) are continuation, NOT siblings, so they are included.
+	block := []string{lines[start]}
+	for j := start + 1; j < len(lines); j++ {
+		t := strings.TrimSpace(lines[j])
+		if t == "" ||
+			(strings.HasPrefix(t, "**") && strings.Contains(t, ":**")) ||
+			strings.HasPrefix(t, "## ") || strings.HasPrefix(t, "### ") ||
+			strings.HasPrefix(t, "---") {
+			break
+		}
+		block = append(block, lines[j])
+	}
+	blockText := strings.TrimSpace(strings.Join(block, "\n"))
+
+	// A separate `**Unblock-Choices:**` line (ATM-015/356) carries the enumerated
+	// [A]…·[B]… choices OUTSIDE the OBD block; fold it into the unblock text so
+	// the §11.4.148 D3 enumerated-choice assertion sees it.
+	choices := ""
+	for _, mm := range metaLineRe.FindAllStringSubmatch(body, -1) {
+		if strings.EqualFold(mm[1], "Unblock-Choices") {
+			choices = strings.TrimSpace(mm[2])
+		}
+	}
+
+	ob := operatorBlock{
+		what: firstNonEmpty(extractOBDField(blockText, "WHAT"), blockText),
+		why:  firstNonEmpty(extractOBDField(blockText, "WHY"), blockText),
+		who:  extractOBDField(blockText, "WHO"), // nullable column → "" is fine
+	}
+	var parts []string
+	if choices != "" {
+		parts = append(parts, choices)
+	}
+	if u := extractOBDField(blockText, "UNBLOCK"); u != "" {
+		parts = append(parts, u)
+	}
+	parts = append(parts, blockText) // safety net: the whole block (its bullets satisfy the enumeration check)
+	ob.unblock = strings.TrimSpace(strings.Join(parts, "\n"))
+	return ob, true
+}
+
+// extractOBDField pulls the text of a single §11.4.21 field (key one of
+// WHAT/WHY/UNBLOCK/WHO) from an OBD block, recognising BOTH the bulleted bold
+// form (`- **WHAT operator must do:** <text>`) and the inline form
+// (`… WHAT: <text> WHY: …`). Returns "" when the field is absent (callers fall
+// back to the whole block for the NOT-NULL what/why columns; who is nullable).
+func extractOBDField(block, key string) string {
+	// (1) bulleted bold form: a bullet whose payload is **<key…>:** <text>.
+	for _, ln := range strings.Split(block, "\n") {
+		t := strings.TrimSpace(ln)
+		t = strings.TrimPrefix(t, "- ")
+		t = strings.TrimPrefix(t, "* ")
+		if !strings.HasPrefix(t, "**") {
+			continue
+		}
+		closeIdx := strings.Index(t, ":**")
+		if closeIdx < 0 {
+			continue
+		}
+		label := strings.ToUpper(strings.TrimSpace(t[2:closeIdx]))
+		if strings.HasPrefix(label, key) {
+			return strings.TrimSpace(t[closeIdx+3:])
+		}
+	}
+	// (2) inline form: find `KEY:` at a word boundary; the value runs to the
+	//     next WHAT:/WHY:/UNBLOCK:/WHO: label or the end of the block.
+	upper := strings.ToUpper(block)
+	inlineKeys := []string{"WHAT:", "WHY:", "UNBLOCK:", "WHO:"}
+	find := func(k string) int {
+		from := 0
+		for {
+			idx := strings.Index(upper[from:], k)
+			if idx < 0 {
+				return -1
+			}
+			pos := from + idx
+			if pos == 0 || !isOBDWordChar(upper[pos-1]) {
+				return pos
+			}
+			from = pos + len(k)
+		}
+	}
+	kk := key + ":"
+	pos := find(kk)
+	if pos < 0 {
+		return ""
+	}
+	valStart := pos + len(kk)
+	valEnd := len(block)
+	for _, other := range inlineKeys {
+		if other == kk {
+			continue
+		}
+		if oi := find(other); oi >= valStart && oi < valEnd {
+			valEnd = oi
+		}
+	}
+	return strings.TrimSpace(block[valStart:valEnd])
+}
+
+// isOBDWordChar reports whether b is an ASCII letter/digit — used to enforce a
+// word boundary before an inline `KEY:` so a substring hit inside a larger word
+// is not mistaken for the field label.
+func isOBDWordChar(b byte) bool {
+	return (b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z') || (b >= '0' && b <= '9')
 }
 
 // fixedRowRe matches a LEGACY Fixed.md closure table data row:

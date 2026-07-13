@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>DESIGN</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="scheduled-work-engine-design">scheduled-work-engine —
+DESIGN</h1>
+<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
+2026-07-02T00:00:00Z</p>
+<h2 id="goal-scope">1. Goal &amp; scope</h2>
+<p>Backing infrastructure that gives the <code>REMINDER</code> /
+<code>BACKGROUND</code> action-prefix (§11.4.140) real teeth: a
+<strong>decoupled, project-agnostic</strong> (§11.4.28) service that
+tracks scheduled/background work items so an autonomous agent can, when
+a REMINDER fires, query for work whose outcome is <strong>not yet
+confirmed</strong> and re-verify it before reporting done (§11.4.6
+no-guessing, §11.4.108 verify-before-report). No
+ATMOSphere/consumer-specific data is hardcoded; all configuration is via
+env/flags (§11.4.28).</p>
+<h2 id="architecture">2. Architecture</h2>
+<pre><code>cmd/scheduled-work            subcommands: serve | mcp-stdio | acp-stdio | version
+  └─ internal/server          gin.Engine (REST + POST /mcp) + brotli middleware + TLS
+  └─ internal/mcp             MCP JSON-RPC 2.0 dispatcher (shared by HTTP + stdio)
+  └─ internal/acp             newline-delimited JSON-RPC stdio loop (MCP-stdio + ACP-equiv)
+  └─ internal/store           JSON-file store (mutex + atomic write), the data model</code></pre>
+<p>One <code>gin.Engine</code> implements <code>http.Handler</code>, so
+it is served <strong>identically</strong> over HTTP/1.1, HTTP/2 (TCP
+TLS) and HTTP/3 (QUIC UDP). One MCP dispatcher backs the HTTP
+<code>/mcp</code> endpoint AND the stdio transports — a single tool
+implementation, three transports.</p>
+<h3
+id="current-libraries-researched-11.4.811.4.99-verified-2026-07-02">Current
+libraries (researched — §11.4.8/§11.4.99, verified 2026-07-02)</h3>
+<ul>
+<li><code>github.com/quic-go/quic-go</code> <strong>v0.60.0</strong> —
+<code>http3.Server{Handler,TLSConfig}</code>
+(<code>ListenAndServe</code> / <code>Serve(net.PacketConn)</code>) for
+the server; <code>http3.Transport</code> (an
+<code>http.RoundTripper</code>) for the client. gin does not serve
+HTTP/3 natively, so the <code>gin.Engine</code> is wrapped as the
+<code>http.Handler</code> behind <code>http3.Server</code> (confirmed
+against the vendored source, not assumed).</li>
+<li><code>github.com/andybalholm/brotli</code> <strong>v1.2.2</strong> —
+<code>brotli.NewWriterLevel</code>; note it has no
+<code>WriteString</code> (the gin <code>ResponseWriter</code>
+<code>WriteString</code> is implemented via
+<code>Write([]byte(s))</code>).</li>
+<li><code>github.com/gin-gonic/gin</code> (latest) — router.</li>
+<li><code>github.com/google/uuid</code> — item ids.</li>
+</ul>
+<p>Graceful fallback: <code>serve</code> starts a TCP TLS
+<code>http.Server</code> (h1/h2) AND the UDP <code>http3.Server</code>;
+every h1/h2 response advertises the h3 alt-svc via
+<code>SetQUICHeaders</code>, so clients upgrade to HTTP/3 when able.
+<code>SWQ_H3=0</code> runs h1/h2 only.</p>
+<h2 id="store-choice-json-file-justification-11.4.6">3. Store choice —
+JSON file (justification, §11.4.6)</h2>
+<p>A reminder / scheduled-work queue is a
+<strong>low-write-volume</strong> workload. Options: - <strong>SQLite
+(mattn/go-sqlite3)</strong> — needs CGO, complicating static/cross
+builds. - <strong>BoltDB</strong> — an extra module dependency for a
+tiny dataset. - <strong>JSON file (chosen)</strong> — zero CGO, zero
+extra module, trivially portable across every supported platform
+(§11.4.81), human-inspectable for debugging.</p>
+<p>Durability: a <code>sync.RWMutex</code> serialises all access; writes
+go through write-temp-<code>fsync</code>-rename (atomic replace), so a
+crash never leaves a torn file. <code>Open</code> on a corrupt file
+returns an error rather than silently dropping data (§11.4.6). The
+<code>TestConcurrentCreate</code> test drives 50 concurrent creates
+through the mutex with zero lost writes; <code>go test -race</code> is
+clean.</p>
+<h2 id="acp-surface-honesty-note-11.4.6-11.4.99">4. ACP surface —
+honesty note (§11.4.6 / §11.4.99)</h2>
+<p>“ACP” (Agent Client Protocol, agentclientprotocol.com) is an emerging
+JSON-RPC-2.0-over-stdio protocol whose full session / prompt-turn model
+targets interactive coding <strong>agents</strong>, not a stateless
+work-queue service. Implementing the complete ACP agent lifecycle here
+would invent behaviour that does not fit this service. Instead
+<code>internal/acp</code> exposes the <strong>same</strong>
+newline-delimited JSON-RPC-2.0-over-stdio transport ACP uses,
+dispatching to the identical tool set as the MCP surface. It is
+therefore an <strong>ACP-EQUIVALENT</strong> adapter, clearly labelled
+in source — not a claim of full ACP-agent conformance. This is stated as
+a fact, not hidden behind a green test.</p>
+<h2 id="anti-bluff-test-coverage-11.4-11.4.27-1.1">5. Anti-bluff test
+coverage (§11.4 / §11.4.27 / §1.1)</h2>
+<ul>
+<li><strong>Unit</strong> (<code>internal/store</code>,
+<code>internal/mcp</code>) — model, lifecycle, derived
+<code>overdue</code>, needs-verification, persistence round-trip,
+invalid-input rejection, concurrency; MCP initialize / tools-list /
+tools-call / error paths.</li>
+<li><strong>Integration</strong> (<code>test/</code>, no mocks —
+§11.4.27) — boots the REAL <code>http3.Server</code> on an ephemeral UDP
+port and round-trips create→list→mark-done→verify over
+<strong>HTTP/3</strong> (asserts <code>resp.Proto == "HTTP/3.0"</code>)
+with <strong>brotli</strong> (asserts <code>Content-Encoding: br</code>
+and decodes it); plus the MCP-over-HTTP/3 endpoint.</li>
+<li><strong>§1.1 paired mutation</strong>
+(<code>test/meta_mutation.sh</code>) — breaks the mark-done handler at
+source, asserts the suite goes RED, restores, asserts GREEN. Proves the
+suite is not a bluff gate.</li>
+<li><strong>Live smoke</strong> (<code>test/live_smoke.sh</code>) —
+boots the built binary and confirms the full lifecycle over REST-TLS +
+MCP-stdio, capturing the transcript under
+<code>qa-results/&lt;ts&gt;/</code>.</li>
+</ul>
+<p>Honest boundary: brotli-over-HTTP/3 is asserted programmatically in
+the Go integration test (a real h3 client); the <code>curl</code> live
+smoke uses the h1/h2 fallback of the same engine because curl does not
+speak HTTP/3 to a self-signed cert here.</p>
+<h2 id="consumer-wiring">6. Consumer wiring</h2>
+<ul>
+<li>MCP registration:
+<code>constitution/mcp/scheduled-work-mcp.json</code>.</li>
+<li>Claude Code plugin:
+<code>constitution/plugins/scheduled-work/</code>
+(<code>.claude-plugin/plugin.json</code> + <code>.mcp.json</code> +
+<code>build.sh</code>).</li>
+<li>Skill: <code>constitution/skills/scheduled-work-queue/</code>
+(<code>skill.md</code> + <code>register.sh</code>).</li>
+</ul>
+<h2
+id="proposed-governance-anchor-handoff-for-the-conductor-not-applied-here">7.
+Proposed governance-anchor handoff (for the conductor — NOT applied
+here)</h2>
+<p>Per the task’s file-scope isolation, this component does NOT edit
+Constitution.md or any carrier. If the operator/conductor wishes to make
+this infrastructure a mandated capability, the following anchor text is
+PROPOSED for integration by the conductor (classification: universal,
+§11.4.17):</p>
+<blockquote>
+<p><strong>§11.4.NNN — Scheduled-work / reminder verify-before-report
+backing service.</strong> The <code>REMINDER</code> /
+<code>BACKGROUND</code> action-prefix (§11.4.140) MUST be backed by a
+durable scheduled-work queue (the <code>scheduled-work-engine</code>) so
+that deferred / background work is recorded with a lifecycle status, and
+a REMINDER MUST query <code>list_needs_verification</code>
+(<code>blocked</code>/<code>uncertain</code>/<code>overdue</code>) and
+re-confirm each item’s real outcome with captured evidence
+(§11.4.5/§11.4.69) BEFORE the agent reports it done (§11.4.6/§11.4.108)
+— never marking an item done on assumption. The queue is decoupled +
+project-agnostic (§11.4.28), consumed by reference, and the loop
+done-condition (§11.4.87/§11.4.126) MUST NOT read satisfied while any
+tracked item is non-terminal. Recommended gate
+<code>CM-SCHEDULED-WORK-VERIFY-BEFORE-DONE</code> + paired §1.1
+mutation. Composes
+§11.4.6/§11.4.28/§11.4.108/§11.4.116/§11.4.126/§11.4.140.</p>
+</blockquote>
+<h2 id="cross-references">8. Cross-references</h2>
+<p>§11.4.6 · §11.4.8 · §11.4.28 · §11.4.30 · §11.4.77 · §11.4.81 ·
+§11.4.108 · §11.4.116 · §11.4.126 · §11.4.140 · §11.4.164 · §1.1.</p>
+</body>
+</html>

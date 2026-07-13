@@ -1,0 +1,75 @@
+# docker-compose.sonarqube.yml — Helix Universal SonarQube Community Build stack.
+#
+# Purpose        : Declarative, ROOTLESS-podman (§11.4.161) definition of a
+#                  single-host SonarQube Community Build server + its PostgreSQL
+#                  backing store. ONE server per host (singleton) — every
+#                  consuming project/track pushes analysis under its own
+#                  `sonar.projectKey`, so no per-project SonarQube instance is
+#                  needed and no §11.4.178 session/name collision occurs.
+# Boot           : podman-compose -p helix_sonarqube -f docker-compose.sonarqube.yml up -d
+#                  (wrapped by ../sonarqube_container.sh — do NOT hand-roll ad-hoc
+#                  `podman run` commands; this compose IS the declarative
+#                  orchestration surface, consistent with the Containers
+#                  submodule podman runtime per §11.4.76).
+# Prereq         : HOST vm.max_map_count >= 262144 (rootless containers share the
+#                  host sysctl — cannot be set per-container without privilege).
+#                  Verified by sonarqube_container.sh before boot (§11.4.133).
+# Credentials    : SONAR_DB_USER / SONAR_DB_PASSWORD default to the well-known
+#                  SonarSource local-dev value `sonar` for a host-local-only DB
+#                  (port 5432 is NOT published). For a hardened deployment set
+#                  them in the consuming project's gitignored .env (§11.4.10).
+#                  The generated SonarQube ADMIN TOKEN is a real secret and MUST
+#                  live in the project .env only (§11.4.10) — never committed.
+# §11.4.166      : Semgrep mandate REPEALED — this stack is the NEW sanctioned
+#                  SonarQube path; it does NOT touch any Semgrep scaffolding.
+# Cross-ref      : §11.4.<NEXT> (SonarQube-use mandate, anchor draft) · §11.4.76
+#                  (containers submodule) · §11.4.161 (rootless) · §12.6 (mem cap).
+
+services:
+  sonarqube:
+    image: docker.io/library/sonarqube:community
+    container_name: helix_sonarqube
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: "jdbc:postgresql://db:5432/sonar"
+      SONAR_JDBC_USERNAME: "${SONAR_DB_USER:-sonar}"
+      SONAR_JDBC_PASSWORD: "${SONAR_DB_PASSWORD:-sonar}"
+    ports:
+      - "${SONAR_HOST_PORT:-9000}:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    # §12.6 memory ceiling — SonarQube CE (embedded Elasticsearch + web) fits in
+    # ~2-4 GB; cap it so a runaway heap can never breach the host 60% budget.
+    mem_limit: 4g
+    restart: unless-stopped
+
+  db:
+    image: docker.io/library/postgres:16
+    container_name: helix_sonarqube_db
+    environment:
+      POSTGRES_USER: "${SONAR_DB_USER:-sonar}"
+      POSTGRES_PASSWORD: "${SONAR_DB_PASSWORD:-sonar}"
+      POSTGRES_DB: sonar
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SONAR_DB_USER:-sonar} -d sonar"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    mem_limit: 1g
+    restart: unless-stopped
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgresql_data:

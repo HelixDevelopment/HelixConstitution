@@ -149,7 +149,66 @@ func updateCmd(args []string) int {
 		cur.AssignedTo = strings.TrimSpace(*assignedTo)
 	}
 
-	newBody := renderItemBody(cur.AtmID, cur.Title, cur.Type, cur.Severity, cur.Description, cur.Status, cur.CreatedBy, cur.AssignedTo)
+	// §11.4.93 data-integrity: a field-only update MUST mutate only the specified
+	// column(s) and PRESERVE the authored body_md. A real md→db-synced item carries
+	// multi-KB of operator-authored freeform content; regenerating it from
+	// renderItemBody's minimal template collapses it to ~250 bytes — the truncation
+	// defect this fixes (forensic anchor: SPK-481 10 KB → 294 bytes on `update
+	// --severity`). Regeneration is permitted ONLY when --description explicitly
+	// replaces the freeform content.
+	//
+	// For a field-only update we start from the existing body and surgically sync
+	// only the two slots the tool treats as column-authoritative:
+	//   - the `## <ID> — <title>` heading, when --title changes (the item's rendered
+	//     display identity; renderDocument emits it from body_md, not the column);
+	//   - the `**Status:**` line, when --status changes (the sole column↔body
+	//     invariant enforced by statusColumnBodyDesyncs). canonicalizeBodyStatusLine
+	//     is a STRICT no-op when status is unchanged, so a non-status field-only
+	//     update (e.g. --severity) leaves body_md byte-identical (diff stays 0).
+	// Every other line — the entire authored freeform body plus the
+	// severity/type/attribution meta lines — is preserved verbatim.
+	//
+	// F-DBTOOL-2 fix (2026-07-12): renderItemBody unconditionally emits the H2
+	// "## <ID> — <title>" section shape. For a 'table'-representation item (a
+	// legacy Fixed.md pipe-table closure row — parseFixed's emitLegacyTable,
+	// parse.go) that shape is WRONG: it replaces the single "| date | title |
+	// type | status | round | commit(s) | evidence |" row line with a multi-line
+	// H2 block, which (a) issueHeadingRe / isATMCandidateHeading (parse.go) never
+	// recognise as ANY heading shape for a synthetic "FIX-<date>#<n>" id
+	// (multiple dashes + "#" fail every pattern), so the item is swallowed into
+	// raw prose on the next db-to-md + re-parse round-trip, and (b) because
+	// emitLegacyTable derives an un-ID'd row's atm_id POSITIONALLY — the Nth
+	// same-dated row encountered during the scan, not a stable identifier — every
+	// later same-dated row's re-derived id silently shifts down by one, cascading
+	// dozens of spurious "body differs" / "absent in Markdown" / status-type
+	// mismatches (docs/research/f_dbtool2_20260712/ROOTCAUSE.md; reproduced by
+	// a SINGLE `update --description` on one table-representation item). A
+	// pipe-table row has no dedicated description cell to update (Description is
+	// DERIVED from Title+Evidence at parse time, deriveDescription), so the safe,
+	// minimal fix is: update the `items.description` COLUMN (already applied
+	// above) but do NOT regenerate body_md for a table-representation item —
+	// preserve the verbatim pipe-row text via the same field-only path used for
+	// --severity/--status, which is a proven no-op-safe path for this shape
+	// (replaceHeadingTitle/canonicalizeBodyStatusLine both require "## "/"**" -
+	// prefixed lines that a pipe-row never contains, so they leave it unchanged).
+	var newBody string
+	if set["description"] && cur.repOrDefault() != "table" {
+		newBody = renderItemBody(cur.AtmID, cur.Title, cur.Type, cur.Severity, cur.Description, cur.Status, cur.CreatedBy, cur.AssignedTo)
+	} else {
+		newBody = cur.BodyMD
+		if set["title"] {
+			newBody = replaceHeadingTitle(newBody, cur.AtmID, cur.Title)
+		}
+		newBody = canonicalizeBodyStatusLine(newBody, cur.Status)
+	}
+	// ATM-627-part-2 STORE-side normalization (defense-in-depth). A field-only
+	// update PROPAGATES the existing cur.BodyMD verbatim; a pre-existing body that
+	// ended with NO "\n" (the live 9-item residual) would be re-stored no-"\n"
+	// otherwise, keeping the byte-identical round-trip broken. ensureTrailingNewline
+	// is a strict no-op on an already-"\n"-terminated body (the normal "\n\n"
+	// convention), so it preserves the "diff stays 0 for a non-status field-only
+	// update" invariant while self-healing a no-"\n" body.
+	newBody = ensureTrailingNewline(newBody)
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -158,12 +217,18 @@ func updateCmd(args []string) int {
 	}
 	defer tx.Rollback()
 
+	// F-DBTOOL fix (2026-07-12): scope by representation — cur came from
+	// loadItem's now-deterministic (atm_id, location) read; without this the
+	// WHERE clause matches EVERY representation row sharing (atm_id, location)
+	// (GAP A dual-representation items, e.g. HXC-044's 'section'+'table' pair)
+	// and clobbers the sibling representation's body_md with cur's content.
+	// See docs/research/f_dbtool_20260712/ROOTCAUSE.md.
 	if _, err := tx.Exec(`UPDATE items SET
 		type=?, status=?, severity=?, title=?, description=?,
 		created_by=?, assigned_to=?, body_md=?, last_modified=datetime('now')
-		WHERE atm_id=? AND current_location=?`,
+		WHERE atm_id=? AND current_location=? AND representation=?`,
 		cur.Type, cur.Status, nullable(cur.Severity), cur.Title, cur.Description,
-		cur.CreatedBy, cur.AssignedTo, newBody, *id, loc); err != nil {
+		cur.CreatedBy, cur.AssignedTo, newBody, *id, loc, cur.repOrDefault()); err != nil {
 		fmt.Fprintf(os.Stderr, "update: %v\n", err)
 		return exitUsage
 	}
@@ -192,7 +257,7 @@ func reopenCmd(args []string) int {
 	fs := flag.NewFlagSet("reopen", flag.ContinueOnError)
 	dbPath := fs.String("db", "", "path to the workable-items SQLite DB")
 	id := fs.String("id", "", "ticket id of the item to reopen (required)")
-	location := fs.String("location", "Issues", "which tracker the item lives in: Issues | Fixed")
+	location := fs.String("location", "Issues", "destination tracker for the reopened item: Issues (default; non-terminal Reopened belongs in Issues) | Fixed (operator override, keep in Fixed)")
 	why := fs.String("why", "", "§11.4.34 reason (closed-set): "+reopenReasonList())
 	who := fs.String("who", "", "§11.4.34 By: AI | User")
 	when := fs.String("when", "", "§11.4.34 On: ISO date (YYYY-MM-DD)")
@@ -209,8 +274,13 @@ func reopenCmd(args []string) int {
 		fmt.Fprintln(os.Stderr, "reopen: --id is required")
 		return exitUsage
 	}
-	loc := strings.TrimSpace(*location)
-	if loc != "Issues" && loc != "Fixed" {
+	// §11.4.34 / ATM-627 INTEG-03: --location is the DESTINATION tracker for the
+	// reopened item. Reopened is a NON-terminal status, so the default destination is
+	// Issues — a reopened item BELONGS in Issues (a Fixed-location item carrying a
+	// non-terminal status is the location↔status desync validateCmd now catches). The
+	// item's CURRENT location is auto-detected below, so `reopen` finds a Fixed item
+	// too; `--location Fixed` is a deliberate operator override that keeps it in Fixed.
+	if wantLoc := strings.TrimSpace(*location); wantLoc != "Issues" && wantLoc != "Fixed" {
 		fmt.Fprintln(os.Stderr, "reopen: --location must be Issues or Fixed")
 		return exitUsage
 	}
@@ -245,15 +315,34 @@ func reopenCmd(args []string) int {
 	}
 	defer db.Close()
 
-	cur, err := loadItem(db, *id, loc)
+	// Auto-detect the item's CURRENT location (Issues first, then Fixed) so reopen
+	// works regardless of where the item lives — the pre-fix reopen searched ONLY the
+	// --location value (default Issues) and therefore could not even find a Fixed item
+	// to reopen (ATM-627 INTEG-03).
+	srcLoc := "Issues"
+	cur, err := loadItem(db, *id, srcLoc)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "reopen: %v\n", err)
 		return exitUsage
 	}
 	if cur == nil {
-		fmt.Fprintf(os.Stderr, "reopen: item %s not found in %s\n", *id, loc)
+		srcLoc = "Fixed"
+		cur, err = loadItem(db, *id, srcLoc)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "reopen: %v\n", err)
+			return exitUsage
+		}
+	}
+	if cur == nil {
+		fmt.Fprintf(os.Stderr, "reopen: item %s not found in Issues or Fixed\n", *id)
 		return exitUsage
 	}
+
+	// Destination: default Issues (non-terminal Reopened belongs in Issues); an
+	// explicit --location Fixed keeps it in Fixed (operator override). This single
+	// line is the §1.1 mutation seam — forcing `dest := srcLoc` reverts the INTEG-03
+	// migration so reopen strands a Fixed item in Fixed again.
+	dest := strings.TrimSpace(*location)
 
 	cur.Status = "Reopened"
 	newBody := renderReopenedBody(cur, byVal, *when, *why, *incident)
@@ -265,10 +354,34 @@ func reopenCmd(args []string) int {
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.Exec(`UPDATE items SET status='Reopened', body_md=?, last_modified=datetime('now')
-		WHERE atm_id=? AND current_location=?`, newBody, *id, loc); err != nil {
+	// Relocate the row to the destination in place: an UPDATE that flips
+	// current_location is LOSSLESS (it preserves forensic_anchor / closure_criteria /
+	// composes_with / parent_atm_id / session_ref / version_tags — columns a
+	// delete+insert would drop). The (atm_id, current_location, representation) PK
+	// admits the flip because the item lives in exactly one location.
+	//
+	// F-DBTOOL fix (2026-07-12): scope by representation (cur.repOrDefault(),
+	// now populated correctly by loadItem) so a dual-representation item's
+	// sibling row is never relocated/clobbered alongside the one actually
+	// reopened. See docs/research/f_dbtool_20260712/ROOTCAUSE.md.
+	if _, err := tx.Exec(`UPDATE items SET status='Reopened', current_location=?, body_md=?, last_modified=datetime('now')
+		WHERE atm_id=? AND current_location=? AND representation=?`, dest, newBody, *id, srcLoc, cur.repOrDefault()); err != nil {
 		fmt.Fprintf(os.Stderr, "reopen: %v\n", err)
 		return exitUsage
+	}
+	// Move the doc_segment with the row when the location changes — mirrors close's
+	// atomic Issues→Fixed segment move, reversed. Without this the regenerated
+	// Markdown would still carry the item under its OLD document (the ATM-627
+	// dangling-segment class validateCmd's renderability guard flags).
+	if dest != srcLoc {
+		if err := removeItemSegment(tx, srcLoc, *id); err != nil {
+			fmt.Fprintf(os.Stderr, "reopen: remove %s segment: %v\n", srcLoc, err)
+			return exitUsage
+		}
+		if err := appendSegment(tx, dest, *id); err != nil {
+			fmt.Fprintf(os.Stderr, "reopen: append %s segment: %v\n", dest, err)
+			return exitUsage
+		}
 	}
 	// §11.4.34 audit: by + on_date + reason + evidence_path all captured.
 	if _, err := tx.Exec(`INSERT INTO item_history
@@ -283,7 +396,11 @@ func reopenCmd(args []string) int {
 		return exitUsage
 	}
 
-	fmt.Printf("reopen: %s reopened in %s (By:%s On:%s Reason:%s Evidence:%s)\n", *id, loc, byVal, *when, *why, *incident)
+	if dest != srcLoc {
+		fmt.Printf("reopen: %s reopened, relocated %s→%s (By:%s On:%s Reason:%s Evidence:%s)\n", *id, srcLoc, dest, byVal, *when, *why, *incident)
+	} else {
+		fmt.Printf("reopen: %s reopened in %s (By:%s On:%s Reason:%s Evidence:%s)\n", *id, dest, byVal, *when, *why, *incident)
+	}
 	return exitOK
 }
 
@@ -364,8 +481,10 @@ func blockCmd(args []string) int {
 	}
 	defer tx.Rollback()
 
+	// F-DBTOOL fix (2026-07-12): scope by representation, mirroring update/
+	// reopen — see docs/research/f_dbtool_20260712/ROOTCAUSE.md.
 	if _, err := tx.Exec(`UPDATE items SET status='Operator-blocked', body_md=?, last_modified=datetime('now')
-		WHERE atm_id=? AND current_location=?`, newBody, *id, loc); err != nil {
+		WHERE atm_id=? AND current_location=? AND representation=?`, newBody, *id, loc, cur.repOrDefault()); err != nil {
 		fmt.Fprintf(os.Stderr, "block: %v\n", err)
 		return exitUsage
 	}
@@ -418,6 +537,30 @@ func renderBlockedBody(it *item, what, why, unblock, who string) string {
 		fmt.Fprintf(&b, " WHO: %s", who)
 	}
 	return insertMetaLine(body, b.String())
+}
+
+// replaceHeadingTitle surgically rewrites the title portion of an item body's
+// canonical `## <ID> — <title>` heading line to newTitle, preserving every other
+// line byte-for-byte (the heading-analogue of canonicalizeBodyStatusLine). It
+// rewrites the FIRST line whose prefix is `## <id> — `; when no such canonical
+// heading is present (a rich body may use a non-canonical heading form) the body
+// is returned UNCHANGED — the title column still updates, and no authored content
+// is ever disturbed. This keeps a field-only --title update's heading in sync with
+// the column without regenerating (and thus truncating) the authored body.
+func replaceHeadingTitle(body, id, newTitle string) string {
+	prefix := "## " + id + " — "
+	lines := splitKeepNewlines(body)
+	for i, ln := range lines {
+		if strings.HasPrefix(strings.TrimRight(ln, "\n"), prefix) {
+			nl := ""
+			if strings.HasSuffix(ln, "\n") {
+				nl = "\n"
+			}
+			lines[i] = prefix + newTitle + nl
+			return strings.Join(lines, "")
+		}
+	}
+	return body
 }
 
 // insertMetaLine inserts a `**Key:** …` metadata line into a rendered item body

@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "scheduled-work": {
+      "description": "Track scheduled work / reminders (background-queue entries): create, list, status, overdue, needs-verification, mark-done. Decoupled Go MCP server (§11.4.28). Backs the REMINDER/BACKGROUND action-prefix (§11.4.140).",
+      "type": "command",
+      "command": "scripts/scheduled-work-engine/bin/scheduled-work",
+      "args": ["mcp-stdio"],
+      "env": {
+        "SWQ_DB": "qa-results/scheduled-work/scheduled_work.json"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "list_work_items",
+        "get_work_item",
+        "list_overdue_work",
+        "list_needs_verification"
+      ]
+    }
+  }
+}

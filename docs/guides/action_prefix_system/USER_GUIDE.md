@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
+| Revision | 2 |
 | Created | 2026-06-09 |
-| Last modified | 2026-06-09T00:00:00Z |
+| Last modified | 2026-07-02T00:00:00Z |
 | Status | active |
 | Scope | end-user guide to the universal `ACTION_NAME ::` prompt-prefix system (§11.4.140) |
 | Audience | end users of any CLI agent that includes the constitution submodule |
@@ -50,43 +50,49 @@ Canonical authority: constitution submodule §11.4.140 (`Constitution.md`).
 
 ---
 
-## 2. The four equivalent invocation forms
+## 2. The five equivalent invocation forms
 
-Every registered action is **designed** to be invocable in four equivalent forms
+Every registered action is **designed** to be invocable in five equivalent forms
 — same action, same expansion, same execution. The first non-blank line of your
 prompt is what is matched.
 
 | # | Form | Example | Notes | Status |
 |---|---|---|---|---|
 | 1 | `ACTION_NAME :: <rest>` | `BACKGROUND :: Do X` | bare `::` form (no namespace) | **Implemented** |
-| 2 | `PREFIX::ACTION_NAME :: <rest>` | `DEFAULT::BACKGROUND :: Do X` | namespaced `::` form | **Implemented** (grammar 91/0; see §8) |
+| 2 | `PREFIX::ACTION_NAME :: <rest>` | `DEFAULT::BACKGROUND :: Do X` | namespaced `::` form | **Implemented** (grammar 166/0; see §8) |
 | 3 | `/ACTION_NAME <rest>` | `/BACKGROUND Do X` | bare slash form — ONLY if `/ACTION_NAME` does NOT collide with an existing/built-in slash command of the host agent | **Implemented** (generated slash command; see §6) |
-| 4 | `/PREFIX::ACTION_NAME <rest>` | `/DEFAULT::BACKGROUND Do X` | namespaced slash form — disambiguates from any existing `/ACTION_NAME`; ALWAYS safe | **Implemented** (hook E2E 10/0; see §8) |
+| 4 | `/PREFIX::ACTION_NAME <rest>` | `/DEFAULT::BACKGROUND Do X` | namespaced slash form — disambiguates from any existing `/ACTION_NAME`; ALWAYS safe | **Implemented** (hook E2E; see §8) |
+| 5 | `ACTION_NAME ---> <rest>` (and `PREFIX::ACTION_NAME ---> <rest>`) | `BACKGROUND ---> Do X` / `DEFAULT::BACKGROUND ---> Do X` | arrow form — the ` ---> ` body separator (one space each side); a third equivalent delimiter alongside `::` and `/` | **Implemented** (grammar 166/0; see §8) |
 
-These four forms are equivalent by design:
+These five forms are equivalent by design:
 
 ```
-BACKGROUND ::  ≡  DEFAULT::BACKGROUND ::  ≡  /BACKGROUND  ≡  /DEFAULT::BACKGROUND
+BACKGROUND ::  ≡  DEFAULT::BACKGROUND ::  ≡  /BACKGROUND  ≡  /DEFAULT::BACKGROUND  ≡  BACKGROUND --->  ≡  DEFAULT::BACKGROUND --->
 ```
 
-> **Honest status note (§11.4.6).** All four forms are implemented today and
-> work end-to-end. Forms **2 and 4** (the `DEFAULT::` namespace) are now wired
-> into the registry, the expander library, and the slash-command generator, and
-> are verified (grammar suite 91/0, hook E2E 10/0) — see §8. Any of the four
-> forms can be used today.
+> **Honest status note (§11.4.6).** All five forms are implemented today and
+> work end-to-end. Forms **2 and 4** (the `DEFAULT::` namespace) and form **5**
+> (the arrow ` ---> `) are wired into the registry, the expander library, the
+> parse paths (python + awk, byte-identical), and the LAYER-2 hook, and are
+> verified (grammar suite 166/0, paired-mutation meta-test 6/0) — see §8. Any of
+> the five forms can be used today.
 
 ### 2.1 The separators (do not confuse them)
 
 - **Namespace separator** — `::` with **no surrounding spaces**, used INSIDE the
-  token: `PREFIX::ACTION_NAME` (forms 2 and 4).
+  token: `PREFIX::ACTION_NAME` (forms 2, 4, and the namespaced arrow).
 - **Action-body separator** — ` :: ` with **a space on each side**, used between
   the token and the rest of your task in the `::` forms (forms 1 and 2).
+- **Arrow-body separator** — ` ---> ` (space, three hyphens, greater-than,
+  space) with **a space on each side**, used between the token and the rest in
+  the arrow form (form 5): `BACKGROUND ---> Do X`.
 - **Slash-form body separator** — a single space, between the slashed token and
   the rest (forms 3 and 4): `/BACKGROUND Do X`.
 
-The exact ` :: ` (space-colon-colon-space) separator in forms 1 and 2 is chosen
-deliberately so the prefix never collides with C++ `Foo::Bar`, YAML
-`key: value`, URLs, or `12::34`-style typos.
+The exact ` :: ` and ` ---> ` separators are chosen deliberately so the prefix
+never collides with C++ `Foo::Bar`, YAML `key: value`, URLs, `12::34`-style
+typos, or a `-->`/`->` used in ordinary prose. An arrow that sits mid-line after
+a `::` token (e.g. `A :: B ---> C`) parses as the `::` form, not the arrow form.
 
 ---
 
@@ -112,6 +118,31 @@ It composes with the constitution's subagent-driven (§11.4.20 / §11.4.70),
 parallel-stream (§11.4.58 / §11.4.103), background-execution (§11.4.89), and
 captured-evidence (§11.4.5 / §11.4.69 / §11.4.107) + anti-bluff (§11.4) anchors.
 
+### 3.1 The `REMINDER` action's effect
+
+`REMINDER` is the second registered action. Use it to **re-surface work you
+scheduled or requested earlier** that is critical and whose status you are no
+longer sure of — for example: `REMINDER ---> the D3 audio-routing fix we
+queued`. Its expansion tells the agent to **never assume** the work is done or
+not done (a false "already done" is a bluff, a false "not started" wastes
+effort). Instead the agent:
+
+- **FIRST verifies the ACTUAL current status** from captured evidence — git
+  log/state, the task list, running and queued background work (including the
+  BACKGROUND durable queue at `docs/requests/background_queue.md`), test
+  artifacts, the workable-items DB + docs, and the recording corpus;
+- **THEN acts on the delta** — reports the captured proof if the work is
+  genuinely complete, resumes from the exact point if it is partial, actions it
+  NOW with high priority if it was not started, or surfaces the block
+  (§11.4.66 / §11.4.101) if it is blocked;
+- and **always produces a status verdict** (done+proof / resuming-from-X /
+  starting-now / blocked-because-Y) — it never silently no-ops.
+
+It composes with no-guessing (§11.4.6), the endless-loop / zero-idle / parallel
+routine (§11.4.87 / §11.4.94 / §11.4.97 / §11.4.103), the four-layer
+"done" verification (§11.4.108), validate-just-fixed-first (§11.4.130), and the
+crashed/lost-work-never-forgotten registry (§11.4.147).
+
 More actions can be added later; each gets its own keyword, expansion text, and
 optional rules. See the [Manual](MANUAL.md) §"How to add a new action".
 
@@ -129,7 +160,7 @@ very start of the line:
 
 The agent strips the leading backslash and treats the line as the ordinary
 prompt `BACKGROUND :: x` — **no expansion happens**. The same escape applies to
-the slash forms: `\/BACKGROUND x` is literal.
+the arrow form (`\BACKGROUND ---> x`) and the slash forms (`\/BACKGROUND x`).
 
 ---
 
@@ -244,23 +275,29 @@ Per §11.4.6 this is stated as fact, not implied:
 - Form 1 — `ACTION_NAME :: <rest>` — end-to-end: registry → expander library →
   LAYER-1 recognition instruction → LAYER-2 Claude Code hook.
 - Form 2 — `PREFIX::ACTION_NAME :: <rest>` (e.g. `DEFAULT::BACKGROUND :: …`) —
-  namespaced `::` form (grammar suite 91/0).
+  namespaced `::` form (grammar suite 166/0).
 - Form 3 — `/ACTION_NAME <rest>` — the generated bare slash command
   (`/background`) for Gemini (`.toml`), Qwen (`.toml`), Codex (`prompts/`).
 - Form 4 — `/PREFIX::ACTION_NAME <rest>` (e.g. `/DEFAULT::BACKGROUND …`) —
-  namespaced slash form, always-unambiguous (hook E2E 10/0).
-- The `DEFAULT` namespace and the registry keys that drive forms 2/4
+  namespaced slash form, always-unambiguous.
+- Form 5 — `ACTION_NAME ---> <rest>` (e.g. `BACKGROUND ---> …`, and the
+  namespaced `DEFAULT::BACKGROUND ---> …`) — the arrow form, the ` ---> ` body
+  separator recognised by the grammar + LAYER-2 hook (grammar suite 166/0,
+  paired-mutation meta-test 6/0).
+- The `DEFAULT` namespace and the registry keys that drive forms 2/4/5
   (`grammar.default_namespace`, `grammar.namespace_separator`,
-  `grammar.slash_prefix`, per-action `namespaces`, `slash_bare`,
+  `grammar.slash_prefix`, `grammar.arrow_form_regex`,
+  `grammar.arrow_body_separator`, per-action `namespaces`, `slash_bare`,
   `slash_conflicts`), the conflict-aware bare-slash rule (`slash_bare: auto`),
   and the `/default::background` namespaced slash artefact.
-- The `BACKGROUND` action with the operator's verbatim expansion.
+- The `BACKGROUND` and `REMINDER` actions with their verbatim expansions.
 - The escape (`\`), stacked-prefix (outer-to-inner), unknown-token-ask, and
   no-op rules of §5.
 
-All four forms are verified end-to-end (grammar suite 91/0, hook E2E 10/0). The
-registry declares the full namespaced grammar and the expander library's
-`apx_parse_prefix` recognises all four forms; there is no remaining spec-only
+All five forms are verified end-to-end (grammar suite 166/0, paired-mutation
+meta-test 6/0). The registry declares the full namespaced grammar (including the
+arrow `arrow_form_regex` + ` ---> ` body separator) and the expander library's
+`apx_parse_prefix` recognises all five forms; there is no remaining spec-only
 gap in the grammar.
 
 ---

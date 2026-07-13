@@ -58,6 +58,21 @@ CREATE TABLE IF NOT EXISTS items (
     -- Composes-with cross-references — JSON array of §-letter or ATM-NNN refs
     composes_with    TEXT,                    -- JSON-encoded array
 
+    -- Group-atomic track-assignment (docs/tracks/ASSIGNMENT_MECHANISM_DESIGN.md
+    -- §3.1; §11.4.176/§11.4.119/§11.4.111). destination = the branch this item
+    -- lands on ('main' | 'feature:<slug>'); logic_group = the single
+    -- mutually-exclusive set the item belongs to. Referential integrity
+    -- (logic_group -> logic_groups.group_id) is enforced at the Go layer by
+    -- `validate-groups` (a later phase) — no DB-level FOREIGN KEY, consistent
+    -- with the obsolete_details / operator_block_details / firebase_metadata
+    -- precedent of Go-side-validated cross-references rather than SQL FK. Both
+    -- columns are NULL until classified (one-time seeding, a later phase); NULL
+    -- means "not yet classified", never "no group" — every item whose status is
+    -- open MUST carry non-null values before it is dispatchable (a later
+    -- phase's totality invariant).
+    destination      TEXT,
+    logic_group      TEXT,
+
     -- Participant attribution (§11.4.104 / Herald PARTICIPANT_ATTRIBUTION.md).
     -- created_by  = canonical handle that opened the item; assigned_to = canonical
     -- handle the item is assigned to. Canonical handle closed set: "Claude" (the
@@ -165,6 +180,85 @@ CREATE TABLE IF NOT EXISTS firebase_metadata (
 );
 
 -- ============================================================
+-- docs/tracks/ASSIGNMENT_MECHANISM_DESIGN.md §3.2 — logic_groups: the
+-- group-atomic track-assignment mechanism's authoritative group registry
+-- (§11.4.176/§11.4.119/§11.4.111). A track claims ONE group_id at a time
+-- (exactly-once, multitrack_claim.sh) and works every item whose
+-- items.logic_group equals that group_id to full completion before freeing.
+-- Referential integrity (items.logic_group -> logic_groups.group_id) is
+-- enforced at the Go layer (a later phase's `validate-groups`) rather than a
+-- SQL FOREIGN KEY, consistent with the rest of this schema's cross-reference
+-- style (obsolete_details / operator_block_details / firebase_metadata).
+-- ============================================================
+CREATE TABLE IF NOT EXISTS logic_groups (
+    -- Stable id, lowercase snake/kebab (§11.4.29), e.g. 'mistiq-vader-rebrand',
+    -- 'audio-5.1-multichannel', 'video-bugs', 'urgent-main', 'unassigned-triage'.
+    group_id     TEXT PRIMARY KEY,
+
+    -- Human title (>= 6 words / §11.4.91 clarity floor).
+    title        TEXT NOT NULL,
+
+    -- The single branch every member of this group lands on: 'main' |
+    -- 'feature:<slug>'. A group is homogeneous in destination (design §3.1
+    -- destination-agreement invariant, Go-validated by a later phase).
+    destination  TEXT NOT NULL,
+
+    -- Lower = sooner. Derived from ROADMAP ordering; 'urgent-main' = 0.
+    priority     INTEGER NOT NULL,
+
+    -- Group lifecycle state machine (ASSIGNMENT_MECHANISM_DESIGN.md §4).
+    -- 'open': >=1 open member, unowned. 'in-progress': exactly one track owns
+    -- it (multitrack_claim.sh). 'group-complete': every member terminal +
+    -- destination merge confirmed; the owning track has freed.
+    state        TEXT NOT NULL DEFAULT 'open'
+                 CHECK (state IN ('open', 'in-progress', 'group-complete')),
+
+    -- Plain-language membership definition for audit — NOT a matcher (the
+    -- defect this mechanism replaces was substring-matching free text; this
+    -- field is documentation only, never consulted by the assigner).
+    scope_note   TEXT,
+
+    -- Pointer to the ROADMAP / priority-doc line that set this group's
+    -- priority (audit trail for §11.4.66 operator-confirmed priorities).
+    roadmap_ref  TEXT,
+
+    -- §11.4.191 work-to-track/branch binding: the operator-pinned canonical
+    -- track id this group's work MUST land on ('track-1'..'track-N', matching
+    -- config/multitrack/<host>.yaml tracks[].id). `destination` stays the
+    -- authoritative BRANCH (already read by guard-branch-consistency.sh);
+    -- `canonical_track` records the TRACK. NULL = "branch-bound but not
+    -- track-pinned" (branch enforced, track not) — additive, every existing
+    -- consumer of `destination` is unaffected. Go-side seeded (a later phase);
+    -- the guard/resolver treat NULL as "no track assertion" (honest boundary).
+    canonical_track TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_logic_groups_destination ON logic_groups(destination);
+CREATE INDEX IF NOT EXISTS idx_logic_groups_state ON logic_groups(state);
+
+-- ============================================================
+-- §11.4.191 — group_paths: the file-scope manifest (the missing datum).
+-- One row per repo-root-relative glob; many globs per group. Answers the
+-- question guard-branch-consistency.sh could NOT: "does this changed file
+-- belong to a group whose canonical branch/track != the current checkout?".
+-- Referential integrity (group_id -> logic_groups.group_id) is Go-validated
+-- (schema style §11.4.93), not a SQL FOREIGN KEY. A path owned by NO row is
+-- UNCLASSIFIED -> main-eligible (belongs to no feature group); only a path
+-- matching a glob whose group's destination != the current branch is a
+-- violation. Globs MUST be as specific as the real ownership (§11.4.6 — avoid
+-- over-blocking); longest-glob (most-specific) wins at resolution time.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS group_paths (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id     TEXT NOT NULL,          -- FK-ish -> logic_groups.group_id (Go-validated)
+    path_glob    TEXT NOT NULL,          -- repo-root-relative glob, e.g. 'device/rockchip/atmosphere/remote_host/**'
+    note         TEXT,                   -- audit rationale (why this path is this group's exclusive scope)
+    UNIQUE(group_id, path_glob)
+);
+
+CREATE INDEX IF NOT EXISTS idx_group_paths_group_id ON group_paths(group_id);
+
+-- ============================================================
 -- §11.4.93 — doc_segments: ordered byte-identical-round-trip ledger
 --
 -- Each source document (Issues.md / Fixed.md) is decomposed into an
@@ -201,7 +295,7 @@ CREATE TABLE IF NOT EXISTS meta (
 );
 
 INSERT OR REPLACE INTO meta(key, value) VALUES
-    ('schema_version', '3'),
+    ('schema_version', '4'),
     ('last_sync_direction', 'none'),
     ('last_sync_timestamp', ''),
     ('integrity_hash', '');
