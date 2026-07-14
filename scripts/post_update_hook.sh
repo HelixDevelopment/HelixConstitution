@@ -53,17 +53,37 @@
 set -euo pipefail
 
 # --- Resolve paths ----------------------------------------------------------
+# NOTE (§11.4.201 — a guard must assert the REAL condition): CONST_DIR must be
+# the CONSTITUTION root. This script lives at <constitution>/scripts/, so the
+# root is ONE level up ("..") — NOT two. The previous default ("../..") resolved
+# to the PARENT PROJECT root, so `git diff` ran against the parent repo, whose
+# changed paths look like "constitution/skills/..." and therefore matched NONE of
+# the "skills/*" / "actions/*" / "scripts/hooks/*" classifiers below: the hook
+# reported "No relevant changes" and propagated NOTHING, silently. That was a
+# reproduced defect (probe: default='<parent>', constitution='<parent>/constitution').
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONST_DIR="${CONST_DIR:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
+CONST_DIR="${CONST_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
+
+# Fail loudly rather than silently propagating nothing (§11.4.6): the resolved
+# CONST_DIR MUST actually look like the constitution submodule.
+if [ ! -f "$CONST_DIR/Constitution.md" ] || [ ! -d "$CONST_DIR/scripts" ]; then
+    echo "[ERROR] CONST_DIR does not look like the constitution root: $CONST_DIR" >&2
+    echo "        (expected Constitution.md + scripts/ there). Set CONST_DIR explicitly." >&2
+    exit 1
+fi
 
 # --- State ----------------------------------------------------------------
 CHANGED_SKILLS=()
 CHANGED_MCP=()
 CHANGED_HOOKS=()
 CHANGED_SCRIPTS=()
+CHANGED_ACTIONS=()   # actions/registry.yaml + plugins/** — re-wire slash commands
 ERRORS=()
 WARNINGS=()
+
+# Safe expansion of a possibly-empty array under `set -u` (bash < 4.4).
+arr_len() { eval "printf '%s' \"\${#$1[@]}\""; }
 
 # --- Colour helpers -------------------------------------------------------
 RED='\033[0;31m'
@@ -113,7 +133,14 @@ detect_changes() {
         return 0
     fi
 
-    echo "$changed_files" | while IFS= read -r f; do
+    # NOTE (§11.4.201 — a guard must assert the REAL condition): this loop MUST
+    # NOT be fed by a pipe. `cmd | while ...` runs the loop body in a SUBSHELL,
+    # so every `ARR+=(...)` is discarded when the subshell exits and the caller
+    # sees EMPTY arrays — the hook then reports "no changes" and installs
+    # NOTHING, silently. That was a real, reproduced defect (probe:
+    # `AFTER-LOOP count = 0`). Process substitution keeps the loop in THIS shell.
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
         # Classify by path prefix
         case "$f" in
             skills/*)
@@ -132,6 +159,11 @@ detect_changes() {
                 hook_name="$(basename "$f")"
                 CHANGED_HOOKS+=("$hook_name")
                 ;;
+            actions/*|plugins/*|.claude-plugin/*)
+                # A registry row, a plugin manifest, or a generated command changed
+                # => the per-agent slash commands + plugin wiring must be refreshed.
+                CHANGED_ACTIONS+=("$f")
+                ;;
             scripts/*.sh)
                 local script_name
                 script_name="$(basename "$f")"
@@ -144,18 +176,21 @@ detect_changes() {
                 # Ignore other files (docs, md, etc.)
                 ;;
         esac
-    done
+    done < <(printf '%s\n' "$changed_files")
 
-    # Deduplicate arrays (same file may appear multiple times across commits)
+    # Deduplicate arrays (same file may appear multiple times across commits).
+    # Guarded against the empty case: `"${ARR[@]}"` on an empty array is an
+    # unbound-variable error under `set -u` on bash < 4.4.
     local IFS_SAVE="$IFS"
     IFS=$'\n'
-    CHANGED_SKILLS=($(printf "%s\n" "${CHANGED_SKILLS[@]}" | sort -u))
-    CHANGED_MCP=($(printf "%s\n" "${CHANGED_MCP[@]}" | sort -u))
-    CHANGED_HOOKS=($(printf "%s\n" "${CHANGED_HOOKS[@]}" | sort -u))
-    CHANGED_SCRIPTS=($(printf "%s\n" "${CHANGED_SCRIPTS[@]}" | sort -u))
+    [ "$(arr_len CHANGED_SKILLS)"  -eq 0 ] || CHANGED_SKILLS=($(printf "%s\n" "${CHANGED_SKILLS[@]}"  | sort -u))
+    [ "$(arr_len CHANGED_MCP)"     -eq 0 ] || CHANGED_MCP=($(printf "%s\n" "${CHANGED_MCP[@]}"        | sort -u))
+    [ "$(arr_len CHANGED_HOOKS)"   -eq 0 ] || CHANGED_HOOKS=($(printf "%s\n" "${CHANGED_HOOKS[@]}"    | sort -u))
+    [ "$(arr_len CHANGED_SCRIPTS)" -eq 0 ] || CHANGED_SCRIPTS=($(printf "%s\n" "${CHANGED_SCRIPTS[@]}" | sort -u))
+    [ "$(arr_len CHANGED_ACTIONS)" -eq 0 ] || CHANGED_ACTIONS=($(printf "%s\n" "${CHANGED_ACTIONS[@]}" | sort -u))
     IFS="$IFS_SAVE"
 
-    info "Detected: ${#CHANGED_SKILLS[@]} skill(s), ${#CHANGED_MCP[@]} MCP config(s), ${#CHANGED_HOOKS[@]} hook(s), ${#CHANGED_SCRIPTS[@]} script(s) changed."
+    info "Detected: ${#CHANGED_SKILLS[@]} skill(s), ${#CHANGED_MCP[@]} MCP config(s), ${#CHANGED_HOOKS[@]} hook(s), ${#CHANGED_SCRIPTS[@]} script(s), ${#CHANGED_ACTIONS[@]} action/plugin file(s) changed."
 }
 
 # ============================================================================
@@ -183,10 +218,18 @@ install_skills() {
 
         info "Installing skill: ${skill_name}"
 
-        # Remove old symlink/dir if exists, then create symlink
-        rm -rf "$dst"
-        ln -sf "$src" "$dst"
-        info "  -> Linked: $dst -> $src"
+        # DATA SAFETY (§9.2 / §11.4.122): only ever replace OUR OWN symlink or a
+        # free slot. The previous `rm -rf "$dst"` destroyed, without confirmation,
+        # any REAL directory a consuming project happened to keep at that path.
+        # Never delete an operator's directory to make room for a link.
+        if [ -L "$dst" ] || [ ! -e "$dst" ]; then
+            rm -f "$dst"
+            ln -s "$src" "$dst"
+            info "  -> Linked: $dst -> $src"
+        else
+            warn "  -> $dst exists and is NOT a symlink — left untouched (remove it yourself to re-link)"
+            WARNINGS+=("skill '${skill_name}': $dst is a real path, not a symlink — not replaced")
+        fi
 
         # If skill has a registration file, source it
         local register="${src}/register.sh"
@@ -304,6 +347,41 @@ install_hooks() {
         chmod +x "$dst_file"
         info "  -> Installed: $dst_file"
     done
+}
+
+# ============================================================================
+# STEP 4b — Re-wire CLI-agent action directives (plugins + slash commands)
+# ============================================================================
+# §11.4.140 + §11.4.164: when a registry row, a plugin manifest, a generated
+# command, or ANY skill changes, the per-agent slash commands are regenerated
+# and the Claude Code plugin + skills are (re-)wired into the consuming project.
+# Idempotent — safe on every pull.
+install_action_plugins() {
+    header "STEP 4b: Wiring CLI-agent action directives (plugins + skills)"
+
+    if [ "$(arr_len CHANGED_ACTIONS)" -eq 0 ] && [ "$(arr_len CHANGED_SKILLS)" -eq 0 ]; then
+        info "No action/plugin/skill changes — nothing to re-wire."
+        return 0
+    fi
+
+    local installer="${CONST_DIR}/scripts/install_cli_agent_plugins.sh"
+    if [ ! -f "$installer" ]; then
+        warn "installer missing: $installer — action directives NOT re-wired."
+        WARNINGS+=("install_cli_agent_plugins.sh missing — slash commands may be stale")
+        return 1
+    fi
+
+    info "Running: $installer $PROJECT_ROOT"
+    if bash "$installer" "$PROJECT_ROOT"; then
+        info "  -> Action directives + skills wired."
+    else
+        # A missing `claude` CLI is an honest, non-fatal state (other agents do
+        # not need it) — the installer reports it and exits non-zero; we surface
+        # it as a WARNING, never as a silent success (§11.4.6).
+        warn "Installer reported problems — see its WARN lines above."
+        WARNINGS+=("install_cli_agent_plugins.sh reported problems")
+    fi
+    return 0
 }
 
 # ============================================================================
@@ -453,10 +531,11 @@ main() {
 
     detect_changes
 
-    if [ ${#CHANGED_SKILLS[@]} -eq 0 ] && \
-       [ ${#CHANGED_MCP[@]} -eq 0 ] && \
-       [ ${#CHANGED_HOOKS[@]} -eq 0 ] && \
-       [ ${#CHANGED_SCRIPTS[@]} -eq 0 ]; then
+    if [ "$(arr_len CHANGED_SKILLS)" -eq 0 ] && \
+       [ "$(arr_len CHANGED_MCP)" -eq 0 ] && \
+       [ "$(arr_len CHANGED_HOOKS)" -eq 0 ] && \
+       [ "$(arr_len CHANGED_SCRIPTS)" -eq 0 ] && \
+       [ "$(arr_len CHANGED_ACTIONS)" -eq 0 ]; then
         info "No relevant changes detected. Nothing to propagate."
         return 0
     fi
@@ -464,6 +543,7 @@ main() {
     install_skills
     install_mcp_configs
     install_hooks
+    install_action_plugins
     validate_scripts
     report_summary
 }
