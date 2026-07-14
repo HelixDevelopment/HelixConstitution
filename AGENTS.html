@@ -454,7 +454,7 @@ Universal AGENTS.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>43</td>
+<td>46</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -462,7 +462,7 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-07-11T12:00:00Z</td>
+<td>2026-07-14T00:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -470,8 +470,103 @@ Universal AGENTS.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.192 — Continuous multi-track auto-backfill: a FREE track
-MUST be IMMEDIATELY re-assigned its next-highest-priority domain
+<td>Added §11.4.195 — Branch-structure governance: taxonomy +
+merge-after-live-QA + flavor/product non-merge (User mandate
+2026-07-14): every controlled branch belongs to one of THREE canonical
+taxonomy classes each with a distinct integration lifecycle — (A)
+<code>feat/&lt;slug&gt;</code> = FEATURE, merges to <code>main</code>
+ONLY after full validation + verification + §11.4.185 live-manual-QA,
+and COMPLETELY (main repo + every touched owned submodule) ff-only,
+NEVER force-push (§11.4.113), no commit lost (§9.2); (B)
+<code>product/&lt;slug&gt;</code> + <code>flavor/&lt;slug&gt;</code> =
+PRODUCT/FLAVOR lines that do NOT merge to <code>main</code> the standard
+way (a divergent line with its own release lifecycle, MAY still merge
+<code>main</code> INTO itself per §11.4.188 — only line-into-trunk is
+gated); (C) commit + push ALL branches to ALL upstreams ff-only (§2.1);
+the canonical branch NAME is minted ONCE + used identically across main
++ every touched submodule (§11.4.181), the operator-canonical prefix
+strings reconciled with any pre-existing <code>feature/…</code>
+convention via the §11.4.181 risk-free merge-onto-canonical path (never
+a rename that drops commits, §11.4.6); binds §11.4.185 live-manual-QA as
+an explicit precondition of the §11.4.167(I)/§11.4.188 approval-gated
+back-merge; strict generalisation of
+§11.4.181/§11.4.167(D)(I)/§11.4.188/§11.4.185. Classification: universal
+(§11.4.17). Propagation gate
+<code>CM-COVENANT-114-195-PROPAGATION</code> (literal
+<code>11.4.195</code>) + recommended gate
+<code>CM-BRANCH-TAXONOMY-CLASS</code> + paired §1.1 mutation. Also this
+round: landed the §11.4.140 SUB-SYSTEM SHORTCUT extension (a
+grammar-shaped non-action token names an incorporated
+sub-system/submodule → sub-system context injection; two sources —
+registry <code>subsystems:</code> Helix-ecosystem catalogue + recursive
+<code>.gitmodules</code> discovery in
+<code>scripts/action_prefix_lib.sh</code>; gate
+<code>CM-SUBSYSTEM-SHORTCUTS</code> + paired §1.1 mutation,
+<code>recognition_instruction.md</code> rev 3) + the
+reactive-recursive-submodule-auto-sync DESIGN doc
+(<code>docs/research/reactive_submodule_sync/DESIGN.md</code> —
+design/risk-research/phased-plan ONLY, nothing implemented). CLAUDE.md +
+AGENTS.md + QWEN.md + GEMINI.md mirrors updated in lockstep (§11.4.157).
+Prior round: Added §11.4.194 — Exhaustive all-scenario, all-angle
+code-review + verify-against-captured-runtime-evidence mandate (User
+mandate 2026-07-14, verbatim &quot;CRITICAL: Code review MUST TAKE into the
+accounts all scenarios, look at the problem or change from all angles,
+deepest possible analisys! No gaps, shortcomings or false results or
+bluff is allowed! ... so the review process is more precise and we do
+not have situations like the last one!&quot;): STRENGTHENS
+§11.4.125/.134/.142 — every code-review MUST before GO (1) ENUMERATE the
+FULL input/scenario space of the change AND the defect + INDEPENDENTLY
+VERIFY EACH factor of a MULTI-FACTOR failure mode (a product of N terms,
+ANY degenerate term triggers it — forensic FACT &quot;the last one&quot;: a
+boot-crash fix got a clean zero-finding GO that dismissed a clamp branch
+as an informational NIT &quot;effectively unreachable ... always valid&quot;
+WITHOUT PROVING it against the runtime input space, the target STILL
+crash-looped because a <code>size = A × B</code> product had TWO
+independent zero-triggers and only ONE factor was verified, the OTHER
+assumed away, the pre-fix crash evidence never cross-checked); (2) PROVE
+every assumption (&quot;can&#39;t happen&quot;/&quot;unreachable&quot;/&quot;always valid&quot; proven
+from code+spec+captured evidence, never on faith §11.4.6; an
+unproven-then-false assumption is a §11.4 review-layer bluff of
+PASS-bluff severity; a NIT dismissing a path as unreachable MUST carry
+the proof); (3) VERIFY the fix against ANY captured runtime evidence
+(crash log/tombstone/sink-probe/§11.4.108 runtime-signature) — confirm
+it prevents the CAPTURED failure; (4) ALL ANGLES incl. every downstream
+must-not-break feature (§11.4.133) + the tests&#39; OWN per-dimension
+coverage + the §1.1 mutation per dimension; (5) honest boundary §11.4.6
+— exhaustive = enumerated + evidence-grounded, un-analysable dimensions
+stated as explicit gaps never silently assumed safe. Classification:
+universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-194-PROPAGATION</code> (literal
+<code>11.4.194</code>) + recommended gate
+<code>CM-EXHAUSTIVE-REVIEW-ALL-SCENARIOS</code> + paired §1.1 mutation.
+CLAUDE.md + AGENTS.md + QWEN.md + GEMINI.md mirrors updated in lockstep
+(§11.4.157). Prior round: Strengthened §11.4.102 — added sub-clause
+<strong>(D) AUTOMATIC activation — no operator prompt required</strong>
+(User mandate 2026-07-13, verbatim &quot;Make sure we automatically turn on
+the systematic-debugging plugin and skills every time we work on any
+issue! Add this as MANDATORY RULE to our root constitution Submodule and
+all of its relevant files!&quot;): the clause-(A) systematic-debugging
+activation is AUTOMATIC + STANDING DEFAULT — the agent MUST
+auto-activate <code>superpowers:systematic-debugging</code> (or
+platform-equivalent) on ANY spotted
+issue/bug/test-failure/gate-failure/regression/misalignment/inconsistency/unexpected-behaviour
+WITHOUT waiting for an operator prompt/request/per-issue confirmation,
+the MOMENT an issue is detected (composes §11.4.126
+default-autonomous-loop&#39;s from-first-prompt standing-default); plugin +
+<code>superpowers:systematic-debugging</code> +
+<code>superpowers:using-superpowers</code> skills confirmed
+installed+loadable per clause (C) before any dependent investigation
+(live-capability-list, never assumed §11.4.6); &quot;did not activate because
+the operator did not ask&quot; is itself a §11.4.102(D) violation.
+STRENGTHENS clause (A) — makes the activation trigger prompt-independent
++ standing-default — never weakens it: (A)/(B)/(C) + four-phase-arc +
+Iron-Law (&quot;NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST&quot;) preserved
+in full. Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-102-PROPAGATION</code> (literal
+<code>11.4.102</code> unchanged — stays GREEN). CLAUDE.md + AGENTS.md +
+QWEN.md + GEMINI.md mirrors updated in lockstep (§11.4.157). Prior
+round: Added §11.4.192 — Continuous multi-track auto-backfill: a FREE
+track MUST be IMMEDIATELY re-assigned its next-highest-priority domain
 work-set, never left idle while its domain has actionable items (User
 mandate 2026-07-11, verbatim &quot;once a Track is free, we shall assign next
 set of workable items to it ... full continuous multi-track development
@@ -3496,9 +3591,28 @@ confirm skill appears in available-skills list); for other runtimes the
 documented package/extension installer. Anti-bluff: confirm by observing
 the skill in the live capability list (install exit 0 ≠ skill loadable,
 per §11.4.80 lesson).</p>
+<p><strong>(D) AUTOMATIC activation — no operator prompt required (User
+mandate, 2026-07-13, verbatim &quot;Make sure we automatically turn on the
+systematic-debugging plugin and skills every time we work on any issue!
+Add this as MANDATORY RULE to our root constitution Submodule and all of
+its relevant files!&quot;).</strong> Clause-(A) activation is AUTOMATIC +
+STANDING DEFAULT — auto-activate
+<code>superpowers:systematic-debugging</code> (or platform-equivalent)
+on ANY spotted
+issue/bug/test-failure/gate-failure/regression/misalignment/inconsistency/unexpected-behaviour
+WITHOUT an operator prompt/request/per-issue confirmation, the MOMENT an
+issue is detected (composes §11.4.126 from-first-prompt default); the
+<code>superpowers</code> plugin + <code>systematic-debugging</code> +
+<code>using-superpowers</code> skills confirmed installed+loadable per
+(C) before dependent work (live-capability-list, never assumed §11.4.6);
+&quot;did not activate because the operator did not ask&quot; = §11.4.102(D)
+violation. STRENGTHENS (A) — prompt-independent + standing-default —
+never weakens it: (A)/(B)/(C) + four-phase-arc + Iron-Law (&quot;NO FIXES
+WITHOUT ROOT CAUSE INVESTIGATION FIRST&quot;) intact.</p>
 <p>Composes with §11.4.4 / §11.4.6 / §11.4.7 / §11.4.8 / §11.4.43 /
-§11.4.70 / §11.4.82(A) / §11.4.92. Classification: universal (§11.4.17).
-Propagation gate <code>CM-COVENANT-114-102-PROPAGATION</code> (literal
+§11.4.70 / §11.4.82(A) / §11.4.92 / §11.4.126. Classification: universal
+(§11.4.17). Propagation gate
+<code>CM-COVENANT-114-102-PROPAGATION</code> (literal
 <code>11.4.102</code> across consumer fleet) + paired §1.1 meta-test
 mutation (strip literal → gate FAILs; gate-code = separate work item).
 No escape hatch — no <code>--skip-systematic-debugging</code>,
@@ -7706,5 +7820,139 @@ automation. See-before-you-type, verify-after-you-type, OCR/vision
 oracle mandatory, WebView fallback required, credential redaction per
 §11.4.10. No escape hatch. Canonical authority: constitution submodule
 Constitution.md §11.4.193.</p>
+<p><strong>§11.4.194 — Exhaustive all-scenario, all-angle code-review +
+verify-against-captured-runtime-evidence mandate (User mandate,
+2026-07-14).</strong> Verbatim operator mandate: &quot;CRITICAL: Code review
+MUST TAKE into the accounts all scenarios, look at the problem or change
+from all angles, deepest possible analisys! No gaps, shortcomings or
+false results or bluff is allowed! Extend our root constitution
+Submodule and all relevant files properly so the review process is more
+precise and we do not have situations like the last one!&quot; STRENGTHENS
+§11.4.125/§11.4.134/§11.4.142 — every code-review MUST, before GO: (1)
+ENUMERATE the FULL input/scenario space of the change AND the defect
+(every dimension/path/interacting feature, not just the reported
+scenario); for a MULTI-FACTOR failure mode (a product of N terms, ANY
+degenerate term — zero/empty/null/default-init/out-of-range — triggers
+the failure) enumerate + INDEPENDENTLY VERIFY the fix covers EACH factor
+— verifying one and assuming the rest is the exact forbidden gap
+(forensic FACT &quot;the last one&quot;: a boot-crash fix got a clean zero-finding
+GO that dismissed a clamp branch as an informational NIT &quot;effectively
+unreachable ... always valid&quot; WITHOUT PROVING it against the runtime
+input space; the target STILL crash-looped because the degenerate
+default-init input the review assumed impossible DID happen — a
+<code>size = A × B</code> product (e.g.
+<code>frame_size = channels × bytes_per_sample(format)</code>) with TWO
+independent zero-triggers, only ONE factor verified, the OTHER assumed
+away, the pre-fix crash evidence never cross-checked); (2) PROVE every
+assumption — &quot;can&#39;t happen&quot;/&quot;unreachable&quot;/&quot;always valid&quot;/&quot;caller never
+sends X&quot; MUST be PROVEN from code+spec+captured evidence, never on faith
+(§11.4.6); an unproven assumption that proves false is a §11.4
+review-layer bluff of PASS-bluff severity; a NIT dismissing a path as
+unreachable MUST carry the proof of unreachability (a bare &quot;effectively
+unreachable&quot; NIT is itself a finding); (3) VERIFY the fix against ANY
+captured runtime evidence (crash
+log/tombstone/stack-trace/sink-probe/§11.4.108
+runtime-signature/reproducer) — confirm the fix ACTUALLY prevents the
+CAPTURED failure against the exact captured conditions; a GO on a fix
+that then fails at runtime on a scenario present in the evidence (or one
+the review chose not to consider) is a bluff; (4) ALL ANGLES —
+correctness, full input domain (every factor/boundary/degenerate value),
+every downstream/interacting must-not-break feature (§11.4.133
+target/hardware safety + shared-state features e.g.
+audio/multichannel/passthrough), the TESTS&#39; OWN per-dimension coverage
+(a test checking only one factor of a multi-factor bug is itself a gap
+the review catches), the §1.1 mutation per dimension; (5) HONEST
+BOUNDARY (§11.4.6) — &quot;exhaustive&quot; = the enumerated + evidence-grounded
+scenario space, NOT literal omniscience; an un-analysable dimension is
+stated as an explicit gap (UNCONFIRMED/UNKNOWN/PENDING_FORENSICS +
+tracked follow-up), NEVER silently assumed safe. Classification:
+universal (§11.4.17). Composes
+§11.4.125/.134/.142/.6/.108/.130/.107(10). Propagation gate
+<code>CM-COVENANT-114-194-PROPAGATION</code> (literal
+<code>11.4.194</code>) + recommended gate
+<code>CM-EXHAUSTIVE-REVIEW-ALL-SCENARIOS</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.194.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--partial-scenario-review</code>,
+<code>--assume-unreachable-OK</code>,
+<code>--skip-captured-evidence-crosscheck</code>,
+<code>--single-factor-review-suffices</code>,
+<code>--dismiss-branch-without-proof</code> flag.</p>
+<p><strong>§11.4.195 — Branch-structure governance: taxonomy +
+merge-after-live-QA + flavor/product non-merge (User mandate,
+2026-07-14).</strong> Verbatim operator rules: branch taxonomy
+<code>feat/&lt;NAME_OF_FEATURE&gt;</code> /
+<code>product/&lt;NAME_OF_PRODUCT&gt;</code> /
+<code>flavor/&lt;NAME_OF_FLAVOR&gt;</code>; tracks on FEATURE branches
+or <code>main</code> MUST — after full confirmation + validation +
+verification + full LIVE MANUAL TESTING (§11.4.185) — MERGE to
+<code>main</code> COMPLETELY (all submodules + main repo), ff-only,
+NEVER force-push (§11.4.113), no commit lost (§9.2); tracks with an
+entirely-new FLAVOR/PRODUCT do ALL work on a <code>flavor/</code> AND/OR
+<code>product/</code> branch (both may exist) which does NOT merge to
+<code>main</code> the same way; commit + push ALL branches to ALL
+upstreams (§2.1), ff-only. Every controlled branch belongs to one of
+THREE canonical taxonomy classes, each with a distinct integration
+lifecycle: <strong>(A) Taxonomy</strong> (extends
+§11.4.181/§11.4.167(D)) — <code>feat/&lt;slug&gt;</code> = FEATURE
+(merges to <code>main</code> after live-manual-QA, clause B);
+<code>product/&lt;slug&gt;</code> = PRODUCT line +
+<code>flavor/&lt;slug&gt;</code> = FLAVOR line (do NOT merge to
+<code>main</code> the standard way, clause C); <code>&lt;slug&gt;</code>
+lowercase snake/kebab (§11.4.29); the canonical branch NAME is minted
+ONCE + used IDENTICALLY across main repo + every touched owned submodule
+(§11.4.181), recorded once in the §11.4.176 claim registry / §11.4.93
+<code>logic_group → branch</code> map + LOOKED UP never re-invented
+(§11.4.6); the prefix STRINGS are operator-canonical, a project already
+on a different feature-prefix (<code>feature/…</code>) is compliant so
+long as it is the ONE canonical name per §11.4.181, reconciled by the
+§11.4.181 risk-free MERGE-onto-canonical path (ff-only, no commit lost,
+never a rename that drops commits). <strong>(B) FEATURE/main →
+merge-after-live-QA</strong> — before merging to <code>main</code>
+satisfy IN ORDER automated four-layer (§11.4.4(b)) + §11.4.40 full-suite
+retest THEN full LIVE MANUAL TESTING by the QA team (§11.4.185 FINAL
+human gate, automated GREEN necessary NOT sufficient); only after
+§11.4.185 may the merge proceed + it MUST be COMPLETE (main repo + every
+touched owned submodule) ff-only onto latest <code>main</code>
+(§11.4.113), NEVER force-push, NO commit lost / NO history rewrite
+(§9.2/§11.4.41 step 3), pushed to ALL upstreams (§2.1); binds the
+§11.4.185 gate as an explicit precondition of the §11.4.167(I)/§11.4.188
+approval-gated back-merge. <strong>(C) FLAVOR/PRODUCT lines →
+do-not-merge-to-main-the-same-way</strong> — an entirely-new
+flavor/product line does ALL work on a <code>product/&lt;NAME&gt;</code>
+AND/OR <code>flavor/&lt;NAME&gt;</code> branch (both may coexist), a
+divergent line with its own release lifecycle that does NOT flow back to
+<code>main</code> via clause B; STILL obeys §11.4.113 (no force-push) /
+§9.2 (no commit lost) / §2.1 (push all branches all upstreams ff-only) /
+§11.4.188 (MAY merge <code>main</code> INTO itself to stay close —
+trunk-into-line permitted; only line-into-trunk is gated/withheld).
+<strong>(D) Push discipline</strong> (§2.1/§11.4.113) — commit + push
+ALL branches (feature/product/flavor) to ALL upstreams ff-only, NEVER
+force-push; new-branch creation is inherently ff (§9.2) + non-disruptive
+from an existing HEAD, permitted in a dirty tree under §11.4.84 provided
+no commit is in-flight. Honest boundary §11.4.6 — governs branch
+STRUCTURE + integration DIRECTION, does NOT prove any branch&#39;s work
+correct (still §11.4.108 runtime-signature + §11.4.40 retest + §11.4.185
+manual-QA). Classification: universal (§11.4.17) — strict generalisation
+of §11.4.181 + §11.4.167(D)/(I) + §11.4.188 + §11.4.185. Composes
+§2.1/§9/§9.2/§11.4.6/§11.4.17/§11.4.29/§11.4.35/§11.4.40/§11.4.41/§11.4.84/§11.4.93/§11.4.113/§11.4.167(D)/(I)/§11.4.176/§11.4.178/§11.4.181/§11.4.185/§11.4.188/§11.4.191.
+Propagation gate <code>CM-COVENANT-114-195-PROPAGATION</code> (literal
+<code>11.4.195</code>) + recommended gate
+<code>CM-BRANCH-TAXONOMY-CLASS</code> (every controlled branch prefix ∈
+<code>feat/</code>|<code>product/</code>|<code>flavor/</code>|reserved
+<code>main</code>/<code>master</code>; a
+<code>product/</code>|<code>flavor/</code> branch is NOT the source of a
+merge onto <code>main</code>; a <code>feat/</code>|<code>main</code>
+back-merge cites a §11.4.185 manual-QA confirmation) + paired §1.1
+mutation (a <code>product/*</code> merged onto <code>main</code>, OR a
+<code>feat/*</code> back-merge with no §11.4.185 citation → gate FAILs;
+strip the literal → propagation gate FAILs; gate-code = separate work
+item). <strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.195.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--any-branch-prefix-OK</code>,
+<code>--merge-product-to-main</code>,
+<code>--skip-live-qa-before-merge</code>,
+<code>--force-push-branch</code>, <code>--partial-submodule-merge</code>
+flag.</p>
 </body>
 </html>

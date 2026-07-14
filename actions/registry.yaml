@@ -143,3 +143,77 @@ actions:
       - "11.4.108"
       - "11.4.130"
       - "11.4.147"
+
+# ── Sub-system / submodule shortcuts (§11.4.140 extension, 2026-07-14) ────────
+# A grammar-shaped UPPERCASE token that is NOT a registered behavioral action
+# (BACKGROUND / REMINDER above) MAY name an incorporated SUB-SYSTEM / submodule.
+# Such a token expands to a SUB-SYSTEM CONTEXT injection (repository + org +
+# where-checked-out + §11.4.28 equal-codebase / decoupling / dependency-layout +
+# §11.4.37 fetch-first + §11.4.113 no-force-push + §11.4.183 full-constitution +
+# §11.4/§11.4.69 anti-bluff), then the remainder of the prompt is the task on
+# that sub-system. Resolution uses the SAME §11.4.140 grammar (all 5 forms,
+# first-non-blank-line anchor, `\`-escape) — the ONLY difference from an action
+# is the resolved `kind` field ("subsystem" vs "action"). A behavioral ACTION
+# always wins a token collision (the resolver drops action-colliding tokens).
+#
+# TWO data sources feed the resolver (scripts/action_prefix_lib.sh
+# apx_lookup_subsystem, python3+PyYAML):
+#   (a) this `subsystems:` NAMED catalogue — curated Helix-ecosystem sub-systems
+#       + human abbreviations (HXOTA, HXQA, …); classified universal (§11.4.17):
+#       these are the Helix org's OWN products, NOT any single consumer project's
+#       assets, so they carry no project-coupling (§11.4.28) — the ATMOSphere-
+#       specific submodules (presenter / lampa / torrserve / …) are NEVER listed
+#       here; they are covered ONLY by source (b).
+#   (b) RECURSIVE .gitmodules discovery from the INVOKING project's root — EVERY
+#       submodule anywhere in the graph auto-derives alias tokens (uppercase
+#       name / snake / camel-split / abbreviation). A newly-added submodule is
+#       covered out-of-box with NO edit to this file. Duplicate checkouts of the
+#       same submodule (same canonical URL) collapse to ONE sub-system; an
+#       ambiguous token (>1 sub-system) is DROPPED → falls to ASK (§11.4.6).
+#
+# Each entry: `name` (display, canonical token derived by uppercasing) + `url`
+# (canonicalized to merge with any local checkout of the same repo) + optional
+# `org` + optional `aliases` (extra UPPERCASE tokens: abbreviation / snake).
+# The canonical form-name token, its camelCase-split snake form, and every
+# listed alias all resolve to the same sub-system (unless ambiguous/action-coll).
+subsystems:
+  - name: HelixOTA
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixOTA.git
+    aliases: [HXOTA]
+  - name: HelixTrack
+    org: Helix-Track
+    url: git@github.com:Helix-Track/HelixTrack.git
+    aliases: [HXTRACK]
+  - name: HelixQA
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixQA.git
+    aliases: [HXQA]
+  - name: HelixCode
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixCode.git
+    aliases: [HXCODE]
+  - name: HelixAgent
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixAgent.git
+    aliases: [HXAGENT]
+  - name: HelixLLM
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixLLM.git
+    aliases: [HXLLM]
+  - name: HelixMemory
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixMemory.git
+    aliases: [HXMEM]
+  - name: HelixSpecifier
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixSpecifier.git
+    aliases: [HXSPEC]
+  - name: LLMsVerifier
+    org: vasic-digital
+    url: git@github.com:vasic-digital/LLMsVerifier.git
+    aliases: [LLMSVERIFIER]
+  - name: ClaudeToolkit
+    org: vasic-digital
+    url: git@github.com:vasic-digital/claude-toolkit.git
+    aliases: [CTOOLKIT, CLAUDE_TOOLKIT]

@@ -83,10 +83,19 @@ apx_hook_main() {
       action="$(apx__json_get "$result" action)"
       expansion="$(apx__json_get "$result" expansion)"
       residual="$(apx__json_get "$result" residual)"
-      local namespace form ctx
+      local namespace form kind ctx
       namespace="$(apx__json_get "$result" namespace)"
       form="$(apx__json_get "$result" form)"
-      ctx="[Action-Prefix System §11.4.140] The user's prompt began with the registered action prefix for '${action}' (namespace '${namespace}', grammar form '${form}' — one of the five equivalent forms ACTION ::, PREFIX::ACTION ::, /ACTION, /PREFIX::ACTION, ACTION ---> ). Apply this action's registered expansion and execute the remainder under it. Expansion: ${expansion} Task (remainder of the prompt): ${residual}"
+      kind="$(apx__json_get "$result" kind)"
+      if [ "$kind" = "subsystem" ]; then
+        # §11.4.140 sub-system-shortcut extension — the token names an
+        # incorporated SUB-SYSTEM / submodule, not a behavioral action. Word the
+        # injected context honestly (§11.4.6) so the agent does not treat a
+        # sub-system reference as a behavioral action.
+        ctx="[Action-Prefix System §11.4.140] The user's prompt began with the SUB-SYSTEM shortcut prefix for '${action}' (grammar form '${form}' — one of the five equivalent forms ACTION ::, PREFIX::ACTION ::, /ACTION, /PREFIX::ACTION, ACTION ---> ). This names an incorporated sub-system / submodule; apply its resolved sub-system context and perform the remainder on that sub-system. Sub-system context: ${expansion} Task (remainder of the prompt): ${residual}"
+      else
+        ctx="[Action-Prefix System §11.4.140] The user's prompt began with the registered action prefix for '${action}' (namespace '${namespace}', grammar form '${form}' — one of the five equivalent forms ACTION ::, PREFIX::ACTION ::, /ACTION, /PREFIX::ACTION, ACTION ---> ). Apply this action's registered expansion and execute the remainder under it. Expansion: ${expansion} Task (remainder of the prompt): ${residual}"
+      fi
       apx_hook_emit_context "$ctx"
       return 0
       ;;

@@ -2,13 +2,18 @@
 
 | Field | Value |
 |---|---|
-| Revision | 2 |
+| Revision | 3 |
 | Created | 2026-06-09 |
-| Last modified | 2026-07-02T00:00:00Z |
+| Last modified | 2026-07-14T00:00:00Z |
 | Status | active |
 | Scope | the reusable verbatim instruction block embedded into every agent context carrier |
 | Authority | DESIGN.md §5 + RULE_DRAFT.md Part B (this directory) |
 
+> **Revision 3 (2026-07-14):** added the **sub-system shortcut** extension — a
+> grammar-shaped token that names an incorporated sub-system / submodule (from
+> the registry `subsystems:` catalogue OR recursive `.gitmodules` discovery)
+> expands to a sub-system context injection. No new grammar; the same five forms.
+>
 > **Revision 2 (2026-07-02):** added the fifth grammar form — the arrow form
 > `ACTION_NAME ---> <rest>` (and namespaced `PREFIX::ACTION_NAME ---> <rest>`) —
 > as a first-class equivalent delimiter alongside `::` and `/`, plus the second
@@ -88,7 +93,30 @@ action.
 > genuinely complete, resume from the exact point if partial, action it NOW if
 > not started, or surface the block per §11.4.66/§11.4.101 — always producing a
 > status verdict (composes §11.4.6 / §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 /
-> §11.4.108 / §11.4.130 / §11.4.147). The system is UNIVERSAL (every CLI agent reads this block via its
+> §11.4.108 / §11.4.130 / §11.4.147).
+>
+> **Sub-system shortcuts (§11.4.140 extension, 2026-07-14).** When the
+> first-non-blank-line grammar-shaped token is NOT a registered action but
+> NAMES an incorporated SUB-SYSTEM / submodule, it expands to a SUB-SYSTEM
+> CONTEXT injection (repository + org + where-checked-out + §11.4.28 equal-
+> codebase / decoupling / dependency-layout + §11.4.37 fetch-first + §11.4.113
+> no-force-push + §11.4.183 full-constitution + §11.4/§11.4.69 anti-bluff) and
+> the remainder of the prompt is the task to perform ON that sub-system —
+> e.g. `HELIXQA :: run the atmosphere bank`, `PRESENTER ---> fix the pill`,
+> `/CONTAINERS rebuild the pod`. Two data sources feed resolution: (a) the
+> curated Helix-ecosystem catalogue in `subsystems:` of the registry (human
+> abbreviations like `HXOTA` → HelixOTA), and (b) RECURSIVE `.gitmodules`
+> discovery from the invoking project's own root, so EVERY submodule anywhere
+> in the graph — and any newly-added one — auto-derives its UPPERCASE alias
+> tokens (name / snake / camel-split / abbreviation) out-of-box with no
+> hand-maintained list. A registered behavioral action ALWAYS wins a token
+> collision; duplicate checkouts of the same submodule collapse to one
+> sub-system; an ambiguous (multi-target) or lowercase token NEVER expands and
+> falls to the clarify path (§11.4.6). Same five grammar forms, same
+> first-non-blank-line anchor, same `\`-escape. The distinguishing result field
+> is `kind` ∈ {`action`, `subsystem`}.
+>
+> The system is UNIVERSAL (every CLI agent reads this block via its
 > context carrier per §11.4.35), extensible (new action = new registry row),
 > decoupled + reusable (§11.4.28), and loads out-of-the-box. Classification:
 > universal (§11.4.17). **Canonical authority:** constitution submodule
