@@ -364,6 +364,15 @@ if m:
     ns = m.group(1) or "DEFAULT"
     sys.stdout.write("%s\t%s\t%s\t%s" % (ns, m.group(2), m.group(3), "colon"))
     sys.exit(0)
+# Form 6 (§11.4.202): [PREFIX::]ACTION: rest  — single colon, NO space before it,
+# exactly one space after. Checked LAST so `A :: B` / `A ---> B` / `/A B` keep
+# their meaning. REGISTERED-ACTION-ONLY downstream: an unknown single-colon token
+# is a NO-OP (ordinary prose like `NOTE: …` / `TODO: …` never asks — §11.4.6).
+m = re.match(r'^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*): (.*)$', line)
+if m:
+    ns = m.group(1) or "DEFAULT"
+    sys.stdout.write("%s\t%s\t%s\t%s" % (ns, m.group(2), m.group(3), "single_colon"))
+    sys.exit(0)
 sys.exit(1)
 PYEOF
 }
@@ -432,6 +441,23 @@ apx__parse_via_awk() {
         }
         if (ns !~ /^[A-Z][A-Z0-9_]*$/ || action !~ /^[A-Z][A-Z0-9_]*$/) { exit 1 }
         printf "%s\t%s\t%s\t%s", ns, action, rest, "colon"
+        exit 0
+      }
+      # ── Form 6 (§11.4.202): ^[PREFIX::]ACTION: rest (single colon + ONE space) ──
+      # byte-identical to the python single_colon branch. Checked LAST. An INVALID
+      # leading token falls through to exit 1 (no match), exactly like python.
+      if (line ~ /^[A-Z][A-Z0-9_]*: / || line ~ /^[A-Z][A-Z0-9_]*::[A-Z][A-Z0-9_]*: /) {
+        ki   = index(line, ": ")
+        ktok = substr(line, 1, ki - 1)
+        krest = substr(line, ki + 2)               # skip the 2-char ": " separator
+        kns = "DEFAULT"; kaction = ktok
+        kci = index(ktok, "::")
+        if (kci > 0) {
+          kns     = substr(ktok, 1, kci - 1)
+          kaction = substr(ktok, kci + 2)
+        }
+        if (kns !~ /^[A-Z][A-Z0-9_]*$/ || kaction !~ /^[A-Z][A-Z0-9_]*$/) { exit 1 }
+        printf "%s\t%s\t%s\t%s", kns, kaction, krest, "single_colon"
         exit 0
       }
       exit 1
@@ -702,7 +728,8 @@ apx_lookup_subsystem() {
 #   verdict   : "expand" | "noop" | "escape" | "ask"
 #   action    : the matched/registered action name ("" if none)
 #   namespace : the resolved namespace (DEFAULT when the form carried none; "" if no match)
-#   form      : the matched grammar form ("colon" | "slash" | "arrow"; "" if no match)
+#   form      : the matched grammar form ("colon" | "slash" | "arrow" |
+#               "single_colon" (§11.4.202); "" if no match)
 #   expansion : the registered expansion text ("" if none)
 #   residual  : the remainder of the FIRST line after the prefix, plus any
 #               following lines ("" if no match)
@@ -735,6 +762,7 @@ apx_expand_prompt() {
   # optional `PREFIX::` is expressed by alternating the with/without-prefix shapes.
   if printf '%s' "$first" | grep -Eq '^\\[A-Z][A-Z0-9_]*(::[A-Z][A-Z0-9_]*)? :: ' \
      || printf '%s' "$first" | grep -Eq '^\\[A-Z][A-Z0-9_]*(::[A-Z][A-Z0-9_]*)? ---> ' \
+     || printf '%s' "$first" | grep -Eq '^\\[A-Z][A-Z0-9_]*(::[A-Z][A-Z0-9_]*)?: ' \
      || printf '%s' "$first" | grep -Eq '^\\/[A-Z][A-Z0-9_]*(::[A-Z][A-Z0-9_]*)?[[:space:]]'; then
     local emitted
     emitted="$(apx__replace_first_nonblank "$prompt" "$(printf '%s' "$first" | sed -E 's/^\\//')")"
@@ -775,6 +803,20 @@ apx_expand_prompt() {
   local expansion
   if expansion="$(apx_lookup_expansion "$token")"; then
     apx__emit_expand "$token" "$namespace" "$form" "$expansion" "$residual_all" "action"
+    return 0
+  fi
+
+  # (1b) §11.4.202 single-colon form is REGISTERED-ACTION-ONLY. The token was NOT
+  #      a registered action (branch (1) fell through), so this line is ordinary
+  #      prose that merely shares the `WORD: text` shape (`NOTE:` / `TODO:` /
+  #      `WARNING:` / `FIXME:` / `NOTA BENE:` …). Emit a NO-OP: never ASK (that
+  #      would question every such sentence), never resolve a sub-system (the
+  #      shape is far too common in prose to carry a shortcut). The other four
+  #      forms keep their ASK-on-unknown behaviour — their shapes do not occur in
+  #      ordinary prose (§11.4.6: an unknown token is never silently EXPANDED;
+  #      here it is simply not a prefix at all).
+  if [ "$form" = "single_colon" ]; then
+    apx__emit_json "false" "noop" "" "" "" "" "" "$prompt" ""
     return 0
   fi
 

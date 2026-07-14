@@ -2,13 +2,19 @@
 
 | Field | Value |
 |---|---|
-| Revision | 3 |
+| Revision | 4 |
 | Created | 2026-06-09 |
-| Last modified | 2026-07-14T00:00:00Z |
+| Last modified | 2026-07-15T00:00:00Z |
 | Status | active |
 | Scope | the reusable verbatim instruction block embedded into every agent context carrier |
 | Authority | DESIGN.md §5 + RULE_DRAFT.md Part B (this directory) |
 
+> **Revision 4 (2026-07-15):** added the **§11.4.202 reporting directives**
+> (`ISSUE` / `BUG` / `TASK`) + the **single-colon `NAME:` form** (form 6),
+> registered-action-only so ordinary prose (`NOTE:` / `TODO:`) never expands and
+> never asks. A report now auto-creates a fully-populated, fully-synced workable
+> item; a prose-only acknowledgement is a §11.4 bluff (§11.4.197).
+>
 > **Revision 3 (2026-07-14):** added the **sub-system shortcut** extension — a
 > grammar-shaped token that names an incorporated sub-system / submodule (from
 > the registry `subsystems:` catalogue OR recursive `.gitmodules` discovery)
@@ -115,6 +121,35 @@ action.
 > falls to the clarify path (§11.4.6). Same five grammar forms, same
 > first-non-blank-line anchor, same `\`-escape. The distinguishing result field
 > is `kind` ∈ {`action`, `subsystem`}.
+>
+> **Reporting directives + the single-colon form (§11.4.202, 2026-07-15).**
+> Three further registered actions turn a plain-language report into a REAL,
+> tracked, fully-synced workable item — never a prose acknowledgement:
+> **`BUG`** (Type=Bug), **`TASK`** (Type=Task), and **`ISSUE`** (a generic
+> report, CLASSIFIED into the §11.4.16 CLOSED set {Bug | Feature | Task} —
+> `ISSUE` is a reporting CHANNEL, never a fourth type). They add a SIXTH
+> equivalent grammar form — the **single-colon `NAME: <rest>`** form operators
+> actually type (`ISSUE: subtitles are late`) — alongside the five above
+> (`BUG :: x` ≡ `BUG ---> x` ≡ `/DEFAULT::BUG x` ≡ `BUG: x`). The single-colon
+> form is **REGISTERED-ACTION-ONLY by construction**: a single-colon token that
+> is NOT a registered action is a NO-OP (an ordinary prompt), NEVER an ASK and
+> NEVER a sub-system shortcut — because ordinary prose (`NOTE:`, `TODO:`,
+> `WARNING:`, `FIXME:`) shares that shape and must never be questioned
+> (§11.4.6); the other five forms keep their ASK-on-unknown behaviour. Host
+> collisions use the EXISTING conflict mechanism: the bare `/bug` is a
+> documented Claude Code built-in, so `BUG` declares `slash_conflicts: [bug]`
+> and its bare slash form is not honored — `/DEFAULT::BUG …` is always
+> unambiguous, and `BUG: …` / `BUG :: …` / `BUG ---> …` are never affected.
+> On any of these directives you MUST create the item (Status §11.4.15 + Type
+> §11.4.16 + stable id §11.4.54 + comprehensive structured description
+> §11.4.148 / §11.4.171) via the project's reporting engine
+> (`constitution/scripts/reporting/report_item.sh`), which drives the FULL sync
+> — DB single-source-of-truth (§11.4.93 / §11.4.95) → every derived document
+> regenerated FROM the DB (§11.4.12 / §11.4.53 / §11.4.65 / §11.4.106) → every
+> configured external tracker (§11.4.148 D5) — SKIPPING with an honest reason
+> any tracker whose credentials or client are absent (§11.4.10 / §11.4.6 /
+> §11.4.3) and NEVER faking a push. A report that is discussed but never
+> tracked is a §11.4 PASS-bluff at the requirements-intake layer (§11.4.197).
 >
 > The system is UNIVERSAL (every CLI agent reads this block via its
 > context carrier per §11.4.35), extensible (new action = new registry row),

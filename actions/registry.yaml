@@ -43,6 +43,17 @@ grammar:
   # ── `::` form (forms 1 + 2) ──────────────────────────────────────────────
   prefix_regex: '^([A-Z][A-Z0-9_]*) :: '        # legacy bare-`::` anchor (form 1); kept for back-compat
   colon_form_regex: '^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*) :: (.*)$'  # forms 1+2: g1=optional PREFIX, g2=ACTION, g3=rest
+  # ── single-colon form (form 6, §11.4.202 — `ISSUE: <text>`) ──────────────
+  # REGISTERED-ACTION-ONLY by construction: a single-colon token that is NOT a
+  # registered action is a NO-OP (an ordinary prompt), NEVER an ASK and NEVER a
+  # sub-system shortcut. Rationale (§11.4.6, honest): `NOTE:` / `TODO:` /
+  # `WARNING:` / `FIXME:` are ordinary English prose openers that share this
+  # shape — routing them to the §11.4.66 clarify path would turn every such
+  # sentence into an operator question. The ` :: ` / ` ---> ` / `/` forms keep
+  # their ASK-on-unknown behaviour (their shapes do not occur in prose).
+  single_colon_form_regex: '^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*): (.*)$'  # form 6: g1=optional PREFIX, g2=ACTION, g3=rest
+  single_colon_registered_only: true            # unknown single-colon token ⇒ noop (never ask, never subsystem)
+  single_colon_body_separator: ': '             # token <-> rest: colon + ONE space, no space before the colon
   # ── slash form (forms 3 + 4) ─────────────────────────────────────────────
   slash_form_regex: '^/(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*)\s+(.*)$'   # forms 3+4: g1=optional PREFIX, g2=ACTION, g3=rest
   # ── arrow form (form 5) ──────────────────────────────────────────────────
@@ -143,6 +154,158 @@ actions:
       - "11.4.108"
       - "11.4.130"
       - "11.4.147"
+
+  # ── Reporting directives (§11.4.202, 2026-07-15) ────────────────────────────
+  # BUG / TASK / ISSUE turn a plain-language report into a fully-populated,
+  # fully-synced workable item. They are ordinary registry rows — every §11.4.140
+  # form works out of the box (`BUG :: x`, `DEFAULT::BUG :: x`, `/DEFAULT::BUG x`,
+  # `BUG ---> x`) PLUS the §11.4.202 single-colon form (`BUG: x`).
+  - name: BUG
+    version: 1
+    namespaces: [DEFAULT]
+    # `/bug` is a documented Claude Code BUILT-IN (reports a bug to Anthropic), so
+    # the bare slash form is NOT honored for BUG. The namespaced slash form
+    # `/DEFAULT::BUG …` is always unambiguous (§11.4.140 conflict rule), and the
+    # `BUG: …` / `BUG :: …` / `BUG ---> …` forms are unaffected.
+    slash_bare: auto
+    slash_conflicts: [bug]
+    summary: >-
+      Report a product DEFECT — create a fully-populated Type=Bug workable item and
+      drive the full DB → docs → external-tracker sync.
+    expansion: >-
+      REPORT DIRECTIVE — BUG (§11.4.202). The remainder of this prompt is a REPORT
+      of a product DEFECT (a regression / user-visible broken behaviour). It MUST
+      be turned into a real, fully-populated workable item — never merely
+      acknowledged, never answered in prose alone, never silently dropped. Create
+      it through the project's reporting engine
+      (`constitution/scripts/reporting/report_item.sh --kind bug --title <t>
+      --report <text>`), which (1) creates the item with Type=Bug + Status=Queued +
+      a stable auto-incremented ticket id in the workable-items SQLite
+      single-source-of-truth (§11.4.93 / §11.4.95 / §11.4.54), carrying the
+      §11.4.148 / §11.4.171 comprehensive structured description (WHAT / SCOPE /
+      REPRODUCTION / ACCEPTANCE); (2) regenerates EVERY derived document from the
+      DB — Issues / Fixed / the summaries + their HTML / PDF / DOCX siblings — via
+      the project's configured sync command (§11.4.12 / §11.4.53 / §11.4.65 /
+      §11.4.106); (3) pushes the new item to EVERY configured external tracker
+      (§11.4.148 D5). A tracker whose credentials or client are absent is SKIPPED
+      with an honest reason (§11.4.10 / §11.4.6 / §11.4.3) — a push is NEVER faked
+      and its absence is NEVER hidden. Report back the assigned ticket id, the sync
+      verdict, and each tracker's verdict with its captured-evidence path (§11.4.5
+      / §11.4.69). THEN, if the defect is actionable now, investigate it under
+      §11.4.102 systematic-debugging (root cause BEFORE any fix).
+    rules:
+      - "The expansion REPLACES the 'BUG' prefix in ANY of its forms ('BUG: ', 'BUG :: ', 'BUG ---> ', '/DEFAULT::BUG '); the remainder of the prompt is the report text."
+      - "Type is FIXED to Bug (§11.4.16 closed set) — BUG never creates a Feature or a Task."
+      - "The item MUST be created before any other response; a report that is discussed but never tracked is a §11.4.202 violation (the requirement silently evaporates — §11.4.197)."
+      - "NEVER fake a tracker push. Absent credentials / absent client ⇒ honest SKIP-with-reason + the item still lands in the DB + docs (§11.4.10 / §11.4.6)."
+      - "Compose §11.4.202 (this directive), §11.4.93 / §11.4.95 (DB SSoT), §11.4.15 / §11.4.16 / §11.4.54 (status + type + id), §11.4.148 / §11.4.171 (comprehensive description), §11.4.106 / §11.4.12 / §11.4.53 / §11.4.65 (doc sync), §11.4.102 (systematic-debugging on the defect)."
+    composes_with:
+      - "11.4.202"
+      - "11.4.93"
+      - "11.4.95"
+      - "11.4.15"
+      - "11.4.16"
+      - "11.4.54"
+      - "11.4.148"
+      - "11.4.171"
+      - "11.4.106"
+      - "11.4.102"
+
+  - name: TASK
+    version: 1
+    namespaces: [DEFAULT]
+    slash_bare: auto
+    slash_conflicts: []
+    summary: >-
+      Report an internal WORKSTREAM item — create a fully-populated Type=Task
+      workable item and drive the full DB → docs → external-tracker sync.
+    expansion: >-
+      REPORT DIRECTIVE — TASK (§11.4.202). The remainder of this prompt is a REPORT
+      of an internal WORKSTREAM item (refactor / doc / infra / gate / audit /
+      chore). It MUST be turned into a real, fully-populated workable item — never
+      merely acknowledged, never silently dropped. Create it through the project's
+      reporting engine (`constitution/scripts/reporting/report_item.sh --kind task
+      --title <t> --report <text>`), which (1) creates the item with Type=Task +
+      Status=Queued + a stable auto-incremented ticket id in the workable-items
+      SQLite single-source-of-truth (§11.4.93 / §11.4.95 / §11.4.54), carrying the
+      §11.4.148 / §11.4.171 comprehensive structured description (WHAT / SCOPE /
+      REPRODUCTION-or-CONTEXT / ACCEPTANCE); (2) regenerates EVERY derived document
+      from the DB — Issues / Fixed / the summaries + their HTML / PDF / DOCX
+      siblings — via the project's configured sync command (§11.4.12 / §11.4.53 /
+      §11.4.65 / §11.4.106); (3) pushes the new item to EVERY configured external
+      tracker (§11.4.148 D5). A tracker whose credentials or client are absent is
+      SKIPPED with an honest reason (§11.4.10 / §11.4.6 / §11.4.3) — a push is
+      NEVER faked. Report back the assigned ticket id, the sync verdict, and each
+      tracker's verdict with its captured-evidence path (§11.4.5 / §11.4.69).
+    rules:
+      - "The expansion REPLACES the 'TASK' prefix in ANY of its forms ('TASK: ', 'TASK :: ', 'TASK ---> ', '/TASK ', '/DEFAULT::TASK '); the remainder is the report text."
+      - "Type is FIXED to Task (§11.4.16 closed set) — TASK never creates a Bug or a Feature."
+      - "The item MUST be created before any other response (§11.4.202 / §11.4.197 — a started requirement never evaporates)."
+      - "NEVER fake a tracker push — honest SKIP-with-reason when credentials / client are absent (§11.4.10 / §11.4.6)."
+    composes_with:
+      - "11.4.202"
+      - "11.4.93"
+      - "11.4.95"
+      - "11.4.15"
+      - "11.4.16"
+      - "11.4.54"
+      - "11.4.148"
+      - "11.4.171"
+      - "11.4.106"
+
+  - name: ISSUE
+    version: 1
+    namespaces: [DEFAULT]
+    slash_bare: auto
+    slash_conflicts: []
+    summary: >-
+      Report ANYTHING trackable — classify into the §11.4.16 closed set
+      {Bug | Feature | Task}, then create the fully-populated, fully-synced item.
+    expansion: >-
+      REPORT DIRECTIVE — ISSUE (§11.4.202). The remainder of this prompt is a
+      GENERIC REPORT of something trackable. It MUST be turned into a real,
+      fully-populated workable item — never merely acknowledged, never silently
+      dropped. FIRST classify it into the §11.4.16 CLOSED type set — `Bug` (product
+      defect / regression / user-visible broken behaviour), `Feature` (a new
+      end-user capability), or `Task` (internal workstream — refactor / doc / infra
+      / gate / audit). There is NO fourth type and NO "issue" type: inventing one is
+      a §11.4.16 violation. Classify from the report's own content, stated as FACT
+      (§11.4.6 — never a guess). If the content does NOT determine the type, ASK the
+      operator which of the three it is (§11.4.66 / §11.4.105) BEFORE creating the
+      item. If — and only if — running autonomously where asking is impossible
+      (§11.4.101), create it with the §11.4.16 lowest-stakes ambiguity default
+      `Task`, record the literal `Classification: defaulted-to-Task (§11.4.16
+      ambiguity default — reclassify)` inside the item's description, and surface
+      the reclassification command to the operator; NEVER silently assert a type the
+      report does not support. THEN create it through the project's reporting engine
+      (`constitution/scripts/reporting/report_item.sh --kind issue --type
+      <Bug|Feature|Task> --title <t> --report <text>`), which creates the item in the
+      workable-items SQLite single-source-of-truth (§11.4.93 / §11.4.95 / §11.4.54)
+      with the §11.4.148 / §11.4.171 comprehensive structured description, then
+      regenerates EVERY derived document from the DB (§11.4.12 / §11.4.53 / §11.4.65
+      / §11.4.106) and pushes to EVERY configured external tracker (§11.4.148 D5) —
+      SKIPPING with an honest reason any tracker whose credentials / client are
+      absent (§11.4.10 / §11.4.6 / §11.4.3), NEVER faking a push. Report back the
+      assigned ticket id + the chosen type + the sync verdict + each tracker's
+      verdict with its captured-evidence path (§11.4.5 / §11.4.69).
+    rules:
+      - "The expansion REPLACES the 'ISSUE' prefix in ANY of its forms ('ISSUE: ', 'ISSUE :: ', 'ISSUE ---> ', '/ISSUE ', '/DEFAULT::ISSUE '); the remainder is the report text."
+      - "Type MUST come from the §11.4.16 CLOSED set {Bug | Feature | Task}. 'Issue' is a REPORTING channel, NOT a type — never create a 4th type."
+      - "Classification is evidence-based (§11.4.6): determinable ⇒ state it; ambiguous ⇒ ASK (§11.4.66 / §11.4.105); autonomous-and-ambiguous ⇒ documented `Task` default + an explicit reclassify note (never a silent assertion)."
+      - "The item MUST be created before any other response (§11.4.202 / §11.4.197)."
+      - "NEVER fake a tracker push — honest SKIP-with-reason when credentials / client are absent (§11.4.10 / §11.4.6)."
+    composes_with:
+      - "11.4.202"
+      - "11.4.93"
+      - "11.4.95"
+      - "11.4.15"
+      - "11.4.16"
+      - "11.4.54"
+      - "11.4.66"
+      - "11.4.101"
+      - "11.4.148"
+      - "11.4.171"
+      - "11.4.106"
 
 # ── Sub-system / submodule shortcuts (§11.4.140 extension, 2026-07-14) ────────
 # A grammar-shaped UPPERCASE token that is NOT a registered behavioral action
