@@ -235,8 +235,99 @@ _mt_host_budget_live_worker_count() {
     pgrep -f "$MT_HOST_BUDGET_WORKER_PGREP_PATTERN" 2>/dev/null | wc -l | tr -d ' '
 }
 
+# >>MT_HB_STRICT_BUILD_FILTER (paired §1.1 mutation target — the strict-filter
+#   toggle IS the RB-02 pgrep-footgun fix. The value below is a PLAIN internal
+#   constant, DELIBERATELY NOT env-overridable (no `${...:-1}`) so it is NOT an
+#   operator escape hatch (§11.4.69 no-escape-hatch). The paired test seds a
+#   THROWAWAY copy of this file flipping `=1` to `=0` to reproduce the pre-fix
+#   footgun (RED, §11.4.115) and to prove the guard catches the negation (§1.1);
+#   do NOT remove this marker and do NOT set it to 0 in the shipped file.)
+_mt_hb_strict_build_filter=1
+# <<MT_HB_STRICT_BUILD_FILTER
+
+# _mt_host_budget_heavy_build_running — TRUE iff a GENUINE heavy build is in
+#   flight. RB-02 pgrep-footgun fix (§12.12 / forensic FACT 2026-07-13,
+#   captured in qa-results/multitrack/rb02_pgrep_footgun_*):
+#     `pgrep -f "$PATTERN"` matches the alternation regex as a SUBSTRING of every
+#     process's FULL command line, so a process that merely MENTIONS a build
+#     token — WITHOUT being a build — false-matches and made this guard REFUSE on
+#     EVERY live spawn (zero real builds). The three real false-positive classes
+#     (all captured live): (a) a pattern-CARRIER — a process whose args literally
+#     contain the whole `m -j|gradle|...` alternation string (this guard's own
+#     caller invoked with the pattern; a launcher/monitor/test/`claude -p` worker
+#     whose prompt QUOTES the pgrep pattern); (b) a multitrack ENGINE process
+#     (orchestrator/monitor/launcher/guard — cmdline contains `multitrack`);
+#     (c) a `claude`/`claude -p`/stream-json WORKER whose prompt blob embeds a
+#     build token (a worker is NEVER itself a build — the real build is a CHILD
+#     process: soong_build/ninja/kati/java `GradleDaemon`, whose OWN cmdline
+#     genuinely invokes the token and is NOT excluded). The fix re-reads each
+#     matched PID's REAL cmdline from /proc and excludes those three classes plus
+#     this guard's own process + its parent.
+#   SAFE-BY-DEFAULT (§11.4.101 reversible-safe / §12.8 strictness): a matched PID
+#   whose /proc/<pid>/cmdline is UNREADABLE or EMPTY (a pgrep→read race, a
+#   vanished PID) is conservatively counted AS a build (return 0 => REFUSE) — a
+#   refused spawn is safe + retried; wrongly ALLOWING a spawn during a real build
+#   is the harm. This also preserves the fake-`pgrep`-shim test contract used by
+#   test_multitrack_host_budget*.sh (a simulated PID with no /proc entry => still
+#   REFUSE). A genuine soong/gradle/containerised build carries NONE of the
+#   carrier/engine/worker markers, so it still matches — the exclusion removes
+#   ONLY the footgun, never a real build (§11.4.6, proven by the paired
+#   test_multitrack_host_budget_rb02_pgrep.sh RED→GREEN + §1.1 self-check).
+# Read one PID's full command line (NUL-separated argv -> single-spaced). A
+# named seam (§11.4.108) so the paired hermetic test can stub it deterministically
+# alongside a fake `pgrep` — no real process, no spawn-timing flake. Default reads
+# the real /proc; empty output => unreadable/vanished (handled by the caller as a
+# conservative REFUSE). Never writes anything (§11.4.128 read-only).
+_mt_host_budget_pid_cmdline() {
+    tr '\0' ' ' < "/proc/$1/cmdline" 2>/dev/null
+}
+
 _mt_host_budget_heavy_build_running() {
-    pgrep -f "$MT_HOST_BUDGET_BUILD_PGREP_PATTERN" >/dev/null 2>&1
+    _mt_hb_pids=$(pgrep -f "$MT_HOST_BUDGET_BUILD_PGREP_PATTERN" 2>/dev/null)
+    [ -n "$_mt_hb_pids" ] || return 1        # no pattern match at all => no build
+
+    if [ "${_mt_hb_strict_build_filter:-1}" != "1" ]; then
+        # pre-fix naive path (§1.1 mutation target): ANY substring match => a
+        # "build", the exact RB-02 footgun. The shipped file keeps
+        # _mt_hb_strict_build_filter=1 so this branch is never taken in
+        # production; the paired test flips it on a throwaway copy.
+        return 0
+    fi
+
+    _mt_hb_self=$$
+    _mt_hb_ppid=${PPID:-0}
+    for _mt_hb_pid in $_mt_hb_pids; do
+        case "$_mt_hb_pid" in ''|*[!0-9]*) continue ;; esac
+        # never count THIS guard's own process or its parent (self/sibling footgun)
+        [ "$_mt_hb_pid" = "$_mt_hb_self" ] && continue
+        [ "$_mt_hb_pid" = "$_mt_hb_ppid" ] && continue
+        # read the matched PID's REAL full cmdline (via the stubbable seam).
+        _mt_hb_cl=$(_mt_host_budget_pid_cmdline "$_mt_hb_pid")
+        if [ -z "$_mt_hb_cl" ]; then
+            # matched but cmdline gone/unreadable (pgrep->read race, vanished PID,
+            # or a simulated test PID with no /proc): conservatively treat as a
+            # real build => REFUSE (safe default, §11.4.101 / §12.8).
+            unset _mt_hb_self _mt_hb_ppid _mt_hb_pid _mt_hb_cl _mt_hb_pids
+            return 0
+        fi
+        # exclude a pattern-CARRIER: cmdline literally contains the whole
+        # alternation pattern string (a real build never carries the `|`-joined
+        # alternation as its own argv — only a quoter/launcher/prompt does).
+        case "$_mt_hb_cl" in *"$MT_HOST_BUDGET_BUILD_PGREP_PATTERN"*) continue ;; esac
+        # exclude a multitrack ENGINE process (orchestrator/monitor/launcher/guard)
+        case "$_mt_hb_cl" in *multitrack*) continue ;; esac
+        # exclude a `claude`/`claude -p`/stream-json WORKER (prompt-carrier; the
+        # real build, if any, is its CHILD process with its own matching cmdline).
+        case "$_mt_hb_cl" in
+            claude\ *|*/claude\ *|*"claude -p"*|*stream-json*) continue ;;
+        esac
+        # survivor: a genuine heavy-build process => REFUSE.
+        unset _mt_hb_self _mt_hb_ppid _mt_hb_pid _mt_hb_cl _mt_hb_pids
+        return 0
+    done
+    # every match was an excluded footgun carrier => no real build in flight.
+    unset _mt_hb_self _mt_hb_ppid _mt_hb_pid _mt_hb_cl _mt_hb_pids
+    return 1
 }
 
 # ---------------------------------------------------------------------------

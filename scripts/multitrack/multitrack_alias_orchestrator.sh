@@ -81,7 +81,10 @@
 #   multitrack_alias_orchestrator.sh bind    --alias A --track T [--worktree P] [--ttl S]
 #   multitrack_alias_orchestrator.sh unbind  (--alias A | --track T)
 #   multitrack_alias_orchestrator.sh heartbeat --alias A [--ttl S]
-#   multitrack_alias_orchestrator.sh fallback --track T [--reason R] [--ttl S]
+#   multitrack_alias_orchestrator.sh fallback --track T [--reason R] [--class session|weekly|subscription] [--until EPOCH] [--ttl S]
+#   multitrack_alias_orchestrator.sh mark-limited --alias A [--class session|weekly|subscription] [--until EPOCH] [--reason R]
+#   multitrack_alias_orchestrator.sh mark-operational --alias A
+#   multitrack_alias_orchestrator.sh promote [--ttl S]
 #   multitrack_alias_orchestrator.sh auto-assign [--ttl S]
 #   multitrack_alias_orchestrator.sh acquire-devices --track T [ARBITER acquire ARGS...]
 #   multitrack_alias_orchestrator.sh release-devices --track T [--device D]
@@ -148,6 +151,19 @@ MT_ALIAS_DIR=${MT_ALIAS_DIR:-${XDG_RUNTIME_DIR:-/tmp}/$(basename "$(mt_repo_root
 MT_LOCK_WAIT=${MT_LOCK_WAIT:-10}
 MT_ALIAS_TTL=${MT_ALIAS_TTL:-900}
 MT_COOLDOWN=${MT_COOLDOWN:-300}
+# Per-reason-CLASS cooldown durations (operator mandate 2026-07-14: a session
+# 429, a weekly-limit-reached, and a subscription-expiry are DIFFERENT "not
+# operational until…" windows, NOT one flat cooldown — §11.4.111 resolve-by-real-
+# state, §11.4.6 no-guessing). The `until` epoch stored per cooled alias IS its
+# operational-again timestamp. All overridable; a caller MAY pass an exact
+# `--until` (e.g. parsed from a real reset marker) which wins over the class default.
+MT_COOLDOWN_SESSION=${MT_COOLDOWN_SESSION:-$MT_COOLDOWN}          # 429 session rate-limit: short (self-heals at reset)
+MT_COOLDOWN_WEEKLY=${MT_COOLDOWN_WEEKLY:-604800}                  # weekly-limit-reached: ~7d until the weekly reset
+# subscription expiry: operational-again is UNKNOWN until a real renewal signal —
+# park with a far-future sentinel (2100-01-01Z) so a subscription-expired alias is
+# never auto-picked until an explicit `mark-operational`/renewal clears it (§11.4.6:
+# never GUESS a renewal date; an operator/config supplies the real one via --until).
+MT_COOLDOWN_SUBSCRIPTION_SENTINEL=${MT_COOLDOWN_SUBSCRIPTION_SENTINEL:-4102444800}
 BIND="$MT_ALIAS_DIR/bindings.snapshot"
 COOL="$MT_ALIAS_DIR/cooldowns.snapshot"
 EVENTS="$MT_ALIAS_DIR/events.jsonl"
@@ -277,7 +293,10 @@ _aliases_of_class() {  # $1 = native|provider
 
 # --- snapshot helpers (callers hold the flock; writes atomic) -----------------
 _reap() {  # drop expired bindings + expired cooldowns; emit REAP. (inside lock)
-    local now tmp a t wt pid acq exp state until reason
+    # `class` MUST be local: the cooldown read loop below uses it, and if it
+    # leaked it would clobber a caller's own `class` var (cmd_mark_limited /
+    # cmd_fallback) on the final EOF read — recording every limit as `session`.
+    local now tmp a t wt pid acq exp state until reason class
     now=$(_now)
     if [ -s "$BIND" ]; then
         tmp="$BIND.tmp.$$"; : > "$tmp"
@@ -293,9 +312,11 @@ _reap() {  # drop expired bindings + expired cooldowns; emit REAP. (inside lock)
     fi
     if [ -s "$COOL" ]; then
         tmp="$COOL.tmp.$$"; : > "$tmp"
-        while IFS='|' read -r a until reason; do
+        # 4-field cooldown rows: alias|until|reason|class. Legacy 3-field rows
+        # (class empty) are normalised to `session` on rewrite — backward-compat.
+        while IFS='|' read -r a until reason class; do
             [ -n "$a" ] || continue
-            [ "${until:-0}" -gt "$now" ] && printf '%s|%s|%s\n' "$a" "$until" "$reason" >> "$tmp"
+            [ "${until:-0}" -gt "$now" ] && printf '%s|%s|%s|%s\n' "$a" "$until" "$reason" "${class:-session}" >> "$tmp"
         done < "$COOL"
         mv -f "$tmp" "$COOL"
     fi
@@ -308,6 +329,53 @@ _alias_bound_tracks() { awk -F'|' -v a="$1" '$1==a{printf "%s%s",sep,$2; sep=","
 _alias_load() { awk -F'|' -v a="$1" 'BEGIN{c=0} $1==a{c++} END{print c}' "$BIND" 2>/dev/null; }
 _track_bound_alias() { awk -F'|' -v t="$1" '$2==t{print $1; exit}' "$BIND" 2>/dev/null; }
 _alias_in_cooldown() { awk -F'|' -v a="$1" 'BEGIN{r=1} $1==a{r=0} END{exit r}' "$COOL" 2>/dev/null; }
+# the alias's cooldown reason-CLASS + operational-again epoch (empty if not cooled).
+_alias_cooldown_class() { awk -F'|' -v a="$1" '$1==a{print ($4==""?"session":$4); exit}' "$COOL" 2>/dev/null; }
+_alias_cooldown_until() { awk -F'|' -v a="$1" '$1==a{print $2; exit}' "$COOL" 2>/dev/null; }
+
+# operational-again epoch for a limit reason-CLASS (item 2 — session/weekly/
+# subscription have DIFFERENT windows; §11.4.6 never guesses a renewal date).
+_cooldown_until_for_class() {  # $1 = session|weekly|subscription -> epoch
+    _now2=$(_now)
+    case "$1" in
+        weekly)       printf '%s' "$((_now2 + MT_COOLDOWN_WEEKLY))" ;;
+        subscription) printf '%s' "$MT_COOLDOWN_SUBSCRIPTION_SENTINEL" ;;
+        session|*)    printf '%s' "$((_now2 + MT_COOLDOWN_SESSION))" ;;
+    esac
+    unset _now2
+}
+
+# alias PRIORITY rank (lower = higher priority): native class outranks provider
+# class UNCONDITIONALLY, then roster order within the class (the operator-mandated
+# order the config authoritatively defines: deepseek->xiaomi->opencode->kimi...).
+# This is the SAME native-first ordering _next_available_alias enforces, exposed
+# as a comparable integer so cmd_promote can rebind a track UPWARD on recovery.
+_alias_rank() {  # $1 alias -> integer (empty + rc1 if unknown)
+    _k=$(_alias_kind "$1") || return 1
+    # >>MT_ALIAS_MUT_RANK_NATIVE_FIRST (paired §1.1 mutation target — native base 0
+    #   < provider base 100000 IS the native-first-in-promote guarantee. The test
+    #   seds a throwaway copy swapping the two bases so a provider outranks a native
+    #   and cmd_promote stops preferring a recovered native; do NOT remove marker.)
+    case "$_k" in native) _base=0 ;; *) _base=100000 ;; esac
+    # <<MT_ALIAS_MUT_RANK_NATIVE_FIRST
+    _idx=0
+    for _t in $(_aliases_of_class "$_k"); do
+        if [ "$_t" = "$1" ]; then printf '%s' "$((_base + _idx))"; unset _k _base _idx _t; return 0; fi
+        _idx=$((_idx + 1))
+    done
+    unset _k _base _idx _t
+    return 1
+}
+# best (highest-priority = lowest-rank) alias NOT in cooldown (empty if all cooled).
+_best_operational_alias() {
+    _best=""; _bestrank=""
+    for _a in $(_all_aliases); do
+        _alias_in_cooldown "$_a" && continue
+        _r=$(_alias_rank "$_a") || continue
+        if [ -z "$_best" ] || [ "$_r" -lt "$_bestrank" ]; then _best=$_a; _bestrank=$_r; fi
+    done
+    printf '%s' "$_best"; unset _best _bestrank _a _r
+}
 
 # next available alias for fallback / auto-assign (operator mandate — an alias
 # MAY serve multiple Tracks). PROVABLY NATIVE-FIRST (operator mandate 2026-07-08:
@@ -405,10 +473,10 @@ cmd_status() {
           awk -F'|' -v now="$now" '{ rem=$6-now; if(rem<0)rem=0;
               printf "%-17s %-12s %-6ss %s\n",$1,$2,rem,$3 }' "$BIND"
       else printf '(none bound)\n'; fi
-      printf '\n== cooldown (rate-limited aliases) ==\n'
+      printf '\n== cooldown (limited aliases: class + operational-again) ==\n'
       if [ -s "$COOL" ]; then
-          awk -F'|' -v now="$now" '{ rem=$2-now; if(rem<0)rem=0;
-              printf "%-17s remaining=%ss reason=%s\n",$1,rem,$3 }' "$COOL"
+          awk -F'|' -v now="$now" '{ rem=$2-now; if(rem<0)rem=0; cls=($4==""?"session":$4);
+              printf "%-17s class=%-12s remaining=%ss operational-again-epoch=%s reason=%s\n",$1,cls,rem,$2,$3 }' "$COOL"
       else printf '(none)\n'; fi
     ) 9<"$LOCKF"
     printf '\n== device pool (delegated to arbiter) ==\n'
@@ -496,7 +564,13 @@ cmd_fallback() {
     [ -n "${OPT_TRACK:-}" ] || { echo "usage: fallback --track T [--reason R] [--ttl S]" >&2; exit 2; }
     _load_tracks; _load_roster; _ensure_dirs
     _track_exists "$OPT_TRACK" || { echo "ENOTRACK: unknown track '$OPT_TRACK'" >&2; exit 4; }
-    local ttl=${OPT_TTL:-$MT_ALIAS_TTL} reason=${OPT_REASON:-rate-limit}
+    # reason-CLASS-aware cooldown (item 2): --class session|weekly|subscription
+    # sets the operational-again window; an explicit --until (parsed reset epoch)
+    # wins. Default class = session (the common 429 self-heal case), preserving
+    # the pre-existing fallback behaviour for callers that pass no --class.
+    local ttl=${OPT_TTL:-$MT_ALIAS_TTL} reason=${OPT_REASON:-rate-limit} class=${OPT_CLASS:-session}
+    case "$class" in session|weekly|subscription) : ;;
+        *) echo "EBADCLASS: --class must be session|weekly|subscription (got '$class')" >&2; exit 2 ;; esac
     ( flock -w "$MT_LOCK_WAIT" 9 || { echo "FATAL: registry busy" >&2; exit 1; }
       _reap
       local cur nxt wt now exp until
@@ -507,10 +581,12 @@ cmd_fallback() {
           echo "ENOFREE: no available alias to fall back TO for track '$OPT_TRACK' (all bound/cooldown) — parked (§11.4.101 bounded block)" >&2
           exit 5; }
       wt=$(awk -F'|' -v t="$OPT_TRACK" '$2==t{print $3; exit}' "$BIND"); [ -n "$wt" ] || wt=$(_track_mount "$OPT_TRACK")
-      now=$(_now); exp=$((now + ttl)); until=$((now + MT_COOLDOWN))
-      # 1) put the failing alias into cooldown
-      printf '%s|%s|%s\n' "$cur" "$until" "$reason" >> "$COOL"
-      _event COOLDOWN "$cur" "$OPT_TRACK" "" "$until" "reason=$reason cooldown=${MT_COOLDOWN}s"
+      now=$(_now); exp=$((now + ttl))
+      until=${OPT_UNTIL:-$(_cooldown_until_for_class "$class")}
+      # 1) put the failing alias into cooldown (drop any prior row for it first)
+      if [ -s "$COOL" ]; then awk -F'|' -v a="$cur" '$1!=a' "$COOL" > "$COOL.tmp.$$" && mv -f "$COOL.tmp.$$" "$COOL"; fi
+      printf '%s|%s|%s|%s\n' "$cur" "$until" "$reason" "$class" >> "$COOL"
+      _event COOLDOWN "$cur" "$OPT_TRACK" "" "$until" "class=$class reason=$reason operational-again=$until"
       # 2) rebind SAME track to the next alias (atomic snapshot rewrite). Drop
       #    ONLY this Track's row (Track is the unique key) so that if $nxt is a
       #    REUSED alias already serving other Tracks, those bindings survive.
@@ -521,6 +597,86 @@ cmd_fallback() {
       _event FALLBACK "$nxt" "$OPT_TRACK" "$wt" "$exp" "from=$cur reason=$reason (device leases preserved)"
       printf 'FALLBACK: track=%s %s->%s (device leases untouched) worktree=%s expires=%s\n' \
           "$OPT_TRACK" "$cur" "$nxt" "$wt" "$exp"
+    ) 9<"$LOCKF"
+}
+
+# mark-limited: record a per-alias limit from a REAL signal (item 2), WITHOUT a
+# track hand-off — the explicit "this alias is not operational until <until>"
+# entry point the fallback monitor calls when it classifies a captured 429 /
+# weekly-limit / subscription-expiry signature (§11.4.6: the class comes from a
+# real signal, never a guess). --until (a parsed reset epoch) wins over the class
+# default. A cooled alias is NEVER auto-selected until its `until` passes (session/
+# weekly) or an explicit mark-operational/renewal clears it (subscription).
+cmd_mark_limited() {
+    [ -n "${OPT_ALIAS:-}" ] || { echo "usage: mark-limited --alias A [--class session|weekly|subscription] [--until EPOCH] [--reason R]" >&2; exit 2; }
+    _load_tracks; _load_roster; _ensure_dirs
+    _alias_known "$OPT_ALIAS" || { echo "ENOALIAS: unknown alias '$OPT_ALIAS' (not in roster)" >&2; exit 4; }
+    local class=${OPT_CLASS:-session} reason=${OPT_REASON:-}
+    case "$class" in session|weekly|subscription) : ;;
+        *) echo "EBADCLASS: --class must be session|weekly|subscription (got '$class')" >&2; exit 2 ;; esac
+    [ -n "$reason" ] || reason="${class}-limit"
+    ( flock -w "$MT_LOCK_WAIT" 9 || { echo "FATAL: registry busy" >&2; exit 1; }
+      _reap
+      local until
+      until=${OPT_UNTIL:-$(_cooldown_until_for_class "$class")}
+      if [ -s "$COOL" ]; then awk -F'|' -v a="$OPT_ALIAS" '$1!=a' "$COOL" > "$COOL.tmp.$$" && mv -f "$COOL.tmp.$$" "$COOL"; fi
+      printf '%s|%s|%s|%s\n' "$OPT_ALIAS" "$until" "$reason" "$class" >> "$COOL"
+      _event COOLDOWN "$OPT_ALIAS" "" "" "$until" "class=$class reason=$reason operational-again=$until (mark-limited)"
+      printf 'MARK-LIMITED: alias=%s class=%s reason=%s operational-again=%s (%s)\n' \
+          "$OPT_ALIAS" "$class" "$reason" "$until" "$(date -u -d "@$until" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo "epoch=$until")"
+    ) 9<"$LOCKF"
+}
+
+# mark-operational: clear an alias's cooldown NOW (item 2/3 — a subscription
+# renewal / an operator-confirmed recovery makes a higher-priority native
+# operational again; the next auto-assign/promote will prefer it). Idempotent.
+cmd_mark_operational() {
+    [ -n "${OPT_ALIAS:-}" ] || { echo "usage: mark-operational --alias A" >&2; exit 2; }
+    _load_tracks; _load_roster; _ensure_dirs
+    ( flock -w "$MT_LOCK_WAIT" 9 || { echo "FATAL: registry busy" >&2; exit 1; }
+      _reap
+      local n=0
+      if [ -s "$COOL" ]; then
+          n=$(awk -F'|' -v a="$OPT_ALIAS" '$1==a{c++} END{print c+0}' "$COOL")
+          awk -F'|' -v a="$OPT_ALIAS" '$1!=a' "$COOL" > "$COOL.tmp.$$" && mv -f "$COOL.tmp.$$" "$COOL"
+      fi
+      _event COOLDOWN "$OPT_ALIAS" "" "" "0" "cleared=$n (mark-operational — alias recovered)"
+      printf 'MARK-OPERATIONAL: alias=%s cooldown cleared (%s row[s]); now eligible for auto-assign/promote\n' "$OPT_ALIAS" "$n"
+    ) 9<"$LOCKF"
+}
+
+# promote: auto-use-on-recovery (item 3) — for EVERY bound track, if a strictly
+# HIGHER-priority (lower _alias_rank: native before provider, then config order)
+# NON-cooled alias exists, rebind the track UPWARD to it, PRESERVING the worktree
+# AND the track's device leases (leases are keyed by the STABLE track id in the
+# arbiter — the alias changes, not the track). This is the "as soon as a higher-
+# priority native recovers, rebind the tracks to it" behaviour: run it after every
+# reap/tick so a track that fell onto a provider returns to a recovered native
+# automatically. Idempotent (a track already on the best alias is left untouched).
+cmd_promote() {
+    _load_tracks; _load_roster; _ensure_dirs
+    local ttl=${OPT_TTL:-$MT_ALIAS_TTL}
+    ( flock -w "$MT_LOCK_WAIT" 9 || { echo "FATAL: registry busy" >&2; exit 1; }
+      _reap
+      local t cur currank best bestrank wt now exp moved=0
+      now=$(_now); exp=$((now + ttl))
+      for t in $(_all_tracks); do
+          cur=$(_track_bound_alias "$t"); [ -n "$cur" ] || continue
+          currank=$(_alias_rank "$cur") || continue
+          best=$(_best_operational_alias); [ -n "$best" ] || continue
+          bestrank=$(_alias_rank "$best") || continue
+          if [ "$bestrank" -lt "$currank" ] && [ "$best" != "$cur" ]; then
+              wt=$(awk -F'|' -v t="$t" '$2==t{print $3; exit}' "$BIND"); [ -n "$wt" ] || wt=$(_track_mount "$t")
+              {
+                  awk -F'|' -v t="$t" '$2!=t { print }' "$BIND"
+                  printf '%s|%s|%s|%s|%s|%s|%s\n' "$best" "$t" "$wt" "${HOLDER_PID:-0}" "$now" "$exp" "active"
+              } > "$BIND.tmp.$$" && mv -f "$BIND.tmp.$$" "$BIND"
+              _event FALLBACK "$best" "$t" "$wt" "$exp" "promote from=$cur (higher-priority alias recovered; device leases preserved)"
+              printf 'PROMOTE: track=%s %s->%s (higher-priority alias recovered; leases untouched)\n' "$t" "$cur" "$best"
+              moved=$((moved + 1))
+          fi
+      done
+      printf 'PROMOTE: %s track(s) rebound upward to a higher-priority alias\n' "$moved"
     ) 9<"$LOCKF"
 }
 
@@ -668,6 +824,7 @@ usage() { sed -n '/^# Usage:/,/^# Exit codes:/p' "$ORCH_SELF" 2>/dev/null | sed 
 CMD=$1; shift
 
 OPT_ALIAS=""; OPT_TRACK=""; OPT_WORKTREE=""; OPT_TTL=""; OPT_REASON=""
+OPT_CLASS=""; OPT_UNTIL=""
 OPT_FROM=""; OPT_TO=""; HOLDER_PID=${MT_HOLDER_PID:-$PPID}
 PASSTHRU=""   # remaining args forwarded to the arbiter (device sub-commands)
 while [ $# -gt 0 ]; do
@@ -677,6 +834,8 @@ while [ $# -gt 0 ]; do
         --worktree)  OPT_WORKTREE=$2; shift ;;--worktree=*) OPT_WORKTREE=${1#--worktree=} ;;
         --ttl)       OPT_TTL=$2; shift ;;     --ttl=*)      OPT_TTL=${1#--ttl=} ;;
         --reason)    OPT_REASON=$2; shift ;;  --reason=*)   OPT_REASON=${1#--reason=} ;;
+        --class)     OPT_CLASS=$2; shift ;;   --class=*)    OPT_CLASS=${1#--class=} ;;
+        --until)     OPT_UNTIL=$2; shift ;;   --until=*)    OPT_UNTIL=${1#--until=} ;;
         --from-track)OPT_FROM=$2; shift ;;    --from-track=*)OPT_FROM=${1#--from-track=} ;;
         --to-track)  OPT_TO=$2; shift ;;      --to-track=*) OPT_TO=${1#--to-track=} ;;
         --help|-h)   usage; exit 0 ;;
@@ -700,6 +859,9 @@ case "$CMD" in
     unbind)          cmd_unbind ;;
     heartbeat)       cmd_heartbeat ;;
     fallback)        cmd_fallback ;;
+    mark-limited)    cmd_mark_limited ;;
+    mark-operational) cmd_mark_operational ;;
+    promote)         cmd_promote ;;
     auto-assign)     cmd_auto_assign ;;
     acquire-devices) cmd_acquire_devices "$@" ;;
     release-devices) cmd_release_devices "$@" ;;
