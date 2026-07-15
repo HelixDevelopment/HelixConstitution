@@ -4,3 +4,6 @@
 [submodule "submodules/session_orchestrator"]
 	path = submodules/session_orchestrator
 	url = git@github.com:vasic-digital/session_orchestrator.git
+[submodule "submodules/continuum"]
+	path = submodules/continuum
+	url = git@github.com:vasic-digital/continuum.git
