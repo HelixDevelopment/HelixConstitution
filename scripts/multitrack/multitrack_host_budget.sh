@@ -245,6 +245,21 @@ _mt_host_budget_live_worker_count() {
 _mt_hb_strict_build_filter=1
 # <<MT_HB_STRICT_BUILD_FILTER
 
+# >>MT_HB_LIVENESS_GATE (paired §1.1 mutation target — the liveness-gate toggle IS
+#   the §11.4.201/§11.4.180 vanished-PID FALSE-REFUSE fix. Like the strict-filter
+#   above, a PLAIN internal constant, DELIBERATELY NOT env-overridable (no
+#   `${...:-1}` write) so it is NOT an operator escape hatch (§11.4.69). When 1 the
+#   empty/unreadable-cmdline branch of _mt_host_budget_heavy_build_running skips a
+#   DEAD/vanished matched PID (the fix); the paired
+#   test_multitrack_host_budget_rb02_pgrep.sh + the CM-MULTITRACK-GUARD-VANISHED-
+#   PID-LIVENESS meta-mutation sed a THROWAWAY copy flipping `=1` to `=0`, reverting
+#   the branch to the pre-fix UNCONDITIONAL REFUSE, to reproduce the footgun (RED,
+#   §11.4.115) and prove the guard catches the negation (§1.1). Do NOT remove this
+#   marker and do NOT set it to 0 in the shipped file. The read below uses `:-1`
+#   defensively so a DELETED constant still defaults to the SAFE fix-active state.)
+_mt_hb_liveness_gate=1
+# <<MT_HB_LIVENESS_GATE
+
 # _mt_host_budget_heavy_build_running — TRUE iff a GENUINE heavy build is in
 #   flight. RB-02 pgrep-footgun fix (§12.12 / forensic FACT 2026-07-13,
 #   captured in qa-results/multitrack/rb02_pgrep_footgun_*):
@@ -263,23 +278,58 @@ _mt_hb_strict_build_filter=1
 #     genuinely invokes the token and is NOT excluded). The fix re-reads each
 #     matched PID's REAL cmdline from /proc and excludes those three classes plus
 #     this guard's own process + its parent.
-#   SAFE-BY-DEFAULT (§11.4.101 reversible-safe / §12.8 strictness): a matched PID
-#   whose /proc/<pid>/cmdline is UNREADABLE or EMPTY (a pgrep→read race, a
-#   vanished PID) is conservatively counted AS a build (return 0 => REFUSE) — a
-#   refused spawn is safe + retried; wrongly ALLOWING a spawn during a real build
-#   is the harm. This also preserves the fake-`pgrep`-shim test contract used by
-#   test_multitrack_host_budget*.sh (a simulated PID with no /proc entry => still
-#   REFUSE). A genuine soong/gradle/containerised build carries NONE of the
-#   carrier/engine/worker markers, so it still matches — the exclusion removes
-#   ONLY the footgun, never a real build (§11.4.6, proven by the paired
-#   test_multitrack_host_budget_rb02_pgrep.sh RED→GREEN + §1.1 self-check).
+#   LIVENESS-GATED SAFE-BY-DEFAULT (§11.4.201 assert-the-REAL-condition /
+#   §11.4.180 liveness-PROVEN / §11.4.101 reversible-safe / §12.8 strictness): a
+#   matched PID whose /proc/<pid>/cmdline is UNREADABLE or EMPTY is FIRST
+#   liveness-probed with `kill -0` (the stubbable _mt_host_budget_pid_alive seam)
+#   before it is counted as a build:
+#     - DEAD/vanished PID (the pgrep→/proc read RACE — `pgrep -f` matched a
+#       TRANSIENT PID from the spawn pipeline that exited before the /proc read;
+#       a real soong/gradle build runs for MINUTES and does NOT vanish between
+#       pgrep and the read) => provably NOT a live heavy build => SKIP it. This
+#       removes the RB-02 vanished-PID FALSE-REFUSE footgun that made the guard
+#       REFUSE every worker spawn on a host with ZERO real builds (forensic FACT
+#       2026-07-15; a captured `/proc/<pid>/cmdline: No such file` race).
+#     - LIVE process (kill -0 ok) whose cmdline is unreadable/empty (a rare
+#       permission/kernel race on a genuine LIVE process) => conservatively
+#       counted AS a build (return 0 => REFUSE) — a refused spawn is safe +
+#       retried; wrongly ALLOWING a spawn during a real build is the harm. The
+#       refusal PRINTS its resolved evidence (the real pid + why) per §11.4.201(5).
+#   A false-POSITIVE refusal (blocking a spawn while no build runs) is a §11.4.1
+#   FAIL-bluff exactly as a false-negative ALLOW is a PASS-bluff — the liveness
+#   gate makes the refusal assert the REAL condition (a LIVE build), not a proxy.
+#   A genuine soong/gradle/containerised build carries NONE of the
+#   carrier/engine/worker markers AND does not vanish, so it still matches — the
+#   exclusion + liveness gate remove ONLY the footgun, never a real build
+#   (§11.4.6, proven by the paired test_multitrack_host_budget_rb02_pgrep.sh
+#   RED→GREEN + §1.1 self-check, incl. its unreadable-live/unreadable-vanished
+#   scenarios).
 # Read one PID's full command line (NUL-separated argv -> single-spaced). A
 # named seam (§11.4.108) so the paired hermetic test can stub it deterministically
 # alongside a fake `pgrep` — no real process, no spawn-timing flake. Default reads
-# the real /proc; empty output => unreadable/vanished (handled by the caller as a
-# conservative REFUSE). Never writes anything (§11.4.128 read-only).
+# the real /proc; empty output => unreadable/vanished (handled by the caller under
+# the LIVENESS GATE — a DEAD pid is skipped, a LIVE pid is a conservative REFUSE,
+# §11.4.201). Never writes anything (§11.4.128 read-only).
 _mt_host_budget_pid_cmdline() {
     tr '\0' ' ' < "/proc/$1/cmdline" 2>/dev/null
+}
+
+# _mt_host_budget_pid_alive — PROVE one matched PID is actually ALIVE (§11.4.201
+#   assert-the-real-condition / §11.4.180 liveness-PROVEN-via-kill-0). Gates the
+#   empty/unreadable-cmdline branch of _mt_host_budget_heavy_build_running: a
+#   DEAD/vanished PID (the `pgrep -f`→/proc read race) CANNOT be a live heavy
+#   build, so it MUST NOT be counted as one. A named seam (§11.4.108) — like
+#   _mt_host_budget_pid_cmdline above — so the paired hermetic test stubs it
+#   DETERMINISTICALLY (no dependence on whether some arbitrary host PID happens to
+#   exist, §11.4.50), while the default is the real `kill -0` probe. Returns 0 iff
+#   the PID is live AND signalable by this user — i.e. OUR OWN build/worker
+#   processes, exactly the set this guard's §12.6 budget protects. Honest boundary
+#   (§11.4.6): a live process we CANNOT signal (another user's process under
+#   `hidepid`, EPERM) reads as not-ours and is skipped — an accepted corner, since
+#   this guard gates OUR user.slice spawns against OUR builds. `kill -0` sends NO
+#   signal — read-only census (§11.4.128).
+_mt_host_budget_pid_alive() {
+    kill -0 "$1" 2>/dev/null
 }
 
 _mt_host_budget_heavy_build_running() {
@@ -304,9 +354,22 @@ _mt_host_budget_heavy_build_running() {
         # read the matched PID's REAL full cmdline (via the stubbable seam).
         _mt_hb_cl=$(_mt_host_budget_pid_cmdline "$_mt_hb_pid")
         if [ -z "$_mt_hb_cl" ]; then
-            # matched but cmdline gone/unreadable (pgrep->read race, vanished PID,
-            # or a simulated test PID with no /proc): conservatively treat as a
-            # real build => REFUSE (safe default, §11.4.101 / §12.8).
+            # matched but cmdline gone/unreadable. §11.4.201/§11.4.180: PROVE
+            # liveness before counting it as a build. A DEAD/vanished PID (the
+            # `pgrep -f`→/proc read RACE — a transient PID that exited between the
+            # match and the read) CANNOT be a live heavy build => SKIP it. This
+            # removes the RB-02 vanished-PID FALSE-REFUSE footgun (a false-POSITIVE
+            # refusal is a §11.4.1 FAIL-bluff). A real soong/gradle build runs for
+            # minutes and does NOT vanish, so it stays caught.
+            if [ "${_mt_hb_liveness_gate:-1}" = "1" ] && ! _mt_host_budget_pid_alive "$_mt_hb_pid"; then
+                # dead/vanished PID => provably NOT a live build; skip it.
+                continue
+            fi
+            # LIVE process (kill -0 ok) with an unreadable/empty cmdline (rare
+            # permission/kernel race), OR the liveness gate is mutated off:
+            # conservatively treat as a real build => REFUSE (safe reversible
+            # default, §11.4.101 / §12.8). Report the RESOLVED evidence (§11.4.201(5)).
+            printf '%s\n' "[multitrack_host_budget] REFUSE: pid $_mt_hb_pid matched the build pattern and is LIVE (kill -0 ok) but its /proc/$_mt_hb_pid/cmdline is unreadable/empty -- conservatively counted as a real build (safe default §11.4.201/§12.8)." >&2
             unset _mt_hb_self _mt_hb_ppid _mt_hb_pid _mt_hb_cl _mt_hb_pids
             return 0
         fi

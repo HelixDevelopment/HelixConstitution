@@ -1,13 +1,18 @@
 #!/bin/sh
 # =============================================================================
 # test_multitrack_host_budget_rb02_pgrep.sh
-#   — PROVABLY the RB-02 pgrep-footgun fix in multitrack_host_budget.sh:
-#     `_mt_host_budget_heavy_build_running` MUST NOT count a process that merely
-#     MENTIONS a build token (a pattern-carrier / `claude` worker / multitrack
-#     engine process / this guard's own process) as a "heavy build in flight",
-#     while STILL detecting a genuine soong/gradle/JVM-daemon build.
-#     (§12.12 process-footgun / §11.4.115 RED-polarity / §1.1 paired mutation /
-#      §11.4.50 determinism / §11.4.69 captured evidence / §11.4.6 no-guessing.)
+#   — PROVABLY the RB-02 pgrep-footgun fix + the §11.4.201 VANISHED-PID liveness
+#     fix in multitrack_host_budget.sh: `_mt_host_budget_heavy_build_running` MUST
+#     NOT count (a) a process that merely MENTIONS a build token (pattern-carrier /
+#     `claude` worker / multitrack engine / this guard's own process), NOR (b) a
+#     matched PID that has VANISHED/DIED (the `pgrep -f`->/proc read race — a
+#     DEAD PID, empty cmdline) — as a "heavy build in flight"; while STILL
+#     detecting a genuine soong/gradle/JVM-daemon build AND still conservatively
+#     REFUSING a LIVE process whose cmdline is unreadable (safe default).
+#     (§11.4.201 assert-the-real-condition / §11.4.180 liveness-proven / §12.12
+#      process-footgun / §11.4.115 RED-polarity / §1.1 paired mutation /
+#      §11.4.120 fix-breaks-its-own-gate reconciliation / §11.4.50 determinism /
+#      §11.4.69 captured evidence / §11.4.6 no-guessing.)
 # -----------------------------------------------------------------------------
 # Forensic anchor (FACT, captured 2026-07-13/14 in
 #   qa-results/multitrack/rb02_pgrep_footgun_*): on a host with ZERO real builds,
@@ -34,15 +39,20 @@
 #       spawned/observed it SKIPs-with-reason (§11.4.3), never fake-passes.
 #
 # Anti-bluff polarity (§11.4.115 one-source-two-roles via RED_MODE, default 1):
-#   RED_MODE=1 (RED — reproduce the footgun on the BROKEN artifact): run the
-#       carrier scenario against a MUTATED copy of the guard whose strict-filter
-#       constant is flipped to 0 (the pre-fix naive `pgrep` path). Assert the guard
-#       WRONGLY REFUSES (rc=2) on a carrier-only process set — the defect PRESENT.
-#       A RED that does NOT reproduce is a blind test (§11.4.115) -> FAIL.
-#   RED_MODE=0 (GREEN — defect ABSENT on the REAL/fixed artifact): assert every
-#       scenario's correct verdict on the real guard, AND re-run the §1.1 mutation
-#       self-check (mutated copy -> carrier wrongly REFUSES) so the GREEN run itself
-#       proves the fix catches the negation.
+#   RED_MODE=1 (RED — reproduce BOTH footguns on the BROKEN artifacts): (a) run the
+#       carrier scenario against a MUTATED copy whose strict-filter constant is
+#       flipped to 0 (the pre-fix naive `pgrep` path) and assert it WRONGLY REFUSES
+#       (rc=2) on a carrier-only set; (b) run the VANISHED(dead)-matched-PID
+#       scenario against a MUTATED copy whose liveness-gate constant is flipped to 0
+#       (the pre-fix unconditional empty-cmdline REFUSE) and assert it WRONGLY
+#       REFUSES (rc=2) — the §11.4.201 false-refuse footgun PRESENT. A RED that does
+#       NOT reproduce is a blind test (§11.4.115) -> FAIL.
+#   RED_MODE=0 (GREEN — both defects ABSENT on the REAL/fixed artifact): assert
+#       every scenario's correct verdict on the real guard (incl. unreadable+LIVE
+#       -> REFUSE and unreadable+VANISHED -> ALLOW), AND re-run BOTH §1.1 mutation
+#       self-checks (strict-filter mutant -> carrier wrongly REFUSES; liveness-gate
+#       mutant -> vanished PID wrongly REFUSES) so the GREEN run itself proves the
+#       fix catches each negation.
 #
 # Usage:  RED_MODE=1 sh test_multitrack_host_budget_rb02_pgrep.sh   # RED
 #         RED_MODE=0 sh test_multitrack_host_budget_rb02_pgrep.sh   # GREEN
@@ -53,9 +63,12 @@
 #       date, mktemp, sed, diff, tr, grep, sleep. NEVER a real build, NEVER a
 #       device, NEVER credentials.
 # Cross-refs: multitrack_host_budget.sh (>>MT_HB_STRICT_BUILD_FILTER marker +
-#   _mt_host_budget_pid_cmdline seam); test_multitrack_host_budget_jvm_daemons.sh
+#   >>MT_HB_LIVENESS_GATE marker + _mt_host_budget_pid_cmdline seam +
+#   _mt_host_budget_pid_alive seam); test_multitrack_host_budget_jvm_daemons.sh
 #   (the sibling DETECTION test whose fake-pgrep house style this mirrors);
-#   §12.12 / §12.6 / §12.7 / §12.8 / §11.4.6 / §11.4.50 / §11.4.101 / §11.4.115.
+#   CM-MULTITRACK-GUARD-VANISHED-PID-LIVENESS pre-build gate + its paired
+#   meta-mutation; §11.4.201 / §11.4.180 / §11.4.120 / §12.12 / §12.6 / §12.7 /
+#   §12.8 / §11.4.6 / §11.4.50 / §11.4.101 / §11.4.115.
 # =============================================================================
 
 set -u
@@ -128,6 +141,11 @@ _hermetic_rc() {
             . "$GUARDF" 2>/dev/null
             # stub the /proc read seam: pid -> $MT_RB02_CL_<pid> (empty => unreadable)
             _mt_host_budget_pid_cmdline() { eval "printf %s \"\${MT_RB02_CL_$1:-}\""; }
+            # stub the liveness seam (§11.4.201/§11.4.180): pid -> $MT_RB02_ALIVE_<pid>
+            # (default 1=alive). DETERMINISTIC — never depends on whether some real
+            # host PID happens to exist (§11.4.50). Only consulted on the empty-cmdline
+            # branch, so scenarios with a non-empty cmdline never touch it.
+            _mt_host_budget_pid_alive() { eval "[ \"\${MT_RB02_ALIVE_$1:-1}\" = 1 ]"; }
             mt_host_budget_can_spawn 0 >/dev/null 2>&1
             echo "$?"
         '
@@ -139,6 +157,19 @@ MUT="$WORK/guard_mut.sh"
 sed 's/^_mt_hb_strict_build_filter=1$/_mt_hb_strict_build_filter=0/' "$GUARD" > "$MUT"
 if ! grep -q '^_mt_hb_strict_build_filter=0$' "$MUT"; then
     echo "FATAL: mutation did not apply (>>MT_HB_STRICT_BUILD_FILTER marker moved?)" >&2
+    exit 2
+fi
+
+# --- build the liveness-gate mutated (pre-fix vanished-PID footgun) copy --------
+# §11.4.120 reconciliation: the §11.4.201 fix (empty-cmdline branch skips a
+# DEAD/vanished matched PID) is gated on the plain constant _mt_hb_liveness_gate=1.
+# Flipping it to 0 reverts the branch to the pre-fix UNCONDITIONAL REFUSE, so a
+# VANISHED PID wrongly REFUSEs — the footgun. The paired §1.1 self-check + RED
+# scenario below drive this mutant to prove the liveness line is load-bearing.
+MUT_LIV="$WORK/guard_mut_liveness.sh"
+sed 's/^_mt_hb_liveness_gate=1$/_mt_hb_liveness_gate=0/' "$GUARD" > "$MUT_LIV"
+if ! grep -q '^_mt_hb_liveness_gate=0$' "$MUT_LIV"; then
+    echo "FATAL: liveness-gate mutation did not apply (>>MT_HB_LIVENESS_GATE marker moved?)" >&2
     exit 2
 fi
 
@@ -154,13 +185,25 @@ run_battery() {  # $1 = iteration index; writes normalized rc lines to $2
     _it="$1"; _norm="$2"; : > "$_norm"
 
     if [ "$RED_MODE" = "1" ]; then
-        # -------- RED: the footgun MUST reproduce on the MUTATED (pre-fix) guard.
+        # -------- RED: the carrier footgun MUST reproduce on the strict-filter-MUTATED guard.
         _rc=$(_hermetic_rc "$MUT" "101" "101=$CL_CARRIER")
         printf 'RED_carrier_mut=%s\n' "$_rc" >> "$_norm"
         if [ "$_rc" = "2" ]; then
             pass "RED[it$_it]: pre-fix (strict-filter=0) guard WRONGLY REFUSES (rc=2) on a carrier-only process set — footgun reproduced"
         else
             fail "RED[it$_it]: expected rc=2 (footgun REFUSE) on the pre-fix guard, got rc=$_rc — blind test (§11.4.115)"
+        fi
+        # -------- RED: the vanished-PID footgun MUST reproduce on the liveness-MUTATED guard.
+        # An empty-cmdline matched PID that is DEAD (alive-stub=0) MUST wrongly REFUSE
+        # under the pre-fix liveness-gate=0 branch (the §11.4.201 FALSE-REFUSE).
+        MT_RB02_ALIVE_106=0; export MT_RB02_ALIVE_106
+        _rc=$(_hermetic_rc "$MUT_LIV" "106" "106=$CL_EMPTY")
+        unset MT_RB02_ALIVE_106
+        printf 'RED_vanished_mut=%s\n' "$_rc" >> "$_norm"
+        if [ "$_rc" = "2" ]; then
+            pass "RED[it$_it]: pre-fix (liveness-gate=0) guard WRONGLY REFUSES (rc=2) a VANISHED(dead) matched PID — vanished-PID footgun reproduced (§11.4.201)"
+        else
+            fail "RED[it$_it]: expected rc=2 (vanished-PID footgun REFUSE) on the pre-fix liveness-mutated guard, got rc=$_rc — blind test (§11.4.115)"
         fi
         return 0
     fi
@@ -182,10 +225,20 @@ run_battery() {  # $1 = iteration index; writes normalized rc lines to $2
     _rc=$(_hermetic_rc "$GUARD" "104" "104=$CL_GENUINE");  printf 'genuine=%s\n' "$_rc" >> "$_norm"
     [ "$_rc" = "2" ] && pass "GREEN[it$_it] genuine-build-only -> REFUSE (rc=2, real build still caught)" \
                      || fail "GREEN[it$_it] genuine-build-only: expected rc=2 REFUSE, got rc=$_rc"
-    # unreadable cmdline only -> REFUSE (conservative safe default)
-    _rc=$(_hermetic_rc "$GUARD" "105" "105=$CL_EMPTY");    printf 'unreadable=%s\n' "$_rc" >> "$_norm"
-    [ "$_rc" = "2" ] && pass "GREEN[it$_it] unreadable-cmdline-only -> REFUSE (rc=2, safe default §11.4.101)" \
-                     || fail "GREEN[it$_it] unreadable-cmdline-only: expected rc=2 REFUSE, got rc=$_rc"
+    # unreadable cmdline + LIVE process -> REFUSE (conservative safe default preserved)
+    MT_RB02_ALIVE_105=1; export MT_RB02_ALIVE_105
+    _rc=$(_hermetic_rc "$GUARD" "105" "105=$CL_EMPTY");    printf 'unreadable_live=%s\n' "$_rc" >> "$_norm"
+    unset MT_RB02_ALIVE_105
+    [ "$_rc" = "2" ] && pass "GREEN[it$_it] unreadable-cmdline+LIVE -> REFUSE (rc=2, conservative safe default §11.4.101/§11.4.201)" \
+                     || fail "GREEN[it$_it] unreadable-cmdline+LIVE: expected rc=2 REFUSE, got rc=$_rc"
+    # unreadable cmdline + VANISHED/DEAD PID (the pgrep->/proc read RACE) -> ALLOW
+    # (the RB-02 vanished-PID FALSE-REFUSE footgun REMOVED — a dead PID is provably
+    #  not a live build, §11.4.201). This is the load-bearing fix scenario.
+    MT_RB02_ALIVE_106=0; export MT_RB02_ALIVE_106
+    _rc=$(_hermetic_rc "$GUARD" "106" "106=$CL_EMPTY");    printf 'unreadable_vanished=%s\n' "$_rc" >> "$_norm"
+    unset MT_RB02_ALIVE_106
+    [ "$_rc" = "0" ] && pass "GREEN[it$_it] unreadable-cmdline+VANISHED(dead) -> ALLOW (rc=0, vanished-PID false-refuse footgun REMOVED §11.4.201)" \
+                     || fail "GREEN[it$_it] unreadable-cmdline+VANISHED: expected rc=0 ALLOW, got rc=$_rc"
     # mixed [carrier, genuine] -> REFUSE (genuine survives the carrier exclusion)
     _rc=$(_hermetic_rc "$GUARD" "101 104" "101=$CL_CARRIER" "104=$CL_GENUINE"); printf 'mixed=%s\n' "$_rc" >> "$_norm"
     [ "$_rc" = "2" ] && pass "GREEN[it$_it] mixed[carrier,genuine] -> REFUSE (rc=2, genuine survives)" \
@@ -194,10 +247,18 @@ run_battery() {  # $1 = iteration index; writes normalized rc lines to $2
     _rc=$(_hermetic_rc "$GUARD" "" );                     printf 'nomatch=%s\n' "$_rc" >> "$_norm"
     [ "$_rc" = "0" ] && pass "GREEN[it$_it] no-pattern-match -> ALLOW (rc=0)" \
                      || fail "GREEN[it$_it] no-pattern-match: expected rc=0 ALLOW, got rc=$_rc"
-    # §1.1 mutation self-check: carrier on the MUTATED guard MUST footgun (REFUSE)
+    # §1.1 strict-filter self-check: carrier on the strict-filter-MUTATED guard MUST footgun (REFUSE)
     _rc=$(_hermetic_rc "$MUT" "101" "101=$CL_CARRIER");   printf 'mut_selfcheck=%s\n' "$_rc" >> "$_norm"
-    [ "$_rc" = "2" ] && pass "GREEN[it$_it] §1.1 self-check: mutated guard REFUSES on carrier (fix provably catches the negation)" \
-                     || fail "GREEN[it$_it] §1.1 self-check: mutated guard did NOT footgun (rc=$_rc) — bluff-capable"
+    [ "$_rc" = "2" ] && pass "GREEN[it$_it] §1.1 self-check: strict-filter-mutated guard REFUSES on carrier (fix provably catches the negation)" \
+                     || fail "GREEN[it$_it] §1.1 self-check: strict-filter-mutated guard did NOT footgun (rc=$_rc) — bluff-capable"
+    # §1.1 liveness-gate self-check: a VANISHED(dead) matched PID on the LIVENESS-
+    # MUTATED guard MUST footgun (wrongly REFUSE) — proves the §11.4.201 liveness
+    # line is load-bearing (§11.4.120 fix-breaks-its-own-gate reconciliation).
+    MT_RB02_ALIVE_106=0; export MT_RB02_ALIVE_106
+    _rc=$(_hermetic_rc "$MUT_LIV" "106" "106=$CL_EMPTY"); printf 'mut_liveness_selfcheck=%s\n' "$_rc" >> "$_norm"
+    unset MT_RB02_ALIVE_106
+    [ "$_rc" = "2" ] && pass "GREEN[it$_it] §1.1 liveness self-check: liveness-mutated guard REFUSES a VANISHED PID (fix provably catches the negation)" \
+                     || fail "GREEN[it$_it] §1.1 liveness self-check: liveness-mutated guard did NOT footgun (rc=$_rc) — bluff-capable"
 }
 
 for _i in 1 2 3; do run_battery "$_i" "$EV/normalized_iter${_i}.txt"; done

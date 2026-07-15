@@ -53,6 +53,14 @@
 #     cause in isolation) when that token's simulated process is alive; a
 #     negative control (no simulated process at all) proves the same
 #     pattern does NOT false-positive (rc=0/ALLOW) on an idle host.
+#     §11.4.120 reconciliation (2026-07-15): after the §11.4.201 vanished-PID
+#     liveness fix, an empty-cmdline matched PID is SKIPPED (a fake dead PID no
+#     longer conservatively REFUSEs), so the GREEN detection scenarios now stub
+#     BOTH the _mt_host_budget_pid_cmdline (return the simulated token cmdline)
+#     and _mt_host_budget_pid_alive (return live) seams -- the fake matched PID
+#     is now a LIVE, READABLE, non-excluded survivor (a genuine build), asserting
+#     the guard's REAL detection mechanism, not the removed empty-REFUSE side
+#     effect.
 #   Both modes run their battery 3 times (§11.4.50 determinism) and assert
 #   the normalized (PID-free) results are byte-identical across all 3
 #   iterations.
@@ -260,7 +268,18 @@ run_iteration() {
         eval "_cval=\$$_cvar"
         _out=$(PATH="$FAKEBIN:$PATH" GUARD_FILE="$GUARD_FILE" \
             SIM_LIVE_PROC_CMDLINE="$_cval" \
-            sh -c '. "$GUARD_FILE"; mt_host_budget_can_spawn 0; echo "RC=$?"')
+            sh -c '. "$GUARD_FILE"
+                   # §11.4.120 reconciliation for the §11.4.201 liveness fix: the
+                   # matched PID (fake 77777) is a LIVE process whose cmdline is the
+                   # simulated token cmdline. Stub BOTH seams so the guard evaluates
+                   # it as a live, readable, NON-EXCLUDED survivor (a genuine build)
+                   # -- NOT via the now-removed empty-cmdline-conservative-REFUSE
+                   # side effect (a fake dead PID with an empty /proc cmdline is now
+                   # correctly SKIPPED, so the detection MUST come from a live
+                   # readable matching cmdline).
+                   _mt_host_budget_pid_cmdline() { printf %s "${SIM_LIVE_PROC_CMDLINE:-}"; }
+                   _mt_host_budget_pid_alive() { return 0; }
+                   mt_host_budget_can_spawn 0; echo "RC=$?"')
         _rc=$(printf '%s\n' "$_out" | sed -n 's/^RC=//p')
         if [ "$_rc" = "2" ]; then
             pass "GREEN($_tokname): CURRENT pattern REFUSES (rc=2, build-guard cause isolated) while a $_tokname process is alive" "$EV"
