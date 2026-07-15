@@ -1,6 +1,6 @@
 ---
 name: Action Prefix System
-description: Use when a prompt begins with an UPPERCASE action token (BACKGROUND / REMINDER / ISSUE / BUG / TASK / a sub-system name) in any of the six §11.4.140 forms — `NAME :: rest`, `PREFIX::NAME :: rest`, `/NAME rest`, `/PREFIX::NAME rest`, `NAME ---> rest`, or the single-colon `NAME: rest` — or when the operator asks how the action-directive / slash-command system works, how to add a new directive, why a bare `/name` did not resolve, why an unregistered `TODO:` line correctly did nothing, or what a grammar-shaped token that is NOT registered should do. Also use before inventing ANY expansion for an unknown UPPERCASE token.
+description: 'Use when a prompt begins with an UPPERCASE action token (BACKGROUND / REMINDER / ISSUE / BUG / TASK / a sub-system name) in any of the six §11.4.140 forms — `NAME :: rest`, `PREFIX::NAME :: rest`, `/NAME rest`, `/PREFIX::NAME rest`, `NAME ---> rest`, or the single-colon `NAME: rest` — or when the operator asks how the action-directive / slash-command system works, how to add a new directive, why a bare `/name` did not resolve, why an unregistered `TODO:` line correctly did nothing, or what a grammar-shaped token that is NOT registered should do. Also use before inventing ANY expansion for an unknown UPPERCASE token.'
 version: 1.0.0
 ---
 

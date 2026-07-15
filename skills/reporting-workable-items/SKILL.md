@@ -1,6 +1,6 @@
 ---
 name: Reporting Workable Items
-description: Use whenever anything trackable is reported or discovered — a bug, a defect, a regression, a feature request, an internal task, a gap, "this is broken", "we should add X", "remember to do Y" — or when the operator invokes /issue, /bug, /task (or their /helix: and /default- forms, or the ISSUE/BUG/TASK action prefixes). Use it BEFORE answering a report in prose, and use it to check whether a report you are about to acknowledge has actually been turned into a real tracked item.
+description: 'Use whenever anything trackable is reported or discovered — a bug, a defect, a regression, a feature request, an internal task, a gap, "this is broken", "we should add X", "remember to do Y" — or when the operator invokes /issue, /bug, /task (or their /helix: and /default- forms, or the ISSUE/BUG/TASK action prefixes). Use it BEFORE answering a report in prose, and use it to check whether a report you are about to acknowledge has actually been turned into a real tracked item.'
 version: 1.0.0
 ---
 
