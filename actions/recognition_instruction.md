@@ -2,13 +2,21 @@
 
 | Field | Value |
 |---|---|
-| Revision | 5 |
+| Revision | 6 |
 | Created | 2026-06-09 |
-| Last modified | 2026-07-16T00:00:00Z |
+| Last modified | 2026-07-16T11:00:00Z |
 | Status | active |
 | Scope | the reusable verbatim instruction block embedded into every agent context carrier |
 | Authority | DESIGN.md §5 + RULE_DRAFT.md Part B (this directory) |
 
+> **Revision 6 (2026-07-16):** added the fourth **§11.4.213 reporting-family
+> directive** `FEATURE` — a RESEARCH-SCHEDULING directive (all six §11.4.140
+> forms incl. the single-colon `FEATURE:`) that SCHEDULES rather than
+> synchronously executes a deep, enterprise-grade research + implementation-
+> planning effort, by invoking the SAME §11.4.202 `report_item.sh` engine
+> (never a duplicate implementation) plus a new durable
+> `docs/requests/feature_queue.md` queue.
+>
 > **Revision 5 (2026-07-16):** added the three **severity / handling-priority
 > markers** `CRITICAL` / `IMPORTANT` / `NOTE` (registry rows, all six §11.4.140
 > forms incl. the single-colon `CRITICAL:` / `IMPORTANT:` / `NOTE:`). Registering
@@ -174,6 +182,35 @@ action.
 > any tracker whose credentials or client are absent (§11.4.10 / §11.4.6 /
 > §11.4.3) and NEVER faking a push. A report that is discussed but never
 > tracked is a §11.4 PASS-bluff at the requirements-intake layer (§11.4.197).
+>
+> **FEATURE — research-scheduling directive (§11.4.213, 2026-07-16).** A
+> fourth reporting-family action, structurally parallel to BUG/TASK/ISSUE but
+> distinct in kind: FEATURE SCHEDULES rather than synchronously executes. The
+> remainder of the prompt describes a feature to research and plan; the
+> directive creates a Type=Task / Status=Queued workable item NOW by invoking
+> the SAME `report_item.sh` engine (never a duplicate implementation of the
+> item-creation / DB-sync / tracker-push machinery) and enqueues it in a
+> durable `docs/requests/feature_queue.md` queue so it can never be silently
+> dropped. The item's comprehensive description embeds the full research
+> mandate as its acceptance-defining work program — deep web research on best
+> incorporation (§11.4.8 / §11.4.99 / §11.4.150), systematic-debug of every
+> enumerated weak-spot / gap / danger-zone with a risk-free rock-solid design
+> per gap (§11.4.102), always enterprise-grade / bleeding-edge / innovative,
+> exhaustive documentation down to lines-of-code + micro-POCs + diagrams + SQL
+> + templates (§11.4.65 / §11.4.73), reuse-first investigation of
+> vasic-digital / HelixDevelopment components kept decoupled (§11.4.28 /
+> §11.4.74 / §11.4.177), full test-type + Challenges + HelixQA planning
+> (§11.4.27 / §11.4.169), fine-grained phased/task/subtask breakdown,
+> enterprise-scalability + max-performance planning, OpenDesign UI/UX
+> wireframes where applicable (§11.4.162 / §11.4.190), full CodeGraph
+> integration (§11.4.78 / §11.4.79 / §11.4.80), and fully-synced workable
+> items across the SQLite SSoT + every connected external tracker (§11.4.93 /
+> §11.4.95 / §11.4.148 D5), honestly SKIPPING any absent tracker (§11.4.10).
+> The multi-day research itself is EXECUTED LATER by the standing autonomous
+> loop (§11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 / §11.4.126) when it claims
+> the item, driven to a genuinely COMPLETED-and-wired or explicitly
+> evidence-backed CLOSED terminal state under §11.4.197 — never left un-wired
+> in the backlog; "scheduled" is never reported as "done" (§11.4.6).
 >
 > The system is UNIVERSAL (every CLI agent reads this block via its
 > context carrier per §11.4.35), extensible (new action = new registry row),
