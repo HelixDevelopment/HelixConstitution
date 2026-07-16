@@ -9,6 +9,9 @@ Every registered §11.4.140 action is exposed as a Claude Code slash command.
 |---|---|---|
 | `/background` | `/helix:background` · `/default-background` | Run the remainder of the prompt as a DURABLE (never-lost), background, subagent-driven work stream in parallel with all main work, producing rock-solid physical proof. |
 | `/reminder` | `/helix:reminder` · `/default-reminder` | Re-surface previously-scheduled, critical, status-UNCERTAIN work; verify actual status from captured evidence before acting (never assume done). |
+| `/critical` | `/helix:critical` · `/default-critical` | Tag the remainder of the prompt HIGHEST-PRIORITY / potentially release-blocking — address with maximum urgency + rigor, track it, and do not defer it behind lower-priority work. |
+| `/important` | `/helix:important` · `/default-important` | Tag the remainder of the prompt HIGH-PRIORITY — prioritize it above routine work (but below a CRITICAL / release-blocking matter), track it, and apply full anti-bluff rigor. |
+| `/note` | `/helix:note` · `/default-note` | Capture the remainder of the prompt as durable CONTEXT / a note to remember (request-history + persistent memory), applied when relevant — not an urgent action unless it contains an explicit action. |
 | `/helix:bug` | `/bug` **COLLIDES** with host `bug` → use `/helix:bug` or `/default-bug` | Report a product DEFECT — create a fully-populated Type=Bug workable item and drive the full DB → docs → external-tracker sync. |
 | `/task` | `/helix:task` · `/default-task` | Report an internal WORKSTREAM item — create a fully-populated Type=Task workable item and drive the full DB → docs → external-tracker sync. |
 | `/issue` | `/helix:issue` · `/default-issue` | Report ANYTHING trackable — classify into the §11.4.16 closed set {Bug \| Feature \| Task}, then create the fully-populated, fully-synced item. |

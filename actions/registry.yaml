@@ -46,10 +46,13 @@ grammar:
   # ── single-colon form (form 6, §11.4.202 — `ISSUE: <text>`) ──────────────
   # REGISTERED-ACTION-ONLY by construction: a single-colon token that is NOT a
   # registered action is a NO-OP (an ordinary prompt), NEVER an ASK and NEVER a
-  # sub-system shortcut. Rationale (§11.4.6, honest): `NOTE:` / `TODO:` /
-  # `WARNING:` / `FIXME:` are ordinary English prose openers that share this
-  # shape — routing them to the §11.4.66 clarify path would turn every such
-  # sentence into an operator question. The ` :: ` / ` ---> ` / `/` forms keep
+  # sub-system shortcut. Rationale (§11.4.6, honest): `TODO:` / `WARNING:` /
+  # `FIXME:` are ordinary English prose openers that share this shape — routing
+  # them to the §11.4.66 clarify path would turn every such sentence into an
+  # operator question. (A REGISTERED single-colon token DOES expand — e.g. the
+  # §11.4.140 severity markers `CRITICAL:` / `IMPORTANT:` / `NOTE:` and the
+  # §11.4.202 reporting directives `BUG:` / `TASK:` / `ISSUE:`.) The ` :: ` /
+  # ` ---> ` / `/` forms keep
   # their ASK-on-unknown behaviour (their shapes do not occur in prose).
   single_colon_form_regex: '^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*): (.*)$'  # form 6: g1=optional PREFIX, g2=ACTION, g3=rest
   single_colon_registered_only: true            # unknown single-colon token ⇒ noop (never ask, never subsystem)
@@ -154,6 +157,134 @@ actions:
       - "11.4.108"
       - "11.4.130"
       - "11.4.147"
+
+  # ── Severity / handling-priority markers (§11.4.140 extension, 2026-07-16) ───
+  # CRITICAL / IMPORTANT / NOTE tag the REMAINDER of the prompt with a HANDLING
+  # PRIORITY the way BACKGROUND tags it "run in background". They are ordinary
+  # registry rows — every §11.4.140 form works out of the box (`CRITICAL :: x`,
+  # `DEFAULT::CRITICAL :: x`, `/CRITICAL x`, `/DEFAULT::CRITICAL x`,
+  # `CRITICAL ---> x`) PLUS the §11.4.202 single-colon form the operator actually
+  # types (`CRITICAL: x`). Registering NOTE PROMOTES `NOTE:` from an
+  # ordinary-prose NO-OP to a registered action — the ordinary-prose single-colon
+  # examples are now `TODO:` / `WARNING:` / `FIXME:` (still unregistered ⇒ no-op).
+  # These markers change HOW the remainder is handled (priority + rigor); they do
+  # NOT pick a workable-item Type — when the remainder is a report the §11.4.202
+  # BUG / TASK / ISSUE machinery still classifies + tracks it.
+  - name: CRITICAL
+    version: 1
+    namespaces: [DEFAULT]                         # which namespaces this action is registered under
+    slash_bare: auto                              # bare /CRITICAL honored unless a host-command collision
+    slash_conflicts: []                           # no known colliding host slash command
+    summary: >-
+      Tag the remainder of the prompt HIGHEST-PRIORITY / potentially
+      release-blocking — address with maximum urgency + rigor, track it, and do
+      not defer it behind lower-priority work.
+    expansion: >-
+      CRITICAL — treat the remainder of this prompt as the HIGHEST-PRIORITY,
+      potentially RELEASE-BLOCKING matter (composes §11.4.72 audio /
+      most-critical-first + §11.4.42 / §11.4.132 risk-ordered priority). Address
+      it with maximum urgency and full rigor AHEAD of routine or lower-priority
+      work — do NOT defer, park, or bury it behind other items (a critical matter
+      parks other work, never the reverse; §11.4.94 / §11.4.97 / §11.4.101).
+      Track it as a high-severity workable item so it can never be lost — when it
+      is a reportable defect / task / feature, route it through the §11.4.202
+      BUG / TASK / ISSUE machinery (§11.4.197 a started requirement never
+      evaporates). Apply the full §11.4 anti-bluff covenant — every claim carries
+      captured physical evidence (§11.4.5 / §11.4.69 / §11.4.107), never a
+      metadata-only / absence-of-error PASS. When an issue / bug / regression /
+      failure is involved, auto-activate systematic-debugging BEFORE any fix
+      (§11.4.102 Iron Law: no fixes without root-cause investigation first). THEN
+      handle the remainder of the prompt as that highest-priority matter.
+    rules:
+      - "The expansion PREPENDS the CRITICAL handling guidance; the remainder of the prompt (in ANY of its forms — 'CRITICAL: ', 'CRITICAL :: ', 'CRITICAL ---> ', '/CRITICAL ', '/DEFAULT::CRITICAL ') is the matter to handle."
+      - "CRITICAL is a HANDLING-PRIORITY marker, NOT a reporting channel and NOT a §11.4.16 workable-item Type — it changes HOW the remainder is handled (priority + rigor), it does not itself pick a Type. When the remainder IS a report, the §11.4.202 BUG/TASK/ISSUE machinery still classifies + tracks it."
+      - "Highest priority: address AHEAD of lower-priority work; NEVER defer a CRITICAL matter behind routine work (§11.4.72 / §11.4.42 / §11.4.132)."
+      - "Auto-activate §11.4.102 systematic-debugging when an issue / bug / failure is involved (Iron Law: no fixes without root-cause investigation first)."
+      - "Full anti-bluff (§11.4): captured physical evidence for every claim (§11.4.5 / §11.4.69 / §11.4.107), never a false result."
+    composes_with:
+      - "11.4"
+      - "11.4.42"
+      - "11.4.72"
+      - "11.4.94"
+      - "11.4.97"
+      - "11.4.101"
+      - "11.4.102"
+      - "11.4.132"
+      - "11.4.197"
+      - "11.4.202"
+      - "11.4.5"
+      - "11.4.69"
+      - "11.4.107"
+
+  - name: IMPORTANT
+    version: 1
+    namespaces: [DEFAULT]                         # which namespaces this action is registered under
+    slash_bare: auto                              # bare /IMPORTANT honored unless a host-command collision
+    slash_conflicts: []                           # no known colliding host slash command
+    summary: >-
+      Tag the remainder of the prompt HIGH-PRIORITY — prioritize it above routine
+      work (but below a CRITICAL / release-blocking matter), track it, and apply
+      full anti-bluff rigor.
+    expansion: >-
+      IMPORTANT — treat the remainder of this prompt as HIGH-PRIORITY: prioritize
+      it ABOVE routine work (but BELOW a CRITICAL / release-blocking matter) per
+      the §11.4.42 / §11.4.72 / §11.4.132 priority order. Track it as a workable
+      item so it is never lost — when it is a reportable defect / task / feature,
+      route it through the §11.4.202 BUG / TASK / ISSUE machinery (§11.4.197 a
+      started requirement never evaporates). Apply the full §11.4 anti-bluff
+      covenant — every claim carries captured physical evidence (§11.4.5 /
+      §11.4.69 / §11.4.107), never a metadata-only / absence-of-error PASS. THEN
+      handle the remainder of the prompt as that high-priority matter.
+    rules:
+      - "The expansion PREPENDS the IMPORTANT handling guidance; the remainder (in ANY of its forms — 'IMPORTANT: ', 'IMPORTANT :: ', 'IMPORTANT ---> ', '/IMPORTANT ', '/DEFAULT::IMPORTANT ') is the matter to handle."
+      - "IMPORTANT is a HANDLING-PRIORITY marker (high-priority, BELOW CRITICAL), NOT a reporting channel and NOT a §11.4.16 Type."
+      - "High priority: address ahead of routine work, below a CRITICAL matter (§11.4.42 / §11.4.72 / §11.4.132)."
+      - "Full anti-bluff (§11.4): captured physical evidence for every claim (§11.4.5 / §11.4.69 / §11.4.107)."
+    composes_with:
+      - "11.4"
+      - "11.4.42"
+      - "11.4.72"
+      - "11.4.132"
+      - "11.4.197"
+      - "11.4.202"
+      - "11.4.5"
+      - "11.4.69"
+      - "11.4.107"
+
+  - name: NOTE
+    version: 1
+    namespaces: [DEFAULT]                         # which namespaces this action is registered under
+    slash_bare: auto                              # bare /NOTE honored unless a host-command collision
+    slash_conflicts: []                           # no known colliding host slash command
+    summary: >-
+      Capture the remainder of the prompt as durable CONTEXT / a note to remember
+      (request-history + persistent memory), applied when relevant — not an
+      urgent action unless it contains an explicit action.
+    expansion: >-
+      NOTE — the remainder of this prompt is CONTEXTUAL INFORMATION / a note to
+      CAPTURE and REMEMBER, not necessarily an immediate action. Record it
+      durably so it is never lost — in the operator request-history ledger
+      (§11.4.208 / §11.4.210 zero-loss intake) and, when it is a non-obvious,
+      durable project FACT, in persistent agent memory. Apply it when it becomes
+      relevant. Do NOT treat it as an urgent action UNLESS the note itself
+      contains an explicit action (then handle that action at its own stated
+      priority). Record ONLY what the note actually says — never invent, infer,
+      or embellish (§11.4.6 no-guessing); an undetermined detail is recorded as an
+      explicit UNKNOWN, never fabricated. If the note describes a trackable defect
+      / task / feature, route it through the §11.4.202 BUG / TASK / ISSUE
+      machinery so it lands as a real workable item rather than merely a memory
+      (§11.4.197 a started requirement never evaporates).
+    rules:
+      - "The expansion PREPENDS the NOTE handling guidance; the remainder (in ANY of its forms — 'NOTE: ', 'NOTE :: ', 'NOTE ---> ', '/NOTE ', '/DEFAULT::NOTE ') is the context to capture."
+      - "NOTE = capture-as-context: record durably (request-history + persistent memory when it is a durable project fact); do NOT action it unless it contains an explicit action."
+      - "Record only what the note says — never invent or infer (§11.4.6); an undetermined detail is an explicit UNKNOWN."
+      - "Registering NOTE promotes the single-colon `NOTE:` form (§11.4.202 form 6) from an ordinary-prose NO-OP to this registered action; the ordinary-prose single-colon examples are now `TODO:` / `WARNING:` / `FIXME:`."
+    composes_with:
+      - "11.4.6"
+      - "11.4.197"
+      - "11.4.202"
+      - "11.4.208"
+      - "11.4.210"
 
   # ── Reporting directives (§11.4.202, 2026-07-15) ────────────────────────────
   # BUG / TASK / ISSUE turn a plain-language report into a fully-populated,

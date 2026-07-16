@@ -2,16 +2,23 @@
 
 | Field | Value |
 |---|---|
-| Revision | 4 |
+| Revision | 5 |
 | Created | 2026-06-09 |
-| Last modified | 2026-07-15T00:00:00Z |
+| Last modified | 2026-07-16T00:00:00Z |
 | Status | active |
 | Scope | the reusable verbatim instruction block embedded into every agent context carrier |
 | Authority | DESIGN.md §5 + RULE_DRAFT.md Part B (this directory) |
 
+> **Revision 5 (2026-07-16):** added the three **severity / handling-priority
+> markers** `CRITICAL` / `IMPORTANT` / `NOTE` (registry rows, all six §11.4.140
+> forms incl. the single-colon `CRITICAL:` / `IMPORTANT:` / `NOTE:`). Registering
+> `NOTE` PROMOTES `NOTE:` from an ordinary-prose NO-OP to a registered action —
+> the ordinary-prose single-colon examples are now `TODO:` / `WARNING:` /
+> `FIXME:`.
+>
 > **Revision 4 (2026-07-15):** added the **§11.4.202 reporting directives**
 > (`ISSUE` / `BUG` / `TASK`) + the **single-colon `NAME:` form** (form 6),
-> registered-action-only so ordinary prose (`NOTE:` / `TODO:`) never expands and
+> registered-action-only so ordinary prose (`TODO:` / `FIXME:`) never expands and
 > never asks. A report now auto-creates a fully-populated, fully-synced workable
 > item; a prose-only acknowledgement is a §11.4 bluff (§11.4.197).
 >
@@ -101,6 +108,23 @@ action.
 > status verdict (composes §11.4.6 / §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 /
 > §11.4.108 / §11.4.130 / §11.4.147).
 >
+> **Severity / handling-priority markers (§11.4.140 extension, 2026-07-16).**
+> Three further registered actions tag the REMAINDER of the prompt with a
+> HANDLING PRIORITY (as `BACKGROUND` tags it "run in background"): **`CRITICAL`**
+> (highest-priority / potentially release-blocking — address with maximum urgency
+> + rigor ahead of lower-priority work, track it, auto-activate §11.4.102
+> systematic-debugging when an issue is involved, do NOT defer it), **`IMPORTANT`**
+> (high-priority, above routine work but below CRITICAL — track it, full
+> anti-bluff rigor), and **`NOTE`** (capture the remainder as durable CONTEXT — in
+> the operator request-history ledger §11.4.208 / §11.4.210 + persistent agent
+> memory when it is a non-obvious project fact — applied when relevant, NOT an
+> urgent action unless it contains an explicit action; §11.4.6 record only what
+> the note says, never invent). All six grammar forms work (`CRITICAL: x` ≡
+> `CRITICAL :: x` ≡ `CRITICAL ---> x` ≡ `/CRITICAL x` ≡ `/DEFAULT::CRITICAL x`).
+> These markers change HOW the remainder is handled (priority + rigor); they do
+> NOT pick a workable-item Type — when the remainder is a report the §11.4.202
+> BUG / TASK / ISSUE machinery still classifies + tracks it.
+>
 > **Sub-system shortcuts (§11.4.140 extension, 2026-07-14).** When the
 > first-non-blank-line grammar-shaped token is NOT a registered action but
 > NAMES an incorporated SUB-SYSTEM / submodule, it expands to a SUB-SYSTEM
@@ -133,7 +157,7 @@ action.
 > (`BUG :: x` ≡ `BUG ---> x` ≡ `/DEFAULT::BUG x` ≡ `BUG: x`). The single-colon
 > form is **REGISTERED-ACTION-ONLY by construction**: a single-colon token that
 > is NOT a registered action is a NO-OP (an ordinary prompt), NEVER an ASK and
-> NEVER a sub-system shortcut — because ordinary prose (`NOTE:`, `TODO:`,
+> NEVER a sub-system shortcut — because ordinary prose (`TODO:`,
 > `WARNING:`, `FIXME:`) shares that shape and must never be questioned
 > (§11.4.6); the other five forms keep their ASK-on-unknown behaviour. Host
 > collisions use the EXISTING conflict mechanism: the bare `/bug` is a

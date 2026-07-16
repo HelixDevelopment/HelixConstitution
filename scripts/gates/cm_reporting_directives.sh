@@ -18,7 +18,9 @@
 #      project-specific value arrives from the consumer-owned config.
 #   4. FUNCTIONAL (load-bearing, runtime — the lib is SOURCED and RUN): each of
 #      the three actions expands from the single-colon form AND from the ` :: `
-#      form; ordinary prose (`NOTE:` / `TODO:`) is a NO-OP (never an ASK); a
+#      form; ordinary prose (`TODO:` / `FIXME:`) is a NO-OP (never an ASK); a
+#      REGISTERED single-colon token (e.g. §11.4.140 `NOTE:` / `CRITICAL:`) DOES
+#      expand; a
 #      `\`-escaped directive stays literal.
 #   5. NO-FAKED-PUSH — the engine defines the honest SKIP reasons
 #      (`credentials_absent` / `tracker_client_absent`) and contains no path that
@@ -89,7 +91,7 @@ else
 	if grep -q 'single_colon_registered_only:[[:space:]]*true' "$REGISTRY"; then
 		pass "single-colon form is registered-action-only (prose never ASKs)"
 	else
-		fail "grammar is MISSING single_colon_registered_only: true (§11.4.6 — prose like 'NOTE:' would be questioned)"
+		fail "grammar is MISSING single_colon_registered_only: true (§11.4.6 — prose like 'TODO:' would be questioned)"
 	fi
 fi
 
@@ -147,8 +149,10 @@ d=json.load(sys.stdin); print("%s/%s" % (d["verdict"], d["action"]))' 2>/dev/nul
 	expect 'TASK: refactor the flasher'  'expand/TASK'   'runtime: TASK: expands (single-colon form)'
 	expect 'BUG :: audio drops'          'expand/BUG'    'runtime: BUG :: expands (§11.4.140 form 1)'
 	expect 'TASK ---> refactor'          'expand/TASK'   'runtime: TASK ---> expands (§11.4.140 form 5)'
-	expect 'NOTE: ordinary prose'        'noop/'         'runtime: prose NOTE: is a NO-OP (never an ASK)'
+	expect 'NOTE: remember this fact'    'expand/NOTE'     'runtime: registered NOTE: expands (§11.4.140 severity marker — was prose, now a registered action)'
+	expect 'CRITICAL: fix audio'         'expand/CRITICAL' 'runtime: registered CRITICAL: expands (§11.4.140 severity marker)'
 	expect 'TODO: fix later'             'noop/'         'runtime: prose TODO: is a NO-OP (never an ASK)'
+	expect 'FIXME: refactor later'       'noop/'         'runtime: prose FIXME: is a NO-OP (never an ASK)'
 	expect '\BUG: literal'               'escape/'       'runtime: \BUG: escapes to literal'
 fi
 
