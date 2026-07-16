@@ -1,0 +1,96 @@
+# ============================================================================
+# feature.example.yaml — CONSUMER-OWNED config for the §11.4.213 FEATURE
+# research-scheduling directive and its engine
+# (constitution/scripts/feature/schedule_feature_research.sh).
+# ============================================================================
+#
+# Copy this file into YOUR project (NEVER edit the engine — §11.4.28 decoupling):
+#
+#     mkdir -p .helix && cp constitution/scripts/feature/feature.example.yaml \
+#                           .helix/feature.yaml
+#
+# The engine searches, in order:
+#   1. $HELIX_FEATURE_CONFIG
+#   2. <project-root>/.helix/feature.yaml
+#   3. <project-root>/config/feature/feature.yaml
+#
+# Everything below is DATA. The engine carries zero project literals; it
+# refuses to guess any of these values (§11.4.6 no-guessing) and fails closed
+# with an actionable message when the config is absent.
+#
+# SCHEMA NOTE: this file is a schema-compatible SUPERSET of
+# reporting.example.yaml (§11.4.202) — `db` / `id_prefix` / `default_severity`
+# / `default_reported_by` / `sync_command` / `evidence_dir` /
+# `workable_items_bin` / `trackers` are read directly by the reused
+# `report_item.sh` engine when this SAME file is passed to it via `--config`
+# (§11.4.213 clause 4 — delegated, never reimplemented); `research_doc_root`
+# is the one FEATURE-specific addition, read by schedule_feature_research.sh
+# itself to compute each scheduled item's research-doc-tree destination path.
+# ============================================================================
+
+schema_version: 1
+
+# ── The workable-items SQLite single-source-of-truth (§11.4.93 / §11.4.95) ────
+# Path relative to the project root (or absolute). MUST already exist.
+db: docs/workable_items.db
+
+# ── Ticket-id prefix (§11.4.54). Ids are <PREFIX>-NNN, monotonic, never reused.
+# Omit to accept the workable-items binary's own default.
+id_prefix: WIT
+
+# ── Default severity when the caller passes no --severity.
+default_severity: Medium
+
+# ── Default `created_by` attribution (§11.4.104) when no --reported-by is given.
+default_reported_by: Operator
+
+# ── Where scheduled research-doc trees are rooted (§11.4.213 clause 2/3).
+# Each FEATURE request gets its OWN subdirectory:
+#   <research_doc_root>/<slug-of-title>_<UTC-timestamp>/
+# The destination path is recorded in the created item's description; the
+# autonomous loop populates the tree when it later works the item (§11.4.197).
+research_doc_root: docs/research
+
+# ── The FULL doc-sync command (§11.4.106 / §11.4.12 / §11.4.53 / §11.4.65).
+# Run from the project root after the item lands in the DB. It MUST regenerate
+# every derived document FROM the DB (Issues / Fixed / summaries + HTML / PDF /
+# DOCX siblings). `{db}` is substituted with the resolved DB path.
+#
+# Leave EMPTY to skip the sync step — the engine then reports an honest
+# SKIP-with-reason (§11.4.3) rather than inventing a command.
+sync_command: ""
+# Example (a project whose sync wrapper drives export + docs_chain):
+#   sync_command: bash scripts/testing/workable_items_sync_all.sh --db {db}
+
+# ── Where captured evidence is written (§11.4.5 / §11.4.69).
+evidence_dir: qa-results/feature
+
+# ── Optional explicit workable-items binary (else: $WORKABLE_ITEMS_BIN, then the
+# committed constitution binary, then a fresh `go build`).
+# workable_items_bin: constitution/scripts/workable-items/bin/workable-items
+
+# ── External trackers (§11.4.148 D5) ─────────────────────────────────────────
+# Same shape as reporting.example.yaml's `trackers:` — pushed after the DB +
+# docs are in sync, by the DELEGATED report_item.sh engine.
+#
+#   name          — label used in the verdict + evidence filename
+#   command       — the push command, run from the project root.
+#                   `{db}` and `{id}` are substituted.
+#                   EMPTY command ⇒ honest SKIP (`tracker_client_absent`) —
+#                   the correct state for a tracker whose client is not built yet.
+#   required_env  — env vars that MUST be non-empty for the push to run.
+#                   The engine tests PRESENCE ONLY — it never reads, prints, or
+#                   logs a credential VALUE (§11.4.10). Any missing var ⇒ honest
+#                   SKIP (`credentials_absent: unset env: NAME …`). NEVER a fake push.
+#   env_passthrough — extra env injected into the command (values may use {db}/{id}).
+trackers: []
+# Example:
+# trackers:
+#   - name: clickup
+#     command: bash tools/task_bridge/scripts/task_bridge_sync.sh --apply
+#     required_env: [CLICKUP_API_KEY, CLICKUP_LIST_ID]
+#     env_passthrough:
+#       TASK_BRIDGE_DB: "{db}"
+#   - name: helixtrack
+#     command: ""            # no client yet ⇒ honest SKIP, never a faked push
+#     required_env: [HELIXTRACK_API_URL, HELIXTRACK_API_TOKEN]
