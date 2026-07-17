@@ -118,9 +118,9 @@ fi
 # The required prefix: (T<N>/<branch> - <alias>) followed by a single space.
 # §11.4.182 mandates the alias component — the claude-toolkit alias in use — so
 # parallel-track work (each track driven by a DISTINCT alias) is never ambiguous.
-# Track MUST be numeric (an off-track '?' is surfaced by a BLOCK, never mislabeled);
+# Track MAY be '?' (honest when not on a /mnt/trackN path — §11.4.6);
 # alias MAY be '?' (honest when CLAUDE_CONFIG_DIR is unset / non-matching).
-LABEL_RE='^\(T[0-9]+/[^)]+ - [^)]+\) '
+LABEL_RE='^\(T([0-9]+|\?)/[^)]+ - [^)]+\) '
 
 # --------------------------------------------------------------------------
 # Canonical label for THIS checkout + session, from the reference labeler

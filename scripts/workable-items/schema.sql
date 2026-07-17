@@ -98,6 +98,28 @@ CREATE TABLE IF NOT EXISTS items (
     PRIMARY KEY (atm_id, current_location)
 );
 
+-- Performance: covering indexes for the most frequent query patterns.
+-- status + type are the primary filter axes for status-summary generation and
+-- per-status sweeps (Issues_Summary, Fixed_Summary, gate checks).
+CREATE INDEX IF NOT EXISTS idx_items_status ON items(status);
+CREATE INDEX IF NOT EXISTS idx_items_type ON items(type);
+CREATE INDEX IF NOT EXISTS idx_items_status_type ON items(status, type);
+
+-- logic_group + destination are the join+filter axes for work-track-binding
+-- guards (§11.4.191) and group-completion sweeps. Queried on every PreToolUse
+-- git-commit check.
+CREATE INDEX IF NOT EXISTS idx_items_logic_group ON items(logic_group);
+CREATE INDEX IF NOT EXISTS idx_items_destination ON items(destination);
+
+-- current_location is the discriminator for "open vs closed" queries; filtered
+-- on every sync/validation pass.
+CREATE INDEX IF NOT EXISTS idx_items_current_location ON items(current_location);
+
+-- created_by + assigned_to are the participant-attribution lookup axes
+-- (§11.4.104), queried on notification-tagging sweeps.
+CREATE INDEX IF NOT EXISTS idx_items_created_by ON items(created_by);
+CREATE INDEX IF NOT EXISTS idx_items_assigned_to ON items(assigned_to);
+
 -- ============================================================
 -- §11.4.93 — item_history: append-only audit log
 -- Covers §11.4.34 Reopened attribution + §11.4.90 Obsolete attribution +
@@ -130,6 +152,7 @@ CREATE TABLE IF NOT EXISTS item_history (
 
 CREATE INDEX IF NOT EXISTS idx_item_history_atm_id ON item_history(atm_id);
 CREATE INDEX IF NOT EXISTS idx_item_history_event_type ON item_history(event_type);
+CREATE INDEX IF NOT EXISTS idx_item_history_atm_id_event ON item_history(atm_id, event_type);
 
 -- ============================================================
 -- §11.4.90 — obsolete_details: triple-check evidence for Obsolete items

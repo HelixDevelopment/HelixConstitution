@@ -142,7 +142,10 @@ assert_eq "U-neg-lowercase-slash"     "NOMATCH" "$(parse4 '/background x')"
 assert_eq "U-neg-keyvalue"            "NOMATCH" "$(parse4 'key: value')"
 assert_eq "U-neg-cpp-FooBar"          "NOMATCH" "$(parse4 'Foo::Bar')"
 assert_eq "U-neg-cpp-nospace"         "NOMATCH" "$(parse4 'BACKGROUND::do X')"
-assert_eq "U-neg-single-colon"        "NOMATCH" "$(parse4 'BACKGROUND: do X')"
+# Single-colon form: parser matches ALL uppercase TOKEN: rest (grammar level).
+# REGISTERED-ACTION-ONLY enforcement is at the RESOLVER level (§11.4.202):
+# unregistered tokens like TODO: produce NO-OP, never ASK/expansion.
+assert_eq "U-single-colon-unregistered" "DEFAULT|TODO|do X|single_colon" "$(parse4 'TODO: do X')"
 assert_eq "U-neg-url"                 "NOMATCH" "$(parse4 'https://example.com/x')"
 assert_eq "U-neg-midprose"            "NOMATCH" "$(parse4 'please BACKGROUND :: x')"
 assert_eq "U-neg-colon-norest"        "NOMATCH" "$(parse4 'BACKGROUND ::')"
