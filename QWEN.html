@@ -454,7 +454,7 @@ Universal QWEN.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>49</td>
+<td>52</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -462,7 +462,7 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-07-15T17:45:00Z</td>
+<td>2026-07-17T05:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -470,158 +470,98 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Added §11.4.207 — Instant multi-stream resume engine (continuum):
-the continuation mechanism (§12.10/§11.4.127/§11.4.131/§11.4.205) is
-EXTENDED — never replaced — by a mechanical, project-agnostic engine
-(<code>github.com/vasic-digital/continuum</code>, GitLab mirror) that
-makes a fresh session resume the WHOLE fleet (every Track, main stream,
-agent) at once, INSTANTLY, at token cost O(changed streams) via a
-content-addressed Merkle snapshot (one manifest + one blob per changed
-stream, NEVER re-reading the O(history) event ledger to resume);
-tamper-evident + deterministic (self-validating
-golden-good/golden-bad/negative-control oracle distinguishing a LAGGING
-copy from a TAMPERED one, §11.4.201/§11.4.107(10)/§11.4.206(3));
-durable/atomic/single-writer/crash-safe (temp→fsync→rename→dir-fsync,
-append-only ledger, §11.4.180 stale-lock reap); landed as a depth-1
-reusable-engine submodule under
-<code>constitution/submodules/continuum/</code> per the §11.4.28(C)
-carve-out (<code>helix-deps.yaml</code>, zero own-org deps). Propagation
-gate <code>CM-COVENANT-114-207-PROPAGATION</code> (literal
-<code>11.4.207</code>) + recommended mechanism gate
-<code>CM-CONTINUUM-RESUME-ENGINE-PRESENT</code>
-(<code>go test -race ./...</code> green,
-<code>continuum selfcheck</code> good=PASS/bad=FAIL/negctrl=PASS) +
-paired §1.1 mutations. Classification: universal (§11.4.17). CLAUDE.md +
-AGENTS.md + QWEN.md + GEMINI.md mirrors updated in lockstep (§11.4.157).
-Prior round: Added §11.4.202 — Reporting directives (ISSUE / BUG /
-TASK): a plain-language report MUST auto-create a fully-populated
-workable item (Status §11.4.15 + Type from the §11.4.16 closed set +
-stable id §11.4.54 + comprehensive structured description
-§11.4.148/§11.4.171) AND drive the WHOLE system into sync in one shot —
-DB SSoT (§11.4.93/§11.4.95) → every derived document regenerated FROM
-the DB (§11.4.12/§11.4.53/§11.4.65/§11.4.106) → every configured
-external tracker (§11.4.148 D5); a report answered in prose without a
-tracked item is a §11.4 PASS-bluff at the requirements-intake layer (the
-§11.4.197 loss-of-requirements failure at its entry point). Extends
-§11.4.140 with a SIXTH grammar form — the single-colon
-<code>NAME: &lt;text&gt;</code> operators actually type —
-REGISTERED-ACTION-ONLY by construction so ordinary prose
-(<code>NOTE:</code>/<code>TODO:</code>/<code>WARNING:</code>) is a
-NO-OP, never an ASK; host-command collisions (the built-in
-<code>/bug</code>) are handled by the EXISTING
-<code>slash_bare: auto</code> + <code>slash_conflicts</code> mechanism
-(the namespaced <code>/DEFAULT::BUG</code> is always unambiguous). NEVER
-a faked push: an absent tracker credential/client SKIPs with an honest
-machine-readable reason (<code>credentials_absent</code> — variable
-NAMES only, never values, §11.4.10; <code>tracker_client_absent</code> —
-PENDING-OPERATOR-INPUT), a tracker PASS is recorded only after a real
-command exits 0, and a missing tracker never blocks the item from
-landing. The engine
-(<code>constitution/scripts/reporting/report_item.sh</code>) is
-inherited BY REFERENCE, carries ZERO project literals, and fails closed
-rather than guess a project path (§11.4.28/§11.4.177/§11.4.6); every
-project-specific value is consumer-owned DATA. Gate
-<code>CM-REPORTING-DIRECTIVES</code> (FUNCTIONAL invariant SOURCES +
-RUNS the parser — never grep-only) +
-<code>CM-COVENANT-114-202-PROPAGATION</code> + paired §1.1 mutations (6
-sub-cases, all caught) + a real-DB end-to-end suite (no mocks, §11.4.27)
-self-validated with golden-good/golden-bad/negative-control
-(§11.4.107(10)). Classification: universal (§11.4.17). CLAUDE.md +
-AGENTS.md + QWEN.md + GEMINI.md mirrors updated in lockstep (§11.4.157).
-Prior round: Added §11.4.199 + §11.4.200 + §11.4.201 and EXTENDED
-§11.4.89 / §11.4.106 / §11.4.147 / §11.4.196 (operator mandate
-2026-07-15 — &quot;everything we have been requesting in this big session
-MUST BE added into constitution Submodule or extended properly&quot;). NEW:
-§11.4.199 exact-reproduction-sequence (when a working reproduction
-exists the investigation MUST use ITS exact sequence; a deviating repro
-that never reaches the precondition proves NOTHING and any conclusion
-from it is a §11.4/§11.4.1 investigation-layer bluff — forensic FACT: a
-&quot;cover never engages&quot; verdict was WRONG because the hand-rolled repro
-pressed HOME where the test sent media-pause; gate
-CM-EXACT-REPRO-SEQUENCE). §11.4.200 non-targetable deploy/flash tooling
-MUST isolate exactly ONE eligible target (or pass a stable selector,
-never an ordinal §11.4.111) and VERIFY-AFTER-WRITE by reading the
-deployed artifact&#39;s identity back FROM the INTENDED target — a tool&#39;s
-own success message proves only that bytes reached the device the TOOL
-selected (forensic FACT: an auto-selecting flasher silently wrote to a
-sibling board, printed SUCCESS, and the intended board kept its old
-build while every downstream test validated it); gate
-CM-DEPLOY-TARGET-ISOLATED-AND-VERIFIED. §11.4.201 every guard/gate MUST
-assert the REAL condition from the AUTHORITATIVE source — a
-FALSE-POSITIVE refusal is a FAIL-bluff (§11.4.1) exactly as a
-false-negative pass is a PASS-bluff; guards ship golden-TRUE +
-golden-FALSE-with-carrier fixtures (§11.4.107(10)), take the
-conservative-safe default on an unresolvable signal while saying so
-honestly, and print their resolved evidence on every refusal (forensic
-FACTs: the bare-<code>pgrep</code> carrier footgun refusing every spawn
-on a host with zero builds + a &quot;swap full&quot; pre-flight refusing a build
-on a non-real condition); generalises §11.4.196(D) + §11.4.180 to EVERY
-guard; gate CM-GUARD-ASSERTS-REAL-CONDITION. EXTENSIONS: §11.4.89(G)
-subagents MUST background any op &gt; the runtime no-progress watchdog
-(~5 min) and poll, the CONDUCTOR owns inherently-long ops
-(builds/suites/flashes), a stall-killed subagent is a §11.4.147 CRASH
-never a completion; §11.4.106(F) doc/DB sync enforced at the COMMIT +
-BUILD + CONSTITUTION-PULL write-seams (stale CONTINUATION §12.10 /
-session-resumption §11.4.131 / memory artefact = violation), honest
-boundary — seam hooks are eventual-consistency-at-every-write, literal
-real-time needs a watch daemon (tracked §11.4.197 upgrade, never claimed
-as shipped); §11.4.147(e) API-QUOTA/RATE-LIMIT exhaustion is a
-FIRST-CLASS CRASH CLASS — record the REAL limit signal + reason-class
-(§11.4.196(B)), REBIND to the next operational alias (§11.4.196(A)/(C))
-and RESPAWN there resuming from the killed agent&#39;s captured transcript
-at its EXACT last point, bounded-PARK only when every alias is cooled,
-and the §11.4.87/.94/.97/.126 loop done-condition MUST NOT read
-satisfied while any quota-killed entry is non-<code>complete</code>;
-§11.4.196(F) CONFIGURED ≠ IN USE — every spawn path MUST bind THROUGH
-the orchestrator and the binding-registry rows MUST EQUAL the
-live-worker set (forensic FACT: an EMPTY registry while THREE live
-workers ran outside it, so <code>promote</code> rebound ZERO tracks), an
-empty/partial registry alongside live workers is a FALSE-READY state and
-claiming ready-on-config-alone is a §11.4/§11.4.6 orchestration-layer
-bluff. AUDITED, NO CHANGE NEEDED: §11.4.142 + §11.4.194 + §11.4.134 +
-§11.4.125 already bind EVERY change to an exhaustive independent
-code-review before accept/commit/build with NO carve-out. All
+<td>Strengthened §11.4.115 + §11.4.135 + §11.4.146 (research-derived,
+2026-07-17 — the status-without-custody forensics from a consuming
+project): NO new anchor minted — the rules already existed as prose and
+did not bind; landed the MECHANICAL BINDING instead. Forensic FACTs
+(genericised): 576 tracked items, 182 done-claiming, 173 (95%) with NO
+registered guard — an operator sampled 6 done-claimers, 6/6 broken (the
+expected draw of that arithmetic, not bad luck); recorded
+reopen-per-recorded-fix 52% (elite &lt;10%), itself an UNDERCOUNT
+because recurrences re-entered as new ids and statuses moved with zero
+history rows; the guard suite&#39;s exit code read ONLY its FAIL count —
+measured live on a release candidate: 61 guards → PASS 0 / FAIL 5 /
+PENDING 56 → exit 0 &quot;not blocked&quot; — and the release-tag tooling
+consulted the guards ZERO times, so &quot;never verified&quot; and &quot;verified good&quot;
+were the same colour; the project&#39;s own history selected the
+discriminator: every fix whose done-claim was preceded by an on-device
+RED→GREEN flip that HELD recorded zero reopens, every fix confirmed at
+source-green bounced. §11.4.115(F) — machine-written verdict pairs +
+guard-viability: RED/GREEN are harness-written verdict files (target
+fingerprint read from the target at run time, RED fingerprint ≠ GREEN
+fingerprint, iterations ≥3, evidence class matches the defect&#39;s layer —
+a grep transcript can never satisfy a user-visible class); a guard never
+observed FAILing on the genuinely-broken artifact is unvalidated
+instrumentation and mints no verdicts; the canonical §1.1 mutation is
+the fix-commit&#39;s revert, and a string-deletion mutation that only
+removes what the gate greps is a refused tautology; gate
+<code>CM-GUARD-VERDICT-MACHINE-WRITTEN</code>. §11.4.135
+verdict-coverage extension — the suite exit MUST incorporate COVERAGE,
+never only N_FAIL; the release seam blocks on
+<code>uncovered = registered ∧ topology-present ∧ no-verdict-for-the-candidate-fingerprint</code>
+(ABSENCE of a verdict blocks exactly as a FAIL does); the release-tag
+tooling MUST consult the verdict store; REQUIRES-REBUILD PENDING is
+self-clearing on the candidate, topology exemptions enumerated via a
+checked-in map never silent, adoption via a monotone-decrease ratchet,
+and a naive &quot;PENDING always blocks&quot; is rejected as a §11.4.201
+FAIL-bluff; gate <code>CM-RELEASE-VERDICT-COVERAGE</code>. §11.4.146(D3)
+— status-custody: a done/ready status write is REFUSED at the
+status-write seam without the file chain
+registry-row-keyed-by-the-item&#39;s-EXACT-id (alias map for legacy keys) →
+executable guard → RED+GREEN verdict pair → class-matched evidence
+(prose nowhere in the chain); a full-table sweep gate (not a diff check)
+catches raw-DB bypasses; §11.4.205 construction order — the executable
+sweep + its golden-bad fixture land in the SAME commit as any governance
+text citing them, and the meta-test asserts the sweep is WIRED; gate
+<code>CM-STATUS-CUSTODY</code>. Honest boundary §11.4.6 carried
+explicitly: the binding does not prove features bug-free (§11.4.186
+family dedup remains), does not fix a miscalibrated oracle
+(§11.4.107(10) goldens necessary-not-sufficient), does not replace
+§11.4.185 manual QA, and makes target availability a hard dependency BY
+DESIGN. All Classification: universal (§11.4.17) — no
+hardware/vendor/project literal; consumers supply
+registry/sweep/topology-map paths as DATA per §11.4.35. Propagation
+gates for literals
+<code>11.4.115</code>/<code>11.4.135</code>/<code>11.4.146</code>
+unchanged (stay GREEN). CLAUDE.md + AGENTS.md + QWEN.md + GEMINI.md
+mirrors updated in lockstep (§11.4.157). Prior round: Added §11.4.213 —
+FEATURE research-scheduling directive (operator-directed mandate,
+2026-07-16): a new §11.4.140-registered action <code>FEATURE</code> (all
+six grammar forms incl. the single-colon <code>FEATURE:</code> form)
+that SCHEDULES — never synchronously runs — a deep, enterprise-grade
+research + implementation-planning effort as a Type=Task workable item,
+reusing the §11.4.202 <code>report_item.sh</code> engine for
+item-creation + DB-sync + tracker-push (never reimplemented) plus a new
+durable <code>docs/requests/feature_queue.md</code> queue so a scheduled
+request is never dropped; the created item embeds the full mandate (deep
+web research §11.4.8/.99/.150; systematic-debug of every
+weak-spot/gap/danger-zone §11.4.102 with a risk-free rock-solid design
+per gap; always enterprise-grade/bleeding-edge/innovative; exhaustive
+documentation down to lines-of-code + micro-POCs + diagrams + SQL +
+templates §11.4.65/.73; reuse-first investigation of
+vasic-digital/HelixDevelopment components before rewriting, kept
+decoupled §11.4.28/.74/.177; full test-type + Challenges + HelixQA
+planning §11.4.27/.169; fine-grained phased/task/subtask breakdown;
+enterprise-scalability + max-performance planning; OpenDesign UI/UX
+wireframes where applicable §11.4.162/.190; full CodeGraph integration
+§11.4.78/.79/.80; fully-detailed workable items synced in real time to
+the SQLite SSoT + every connected external tracker §11.4.93/.95/.148 D5,
+honest-skipping any absent tracker §11.4.10) as its acceptance-defining
+work program — the multi-day research itself is EXECUTED by the standing
+autonomous loop (§11.4.87/.94/.97/.103/.126) when it claims the item,
+driven to a genuinely COMPLETED-and-wired or explicitly evidence-backed
+CLOSED terminal state under the §11.4.197 research-completion mandate,
+NEVER left sitting un-wired in the backlog. Propagation gate
+<code>CM-COVENANT-114-213-PROPAGATION</code> (literal
+<code>11.4.213</code>) + recommended gate
+<code>CM-FEATURE-DIRECTIVE</code> + paired §1.1 mutation.
 Classification: universal (§11.4.17). CLAUDE.md + AGENTS.md + QWEN.md +
 GEMINI.md mirrors updated in lockstep (§11.4.157). Prior round: Added
-§11.4.197 + §11.4.198 (User mandate 2026-07-15). §11.4.197 — Research /
-kicked-off-work completion mandate (verbatim &quot;all research work we start
-MUST BE fully finished, completely confirmed, validated and verified! It
-MUST NOT happen for it to stay at the backlog uncompleted and un-wired!
-Loss of requirements, failure to incorporate them is FORBIDDEN!!!
-Everything MUST BE fully completed! No exceptions!&quot;): every research
-effort / kicked-off improvement / design doc / spike / partially-landed
-feature a project STARTS MUST be driven to FULL completion — implemented
-AND WIRED (integrated AND used by default, not merely present behind a
-dead flag / uncalled function / unreferenced module — §11.4.124
-dead-code + §11.4.108 layer-2/3 gap) AND confirmed/validated/verified
-with captured physical evidence §11.4.5/§11.4.69/§11.4.107 on a clean
-deployment §11.4.108 — OR explicitly evidence-backed CLOSED (§11.4.90
-Obsolete / §11.4.112 structurally-impossible / §11.4.122 operator-drop),
-NEVER a third &quot;sitting un-wired in the backlog&quot; state, loss of
-requirements FORBIDDEN; every docs/research/* effort maps to ≥1 tracked
-workable item §11.4.93/§11.4.54 whose completion the autonomous loop
-§11.4.87/.94/.97/.103/.126/.192 enforces; honest boundary §11.4.6.
-Propagation gate CM-COVENANT-114-197-PROPAGATION + recommended gate
-CM-RESEARCH-COMPLETION-TRACKED + paired §1.1 mutation. §11.4.198 —
-Default working mechanisms always-on (operator mandate): multi-alias
-native-first orchestration (§11.4.196 + §11.4.187) AND heavy
-token-optimization (§11.4.141) MUST be the DEFAULT mechanisms for EVERY
-configuration — single- OR multiple-agent, single- OR multi-track —
-never a per-request opt-in; a single-track/single-agent session STILL
-binds through the native-first alias-priority mechanism, a
-multi-track/multiple-agent config uses it across every track
-(§11.4.176/§11.4.182); host-safety bounds preserved
-(§12.6/§12.12/§11.4.58/§11.4.183); BINDS §11.4.196/§11.4.187/§11.4.141
-as always-on, does not redefine them. Propagation gate
-CM-COVENANT-114-198-PROPAGATION + recommended gate
-CM-DEFAULT-MECHANISMS-ALWAYS-ON + paired §1.1 mutation. Both
-Classification: universal (§11.4.17). CLAUDE.md + AGENTS.md + QWEN.md +
-GEMINI.md mirrors updated in lockstep (§11.4.157). Prior round: Added
-§11.4.196 — Native-alias-first priority + per-alias real-signal
-limit/subscription tracking + auto-rebind-on-recovery + RB-02
-pgrep-footgun guard fix (User mandate 2026-07-14): native/provider CLASS
-partition native-first (§11.4.111), per-alias real-signal 429
-reason-class {session</td>
+§11.4.211 + §11.4.212 (User mandate 2026-07-16). §11.4.211 —
+Merge-conflict resolution during any main→feature/product/flavor merge
+MUST run on the Fable model at xhigh effort (Opus xhigh fallback): the
+merge-CONFLICT-resolution analogue of §11.4.209&#39;s code-REVIEW model-pin,
+generalised per §11.4.17 to EVERY track&#39;s controlled main→(feature</td>
 </tr>
 <tr>
 <td>Issues</td>
@@ -3174,10 +3114,31 @@ captured proof if genuinely complete, resume from the exact point if
 partial, action it NOW if not started, or surface the block per
 §11.4.66/§11.4.101 — always producing a status verdict (composes §11.4.6
 / §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 / §11.4.108 / §11.4.130 /
-§11.4.147). The system is UNIVERSAL (every CLI agent reads this block
-via its context carrier per §11.4.35), extensible (new action = new
-registry row), decoupled + reusable (§11.4.28), and loads
-out-of-the-box. Classification: universal (§11.4.17). <strong>Canonical
+§11.4.147).</p>
+<p><strong>Severity / handling-priority markers (§11.4.140 extension,
+2026-07-16).</strong> Three further registered actions tag the REMAINDER
+of the prompt with a HANDLING PRIORITY (as <code>BACKGROUND</code> tags
+it &quot;run in background&quot;): <strong><code>CRITICAL</code></strong>
+(highest-priority / potentially release-blocking — maximum urgency +
+rigor ahead of lower-priority work, track it, auto-activate §11.4.102
+systematic-debugging when an issue is involved, do NOT defer it),
+<strong><code>IMPORTANT</code></strong> (high-priority, above routine
+work but below CRITICAL — track it, full anti-bluff rigor), and
+<strong><code>NOTE</code></strong> (capture the remainder as durable
+CONTEXT — request-history §11.4.208 / §11.4.210 + persistent memory when
+a non-obvious project fact — applied when relevant, NOT an urgent action
+unless it contains an explicit action; §11.4.6 record only what the note
+says, never invent). All six grammar forms work
+(<code>CRITICAL: x</code> ≡ <code>CRITICAL :: x</code> ≡
+<code>CRITICAL ---&gt; x</code> ≡ <code>/CRITICAL x</code> ≡
+<code>/DEFAULT::CRITICAL x</code>). Registering <code>NOTE</code>
+promotes <code>NOTE:</code> from an ordinary-prose NO-OP to a registered
+action (ordinary-prose single-colon examples are now <code>TODO:</code>
+/ <code>WARNING:</code> / <code>FIXME:</code>).</p>
+<p>The system is UNIVERSAL (every CLI agent reads this block via its
+context carrier per §11.4.35), extensible (new action = new registry
+row), decoupled + reusable (§11.4.28), and loads out-of-the-box.
+Classification: universal (§11.4.17). <strong>Canonical
 authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.140.
 Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-action-prefix</code>, <code>--ignore-prefix</code>,
@@ -6188,48 +6149,49 @@ type. The single-colon form is <strong>REGISTERED-ACTION-ONLY by
 construction</strong>: a single-colon token that is NOT a registered
 action is a NO-OP (an ordinary prompt), NEVER an ASK and NEVER a
 sub-system shortcut — because ordinary English prose
-(<code>NOTE:</code>, <code>TODO:</code>, <code>WARNING:</code>,
-<code>FIXME:</code>) shares that shape, and routing it to the §11.4.66
-clarify path would question every such sentence (§11.4.6 honest
-boundary: the other five forms keep their ASK-on-unknown behaviour —
-their shapes do not occur in prose). Host-command collisions are handled
-by the EXISTING §11.4.140 conflict mechanism
-(<code>slash_bare: auto</code> + <code>slash_conflicts: [..]</code>),
-which already satisfies the operator&#39;s explicit-prefix requirement: a
-bare <code>/NAME</code> that collides with a built-in (e.g. the
-documented Claude Code built-in <code>/bug</code>) is NOT honored, while
-the namespaced <code>/DEFAULT::NAME</code> form is ALWAYS unambiguous —
-and the <code>NAME:</code> / <code>NAME ::</code> /
-<code>NAME ---&gt;</code> forms are never affected by any host command.
-<strong>(2) THE ITEM.</strong> The created item MUST carry, on ALL
-surfaces: a valid Status (§11.4.15, <code>Queued</code> at intake) + a
-Type from the CLOSED set {Bug | Feature | Task} (§11.4.16 —
-<code>ISSUE</code> is a REPORTING CHANNEL, never a fourth type;
-inventing one is a violation) + a stable auto-incremented id (§11.4.54),
-and a COMPREHENSIVE structured description (§11.4.148 D2 / §11.4.171):
-what / affected-scope / reproduction / acceptance. An undetermined
-section is recorded as an explicit <code>UNKNOWN:</code> gap — NEVER
-invented (§11.4.6). For <code>ISSUE</code>, the type is classified from
-the report&#39;s content and stated as FACT; if the content does not
-determine it, the operator is ASKED (§11.4.66 / §11.4.105) BEFORE
-creation; ONLY when running autonomously where asking is impossible
-(§11.4.101) may the §11.4.16 lowest-stakes ambiguity default
-<code>Task</code> be used — and then the defaulted classification MUST
-be recorded verbatim in the item and surfaced for reclassification,
-never silently asserted. <strong>(3) THE FULL SYNC (the load-bearing
-half).</strong> Creating the item is NOT sufficient: the directive MUST
-drive the WHOLE workable-items system into sync, in one shot — (a) the
-item lands in the SQLite single-source-of-truth (§11.4.93 / §11.4.95);
-(b) EVERY derived document is regenerated FROM the DB — the open +
-closed trackers, their summaries, and their <code>.md</code> /
-<code>.html</code> / <code>.pdf</code> / <code>.docx</code> siblings
-(§11.4.12 / §11.4.53 / §11.4.65 / §11.4.106); (c) the item is pushed to
-EVERY configured external tracker (§11.4.148 D5). <strong>(4) NEVER A
-FAKED PUSH (§11.4.10 / §11.4.6 / §11.4.3).</strong> A tracker whose
-credentials or whose client are absent is SKIPPED with an honest
-machine-readable reason (<code>credentials_absent</code> — names of the
-unset variables ONLY, never a value; <code>tracker_client_absent</code>
-— PENDING-OPERATOR-INPUT). A tracker PASS may be recorded ONLY after a
+(<code>TODO:</code>, <code>WARNING:</code>, <code>FIXME:</code>) shares
+that shape (<code>NOTE:</code> is now a registered §11.4.140 severity
+marker), and routing it to the §11.4.66 clarify path would question
+every such sentence (§11.4.6 honest boundary: the other five forms keep
+their ASK-on-unknown behaviour — their shapes do not occur in prose).
+Host-command collisions are handled by the EXISTING §11.4.140 conflict
+mechanism (<code>slash_bare: auto</code> +
+<code>slash_conflicts: [..]</code>), which already satisfies the
+operator&#39;s explicit-prefix requirement: a bare <code>/NAME</code> that
+collides with a built-in (e.g. the documented Claude Code built-in
+<code>/bug</code>) is NOT honored, while the namespaced
+<code>/DEFAULT::NAME</code> form is ALWAYS unambiguous — and the
+<code>NAME:</code> / <code>NAME ::</code> / <code>NAME ---&gt;</code>
+forms are never affected by any host command. <strong>(2) THE
+ITEM.</strong> The created item MUST carry, on ALL surfaces: a valid
+Status (§11.4.15, <code>Queued</code> at intake) + a Type from the
+CLOSED set {Bug | Feature | Task} (§11.4.16 — <code>ISSUE</code> is a
+REPORTING CHANNEL, never a fourth type; inventing one is a violation) +
+a stable auto-incremented id (§11.4.54), and a COMPREHENSIVE structured
+description (§11.4.148 D2 / §11.4.171): what / affected-scope /
+reproduction / acceptance. An undetermined section is recorded as an
+explicit <code>UNKNOWN:</code> gap — NEVER invented (§11.4.6). For
+<code>ISSUE</code>, the type is classified from the report&#39;s content and
+stated as FACT; if the content does not determine it, the operator is
+ASKED (§11.4.66 / §11.4.105) BEFORE creation; ONLY when running
+autonomously where asking is impossible (§11.4.101) may the §11.4.16
+lowest-stakes ambiguity default <code>Task</code> be used — and then the
+defaulted classification MUST be recorded verbatim in the item and
+surfaced for reclassification, never silently asserted. <strong>(3) THE
+FULL SYNC (the load-bearing half).</strong> Creating the item is NOT
+sufficient: the directive MUST drive the WHOLE workable-items system
+into sync, in one shot — (a) the item lands in the SQLite
+single-source-of-truth (§11.4.93 / §11.4.95); (b) EVERY derived document
+is regenerated FROM the DB — the open + closed trackers, their
+summaries, and their <code>.md</code> / <code>.html</code> /
+<code>.pdf</code> / <code>.docx</code> siblings (§11.4.12 / §11.4.53 /
+§11.4.65 / §11.4.106); (c) the item is pushed to EVERY configured
+external tracker (§11.4.148 D5). <strong>(4) NEVER A FAKED PUSH
+(§11.4.10 / §11.4.6 / §11.4.3).</strong> A tracker whose credentials or
+whose client are absent is SKIPPED with an honest machine-readable
+reason (<code>credentials_absent</code> — names of the unset variables
+ONLY, never a value; <code>tracker_client_absent</code> —
+PENDING-OPERATOR-INPUT). A tracker PASS may be recorded ONLY after a
 real push command really exited 0. Fabricating, assuming, or silently
 omitting a push is a §11.4 bluff at the integration layer; a missing
 tracker NEVER blocks the item from landing in the DB + docs (the report
@@ -6545,5 +6507,252 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-request-capture</code>, <code>--manual-ledger-OK</code>,
 <code>--hook-optional</code>, <code>--drop-unprocessed-request</code>,
 <code>--ledger-may-be-stale</code> flag.</p>
+<p><strong>§11.4.211 — Merge-conflict resolution during
+main→feature/product/flavor merges MUST run on the Fable model at xhigh
+effort (Opus xhigh fallback) (User mandate, 2026-07-16).</strong>
+Verbatim operator mandate: &quot;During the merge of main branch to all
+feature/product/flavor branches of tracks 2 - 4, if conflicts happen
+they MUST BE resolved using Fable model with xhigh effort! If Fable is
+not available, then with Opus with xhigh!&quot; Any merge-CONFLICT resolution
+performed while integrating the canonical trunk
+(<code>main</code>/<code>master</code>) into a feature / product /
+flavor branch — the §11.4.188 regular main→feature merge cadence, the
+§11.4.195 branch-taxonomy integration, the §11.4.41 merge-first
+pipeline, the §11.4.167(D) trunk-into-stream sync AND the §11.4.167(I)
+approval-gated back-merge — MUST be carried out on the <strong>Fable
+model at <code>xhigh</code> effort</strong>; the merge-resolution
+analogue of §11.4.209 (which pins the same model + effort for
+code-REVIEW), pinning it for the DECISION-MAKING of conflict resolution
+(which side to keep, how to UNION both sides without loss, marker
+removal, semantic reconciliation of divergent edits). <strong>(A)
+Fallback (closed, ordered):</strong> ONLY when Fable is genuinely
+unavailable (not configured / rate-limited / unreachable, established as
+FACT §11.4.6 — never a guessed unavailability) the conflict resolution
+runs on <strong>Opus at <code>xhigh</code> effort</strong>; a
+lower-effort or a non-Fable/non-Opus model is NOT an acceptable
+substrate for resolving merge conflicts, <code>xhigh</code> REQUIRED in
+both cases (a careless resolution silently drops a commit or commits a
+marker). <strong>(B) Scope:</strong> the operator named tracks 2–4
+(<code>feature</code>/<code>product</code>/<code>flavor</code>);
+GENERALISES per §11.4.17 to EVERY controlled
+main→(feature|product|flavor) merge on EVERY track that hits a conflict.
+<strong>(C) Safety preserved:</strong> sets the MODEL + EFFORT of the
+conflict-resolution work only, BOUNDED BY §11.4.113 (NEVER force-push) /
+§9 / §9.2 (no commit lost, hardlinked pre-op backup before any
+large/risky merge) / §11.4.41 step 3 (ZERO conflict markers committed,
+ZERO file silently dropped, union of both sides preserved) /
+§11.4.188(4) anti-bluff (post-merge smoke GREEN + marker-scan empty +
+no-lost-commit) / §11.4.84 (quiescent-only) / §11.4.37/§11.4.71
+(fetch-first). <strong>(D) Honest boundary (§11.4.6):</strong> a merge
+whose conflicts were resolved on a weaker model / lower effort than
+Fable-xhigh (or Opus-xhigh on genuine Fable-unavailability) is a §11.4
+bluff at the merge-resolution-substrate layer — the merge&#39;s captured
+evidence records which model + effort resolved the conflicts (and, on
+fallback, the FACT of Fable&#39;s unavailability). STRICT EXTENSION of
+§11.4.209 to merge-CONFLICT resolution; STRENGTHENS
+§11.4.188/§11.4.195/§11.4.41 by pinning the substrate of their
+conflict-resolution step. Classification: universal (§11.4.17). Composes
+§11.4.209/.188/.195/.41/.113/§9/§9.2/.6/.167(D)(I)/.84/.37/.71/.196.
+Propagation gate <code>CM-COVENANT-114-211-PROPAGATION</code> (literal
+<code>11.4.211</code>) + recommended gate
+<code>CM-MERGE-CONFLICT-FABLE-XHIGH</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.211.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--merge-conflict-any-model</code>,
+<code>--skip-fable-merge-resolution</code>,
+<code>--non-xhigh-merge-conflict</code>,
+<code>--resolve-conflict-lower-effort-OK</code>,
+<code>--fallback-without-fable-unavailability-proof</code> flag.</p>
+<p><strong>§11.4.212 — Main README is the canonical starting-point /
+entry point for ALL project documentation — no doc may be an orphan
+unreachable from README (User mandate, 2026-07-16).</strong> Verbatim
+operator mandate: &quot;Manual tests catalog must have linking all through
+the main README as the starting point of this and any other Project
+documentation! This fact and mandatory rule MUST be added into the
+constitution.&quot; The main README (<code>README.md</code> at the repository
+root) is the canonical STARTING POINT / entry point for ALL project
+documentation, for THIS project and EVERY project incorporating this
+constitution. Every project document in the §11.4.65 export scope —
+INCLUDING the manual-tests catalog (the §11.4.185 manual-QA testing
+catalog), the §11.4.153 per-feature Status / Status_Summary docs, the
+Issues / Fixed trackers + their summaries (§11.4.12 / §11.4.53 /
+§11.4.57), and every guide / research note / changelog / script
+companion doc — MUST be reachable / linked (DIRECTLY or TRANSITIVELY)
+from the main README. No project document may be an ORPHAN — a doc that
+no link-path from README reaches is a §11.4.212 violation. STRICT
+GENERALISATION of §11.4.57 (which mandated a
+<code>Tracked-Items + Status Documents</code> doc-link section covering
+the tracker / status set) to EVERY §11.4.65-scope document, so the
+README is the single navigable root of the project&#39;s documentation tree.
+<strong>(A) Reachability = a link path.</strong> README → guide →
+sub-doc is fine (transitive); the requirement is that SOME path from
+README reaches every in-scope doc, not that every doc is linked directly
+at top level. <strong>(B) Always-sync (§11.4.59 / §11.4.106
+docs-chain).</strong> A newly-added §11.4.65-scope doc that no
+README-reachable path links is a §11.4.212 violation the moment it
+lands; the manual-tests catalog specifically MUST be linked from the
+README (the operator&#39;s load-bearing example). <strong>(C) Honest
+boundary (§11.4.6).</strong> Reachability is a link-graph property
+(every doc FINDABLE from README), NOT a claim about each doc&#39;s
+CORRECTNESS or freshness (those stay §11.4.44 / §11.4.106 / the doc&#39;s
+own gates). <strong>(D) Composition with §11.4.57.</strong> §11.4.57&#39;s
+<code>Tracked-Items</code> section remains the mandated README landing
+block for the tracker / status set; §11.4.212 adds that EVERY OTHER
+in-scope doc is likewise reachable — §11.4.57 is the specialisation,
+§11.4.212 the generalisation. Classification: universal (§11.4.17) — the
+consuming project supplies its README path, its manual-tests-catalog
+path, and its §11.4.65 doc-set enumeration per §11.4.35. Composes
+§11.4.57 / §11.4.59 / §11.4.65 / §11.4.106 / §11.4.153 / §11.4.185 /
+§11.4.44 / §11.4.12 / §11.4.53. Propagation gate
+<code>CM-COVENANT-114-212-PROPAGATION</code> (literal
+<code>11.4.212</code>) + recommended gate
+<code>CM-README-DOC-ENTRYPOINT-COMPLETE</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.212.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--orphan-doc-OK</code>, <code>--readme-not-entrypoint</code>,
+<code>--skip-readme-link</code>, <code>--doc-unreachable-OK</code>
+flag.</p>
+<p><strong>§11.4.213 — FEATURE research-scheduling directive: recognized
+via all §11.4.140 forms, SCHEDULES (never synchronously executes) a
+deep, enterprise-grade research + implementation-planning effort as a
+tracked workable item (operator-directed mandate, 2026-07-16).</strong>
+Compact summary: extends the §11.4.202 reporting-directive family with a
+fourth registered action <code>FEATURE</code> — recognized via ALL SIX
+§11.4.140 grammar forms (<code>FEATURE :: x</code> /
+<code>DEFAULT::FEATURE :: x</code> / <code>/FEATURE x</code> /
+<code>/DEFAULT::FEATURE x</code> / <code>FEATURE ---&gt; x</code> / the
+single-colon <code>FEATURE: x</code>, registered-action-only so
+lowercase prose like &quot;feature: ...&quot; never expands and is never asked
+about, §11.4.6) — that SCHEDULES rather than synchronously executes a
+deep research + implementation-planning effort: the directive creates a
+Type=Task / Status=Queued workable item (§11.4.15/.16/.54) by INVOKING
+the SAME §11.4.202 <code>report_item.sh</code> engine (never a duplicate
+implementation of the item-creation/DB-sync/tracker-push machinery — a
+second divergent tracker-push path would itself be a bluff-surface
+regression) and appends it to a durable
+<code>docs/requests/feature_queue.md</code> queue (mirroring
+<code>BACKGROUND</code>&#39;s <code>docs/requests/background_queue.md</code>
+pattern) so a scheduled request is never dropped; the item&#39;s
+comprehensive description (§11.4.148/.171) embeds the FULL research
+mandate as its acceptance-defining work program — deep web research on
+best incorporation (§11.4.8/.99/.150), systematic-debug of every
+enumerated weak-spot/gap/danger-zone with a risk-free rock-solid design
+per gap (§11.4.102), always enterprise-grade/bleeding-edge/innovative,
+exhaustive documentation down to lines-of-code + micro-POCs + diagrams +
+SQL + templates (§11.4.65/.73), reuse-first investigation of
+vasic-digital/HelixDevelopment components kept decoupled
+(§11.4.28/.74/.177), full test-type + Challenges + HelixQA planning
+(§11.4.27/.169), fine-grained phased/task/subtask breakdown,
+enterprise-scalability + max-performance planning, OpenDesign UI/UX
+wireframes where applicable (§11.4.162/.190), full CodeGraph integration
+(§11.4.78/.79/.80), and fully-synced workable items across the SQLite
+SSoT + every connected external tracker (§11.4.93/.95/.148 D5), honestly
+SKIPPING any absent tracker (§11.4.10) — NEVER a faked push. The
+multi-day research itself is EXECUTED by the standing autonomous loop
+(§11.4.87/.94/.97/.103/.126) when it claims the item, driven to a
+genuinely COMPLETED-and-wired or explicitly evidence-backed CLOSED
+terminal state under §11.4.197 — never left un-wired in the backlog;
+&quot;scheduled&quot; is never reported as &quot;done&quot; (§11.4.6). Anti-bluff four-layer
+coverage: pre-build gate <code>CM-FEATURE-DIRECTIVE</code> (FUNCTIONAL —
+sources + RUNS the §11.4.140 parser, never grep-only, §11.4.108) +
+paired §1.1 mutation + a real-DB end-to-end evidence trail (temp SQLite
+DB, no mocks, §11.4.27). Classification: universal (§11.4.17). Composes
+§11.4.140/.202/.197/.8/.99/.150/.102/.65/.73/.28/.74/.177/.27/.169/.162/.190/.78/.79/.80/.93/.95/.148/.54/.15/.16/.10/.6/.87/.94/.97/.103/.126.
+Propagation gate <code>CM-COVENANT-114-213-PROPAGATION</code> (literal
+<code>11.4.213</code>) + recommended gate
+<code>CM-FEATURE-DIRECTIVE</code> + paired §1.1 mutation.
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.213.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--feature-runs-synchronously</code>,
+<code>--skip-feature-queue</code>,
+<code>--feature-without-research-mandate</code>,
+<code>--reimplement-tracker-push</code>,
+<code>--hardcode-project-in-engine</code>,
+<code>--skip-item-creation</code> flag.</p>
+<p><strong>EXTENSIONS landed 2026-07-17 (existing anchors strengthened —
+full text in <code>Constitution.md</code>; research-derived from a
+consuming project&#39;s status-without-custody forensics).</strong> Forensic
+FACTs (genericised, all measured 2026-07-17): 576 tracked items, 182
+claiming a done/ready status, <strong>173 (95%) with NO registered
+regression guard</strong> — an operator manually sampled 6 done-claiming
+items and found <strong>6/6 broken</strong>, the expected draw of that
+arithmetic, not bad luck; recorded reopen-per-recorded-fix
+<strong>52%</strong> (published elite &lt;10%), itself an UNDERCOUNT
+because recurrences re-entered the tracker as NEW ids and statuses moved
+with ZERO history rows (one item: 4 Reopened events, 0 terminal events);
+the standing guard suite&#39;s exit code read ONLY its FAIL count — measured
+live on a release-candidate target: <strong>61 registered guards → PASS
+0 / FAIL 5 / PENDING 56 → exit 0 &quot;not blocked&quot;</strong> — and the
+release-tag tooling consulted the guard suite <strong>ZERO
+times</strong>, so to the release gate &quot;never verified&quot; and &quot;verified
+good&quot; were the same colour; the project&#39;s own history selected the
+discriminator — every fix whose done-claim was preceded by an on-device
+RED→GREEN polarity flip that HELD recorded zero reopens, and every fix
+confirmed at source-green bounced. <strong>No new anchor number was
+minted</strong>: §11.4.115 and §11.4.146 already said what the operator
+mandates and did not bind because they are prose consulted by agents,
+not conditions checked by seams — the deliverable is the MECHANICAL
+BINDING (the §11.4.205 test applied: &quot;if I documented this and nobody
+implemented the hook, would anything catch it?&quot;). <strong>§11.4.115(F) —
+machine-written verdict pairs + guard-viability:</strong> RED and GREEN
+are harness-written verdict files, never prose — carrying the item id,
+guard identity, polarity, exit code, the target&#39;s artifact fingerprint
+READ FROM THE TARGET AT RUN TIME, iterations (≥3, §11.4.50), and
+evidence files whose CLASS matches the defect&#39;s layer (a source-grep
+transcript can never satisfy a user-visible/pixel/audio class — the
+wrong-layer oracle dies by construction); GREEN requires a prior RED
+with exit ≠ 0 on the PRE-fix artifact and a DIFFERENT fingerprint
+(identical fingerprints prove the fix was never deployed); a guard never
+observed FAILing on the genuinely-broken artifact is unvalidated
+instrumentation and mints no verdicts (a guard structurally unable to
+FAIL — or to PASS — satisfies nothing); the canonical §1.1 mutation for
+a landed fix is the fix-commit&#39;s REVERT, and a mutation whose diff only
+deletes the literal strings the gate greps for is a refused tautology.
+Recommended gate <code>CM-GUARD-VERDICT-MACHINE-WRITTEN</code>.
+<strong>§11.4.135 (verdict-coverage extension) — ABSENCE of a verdict
+blocks exactly as a FAIL does:</strong> the suite&#39;s exit semantics MUST
+incorporate COVERAGE, never only the FAIL count; the release seam
+refuses the tag while
+<code>uncovered = registered ∧ topology-present ∧ no-verdict-for-the-candidate-fingerprint</code>
+is non-empty OR any FAIL exists; the release-tag tooling MUST consult
+the suite/verdict store mechanically; REQUIRES-REBUILD PENDING is honest
+on intermediate artifacts and self-clearing on the candidate (re-run on
+the candidate, or the item leaves the release&#39;s done-set — both forced,
+neither a permanent exemption); topology-absent guards are exempt ONLY
+via a checked-in target-pool topology map and MUST be enumerated in the
+release changelog as honest gaps (§11.4.3/§11.4.118) — never silent; a
+naive &quot;PENDING always blocks&quot; is REJECTED as a §11.4.201 FAIL-bluff;
+pre-existing unguarded backlogs adopt via a ONE-TIME monotone-decrease
+ratchet snapshot so day one is green and the disease cannot spread.
+Recommended gate <code>CM-RELEASE-VERDICT-COVERAGE</code> (self-tested
+with golden-good / golden-bad / negative-control per
+§11.4.205/§11.4.107(10)). <strong>§11.4.146(D3) — status-custody
+mechanical binding:</strong> a done/ready status write is REFUSED
+without the file chain
+<code>registry row keyed by the item&#39;s EXACT stable id (checked-in alias map for legacy keys — a guard keyed to a non-item id fails the join and satisfies nothing) → executable registered guard → §11.4.115(F) RED+GREEN verdict pair → class-matched evidence</code>
+— prose appears nowhere in the chain; Seam A = the workable-items engine
+(§11.4.93) refuses the write (project-agnostic per §11.4.28, custody
+paths are consumer DATA per §11.4.35); Seam B = a FULL-TABLE sweep gate
+on every pre-build run (not a diff check — catches raw-DB writes that
+bypass Seam A); Seam C = the §11.4.135 release seam; §11.4.205
+construction order — the executable sweep + its golden-bad meta-fixture
+(a temp SSoT overlay with a chain-less terminal item; the meta-test RUNS
+the sweep and requires FAIL, and asserts the sweep is WIRED) land in the
+SAME commit as any governance text citing them. Recommended gate
+<code>CM-STATUS-CUSTODY</code>. Honest boundary (§11.4.6), carried
+explicitly: the binding proves no status outruns its evidence and the
+REPORTED defect cannot silently return under the guard&#39;s conditions — it
+does NOT prove the feature bug-free (family dedup §11.4.186 remains),
+does NOT make a miscalibrated oracle honest (§11.4.107(10) goldens are
+necessary, not sufficient), does NOT replace the §11.4.185 manual-QA
+sufficiency gate, and makes target availability a HARD dependency of
+status progress BY DESIGN (a visible block replaces a silent pass). All
+Classification: universal (§11.4.17) — no hardware/vendor/project
+literal; consumers supply their registry, verdict-store, sweep, ratchet,
+and topology-map paths as DATA per §11.4.35. Propagation gates for the
+literals <code>11.4.115</code> / <code>11.4.135</code> /
+<code>11.4.146</code> are unchanged and stay GREEN; the three
+recommended mechanism gates + paired §1.1 mutations are gate-code =
+separate work item.</p>
 </body>
 </html>
