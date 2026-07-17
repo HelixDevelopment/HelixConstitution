@@ -45,11 +45,11 @@ SRV_PID=$!
 cleanup() { kill "$SRV_PID" >/dev/null 2>&1 || true; }
 trap cleanup EXIT INT TERM
 
-# wait for readiness
+# wait for readiness (each attempt capped at 2s connect + 3s max)
 ready=0
 i=0
 while [ "$i" -lt 50 ]; do
-	if curl -sk "${BASE}/healthz" >/dev/null 2>&1; then ready=1; break; fi
+	if curl -sk --connect-timeout 2 --max-time 3 "${BASE}/healthz" >/dev/null 2>&1; then ready=1; break; fi
 	sleep 0.1
 	i=$((i + 1))
 done
@@ -60,23 +60,23 @@ if [ "$ready" -ne 1 ]; then
 fi
 log "[smoke] server ready at ${BASE}"
 
-CREATE_JSON="$(curl -sk -X POST "${BASE}/api/v1/items" \
+CREATE_JSON="$(curl -sk --connect-timeout 2 --max-time 5 -X POST "${BASE}/api/v1/items" \
 	-H 'Content-Type: application/json' \
 	-d '{"title":"live smoke: flash D1","status":"blocked","source":"smoke"}')"
 log "[smoke] CREATE -> ${CREATE_JSON}"
 ID="$(printf '%s' "$CREATE_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["id"])')"
 [ -n "$ID" ] || { log "FAIL: no id returned"; exit 1; }
 
-NV_JSON="$(curl -sk "${BASE}/api/v1/items/needs-verification")"
+NV_JSON="$(curl -sk --connect-timeout 2 --max-time 5 "${BASE}/api/v1/items/needs-verification")"
 log "[smoke] needs-verification -> ${NV_JSON}"
 printf '%s' "$NV_JSON" | python3 -c 'import sys,json;d=json.load(sys.stdin);assert d["count"]==1,d;print("  assert count==1 OK")' | tee -a "$LOG"
 
-DONE_JSON="$(curl -sk -X POST "${BASE}/api/v1/items/${ID}/done" \
+DONE_JSON="$(curl -sk --connect-timeout 2 --max-time 5 -X POST "${BASE}/api/v1/items/${ID}/done" \
 	-H 'Content-Type: application/json' -d '{"notes":"verified via smoke"}')"
 log "[smoke] MARK-DONE -> ${DONE_JSON}"
 printf '%s' "$DONE_JSON" | python3 -c 'import sys,json;d=json.load(sys.stdin);assert d["status"]=="done",d;print("  assert status==done OK")' | tee -a "$LOG"
 
-NV2_JSON="$(curl -sk "${BASE}/api/v1/items/needs-verification")"
+NV2_JSON="$(curl -sk --connect-timeout 2 --max-time 5 "${BASE}/api/v1/items/needs-verification")"
 log "[smoke] needs-verification (after) -> ${NV2_JSON}"
 printf '%s' "$NV2_JSON" | python3 -c 'import sys,json;d=json.load(sys.stdin);assert d["count"]==0,d;print("  assert count==0 OK (state delta captured)")' | tee -a "$LOG"
 

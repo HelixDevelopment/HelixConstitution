@@ -322,7 +322,7 @@ func closeCmd(args []string) int {
 // ids of the form <PREFIX>-<NNN> and returning prefix-(max+1), zero-padded to 3
 // digits. Append-only per §11.4.54 — ids are never reused.
 func nextID(db *sql.DB, prefix string) (string, error) {
-	rows, err := db.Query(`SELECT atm_id FROM items`)
+	rows, err := db.Query(`SELECT atm_id FROM items WHERE atm_id LIKE ?`, prefix+"-%")
 	if err != nil {
 		return "", err
 	}
