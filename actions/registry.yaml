@@ -43,6 +43,20 @@ grammar:
   # ── `::` form (forms 1 + 2) ──────────────────────────────────────────────
   prefix_regex: '^([A-Z][A-Z0-9_]*) :: '        # legacy bare-`::` anchor (form 1); kept for back-compat
   colon_form_regex: '^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*) :: (.*)$'  # forms 1+2: g1=optional PREFIX, g2=ACTION, g3=rest
+  # ── single-colon form (form 6, §11.4.202 — `ISSUE: <text>`) ──────────────
+  # REGISTERED-ACTION-ONLY by construction: a single-colon token that is NOT a
+  # registered action is a NO-OP (an ordinary prompt), NEVER an ASK and NEVER a
+  # sub-system shortcut. Rationale (§11.4.6, honest): `TODO:` / `WARNING:` /
+  # `FIXME:` are ordinary English prose openers that share this shape — routing
+  # them to the §11.4.66 clarify path would turn every such sentence into an
+  # operator question. (A REGISTERED single-colon token DOES expand — e.g. the
+  # §11.4.140 severity markers `CRITICAL:` / `IMPORTANT:` / `NOTE:` and the
+  # §11.4.202 reporting directives `BUG:` / `TASK:` / `ISSUE:`.) The ` :: ` /
+  # ` ---> ` / `/` forms keep
+  # their ASK-on-unknown behaviour (their shapes do not occur in prose).
+  single_colon_form_regex: '^(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*): (.*)$'  # form 6: g1=optional PREFIX, g2=ACTION, g3=rest
+  single_colon_registered_only: true            # unknown single-colon token ⇒ noop (never ask, never subsystem)
+  single_colon_body_separator: ': '             # token <-> rest: colon + ONE space, no space before the colon
   # ── slash form (forms 3 + 4) ─────────────────────────────────────────────
   slash_form_regex: '^/(?:([A-Z][A-Z0-9_]*)::)?([A-Z][A-Z0-9_]*)\s+(.*)$'   # forms 3+4: g1=optional PREFIX, g2=ACTION, g3=rest
   # ── arrow form (form 5) ──────────────────────────────────────────────────
@@ -143,3 +157,466 @@ actions:
       - "11.4.108"
       - "11.4.130"
       - "11.4.147"
+
+  # ── Severity / handling-priority markers (§11.4.140 extension, 2026-07-16) ───
+  # CRITICAL / IMPORTANT / NOTE tag the REMAINDER of the prompt with a HANDLING
+  # PRIORITY the way BACKGROUND tags it "run in background". They are ordinary
+  # registry rows — every §11.4.140 form works out of the box (`CRITICAL :: x`,
+  # `DEFAULT::CRITICAL :: x`, `/CRITICAL x`, `/DEFAULT::CRITICAL x`,
+  # `CRITICAL ---> x`) PLUS the §11.4.202 single-colon form the operator actually
+  # types (`CRITICAL: x`). Registering NOTE PROMOTES `NOTE:` from an
+  # ordinary-prose NO-OP to a registered action — the ordinary-prose single-colon
+  # examples are now `TODO:` / `WARNING:` / `FIXME:` (still unregistered ⇒ no-op).
+  # These markers change HOW the remainder is handled (priority + rigor); they do
+  # NOT pick a workable-item Type — when the remainder is a report the §11.4.202
+  # BUG / TASK / ISSUE machinery still classifies + tracks it.
+  - name: CRITICAL
+    version: 1
+    namespaces: [DEFAULT]                         # which namespaces this action is registered under
+    slash_bare: auto                              # bare /CRITICAL honored unless a host-command collision
+    slash_conflicts: []                           # no known colliding host slash command
+    summary: >-
+      Tag the remainder of the prompt HIGHEST-PRIORITY / potentially
+      release-blocking — address with maximum urgency + rigor, track it, and do
+      not defer it behind lower-priority work.
+    expansion: >-
+      CRITICAL — treat the remainder of this prompt as the HIGHEST-PRIORITY,
+      potentially RELEASE-BLOCKING matter (composes §11.4.72 audio /
+      most-critical-first + §11.4.42 / §11.4.132 risk-ordered priority). Address
+      it with maximum urgency and full rigor AHEAD of routine or lower-priority
+      work — do NOT defer, park, or bury it behind other items (a critical matter
+      parks other work, never the reverse; §11.4.94 / §11.4.97 / §11.4.101).
+      Track it as a high-severity workable item so it can never be lost — when it
+      is a reportable defect / task / feature, route it through the §11.4.202
+      BUG / TASK / ISSUE machinery (§11.4.197 a started requirement never
+      evaporates). Apply the full §11.4 anti-bluff covenant — every claim carries
+      captured physical evidence (§11.4.5 / §11.4.69 / §11.4.107), never a
+      metadata-only / absence-of-error PASS. When an issue / bug / regression /
+      failure is involved, auto-activate systematic-debugging BEFORE any fix
+      (§11.4.102 Iron Law: no fixes without root-cause investigation first). THEN
+      handle the remainder of the prompt as that highest-priority matter.
+    rules:
+      - "The expansion PREPENDS the CRITICAL handling guidance; the remainder of the prompt (in ANY of its forms — 'CRITICAL: ', 'CRITICAL :: ', 'CRITICAL ---> ', '/CRITICAL ', '/DEFAULT::CRITICAL ') is the matter to handle."
+      - "CRITICAL is a HANDLING-PRIORITY marker, NOT a reporting channel and NOT a §11.4.16 workable-item Type — it changes HOW the remainder is handled (priority + rigor), it does not itself pick a Type. When the remainder IS a report, the §11.4.202 BUG/TASK/ISSUE machinery still classifies + tracks it."
+      - "Highest priority: address AHEAD of lower-priority work; NEVER defer a CRITICAL matter behind routine work (§11.4.72 / §11.4.42 / §11.4.132)."
+      - "Auto-activate §11.4.102 systematic-debugging when an issue / bug / failure is involved (Iron Law: no fixes without root-cause investigation first)."
+      - "Full anti-bluff (§11.4): captured physical evidence for every claim (§11.4.5 / §11.4.69 / §11.4.107), never a false result."
+    composes_with:
+      - "11.4"
+      - "11.4.42"
+      - "11.4.72"
+      - "11.4.94"
+      - "11.4.97"
+      - "11.4.101"
+      - "11.4.102"
+      - "11.4.132"
+      - "11.4.197"
+      - "11.4.202"
+      - "11.4.5"
+      - "11.4.69"
+      - "11.4.107"
+
+  - name: IMPORTANT
+    version: 1
+    namespaces: [DEFAULT]                         # which namespaces this action is registered under
+    slash_bare: auto                              # bare /IMPORTANT honored unless a host-command collision
+    slash_conflicts: []                           # no known colliding host slash command
+    summary: >-
+      Tag the remainder of the prompt HIGH-PRIORITY — prioritize it above routine
+      work (but below a CRITICAL / release-blocking matter), track it, and apply
+      full anti-bluff rigor.
+    expansion: >-
+      IMPORTANT — treat the remainder of this prompt as HIGH-PRIORITY: prioritize
+      it ABOVE routine work (but BELOW a CRITICAL / release-blocking matter) per
+      the §11.4.42 / §11.4.72 / §11.4.132 priority order. Track it as a workable
+      item so it is never lost — when it is a reportable defect / task / feature,
+      route it through the §11.4.202 BUG / TASK / ISSUE machinery (§11.4.197 a
+      started requirement never evaporates). Apply the full §11.4 anti-bluff
+      covenant — every claim carries captured physical evidence (§11.4.5 /
+      §11.4.69 / §11.4.107), never a metadata-only / absence-of-error PASS. THEN
+      handle the remainder of the prompt as that high-priority matter.
+    rules:
+      - "The expansion PREPENDS the IMPORTANT handling guidance; the remainder (in ANY of its forms — 'IMPORTANT: ', 'IMPORTANT :: ', 'IMPORTANT ---> ', '/IMPORTANT ', '/DEFAULT::IMPORTANT ') is the matter to handle."
+      - "IMPORTANT is a HANDLING-PRIORITY marker (high-priority, BELOW CRITICAL), NOT a reporting channel and NOT a §11.4.16 Type."
+      - "High priority: address ahead of routine work, below a CRITICAL matter (§11.4.42 / §11.4.72 / §11.4.132)."
+      - "Full anti-bluff (§11.4): captured physical evidence for every claim (§11.4.5 / §11.4.69 / §11.4.107)."
+    composes_with:
+      - "11.4"
+      - "11.4.42"
+      - "11.4.72"
+      - "11.4.132"
+      - "11.4.197"
+      - "11.4.202"
+      - "11.4.5"
+      - "11.4.69"
+      - "11.4.107"
+
+  - name: NOTE
+    version: 1
+    namespaces: [DEFAULT]                         # which namespaces this action is registered under
+    slash_bare: auto                              # bare /NOTE honored unless a host-command collision
+    slash_conflicts: []                           # no known colliding host slash command
+    summary: >-
+      Capture the remainder of the prompt as durable CONTEXT / a note to remember
+      (request-history + persistent memory), applied when relevant — not an
+      urgent action unless it contains an explicit action.
+    expansion: >-
+      NOTE — the remainder of this prompt is CONTEXTUAL INFORMATION / a note to
+      CAPTURE and REMEMBER, not necessarily an immediate action. Record it
+      durably so it is never lost — in the operator request-history ledger
+      (§11.4.208 / §11.4.210 zero-loss intake) and, when it is a non-obvious,
+      durable project FACT, in persistent agent memory. Apply it when it becomes
+      relevant. Do NOT treat it as an urgent action UNLESS the note itself
+      contains an explicit action (then handle that action at its own stated
+      priority). Record ONLY what the note actually says — never invent, infer,
+      or embellish (§11.4.6 no-guessing); an undetermined detail is recorded as an
+      explicit UNKNOWN, never fabricated. If the note describes a trackable defect
+      / task / feature, route it through the §11.4.202 BUG / TASK / ISSUE
+      machinery so it lands as a real workable item rather than merely a memory
+      (§11.4.197 a started requirement never evaporates).
+    rules:
+      - "The expansion PREPENDS the NOTE handling guidance; the remainder (in ANY of its forms — 'NOTE: ', 'NOTE :: ', 'NOTE ---> ', '/NOTE ', '/DEFAULT::NOTE ') is the context to capture."
+      - "NOTE = capture-as-context: record durably (request-history + persistent memory when it is a durable project fact); do NOT action it unless it contains an explicit action."
+      - "Record only what the note says — never invent or infer (§11.4.6); an undetermined detail is an explicit UNKNOWN."
+      - "Registering NOTE promotes the single-colon `NOTE:` form (§11.4.202 form 6) from an ordinary-prose NO-OP to this registered action; the ordinary-prose single-colon examples are now `TODO:` / `WARNING:` / `FIXME:`."
+    composes_with:
+      - "11.4.6"
+      - "11.4.197"
+      - "11.4.202"
+      - "11.4.208"
+      - "11.4.210"
+
+  # ── Reporting directives (§11.4.202, 2026-07-15) ────────────────────────────
+  # BUG / TASK / ISSUE turn a plain-language report into a fully-populated,
+  # fully-synced workable item. They are ordinary registry rows — every §11.4.140
+  # form works out of the box (`BUG :: x`, `DEFAULT::BUG :: x`, `/DEFAULT::BUG x`,
+  # `BUG ---> x`) PLUS the §11.4.202 single-colon form (`BUG: x`).
+  - name: BUG
+    version: 1
+    namespaces: [DEFAULT]
+    # `/bug` is a documented Claude Code BUILT-IN (reports a bug to Anthropic), so
+    # the bare slash form is NOT honored for BUG. The namespaced slash form
+    # `/DEFAULT::BUG …` is always unambiguous (§11.4.140 conflict rule), and the
+    # `BUG: …` / `BUG :: …` / `BUG ---> …` forms are unaffected.
+    slash_bare: auto
+    slash_conflicts: [bug]
+    summary: >-
+      Report a product DEFECT — create a fully-populated Type=Bug workable item and
+      drive the full DB → docs → external-tracker sync.
+    expansion: >-
+      REPORT DIRECTIVE — BUG (§11.4.202). The remainder of this prompt is a REPORT
+      of a product DEFECT (a regression / user-visible broken behaviour). It MUST
+      be turned into a real, fully-populated workable item — never merely
+      acknowledged, never answered in prose alone, never silently dropped. Create
+      it through the project's reporting engine
+      (`constitution/scripts/reporting/report_item.sh --kind bug --title <t>
+      --report <text>`), which (1) creates the item with Type=Bug + Status=Queued +
+      a stable auto-incremented ticket id in the workable-items SQLite
+      single-source-of-truth (§11.4.93 / §11.4.95 / §11.4.54), carrying the
+      §11.4.148 / §11.4.171 comprehensive structured description (WHAT / SCOPE /
+      REPRODUCTION / ACCEPTANCE); (2) regenerates EVERY derived document from the
+      DB — Issues / Fixed / the summaries + their HTML / PDF / DOCX siblings — via
+      the project's configured sync command (§11.4.12 / §11.4.53 / §11.4.65 /
+      §11.4.106); (3) pushes the new item to EVERY configured external tracker
+      (§11.4.148 D5). A tracker whose credentials or client are absent is SKIPPED
+      with an honest reason (§11.4.10 / §11.4.6 / §11.4.3) — a push is NEVER faked
+      and its absence is NEVER hidden. Report back the assigned ticket id, the sync
+      verdict, and each tracker's verdict with its captured-evidence path (§11.4.5
+      / §11.4.69). THEN, if the defect is actionable now, investigate it under
+      §11.4.102 systematic-debugging (root cause BEFORE any fix).
+    rules:
+      - "The expansion REPLACES the 'BUG' prefix in ANY of its forms ('BUG: ', 'BUG :: ', 'BUG ---> ', '/DEFAULT::BUG '); the remainder of the prompt is the report text."
+      - "Type is FIXED to Bug (§11.4.16 closed set) — BUG never creates a Feature or a Task."
+      - "The item MUST be created before any other response; a report that is discussed but never tracked is a §11.4.202 violation (the requirement silently evaporates — §11.4.197)."
+      - "NEVER fake a tracker push. Absent credentials / absent client ⇒ honest SKIP-with-reason + the item still lands in the DB + docs (§11.4.10 / §11.4.6)."
+      - "Compose §11.4.202 (this directive), §11.4.93 / §11.4.95 (DB SSoT), §11.4.15 / §11.4.16 / §11.4.54 (status + type + id), §11.4.148 / §11.4.171 (comprehensive description), §11.4.106 / §11.4.12 / §11.4.53 / §11.4.65 (doc sync), §11.4.102 (systematic-debugging on the defect)."
+    composes_with:
+      - "11.4.202"
+      - "11.4.93"
+      - "11.4.95"
+      - "11.4.15"
+      - "11.4.16"
+      - "11.4.54"
+      - "11.4.148"
+      - "11.4.171"
+      - "11.4.106"
+      - "11.4.102"
+
+  - name: TASK
+    version: 1
+    namespaces: [DEFAULT]
+    slash_bare: auto
+    slash_conflicts: []
+    summary: >-
+      Report an internal WORKSTREAM item — create a fully-populated Type=Task
+      workable item and drive the full DB → docs → external-tracker sync.
+    expansion: >-
+      REPORT DIRECTIVE — TASK (§11.4.202). The remainder of this prompt is a REPORT
+      of an internal WORKSTREAM item (refactor / doc / infra / gate / audit /
+      chore). It MUST be turned into a real, fully-populated workable item — never
+      merely acknowledged, never silently dropped. Create it through the project's
+      reporting engine (`constitution/scripts/reporting/report_item.sh --kind task
+      --title <t> --report <text>`), which (1) creates the item with Type=Task +
+      Status=Queued + a stable auto-incremented ticket id in the workable-items
+      SQLite single-source-of-truth (§11.4.93 / §11.4.95 / §11.4.54), carrying the
+      §11.4.148 / §11.4.171 comprehensive structured description (WHAT / SCOPE /
+      REPRODUCTION-or-CONTEXT / ACCEPTANCE); (2) regenerates EVERY derived document
+      from the DB — Issues / Fixed / the summaries + their HTML / PDF / DOCX
+      siblings — via the project's configured sync command (§11.4.12 / §11.4.53 /
+      §11.4.65 / §11.4.106); (3) pushes the new item to EVERY configured external
+      tracker (§11.4.148 D5). A tracker whose credentials or client are absent is
+      SKIPPED with an honest reason (§11.4.10 / §11.4.6 / §11.4.3) — a push is
+      NEVER faked. Report back the assigned ticket id, the sync verdict, and each
+      tracker's verdict with its captured-evidence path (§11.4.5 / §11.4.69).
+    rules:
+      - "The expansion REPLACES the 'TASK' prefix in ANY of its forms ('TASK: ', 'TASK :: ', 'TASK ---> ', '/TASK ', '/DEFAULT::TASK '); the remainder is the report text."
+      - "Type is FIXED to Task (§11.4.16 closed set) — TASK never creates a Bug or a Feature."
+      - "The item MUST be created before any other response (§11.4.202 / §11.4.197 — a started requirement never evaporates)."
+      - "NEVER fake a tracker push — honest SKIP-with-reason when credentials / client are absent (§11.4.10 / §11.4.6)."
+    composes_with:
+      - "11.4.202"
+      - "11.4.93"
+      - "11.4.95"
+      - "11.4.15"
+      - "11.4.16"
+      - "11.4.54"
+      - "11.4.148"
+      - "11.4.171"
+      - "11.4.106"
+
+  - name: ISSUE
+    version: 1
+    namespaces: [DEFAULT]
+    slash_bare: auto
+    slash_conflicts: []
+    summary: >-
+      Report ANYTHING trackable — classify into the §11.4.16 closed set
+      {Bug | Feature | Task}, then create the fully-populated, fully-synced item.
+    expansion: >-
+      REPORT DIRECTIVE — ISSUE (§11.4.202). The remainder of this prompt is a
+      GENERIC REPORT of something trackable. It MUST be turned into a real,
+      fully-populated workable item — never merely acknowledged, never silently
+      dropped. FIRST classify it into the §11.4.16 CLOSED type set — `Bug` (product
+      defect / regression / user-visible broken behaviour), `Feature` (a new
+      end-user capability), or `Task` (internal workstream — refactor / doc / infra
+      / gate / audit). There is NO fourth type and NO "issue" type: inventing one is
+      a §11.4.16 violation. Classify from the report's own content, stated as FACT
+      (§11.4.6 — never a guess). If the content does NOT determine the type, ASK the
+      operator which of the three it is (§11.4.66 / §11.4.105) BEFORE creating the
+      item. If — and only if — running autonomously where asking is impossible
+      (§11.4.101), create it with the §11.4.16 lowest-stakes ambiguity default
+      `Task`, record the literal `Classification: defaulted-to-Task (§11.4.16
+      ambiguity default — reclassify)` inside the item's description, and surface
+      the reclassification command to the operator; NEVER silently assert a type the
+      report does not support. THEN create it through the project's reporting engine
+      (`constitution/scripts/reporting/report_item.sh --kind issue --type
+      <Bug|Feature|Task> --title <t> --report <text>`), which creates the item in the
+      workable-items SQLite single-source-of-truth (§11.4.93 / §11.4.95 / §11.4.54)
+      with the §11.4.148 / §11.4.171 comprehensive structured description, then
+      regenerates EVERY derived document from the DB (§11.4.12 / §11.4.53 / §11.4.65
+      / §11.4.106) and pushes to EVERY configured external tracker (§11.4.148 D5) —
+      SKIPPING with an honest reason any tracker whose credentials / client are
+      absent (§11.4.10 / §11.4.6 / §11.4.3), NEVER faking a push. Report back the
+      assigned ticket id + the chosen type + the sync verdict + each tracker's
+      verdict with its captured-evidence path (§11.4.5 / §11.4.69).
+    rules:
+      - "The expansion REPLACES the 'ISSUE' prefix in ANY of its forms ('ISSUE: ', 'ISSUE :: ', 'ISSUE ---> ', '/ISSUE ', '/DEFAULT::ISSUE '); the remainder is the report text."
+      - "Type MUST come from the §11.4.16 CLOSED set {Bug | Feature | Task}. 'Issue' is a REPORTING channel, NOT a type — never create a 4th type."
+      - "Classification is evidence-based (§11.4.6): determinable ⇒ state it; ambiguous ⇒ ASK (§11.4.66 / §11.4.105); autonomous-and-ambiguous ⇒ documented `Task` default + an explicit reclassify note (never a silent assertion)."
+      - "The item MUST be created before any other response (§11.4.202 / §11.4.197)."
+      - "NEVER fake a tracker push — honest SKIP-with-reason when credentials / client are absent (§11.4.10 / §11.4.6)."
+    composes_with:
+      - "11.4.202"
+      - "11.4.93"
+      - "11.4.95"
+      - "11.4.15"
+      - "11.4.16"
+      - "11.4.54"
+      - "11.4.66"
+      - "11.4.101"
+      - "11.4.148"
+      - "11.4.171"
+      - "11.4.106"
+
+  # ── FEATURE research-scheduling directive (§11.4.213, 2026-07-16) ───────────
+  # Structurally parallel to ISSUE/BUG/TASK above, but SCHEDULES rather than
+  # synchronously executes: the directive creates + enqueues a Type=Task
+  # workable item NOW (by invoking the SAME report_item.sh engine — never a
+  # duplicate implementation); the deep multi-day research/planning/
+  # documentation work it describes is performed LATER by the standing
+  # autonomous loop when it claims the item (§11.4.87/.94/.97/.103/.126),
+  # driven to a genuinely completed-and-wired or evidence-backed closed
+  # terminal state under §11.4.197 — never left un-wired in the backlog.
+  - name: FEATURE
+    version: 1
+    namespaces: [DEFAULT]
+    slash_bare: auto                              # bare /FEATURE honored unless a host-command collision
+    slash_conflicts: []                           # no known colliding host slash command
+    summary: >-
+      SCHEDULE (never synchronously run) a deep, enterprise-grade research +
+      implementation-planning effort on a described feature as a tracked
+      workable item — the multi-day research itself is performed later by the
+      autonomous loop, not by this directive.
+    expansion: >-
+      RESEARCH-SCHEDULING DIRECTIVE — FEATURE (§11.4.213). The remainder of this
+      prompt DESCRIBES a feature to research and plan. It MUST be turned into a
+      real, fully-populated, fully-synced workable item — never merely
+      acknowledged, never silently dropped (§11.4.202 / §11.4.197). Unlike BUG /
+      TASK / ISSUE, FEATURE SCHEDULES rather than synchronously executes:
+      create the item NOW through the project's feature-scheduling engine
+      (`constitution/scripts/feature/schedule_feature_research.sh --description
+      <text>`), which (1) creates a Type=Task + Status=Queued workable item
+      with a stable auto-incremented ticket id in the workable-items SQLite
+      single-source-of-truth (§11.4.93 / §11.4.95 / §11.4.54) — by INVOKING the
+      SAME §11.4.202 `report_item.sh` engine, never a duplicate implementation
+      — whose §11.4.148 / §11.4.171 comprehensive description embeds the full
+      research-and-planning WORK PROGRAM verbatim: (a) deep web research
+      (articles / guides / scientific papers / open-source codebases /
+      examples) on the best way to incorporate this feature (§11.4.8 /
+      §11.4.99 / §11.4.150); (b) systematic-debug (§11.4.102) of ALL data
+      obtained to enumerate EVERY weak spot / gap / danger-zone / inconsistency
+      / imperfection and design a risk-free rock-solid solution for EACH one;
+      (c) ALWAYS enterprise-grade, bleeding-edge, innovative — never less; (d)
+      MANDATORY exhaustive documentation — plans down to lines-of-code +
+      micro-POCs, diagrams, illustrations, SQL definitions, templates, every
+      relevant material (§11.4.65 / §11.4.73); (e) investigate + plan REUSE of
+      existing vasic-digital / HelixDevelopment submodules/components BEFORE
+      proposing a rewrite, extending them freely while keeping them decoupled
+      / reusable (§11.4.28 / §11.4.74 / §11.4.177); (f) plan from the TESTING
+      point of view — every supported test type + Challenges + full HelixQA
+      bank coverage (§11.4.27 / §11.4.169); (g) divide into fine-grained,
+      nano-detailed phases / tasks / subtasks ready to drive integration /
+      implementation / wiring / testing / scaling; (h) plan for enterprise
+      scalability + maximal performance; (i) when there is a UI/UX surface,
+      produce full wireframes / diagrams / design files authored via
+      OpenDesign (§11.4.162 / §11.4.190); (j) plan full CodeGraph integration
+      with regular/real-time index sync (§11.4.78 / §11.4.79 / §11.4.80); (k)
+      create fully-detailed follow-on workable items synced in REAL TIME to
+      the SQLite SSoT + every derived document + every connected external
+      tracker (§11.4.148 D5), honestly SKIPPING any absent tracker (§11.4.10)
+      — NEVER a faked push. (2) enqueues the item in the durable
+      `docs/requests/feature_queue.md` queue so it can NEVER be silently
+      dropped or forgotten (mirrors the BACKGROUND durable queue, §11.4.140);
+      (3) regenerates every derived document from the DB (§11.4.12 / §11.4.53
+      / §11.4.65 / §11.4.106) and pushes to every configured external tracker
+      exactly as §11.4.202 does. Report back the assigned ticket id, the
+      research-doc destination path, the sync verdict, and each tracker's
+      verdict with its captured-evidence path (§11.4.5 / §11.4.69). THEN — the
+      scheduled research/planning/documentation work itself is EXECUTED LATER
+      by the standing autonomous loop (§11.4.87 / §11.4.94 / §11.4.97 /
+      §11.4.103 / §11.4.126) when it claims the item, driven to a genuinely
+      COMPLETED-and-wired or explicitly evidence-backed CLOSED terminal state
+      under §11.4.197 — it is NEVER performed synchronously inline by this
+      directive, and NEVER left un-wired in the backlog.
+    rules:
+      - "The expansion REPLACES the 'FEATURE' prefix in ANY of its forms ('FEATURE: ', 'FEATURE :: ', 'FEATURE ---> ', '/FEATURE ', '/DEFAULT::FEATURE '); the remainder of the prompt is the feature description."
+      - "SCHEDULING, not synchronous execution: the directive creates + enqueues the tracked item now; the multi-day research/planning work is performed LATER by the autonomous loop when it claims the item (§11.4.87/.94/.97/.103/.126), never inline by this directive."
+      - "Type is FIXED to Task (§11.4.16 closed set) for the SCHEDULING item itself — FEATURE never creates a Bug; it MAY spawn its own Feature-typed follow-on item(s) once planned."
+      - "The item MUST be created + enqueued before any other response; a description that is discussed but never scheduled is a §11.4.213 / §11.4.202 / §11.4.197 violation (the requirement silently evaporates)."
+      - "Delegates item-creation + DB-sync + tracker-push to the SAME §11.4.202 report_item.sh engine — NEVER a duplicate/divergent implementation of that machinery."
+      - "NEVER fake a tracker push. Absent credentials / absent client ⇒ honest SKIP-with-reason + the item still lands in the DB + docs (§11.4.10 / §11.4.6)."
+      - "A FEATURE item is NEVER left sitting un-wired in the backlog (§11.4.197) — it reaches a genuinely COMPLETED-and-wired or explicitly evidence-backed CLOSED terminal state."
+    composes_with:
+      - "11.4.213"
+      - "11.4.202"
+      - "11.4.197"
+      - "11.4.93"
+      - "11.4.95"
+      - "11.4.54"
+      - "11.4.148"
+      - "11.4.171"
+      - "11.4.8"
+      - "11.4.99"
+      - "11.4.150"
+      - "11.4.102"
+      - "11.4.65"
+      - "11.4.73"
+      - "11.4.28"
+      - "11.4.74"
+      - "11.4.177"
+      - "11.4.27"
+      - "11.4.169"
+      - "11.4.162"
+      - "11.4.190"
+      - "11.4.78"
+      - "11.4.79"
+      - "11.4.80"
+      - "11.4.87"
+      - "11.4.94"
+      - "11.4.97"
+      - "11.4.103"
+      - "11.4.126"
+
+# ── Sub-system / submodule shortcuts (§11.4.140 extension, 2026-07-14) ────────
+# A grammar-shaped UPPERCASE token that is NOT a registered behavioral action
+# (BACKGROUND / REMINDER above) MAY name an incorporated SUB-SYSTEM / submodule.
+# Such a token expands to a SUB-SYSTEM CONTEXT injection (repository + org +
+# where-checked-out + §11.4.28 equal-codebase / decoupling / dependency-layout +
+# §11.4.37 fetch-first + §11.4.113 no-force-push + §11.4.183 full-constitution +
+# §11.4/§11.4.69 anti-bluff), then the remainder of the prompt is the task on
+# that sub-system. Resolution uses the SAME §11.4.140 grammar (all 5 forms,
+# first-non-blank-line anchor, `\`-escape) — the ONLY difference from an action
+# is the resolved `kind` field ("subsystem" vs "action"). A behavioral ACTION
+# always wins a token collision (the resolver drops action-colliding tokens).
+#
+# TWO data sources feed the resolver (scripts/action_prefix_lib.sh
+# apx_lookup_subsystem, python3+PyYAML):
+#   (a) this `subsystems:` NAMED catalogue — curated Helix-ecosystem sub-systems
+#       + human abbreviations (HXOTA, HXQA, …); classified universal (§11.4.17):
+#       these are the Helix org's OWN products, NOT any single consumer project's
+#       assets, so they carry no project-coupling (§11.4.28) — the ATMOSphere-
+#       specific submodules (presenter / lampa / torrserve / …) are NEVER listed
+#       here; they are covered ONLY by source (b).
+#   (b) RECURSIVE .gitmodules discovery from the INVOKING project's root — EVERY
+#       submodule anywhere in the graph auto-derives alias tokens (uppercase
+#       name / snake / camel-split / abbreviation). A newly-added submodule is
+#       covered out-of-box with NO edit to this file. Duplicate checkouts of the
+#       same submodule (same canonical URL) collapse to ONE sub-system; an
+#       ambiguous token (>1 sub-system) is DROPPED → falls to ASK (§11.4.6).
+#
+# Each entry: `name` (display, canonical token derived by uppercasing) + `url`
+# (canonicalized to merge with any local checkout of the same repo) + optional
+# `org` + optional `aliases` (extra UPPERCASE tokens: abbreviation / snake).
+# The canonical form-name token, its camelCase-split snake form, and every
+# listed alias all resolve to the same sub-system (unless ambiguous/action-coll).
+subsystems:
+  - name: HelixOTA
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixOTA.git
+    aliases: [HXOTA]
+  - name: HelixTrack
+    org: Helix-Track
+    url: git@github.com:Helix-Track/HelixTrack.git
+    aliases: [HXTRACK]
+  - name: HelixQA
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixQA.git
+    aliases: [HXQA]
+  - name: HelixCode
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixCode.git
+    aliases: [HXCODE]
+  - name: HelixAgent
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixAgent.git
+    aliases: [HXAGENT]
+  - name: HelixLLM
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixLLM.git
+    aliases: [HXLLM]
+  - name: HelixMemory
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixMemory.git
+    aliases: [HXMEM]
+  - name: HelixSpecifier
+    org: HelixDevelopment
+    url: git@github.com:HelixDevelopment/HelixSpecifier.git
+    aliases: [HXSPEC]
+  - name: LLMsVerifier
+    org: vasic-digital
+    url: git@github.com:vasic-digital/LLMsVerifier.git
+    aliases: [LLMSVERIFIER]
+  - name: ClaudeToolkit
+    org: vasic-digital
+    url: git@github.com:vasic-digital/claude-toolkit.git
+    aliases: [CTOOLKIT, CLAUDE_TOOLKIT]

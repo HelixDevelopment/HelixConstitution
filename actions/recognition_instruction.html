@@ -389,7 +389,7 @@ Recognition Instruction (§11.4.140) — LAYER-1 carrier block</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>2</td>
+<td>3</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -397,7 +397,7 @@ Recognition Instruction (§11.4.140) — LAYER-1 carrier block</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-07-02T00:00:00Z</td>
+<td>2026-07-14T00:00:00Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -415,6 +415,12 @@ context carrier</td>
 </tbody>
 </table>
 <blockquote>
+<p><strong>Revision 3 (2026-07-14):</strong> added the
+<strong>sub-system shortcut</strong> extension — a grammar-shaped token
+that names an incorporated sub-system / submodule (from the registry
+<code>subsystems:</code> catalogue OR recursive <code>.gitmodules</code>
+discovery) expands to a sub-system context injection. No new grammar;
+the same five forms.</p>
 <p><strong>Revision 2 (2026-07-02):</strong> added the fifth grammar
 form — the arrow form <code>ACTION_NAME ---&gt; &lt;rest&gt;</code> (and
 namespaced <code>PREFIX::ACTION_NAME ---&gt; &lt;rest&gt;</code>) — as a
@@ -514,10 +520,35 @@ captured proof if genuinely complete, resume from the exact point if
 partial, action it NOW if not started, or surface the block per
 §11.4.66/§11.4.101 — always producing a status verdict (composes §11.4.6
 / §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 / §11.4.108 / §11.4.130 /
-§11.4.147). The system is UNIVERSAL (every CLI agent reads this block
-via its context carrier per §11.4.35), extensible (new action = new
-registry row), decoupled + reusable (§11.4.28), and loads
-out-of-the-box. Classification: universal (§11.4.17). <strong>Canonical
+§11.4.147).</p>
+<p><strong>Sub-system shortcuts (§11.4.140 extension,
+2026-07-14).</strong> When the first-non-blank-line grammar-shaped token
+is NOT a registered action but NAMES an incorporated SUB-SYSTEM /
+submodule, it expands to a SUB-SYSTEM CONTEXT injection (repository +
+org + where-checked-out + §11.4.28 equal- codebase / decoupling /
+dependency-layout + §11.4.37 fetch-first + §11.4.113 no-force-push +
+§11.4.183 full-constitution + §11.4/§11.4.69 anti-bluff) and the
+remainder of the prompt is the task to perform ON that sub-system — e.g.
+<code>HELIXQA :: run the atmosphere bank</code>,
+<code>PRESENTER ---&gt; fix the pill</code>,
+<code>/CONTAINERS rebuild the pod</code>. Two data sources feed
+resolution: (a) the curated Helix-ecosystem catalogue in
+<code>subsystems:</code> of the registry (human abbreviations like
+<code>HXOTA</code> → HelixOTA), and (b) RECURSIVE
+<code>.gitmodules</code> discovery from the invoking project&#39;s own root,
+so EVERY submodule anywhere in the graph — and any newly-added one —
+auto-derives its UPPERCASE alias tokens (name / snake / camel-split /
+abbreviation) out-of-box with no hand-maintained list. A registered
+behavioral action ALWAYS wins a token collision; duplicate checkouts of
+the same submodule collapse to one sub-system; an ambiguous
+(multi-target) or lowercase token NEVER expands and falls to the clarify
+path (§11.4.6). Same five grammar forms, same first-non-blank-line
+anchor, same <code>\</code>-escape. The distinguishing result field is
+<code>kind</code> ∈ {<code>action</code>, <code>subsystem</code>}.</p>
+<p>The system is UNIVERSAL (every CLI agent reads this block via its
+context carrier per §11.4.35), extensible (new action = new registry
+row), decoupled + reusable (§11.4.28), and loads out-of-the-box.
+Classification: universal (§11.4.17). <strong>Canonical
 authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.140.
 Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-action-prefix</code>, <code>--ignore-prefix</code>,

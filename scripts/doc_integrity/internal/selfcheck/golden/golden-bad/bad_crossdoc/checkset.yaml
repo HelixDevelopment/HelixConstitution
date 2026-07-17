@@ -1,0 +1,21 @@
+schema_version: 1
+# GOLDEN-BAD (CROSS-DOC): the SAME ticket carries a DIVERGENT deadline in the
+# plan vs the MVP doc (the MVP↔V9-plan divergence class). MUST FAIL XDOC-01.
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      start: "Start"
+      deadline: "Deadline"
+  - id: mvp
+    kind: markdown-headings
+    path: mvp.md
+crossdoc_join:
+  key: ticket
+  compare: [timeline, status, type]
+  authoritative: plan

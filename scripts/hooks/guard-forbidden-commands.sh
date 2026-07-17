@@ -176,16 +176,120 @@ fi
 
 # --------------------------------------------------------------------------
 # 2. Force-push / verification-bypass gate (§6.T.3).
+#
+# FALSE-POSITIVE FIX (2026-07-11). Forensic reproduction: a benign command
+# referencing a §11.4.88 push-failure LOG PATH (e.g. `git fetch --all &&
+# tail -f qa-results/push_failures/x.log`), or any command chaining a `git`
+# invocation with an UNRELATED `-f`-flagged command whose own argument
+# merely STARTS WITH "push", was wrongly BLOCKED (exit 2) as "§6.T.3
+# force-push". Root cause, two independent over-matches in the previous
+# single whole-command regex:
+#   (a) the "is this a git-push invocation" test matched literal "push" as
+#       an UNBOUNDED PREFIX (no trailing word boundary) -- so any token
+#       starting with "push" (`push_failures/...`, `push_all.sh`, a bare
+#       "push" inside unrelated prose, ...) satisfied it;
+#   (b) the force-flag test (`-f` / `--force` / `--force-with-lease`)
+#       scanned the ENTIRE raw command string with no notion of "clause" --
+#       so a `-f` flag belonging to a COMPLETELY UNRELATED command chained
+#       via `&&` / `;` / `|` (the extremely common `tail -f <logfile>`)
+#       satisfied it even though it had nothing to do with any git push.
+#
+# Fix: (1) require BOTH "git" and "push" to be complete, boundary-anchored
+# words (never a prefix match); (2) split the command into shell-operator
+# CLAUSES (`;`, `&&`, `||`, single `|`, literal newline) with QUOTE-AWARE
+# splitting -- a separator that appears INSIDE a single- or double-quoted
+# argument is never treated as a split point, so a real
+# `git push -o ci.skip="a;b" --force` is never sliced apart -- and require
+# the git-push match AND the force flag / `+<refspec>` to occur in the
+# SAME clause. Malformed/unterminated-quote input can only ever MERGE
+# clauses (an unclosed quote just swallows the rest of the string into one
+# clause, since only UN-quoted separators split), never SPLIT a real
+# `git push ... --force` apart -- so this can never cause a genuine
+# force-push to be missed (§11.4.113 has no escape hatch).
 # --------------------------------------------------------------------------
 FORCE_MSG="§6.T.3 requires explicit, in-conversation operator approval for THIS specific operation: force push, history rewrite, --no-verify, or --no-gpg-sign. One approval does not cover the next. Ask the operator, then add a documented '# guardrails:allow <reason>' marker if approved."
 
-if [[ "$COMMAND" =~ git([[:space:]]+[^[:space:]]+)*[[:space:]]+push ]]; then
-  if [[ "$COMMAND" =~ (^|[[:space:]])--force([[:space:]]|=|$) ]] ||
-     [[ "$COMMAND" =~ (^|[[:space:]])-f([[:space:]]|$) ]] ||
-     [[ "$COMMAND" =~ (^|[[:space:]])--force-with-lease ]]; then
-    block "§6.T.3 force-push" "$FORCE_MSG"
+# Quote-aware clause splitter (pure bash, no external deps -- consistent
+# with the rest of this hook, which deliberately avoids a jq/python
+# dependency for its own core logic). Splits $1 on `;`, `&&`, `||`, a
+# single (non-doubled) `|`, and literal newlines -- EXCEPT when those
+# characters appear inside a single- or double-quoted string, in which
+# case they are copied through untouched.
+_fp_split_clauses() {
+  local s="$1"
+  local -a out=()
+  local buf="" ch prev="" in_squote=0 in_dquote=0
+  local i n=${#s}
+  for ((i = 0; i < n; i++)); do
+    ch="${s:i:1}"
+    if [[ "$in_squote" -eq 1 ]]; then
+      buf+="$ch"
+      [[ "$ch" == "'" ]] && in_squote=0
+      continue
+    fi
+    if [[ "$in_dquote" -eq 1 ]]; then
+      buf+="$ch"
+      if [[ "$ch" == '"' && "$prev" != '\' ]]; then
+        in_dquote=0
+      fi
+      prev="$ch"
+      continue
+    fi
+    case "$ch" in
+      "'")
+        in_squote=1
+        buf+="$ch"
+        ;;
+      '"')
+        in_dquote=1
+        buf+="$ch"
+        ;;
+      ';'|$'\n')
+        out+=("$buf")
+        buf=""
+        ;;
+      '&')
+        if [[ "${s:i+1:1}" == '&' ]]; then
+          out+=("$buf")
+          buf=""
+          i=$((i + 1))
+        else
+          buf+="$ch"
+        fi
+        ;;
+      '|')
+        if [[ "${s:i+1:1}" == '|' ]]; then
+          i=$((i + 1))
+        fi
+        out+=("$buf")
+        buf=""
+        ;;
+      *)
+        buf+="$ch"
+        ;;
+    esac
+    prev="$ch"
+  done
+  out+=("$buf")
+  printf '%s\n' "${out[@]}"
+}
+
+# Word-bounded "git ... push" detector -- "git" and "push" MUST each be
+# complete words (never a substring/prefix of a longer token).
+GIT_PUSH_RE='(^|[[:space:]])git([[:space:]]+[^[:space:]]+)*[[:space:]]+push([[:space:]]|$)'
+
+while IFS= read -r fp_clause; do
+  [[ -z "$fp_clause" ]] && continue
+  if [[ "$fp_clause" =~ $GIT_PUSH_RE ]]; then
+    if [[ "$fp_clause" =~ (^|[[:space:]])--force([[:space:]]|=|$) ]] ||
+       [[ "$fp_clause" =~ (^|[[:space:]])-f([[:space:]]|$) ]] ||
+       [[ "$fp_clause" =~ (^|[[:space:]])--force-with-lease([[:space:]]|=|$) ]] ||
+       [[ "$fp_clause" =~ (^|[[:space:]])\+[^[:space:]] ]]; then
+      block "§6.T.3 force-push" "$FORCE_MSG"
+    fi
   fi
-fi
+done < <(_fp_split_clauses "$COMMAND")
+
 if [[ "$COMMAND" =~ (^|[[:space:]])--no-verify([[:space:]]|$) ]]; then
   block "§6.T.3 --no-verify" "$FORCE_MSG"
 fi

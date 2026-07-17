@@ -25,7 +25,8 @@ canonical-root) and supplies ONLY its own per-host config data.
 | `multitrack_registry.sh` | flock TSV get/set over `<repo>/.ws_state/streams.tsv`. |
 | `multitrack_claim.sh` | Exactly-once item→track claim + TTL reap (§11.4.176(A)). |
 | `multitrack_device_lock.sh` | Capability-aware deadlock-proof device-lock (§11.4.176(B)). |
-| `multitrack_cwd_hook.sh` | Thin toolkit adapter: prints the alias's bound worktree AND fires a best-effort, non-fatal, fully-detached `orchestrator bind` (bind-on-start, §11.4.177) for the resolved track (never for the conductor). |
+| `multitrack_cwd_hook.sh` | Thin toolkit adapter: prints the alias's bound worktree AND fires a best-effort, non-fatal, fully-detached `orchestrator bind` (bind-on-start, §11.4.177), fallback monitor, AND constitution auto-sync for the resolved track (never for the conductor). |
+| `multitrack_constitution_sync.sh` | §11.4.35 constitution auto-sync: on every track activation, ancestor-guarded **fast-forward-only** advance of the activated worktree's `constitution/` submodule to latest `<remote>/main` (WIP-preserving, never force/reset/rewind; never `git submodule update`). Keeps the constitution "always up to date with main, Everywhere!" |
 | `multitrack_alias_orchestrator.sh` | Alias↔track bind / fallback / cooldown lease. |
 | `multitrack_build.sh` | Single-builder FIFO rebuild queue. |
 
@@ -140,3 +141,71 @@ small, mechanical delta (three executed-code fixes + comment-literal scrub):
 
 Consumer-side DATA (`config/multitrack/<host>.yaml`, serials, mount paths) stays
 in the consuming project and is NEVER copied here.
+
+## Alias priority, per-alias limit/subscription tracking, auto-rebind-on-recovery (§11.4.196)
+
+The alias↔track binding layer (`multitrack_alias_orchestrator.sh`) implements the
+§11.4.196 mandate — the alias-binding + rate-limit/subscription-tracking layer of
+the §11.4.187 ruler:
+
+**Native-alias-first priority.** `_next_available_alias` scans the `native` class
+COMPLETELY before the `provider` class, so an OPERATIONAL native (`claudeN`) alias
+is ALWAYS selected before ANY provider, regardless of roster file order (§11.4.111
+resolve-by-CLASS-not-by-file-position). Within a class the operator-mandated order
+(native equal-capability; providers `deepseek → xiaomi → opencode → kimi-for-coding
+→ …`) is authoritative decision-DATA — the built-in `DEFAULT_ROSTER` encodes it and
+`config/multitrack/alias_priority.yaml` is its tracked, non-secret record (alias
+NAMES only, never keys — §11.4.10). `_alias_rank` exposes the same ordering as a
+comparable integer (native base 0 < provider base 100000).
+
+**Per-alias reason-class limit tracking (from REAL signals, never faked — §11.4.6).**
+A cooled alias's `cooldowns.snapshot` row is `alias|until|reason|class` where
+`class ∈ {session | weekly | subscription}` and `until` is its operational-again
+epoch. The three classes have DIFFERENT windows:
+
+| class          | window (`MT_COOLDOWN_*`)          | meaning                                                   |
+|----------------|-----------------------------------|-----------------------------------------------------------|
+| `session`      | `MT_COOLDOWN_SESSION` (=300s)      | a 429 session rate-limit — self-heals at the reset        |
+| `weekly`       | `MT_COOLDOWN_WEEKLY` (=604800s)    | weekly-limit-reached — ~until the weekly reset            |
+| `subscription` | far-future sentinel (2100-01-01Z)  | subscription expired — INDEFINITE until a REAL renewal    |
+
+`§11.4.6` NEVER guesses a renewal date — a caller MAY pass an exact `--until <epoch>`
+parsed from a real reset marker, which wins over the class default.
+
+**Commands.**
+- `mark-limited --alias A [--class session|weekly|subscription] [--until EPOCH] [--reason R]`
+  — record a per-alias limit from a real signal (the `multitrack_fallback_monitor.sh`
+  429-signature classifier calls this / `fallback --class …`). A limited alias is
+  never auto-selected until `until` passes (session/weekly) or `mark-operational`
+  clears it (subscription).
+- `mark-operational --alias A` — clear an alias's cooldown NOW (a subscription
+  renewal / operator-confirmed recovery). The next `auto-assign`/`promote` prefers it.
+- `promote [--ttl S]` — auto-use-on-recovery: for EVERY bound track, if a strictly
+  higher-priority (lower `_alias_rank`) NON-cooled alias exists, rebind the track
+  UPWARD to it, PRESERVING the worktree AND device leases (leases key on the STABLE
+  track id — §11.4.119). Idempotent. Run it after every reap/tick so a track that
+  fell onto a provider returns to a recovered native automatically.
+- `fallback --track T [--class …] [--until …]` — on a limit, cool the current alias
+  (class-aware) and hand the track to the next available alias.
+- `status` — the cooldown section now shows `class` + `operational-again-epoch`.
+
+**RB-02 host-budget guard fix (`multitrack_host_budget.sh`, §12.12 / §11.4.196(D)).**
+`_mt_host_budget_heavy_build_running` no longer trusts a bare `pgrep -f REGEX`
+substring match (which false-matched a live `claude` worker whose prompt QUOTED the
+pgrep pattern and REFUSED every spawn on a host with zero real builds — forensic
+FACT 2026-07-13). It re-reads each matched PID's REAL `/proc/<pid>/cmdline` (via the
+`_mt_host_budget_pid_cmdline` seam) and excludes the pattern-CARRIER / multitrack-
+ENGINE / `claude`-worker / self+parent classes; an UNREADABLE cmdline is
+conservatively counted as a build (REFUSE — the safe, reversible default,
+§11.4.101/§12.8), so a genuine soong/gradle/JVM-daemon build is still caught.
+
+**Tests (anti-bluff, §11.4.115 RED-polarity + §1.1 mutation + §11.4.50 determinism):**
+- `test_multitrack_host_budget_rb02_pgrep.sh` — RB-02 guard (hermetic stub + real-`/proc` E2E).
+- `test_multitrack_alias_priority_limits.sh` — native-first rank + per-class limit windows + `promote`.
+- `test_multitrack_native_first_fallback.sh` — native-first selection (pre-existing).
+Run each with `RED_MODE=1` (reproduce the defect on the mutated artifact) and
+`RED_MODE=0` (assert the fixed behaviour + §1.1 self-check).
+
+Honest boundary (§11.4.6): these prove the selection / tracking / rebind / guard
+CONTRACT on the mechanism; genuine live per-subscription quota-isolation still needs
+live tokens exercising real rate-limit boundaries (an operator acceptance window).

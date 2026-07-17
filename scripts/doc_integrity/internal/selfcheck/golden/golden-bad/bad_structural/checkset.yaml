@@ -1,0 +1,16 @@
+schema_version: 1
+# GOLDEN-BAD (STRUCTURAL): the required "deadline" column is renamed to "Due"
+# in the source (silent column drift) AND item id "1.1" is duplicated.
+# MUST FAIL STRUCT-01 (missing column) AND STRUCT-02 (duplicate id).
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    required_columns: [item_id, deadline]
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      start: "Start"
+      deadline: "Deadline"

@@ -130,7 +130,13 @@ func TestRepairBodies_ClearsDesyncs_RedPolarity(t *testing.T) {
 	db := rbOpen(t, dbPath)
 	rbExec(t, db, `UPDATE items SET status='In progress'
 		WHERE atm_id='ATM-970' AND current_location='Issues' AND representation='section'`)
-	rbExec(t, db, `UPDATE items SET body_md='', status='Reopened'
+	// §11.4.120 reconciliation: the injected Fixed-location column value MUST be a
+	// TERMINAL `… (→ Fixed.md)` status so it does not trip validateCmd's new
+	// location↔status invariant (check (f), ATM-627 INTEG-03). This test exercises
+	// the empty-body column↔body repair class, NOT a Fixed+non-terminal desync;
+	// 'Completed' advances the column (was 'Fixed') AND blanks the body, so the
+	// empty-body desync still fires while the item stays location↔status-valid.
+	rbExec(t, db, `UPDATE items SET body_md='', status='Completed (→ Fixed.md)'
 		WHERE atm_id='ATM-971' AND current_location='Fixed' AND representation='section'`)
 	db.Close()
 
@@ -170,7 +176,13 @@ func TestRepairBodies_Idempotent(t *testing.T) {
 	db := rbOpen(t, dbPath)
 	rbExec(t, db, `UPDATE items SET status='In progress'
 		WHERE atm_id='ATM-970' AND current_location='Issues' AND representation='section'`)
-	rbExec(t, db, `UPDATE items SET body_md='', status='Reopened'
+	// §11.4.120 reconciliation: the injected Fixed-location column value MUST be a
+	// TERMINAL `… (→ Fixed.md)` status so it does not trip validateCmd's new
+	// location↔status invariant (check (f), ATM-627 INTEG-03). This test exercises
+	// the empty-body column↔body repair class, NOT a Fixed+non-terminal desync;
+	// 'Completed' advances the column (was 'Fixed') AND blanks the body, so the
+	// empty-body desync still fires while the item stays location↔status-valid.
+	rbExec(t, db, `UPDATE items SET body_md='', status='Completed (→ Fixed.md)'
 		WHERE atm_id='ATM-971' AND current_location='Fixed' AND representation='section'`)
 	db.Close()
 

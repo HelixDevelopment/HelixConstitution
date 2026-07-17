@@ -1,0 +1,8 @@
+schema_version: 1
+# GOLDEN-BAD (INTEGRITY): a Feature closed with Status "Fixed" (§11.4.33
+# violation — a Feature must close "Implemented") plus an orphan dependency.
+# MUST FAIL INTEG-02 (and INTEG-01).
+sources:
+  - id: issues
+    kind: markdown-headings
+    path: issues.md

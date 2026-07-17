@@ -637,6 +637,45 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 	defer rows.Close()
 
 	var sb []byte
+	// ATM-627 (WRITER, §11.4.115): a `## <heading>` at the START of a segment
+	// (an item body always begins with its H2 heading; a raw section-header
+	// segment does too) MUST land at a line-start so the `^## `-anchored reader
+	// (parseIssues) can see it. When the PRECEDING content ends on a non-newline
+	// byte — the data state the `update`/`repair-bodies` body-mutation path leaves
+	// (item body_md ending `…PROGRESS.md.` with NO trailing "\n") — a verbatim
+	// concatenation glues the heading mid-line (`…PROGRESS.md.## AP. [ATM-381] …`),
+	// SILENTLY ABSORBING the next item into the previous body (wrong
+	// body/status/type) + reporting it "absent in Markdown". appendSegment inserts
+	// exactly ONE separating "\n" iff the about-to-append content starts with a
+	// heading AND sb does not already end with "\n" — idempotent (fires ONLY on the
+	// non-newline-terminated case, never double-inserts) and byte-identical for
+	// every already-well-formed item (whose preceding body ends "\n\n", so sb ends
+	// "\n" and no separator is added). Fix at the WRITER, not the reader.
+	//
+	// F-DBTOOL defense-in-depth (2026-07-12): the original guard only covered a
+	// glued HEADING (content starting "## "). A newline-less body followed by
+	// a segment that does NOT start with "## " — e.g. a pipe-TABLE row
+	// (content starting "| ") — was still glued onto the tail of the preceding
+	// body with zero separation, verbatim-concatenating the two segments'
+	// TEXT into one unparseable run. Reproduced live: a body left newline-less
+	// by a mutation-path bug (see injectObsoleteDetails / docs/research/
+	// f_dbtool_20260712/ROOTCAUSE.md) glued the FOLLOWING closure pipe-row
+	// directly onto its tail, and because that pipe row no longer began a line
+	// on its own, parseFixed absorbed EVERY item from that point on into the
+	// glued body — reporting ~188 items "absent in Markdown". Generalising the
+	// separator condition to "whenever the preceding buffer doesn't already
+	// end in a newline" (dropping the "## "-only restriction) closes the WHOLE
+	// glue-defect class, not just the heading instance, while remaining a
+	// strict no-op for every well-formed body (which always ends "\n" or
+	// "\n\n") — so the existing byte-identical round-trip fixtures are
+	// unaffected (proven by the full test suite staying green after this
+	// change).
+	appendSegment := func(content string) {
+		if len(sb) > 0 && sb[len(sb)-1] != '\n' {
+			sb = append(sb, '\n')
+		}
+		sb = append(sb, content...)
+	}
 	for rows.Next() {
 		var seq int
 		var kind, atmID, rep, raw string
@@ -645,7 +684,7 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 		}
 		switch kind {
 		case "raw":
-			sb = append(sb, raw...)
+			appendSegment(raw)
 		case "item":
 			if rep == "" {
 				rep = "section"
@@ -654,7 +693,7 @@ func renderDocument(db *sql.DB, document string) (string, error) {
 			if !ok {
 				return "", fmt.Errorf("segment references unknown item %q [%s]", atmID, rep)
 			}
-			sb = append(sb, body...)
+			appendSegment(body)
 		}
 	}
 	return string(sb), rows.Err()

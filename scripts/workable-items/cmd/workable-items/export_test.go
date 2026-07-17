@@ -88,6 +88,47 @@ func TestExportCmd_EmitsDocsAndSummaries(t *testing.T) {
 	}
 }
 
+// TestFixedSummary_ColumnAlignedHeader guards the §11.4.19 / §11.4.53
+// column-alignment mandate the CM-FIXED-COLUMN-ALIGNMENT pre-build gate enforces:
+// the Fixed_Summary items table header MUST be
+// `| # | Level | Status | Type | Fixed-In Tag(s) | One-line description |`.
+// RED before the renderFixedItemRows fix (the shared renderItemRows emitted
+// `| ATM ID | Type | Status | Severity | Description |`), GREEN after. The
+// Issues_Summary header MUST stay the open-tracker layout (the fix is scoped to
+// the closed archive), and the closed item's stable id MUST remain visible.
+func TestFixedSummary_ColumnAlignedHeader(t *testing.T) {
+	dbPath := newTestDB(t)
+	if code := addCmd([]string{"Task", "Low", "--db", dbPath,
+		"--title", "A task to be completed",
+		"--description", "Refactor the navigation helper to reduce duplicated route code"}); code != exitOK {
+		t.Fatalf("add task: %d", code)
+	}
+	if code := closeCmd([]string{"WIT-001", "--db", dbPath,
+		"--status", "completed", "--evidence", "qa-results/2026-07-10/wit-001.log"}); code != exitOK {
+		t.Fatalf("close task: %d", code)
+	}
+
+	outDir := t.TempDir()
+	if code := exportCmd([]string{"--db", dbPath, "--out-dir", outDir, "--no-formats"}); code != exitOK {
+		t.Fatalf("exportCmd exit = %d, want %d", code, exitOK)
+	}
+
+	fs := readFile(t, filepath.Join(outDir, "Fixed_Summary.md"))
+	const wantHeader = "| # | Level | Status | Type | Fixed-In Tag(s) | One-line description |"
+	if !strings.Contains(fs, wantHeader) {
+		t.Errorf("Fixed_Summary missing §11.4.19 column-aligned header %q:\n%s", wantHeader, fs)
+	}
+	if !strings.Contains(fs, "WIT-001") {
+		t.Errorf("Fixed_Summary dropped the stable ATM id (must stay visible in the description cell):\n%s", fs)
+	}
+
+	is := readFile(t, filepath.Join(outDir, "Issues_Summary.md"))
+	const issuesHeader = "| ATM ID | Type | Status | Severity | Description |"
+	if !strings.Contains(is, issuesHeader) {
+		t.Errorf("Issues_Summary open-tracker header changed (fix must be scoped to Fixed_Summary): want %q:\n%s", issuesHeader, is)
+	}
+}
+
 func readFile(t *testing.T, p string) string {
 	t.Helper()
 	b, err := os.ReadFile(p)

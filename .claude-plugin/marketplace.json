@@ -1,0 +1,42 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "helix-constitution",
+  "description": "Helix Constitution — universal, project-agnostic Claude Code plugins inherited BY REFERENCE by every consuming project (§11.4.28 / §11.4.177). Install with: claude plugin marketplace add ./constitution && claude plugin install helix@helix-constitution",
+  "owner": {
+    "name": "HelixDevelopment"
+  },
+  "plugins": [
+    {
+      "name": "helix",
+      "source": "./plugins/helix",
+      "description": "Action directives as native slash commands — every §11.4.140 registered action (BACKGROUND, REMINDER, ISSUE, BUG, TASK, ...) as /<name>, with /helix:<name> as the always-unambiguous escape when a bare name collides with a host built-in. Commands are generated from actions/registry.yaml.",
+      "author": {
+        "name": "HelixDevelopment"
+      },
+      "category": "productivity",
+      "keywords": [
+        "action-prefix",
+        "directives",
+        "slash-commands",
+        "workable-items",
+        "anti-bluff"
+      ]
+    },
+    {
+      "name": "scheduled-work",
+      "source": "./plugins/scheduled-work",
+      "description": "Scheduled-work / reminder tracking for autonomous agents — records background-queue work items and lets a REMINDER re-verify uncertain/blocked/overdue work before an agent reports it done (§11.4.6 / §11.4.108). Requires the scheduled-work-engine binary: bash plugins/scheduled-work/build.sh",
+      "author": {
+        "name": "HelixDevelopment"
+      },
+      "category": "productivity",
+      "keywords": [
+        "reminder",
+        "scheduled-work",
+        "background-queue",
+        "mcp",
+        "anti-bluff"
+      ]
+    }
+  ]
+}

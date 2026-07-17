@@ -13,3 +13,11 @@ qa-results/
 !.env.example
 !.env.sample
 !.env.template
+
+# Golden test-fixture export artifacts (§11.4.30 / §11.4.65-EXCLUDED) — a broad
+# markdown-export sweep incorrectly rendered the doc_integrity validator's
+# test-fixture plan.md/plan.xlsx into docx/html/pdf. Fixtures are inputs, not
+# exportable docs; the validator reads plan.md/xlsx, never their renders.
+scripts/doc_integrity/internal/selfcheck/golden/**/*.docx
+scripts/doc_integrity/internal/selfcheck/golden/**/*.html
+scripts/doc_integrity/internal/selfcheck/golden/**/*.pdf

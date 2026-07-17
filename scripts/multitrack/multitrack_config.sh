@@ -60,13 +60,33 @@ mt__self_dir() {
 }
 
 mt_repo_root() {
+    # (a) operator-pinned root always wins (e.g. a consumer shim / a test seam).
     if [ -n "${MT_REPO_ROOT:-}" ]; then
         printf '%s\n' "$MT_REPO_ROOT"
         return 0
     fi
-    # scripts/multitrack/ -> ../../  == repo root
+    # scripts/multitrack/ -> ../.. == this checkout's top dir.
     sd=$(mt__self_dir)
-    ( cd "$sd/../.." 2>/dev/null && pwd )
+    _mtrr_base=$( cd "$sd/../.." 2>/dev/null && pwd ) || _mtrr_base=""
+    # (b) standalone-in-own-repo: the CONSUMER config lives DIRECTLY under base.
+    if [ -n "$_mtrr_base" ] && [ -d "$_mtrr_base/config/multitrack" ]; then
+        printf '%s\n' "$_mtrr_base"
+        return 0
+    fi
+    # (c) embedded-as-a-submodule (§11.4.35): base is the SUBMODULE root; the
+    #     CONSUMER project root is git's superproject working tree. Adopt it IFF
+    #     it carries config/multitrack (project-agnostic — NO project string,
+    #     §11.4.111 resolve-by-stable-name). git absent / not-a-submodule => sp
+    #     empty (stderr suppressed) => fall through to (d) unchanged.
+    if [ -n "$_mtrr_base" ] && command -v git >/dev/null 2>&1; then
+        _mtrr_sp=$( git -C "$_mtrr_base" rev-parse --show-superproject-working-tree 2>/dev/null ) || _mtrr_sp=""
+        if [ -n "$_mtrr_sp" ] && [ -d "$_mtrr_sp/config/multitrack" ]; then
+            printf '%s\n' "$_mtrr_sp"
+            return 0
+        fi
+    fi
+    # (d) last resort: base (unchanged legacy behaviour; empty only if cd failed).
+    printf '%s\n' "$_mtrr_base"
 }
 
 mt_config_dir() {
@@ -288,6 +308,26 @@ mt_config_conductor() {
         sub(/[ \t]*#.*$/,"",v); gsub(/^[ \t]+|[ \t]+$/,"",v); return v
     }
     /^conductor:/ && !done { v=$0; sub(/^conductor:[ \t]*/,"",v); print strip(v); done=1 }
+    ' "$cfg"
+}
+
+# Print the top-level `worktree_subdir:` value (§11.4.111 stable-name resolution
+# — the G2b resolver fix). Mirrors mt_config_conductor(): greps the top-level
+# `^worktree_subdir:` key, strips surrounding quotes + trailing comment. Empty
+# output when the key is absent, so consumers without it fall through to the
+# basename default = zero change (§11.4.92 additive/opt-in).
+mt_config_worktree_subdir() {
+    cfg=${1:-}
+    [ -r "$cfg" ] || return 1
+    awk '
+    BEGIN{ sq=sprintf("%c",39); dq=sprintf("%c",34); done=0 }
+    function strip(v,   i){
+        gsub(/^[ \t]+|[ \t]+$/,"",v)
+        if (substr(v,1,1)==sq){ v=substr(v,2); i=index(v,sq); if(i>0)v=substr(v,1,i-1); return v }
+        if (substr(v,1,1)==dq){ v=substr(v,2); i=index(v,dq); if(i>0)v=substr(v,1,i-1); return v }
+        sub(/[ \t]*#.*$/,"",v); gsub(/^[ \t]+|[ \t]+$/,"",v); return v
+    }
+    /^worktree_subdir:/ && !done { v=$0; sub(/^worktree_subdir:[ \t]*/,"",v); print strip(v); done=1 }
     ' "$cfg"
 }
 

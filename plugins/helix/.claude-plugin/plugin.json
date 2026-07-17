@@ -1,0 +1,19 @@
+{
+  "name": "helix",
+  "version": "1.0.0",
+  "description": "Helix Constitution action directives as native slash commands. Exposes every §11.4.140 registered action (BACKGROUND, REMINDER, ISSUE, BUG, TASK, ...) as /<name> plus the always-unambiguous /helix:<name> escape for host-command collisions. Commands are GENERATED from actions/registry.yaml — adding an action is a data change, never a code change.",
+  "author": {
+    "name": "HelixDevelopment"
+  },
+  "homepage": "https://github.com/HelixDevelopment/constitution",
+  "license": "Apache-2.0",
+  "keywords": [
+    "action-prefix",
+    "directives",
+    "slash-commands",
+    "workable-items",
+    "issue-tracking",
+    "anti-bluff",
+    "constitution"
+  ]
+}

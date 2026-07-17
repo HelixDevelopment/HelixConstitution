@@ -1,0 +1,22 @@
+schema_version: 1
+# GOLDEN-BAD (ATM-687 date-in-deps must NOT hide a genuine orphan): a plan whose
+# dependencies column holds BOTH a spreadsheet-rendered DATE ("3/6/2001") AND a
+# genuinely-unresolved dotted item-ref ("9.9.9" — no such item_id, no such
+# ticket). This is the §11.4.146 extend-to-all-cases half of the pair: the date
+# is dropped by splitDeps, but the real orphan "9.9.9" MUST still tokenize and
+# MUST still FAIL INTEG-01. Proves the ATM-687 fix drops ONLY dates, never a
+# real dependency reference — a fix that silently swallowed the whole cell would
+# make this fixture PASS and would be the bluff §11.4.107(10) forbids.
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    id_pattern: '^[0-9]+(\.[0-9]+)*$'
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      start: "Start"
+      deadline: "Deadline"
+      deps: "Deps"

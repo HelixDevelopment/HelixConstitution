@@ -1,0 +1,22 @@
+schema_version: 1
+# NEGATIVE CONTROL (§11.4.107(10)): the ~distinct NanoKVM tasks (same subject
+# word, DIFFERENT scope) MUST verify PASS. A validator that FAILs these is as
+# broken as one that PASSes duplicates — this guards the false-positive
+# direction that a naive subject-substring dedup would trip (DESIGN §3.2).
+sources:
+  - id: plan
+    kind: markdown-table
+    path: plan.md
+    id_pattern: '^[0-9]+(\.[0-9]+)*$'
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      start: "Start"
+      deadline: "Deadline"
+dedup:
+  key_fields: [subject_norm, scope_norm]
+  ticket_field: ticket
+thresholds:
+  subject_similarity: 0.90

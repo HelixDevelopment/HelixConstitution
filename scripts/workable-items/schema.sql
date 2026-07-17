@@ -220,11 +220,43 @@ CREATE TABLE IF NOT EXISTS logic_groups (
 
     -- Pointer to the ROADMAP / priority-doc line that set this group's
     -- priority (audit trail for §11.4.66 operator-confirmed priorities).
-    roadmap_ref  TEXT
+    roadmap_ref  TEXT,
+
+    -- §11.4.191 work-to-track/branch binding: the operator-pinned canonical
+    -- track id this group's work MUST land on ('track-1'..'track-N', matching
+    -- config/multitrack/<host>.yaml tracks[].id). `destination` stays the
+    -- authoritative BRANCH (already read by guard-branch-consistency.sh);
+    -- `canonical_track` records the TRACK. NULL = "branch-bound but not
+    -- track-pinned" (branch enforced, track not) — additive, every existing
+    -- consumer of `destination` is unaffected. Go-side seeded (a later phase);
+    -- the guard/resolver treat NULL as "no track assertion" (honest boundary).
+    canonical_track TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_logic_groups_destination ON logic_groups(destination);
 CREATE INDEX IF NOT EXISTS idx_logic_groups_state ON logic_groups(state);
+
+-- ============================================================
+-- §11.4.191 — group_paths: the file-scope manifest (the missing datum).
+-- One row per repo-root-relative glob; many globs per group. Answers the
+-- question guard-branch-consistency.sh could NOT: "does this changed file
+-- belong to a group whose canonical branch/track != the current checkout?".
+-- Referential integrity (group_id -> logic_groups.group_id) is Go-validated
+-- (schema style §11.4.93), not a SQL FOREIGN KEY. A path owned by NO row is
+-- UNCLASSIFIED -> main-eligible (belongs to no feature group); only a path
+-- matching a glob whose group's destination != the current branch is a
+-- violation. Globs MUST be as specific as the real ownership (§11.4.6 — avoid
+-- over-blocking); longest-glob (most-specific) wins at resolution time.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS group_paths (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id     TEXT NOT NULL,          -- FK-ish -> logic_groups.group_id (Go-validated)
+    path_glob    TEXT NOT NULL,          -- repo-root-relative glob, e.g. 'device/rockchip/atmosphere/remote_host/**'
+    note         TEXT,                   -- audit rationale (why this path is this group's exclusive scope)
+    UNIQUE(group_id, path_glob)
+);
+
+CREATE INDEX IF NOT EXISTS idx_group_paths_group_id ON group_paths(group_id);
 
 -- ============================================================
 -- §11.4.93 — doc_segments: ordered byte-identical-round-trip ledger
@@ -263,7 +295,7 @@ CREATE TABLE IF NOT EXISTS meta (
 );
 
 INSERT OR REPLACE INTO meta(key, value) VALUES
-    ('schema_version', '3'),
+    ('schema_version', '4'),
     ('last_sync_direction', 'none'),
     ('last_sync_timestamp', ''),
     ('integrity_hash', '');

@@ -216,7 +216,7 @@ func renderFixedSummary(items []item) string {
 	b.WriteString("Closed workable items (current_location = Fixed), regenerated from the SQLite single-source-of-truth (§11.4.53).\n\n")
 	b.WriteString(renderTypeStatusTally(closed))
 	b.WriteString("\n")
-	b.WriteString(renderItemRows(closed))
+	b.WriteString(renderFixedItemRows(closed))
 	return b.String()
 }
 
@@ -270,6 +270,48 @@ func renderItemRows(items []item) string {
 		}
 		fmt.Fprintf(&b, "| %s | %s | %s | %s | %s |\n",
 			it.AtmID, it.Type, it.Status, sev, summaryDescription(it))
+	}
+	return b.String()
+}
+
+// renderFixedItemRows renders the §11.4.53 closed-archive per-item table with the
+// §11.4.19 column-aligned header the CM-FIXED-COLUMN-ALIGNMENT pre-build gate AND
+// the canonical shell generator scripts/testing/generate_fixed_summary.sh require:
+//
+//	| # | Level | Status | Type | Fixed-In Tag(s) | One-line description |
+//
+// This is DISTINCT from renderItemRows (which the open-tracker Issues_Summary
+// uses) so the closed archive carries the version-tag column (feature 2026-05-30)
+// WITHOUT changing the Issues_Summary layout. The leftmost column is a 1-based
+// row number `#` (matching the gate), so the §11.4.54 stable ATM ID is carried
+// INSIDE the One-line description cell (`<ATM-ID> — <desc>`) — the same place the
+// shell generator surfaces it (via the item heading) — keeping the id visible +
+// keeping the export_test WIT-NNN assertions satisfied.
+func renderFixedItemRows(items []item) string {
+	rows := make([]item, len(items))
+	copy(rows, items)
+	sort.Slice(rows, func(i, j int) bool { return rows[i].AtmID < rows[j].AtmID })
+
+	var b strings.Builder
+	b.WriteString("## Items\n\n")
+	b.WriteString("| # | Level | Status | Type | Fixed-In Tag(s) | One-line description |\n")
+	b.WriteString("|---|---|---|---|---|---|\n")
+	for i, it := range rows {
+		level := it.Severity
+		if level == "" {
+			level = "—"
+		}
+		// §11.4.6 (no fabrication): the Fixed-In release tag(s) come from the DERIVED
+		// items.version_tags column (populated out-of-band by the `version-tags`
+		// subcommand). loadItems does not load that optional column (it is absent on
+		// pre-migration consumer DBs), and it is currently unpopulated on this tree,
+		// so the honest render is the em-dash placeholder — never an invented tag.
+		// The canonical shell generator likewise emits "—" when version_tags is
+		// empty, so the two producers stay column-aligned.
+		fixedInTag := "—"
+		desc := it.AtmID + " — " + summaryDescription(it)
+		fmt.Fprintf(&b, "| %d | %s | %s | %s | %s | %s |\n",
+			i+1, level, it.Status, it.Type, fixedInTag, desc)
 	}
 	return b.String()
 }

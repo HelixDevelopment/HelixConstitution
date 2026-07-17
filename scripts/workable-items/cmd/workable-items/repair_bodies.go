@@ -85,12 +85,20 @@ const (
 //   - A NON-empty section body has its LAST `**Status:**` line canonicalized to
 //     the column via canonicalizeBodyStatusLine — a STRICT byte-identical no-op
 //     when already synced (or when the body carries no `**Status:**` line at all),
-//     a surgical single-line rewrite when stale.
+//     a surgical single-line rewrite when stale — AND is normalized to end with a
+//     trailing "\n" via ensureTrailingNewline (the ATM-627-part-2 STORE-side fix:
+//     a stored body ending with NO "\n" breaks the byte-identical round-trip
+//     because renderDocument synthesizes the missing separator "\n", so the
+//     re-parsed body is one "\n" longer — the live md=N+1/db=N residual). Both are
+//     byte-identical no-ops on an already-canonical, already-"\n"-terminated body.
 //
 // §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with
 // `return repairNoop, it.BodyMD` disables the repair; TestRepairBodies_
 // ClearsDesyncs_RedPolarity + …_Idempotent then FAIL (post-repair validate still
-// reports desyncs) — proving the repair is not a tautology.
+// reports desyncs) — proving the repair is not a tautology. Removing the
+// ensureTrailingNewline call (or stubbing it to `return body`) makes
+// TestRepairBodies_NormalizesTrailingNewline_RedPolarity FAIL — proving the
+// trailing-newline normalization is load-bearing, not a tautology.
 func classifyRepair(it item) (repairAction, string) {
 	if it.repOrDefault() != "section" {
 		return repairNoop, it.BodyMD
@@ -100,7 +108,7 @@ func classifyRepair(it item) (repairAction, string) {
 			it.Description, it.Status, it.CreatedBy, it.AssignedTo)
 		return repairPopulate, body
 	}
-	newBody := canonicalizeBodyStatusLine(it.BodyMD, it.Status)
+	newBody := ensureTrailingNewline(canonicalizeBodyStatusLine(it.BodyMD, it.Status))
 	if newBody == it.BodyMD {
 		return repairNoop, it.BodyMD
 	}
