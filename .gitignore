@@ -21,3 +21,6 @@ qa-results/
 scripts/doc_integrity/internal/selfcheck/golden/**/*.docx
 scripts/doc_integrity/internal/selfcheck/golden/**/*.html
 scripts/doc_integrity/internal/selfcheck/golden/**/*.pdf
+
+# Multitrack workspace state (ephemeral, per-host)
+.ws_state/
