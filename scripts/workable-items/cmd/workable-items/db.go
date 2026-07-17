@@ -125,6 +125,27 @@ func migrateColumns(db *sql.DB) error {
 	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_destination ON items(destination)`); err != nil {
 		return fmt.Errorf("create idx_items_destination: %w", err)
 	}
+	// Performance indexes for high-frequency query patterns (status/type are the
+	// primary filter axes for summary generation and gate checks; current_location
+	// discriminates open vs closed; created_by/assigned_to are attribution axes).
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_status ON items(status)`); err != nil {
+		return fmt.Errorf("create idx_items_status: %w", err)
+	}
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_type ON items(type)`); err != nil {
+		return fmt.Errorf("create idx_items_type: %w", err)
+	}
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_status_type ON items(status, type)`); err != nil {
+		return fmt.Errorf("create idx_items_status_type: %w", err)
+	}
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_current_location ON items(current_location)`); err != nil {
+		return fmt.Errorf("create idx_items_current_location: %w", err)
+	}
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_created_by ON items(created_by)`); err != nil {
+		return fmt.Errorf("create idx_items_created_by: %w", err)
+	}
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_items_assigned_to ON items(assigned_to)`); err != nil {
+		return fmt.Errorf("create idx_items_assigned_to: %w", err)
+	}
 	// Keep the schema_version meta marker honest after a successful migration: a
 	// DB materialised under an older schema (2/3/4/5) is now at v6 (destination +
 	// logic_group + logic_groups, ASSIGNMENT_MECHANISM_DESIGN.md). Lexical string
