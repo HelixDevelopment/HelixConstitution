@@ -257,6 +257,10 @@ for i, t in enumerate(trackers):
          " ".join("%s=%s" % (k, v) for k, v in env_pass.items()))
 PYEOF
 ) || die "reporting config is invalid: $CONFIG" 2
+# shlex.quote() in the Python above wraps each value in single quotes,
+# which prevent all shell expansion. eval is safe here because every value
+# is shell-quoted by the Python emitter (§11.4.201 — the emitter, not eval,
+# is the guard; the control needle proves it).
 eval "$CFG_ENV"
 
 [ -n "${CFG_DB:-}" ] || die "config is missing the required key: db" 2
@@ -390,7 +394,7 @@ if [ "$DO_SYNC" = "1" ]; then
 		SYNC_CMD=$(printf '%s' "$CFG_SYNC_COMMAND" | sed "s|{db}|$DB|g")
 		log "(2) SYNC: $SYNC_CMD"
 		set +e
-		( cd "$PROJECT_ROOT" && eval "$SYNC_CMD" ) >"$EVID/sync.log" 2>&1
+		( cd "$PROJECT_ROOT" && bash -c "$SYNC_CMD" ) >"$EVID/sync.log" 2>&1
 		SYNC_RC=$?
 		set -e
 		if [ "$SYNC_RC" = "0" ]; then
@@ -428,7 +432,7 @@ if [ "$DO_TRACKER" = "1" ] && [ "$TRACKER_COUNT" != "0" ]; then
 		else
 			MISSING=""
 			for v in $T_REQ; do
-				eval "have=\${$v:-}"
+				have="${!v:-}"  # indirect expansion (§11.4.201 — no eval)
 				if [ -z "$have" ]; then MISSING="$MISSING $v"; fi
 			done
 			if [ -n "$MISSING" ]; then
@@ -445,7 +449,7 @@ if [ "$DO_TRACKER" = "1" ] && [ "$TRACKER_COUNT" != "0" ]; then
 				done
 				log "(3) TRACKER $T_NAME: pushing $ITEM_ID"
 				set +e
-				( cd "$PROJECT_ROOT" && eval "env $T_ENV $T_RENDERED" ) >"$EVID/tracker_$T_NAME.log" 2>&1
+				( cd "$PROJECT_ROOT" && bash -c "env $T_ENV $T_RENDERED" ) >"$EVID/tracker_$T_NAME.log" 2>&1
 				T_RC=$?
 				set -e
 				if [ "$T_RC" = "0" ]; then
