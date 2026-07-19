@@ -40,8 +40,25 @@ if [ ! -f "$LIB" ]; then
     echo "FATAL: library under test not found: $LIB" >&2
     exit 2
 fi
+# §11.4.201(4) / §11.4.1 PARSE guard — an UNLOADABLE library must exit 2
+# (harness-broken), NEVER 1 (a real fixture FAIL). A syntactically-broken
+# library that sources anyway carries on and reports every golden-bad as
+# MISSED — a §11.4.1 FAIL-bluff (the 2026-07-17 apostrophe-in-awk incident).
+# bash -n BEFORE sourcing.
+if ! bash -n "$LIB" 2>/dev/null; then
+    echo "FATAL: library under test does not parse (bash -n): $LIB" >&2
+    exit 2
+fi
 # shellcheck source=/dev/null
 . "$LIB"
+# §11.4.201(4) LOAD guard — both detectors MUST be non-empty after sourcing
+# (a library that parsed but defined no HELIX_CRED_VALUE_PATTERN /
+# HELIX_CRED_ADJACENCY_AWK is harness-broken, not a fixture regression).
+# exit 2, NEVER 1.
+if [ -z "${HELIX_CRED_VALUE_PATTERN:-}" ] || [ -z "${HELIX_CRED_ADJACENCY_AWK:-}" ]; then
+    echo "FATAL: credential detectors empty after sourcing (HELIX_CRED_VALUE_PATTERN / HELIX_CRED_ADJACENCY_AWK): $LIB" >&2
+    exit 2
+fi
 
 pass=0
 fail=0

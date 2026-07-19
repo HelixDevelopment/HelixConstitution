@@ -27,8 +27,10 @@
 #      resolves to the track it most recently switched onto.
 #   2. Otherwise fall back to the STABLE default map derived from
 #      config/multitrack/<host>.yaml: the ordered `native` aliases are mapped
-#      positionally onto the ordered `feature`-role tracks. On <host> that
-#      yields claude1->track-2, claude2->track-3, claude3->track-4. The `main`
+#      positionally onto the ordered `feature`-role tracks, EXCLUDING the
+#      configured conductor alias (§11.4.177 — never worktree-bound, so it must
+#      not consume a track slot). On <host> with conductor=claude1 that yields
+#      claude2->track-2, claude3->track-3, claude4->track-4. The `main`
 #      track (track-1) is NEVER worktree-bound — main stays on the /home checkout
 #      (git forbids the main branch in two worktrees), so whichever alias needs
 #      main simply gets no worktree here and falls back to /home.
@@ -203,13 +205,23 @@ _mrw_binding_for_alias() {
 # --- default positional map: native alias -> feature track (id + mount) -------
 # emit "track-id<TAB>mount" for the alias, or non-zero if unmapped.
 _mrw_default_track_for_alias() {
-    local alias="$1" idx=0 want=-1 a
-    # index of alias among native aliases
+    local alias="$1" idx=0 want=-1 a _cond
+    # §11.4.111/RB-01 FIX: index over NON-CONDUCTOR natives. The configured
+    # conductor alias is NEVER worktree-bound (§11.4.177) -- it MUST NOT consume a
+    # feature-track positional slot, otherwise the feature track at the
+    # conductor's index is orphaned (with conductor=claude1 the feature track at
+    # index 0, track-2, was never resolved by ANY alias). Filtering the conductor
+    # out of the positional list maps the N non-conductor natives 1:1 onto the N
+    # feature tracks in order (conductor=claude1 => claude2->track-2, claude3->
+    # track-3, claude4->track-4), matching operator intent and covering track-2.
+    _cond="$(mt_config_conductor "$MRW_CFG" 2>/dev/null || true)"
+    # index of alias among non-conductor native aliases
     while IFS= read -r a; do
+        [ -n "$a" ] || continue
         [ "$a" = "$alias" ] && { want="$idx"; break; }
         idx=$((idx + 1))
     done <<EOF
-$(_mrw_native_aliases)
+$(_mrw_native_aliases | { if [ -n "$_cond" ]; then grep -vxF -e "$_cond"; else cat; fi; })
 EOF
     [ "$want" -ge 0 ] || return 1
     # the want-th feature track
