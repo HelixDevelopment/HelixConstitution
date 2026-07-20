@@ -482,12 +482,19 @@ func recordHistory(tx *sql.Tx, id, event, by, reason, evidence string) error {
 // (renderDocument) would replay the STALE body Status line and `validate`
 // (statusColumnBodyDesyncs) would flag the item.
 //
-// The full-body-regenerating mutators (add / update / reopen / block / close) do
-// NOT use this helper: they already emit a fresh, canonical body via renderItemBody
-// carrying the new status (proven 0-desync by TestNoStatusMutationLeavesDesync), and
-// they legitimately change other fields (title / description / meta blocks) that a
-// bare-status helper would clobber. This helper is for the status-ONLY paths
-// (subtask-status today; any future bare-status write).
+// The other mutators (add / update / reopen / move / block / close) do NOT use this
+// helper: each already emits a body carrying the new status (proven 0-desync by
+// TestNoStatusMutationLeavesDesync) and legitimately changes other slots (title /
+// description / `**…-Details:**` meta blocks) that a bare-status helper would leave
+// stale. This helper is for the status-ONLY paths (subtask-status today; any future
+// bare-status write).
+//
+// NOTE (2026-07-20): "emit a body carrying the new status" no longer means
+// "regenerate from columns". `update` (SPK-481) and `reopen` (ATM-406) were BOTH
+// found to destroy authored body_md by regenerating from renderItemBody, and both now
+// PATCH the existing body through this same canonicalizeBodyStatusLine surgical
+// rewrite. Regeneration survives only where there is nothing to preserve (empty body)
+// or the caller explicitly replaces the freeform content (`update --description`).
 //
 // PROSE PRESERVATION: canonicalizeBodyStatusLine is a SURGICAL single-line rewrite —
 // every other line, including prose + `**Reopened-Details:**` / `**Operator-Block-

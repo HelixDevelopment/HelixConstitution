@@ -35,6 +35,7 @@ Subcommands:
   update --id <ID> --db <p> [--title|--severity|--description|--type|--status|--created-by|--assigned-to ...] [--location Issues|Fixed]
                                                         Mutate fields on an existing item (§11.4.34 audit).
   reopen --id <ID> --db <p> --why <reason> --who <AI|User> --when <ISO> --incident <p> [--location Issues|Fixed]
+  move --id <ID> --db <p> --to <Issues|Fixed> --why <text> [--status <S>] [--evidence <p>]
                                                         Set Status=Reopened with §11.4.34 source attribution.
   block --id <ID> --db <p> --details <T> [--why <T>] [--unblock <T>] [--who <T>] [--location Issues|Fixed]
                                                         Set Status=Operator-blocked with §11.4.21 details.
@@ -112,6 +113,8 @@ func main() {
 		runUpdate(args[1:])
 	case "reopen":
 		runReopen(args[1:])
+	case "move":
+		runMove(args[1:])
 	case "block":
 		runBlock(args[1:])
 	case "close":

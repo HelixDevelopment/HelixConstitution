@@ -13,10 +13,25 @@
 //   - block   — §11.4.21 operator-blocked status. Flips status to
 //               Operator-blocked and records operator_block_details. Rejects
 //               empty details.
+//   - move    — the general REVERSE-OF-CLOSE relocation: moves an item between the
+//               Issues and Fixed trackers (row + doc_segment) with an optional new
+//               status, WITHOUT the §11.4.34 reopen semantics (no Reopened-Details
+//               block, no 'Reopened' history event, so the §11.4.55 reopens_count
+//               signal is never inflated by a non-demotion transition). Refuses any
+//               destination/status pair that would create an INTEG-03 desync.
 //
-// All three keep the byte-identical round-trip invariant intact: after the
-// status/field change the item's body_md is regenerated with renderItemBody so a
-// subsequent `sync db-to-md` emits a well-formed, re-parseable tracker block.
+// All four keep the byte-identical round-trip invariant intact, and all four are
+// BODY-PRESERVING: a mutation patches ONLY the slots it actually changes in the
+// existing body_md (the `## <ID> — <title>` heading, the `**Status:**` line, its own
+// `**…-Details:**` meta line) and leaves every other authored line byte-for-byte.
+// Regeneration from renderItemBody is permitted ONLY where there is nothing to
+// preserve (an empty body) or where the caller explicitly replaces the freeform
+// content (`update --description`). Regenerating unconditionally is the §11.4.93
+// truncation defect this file has now been fixed for twice: `update --severity`
+// collapsed SPK-481 10 KB → 294 bytes, and `reopen` collapsed ATM-406 3740 → 328
+// bytes (91%), each destroying operator-authored forensic anchors, gate definitions
+// and cross-references that exist in NO column.
+//
 // Each operation runs in a single transaction (items row + body_md +
 // item_history audit, plus operator_block_details for block) so a crash never
 // leaves a half-applied mutation.
@@ -345,7 +360,7 @@ func reopenCmd(args []string) int {
 	dest := strings.TrimSpace(*location)
 
 	cur.Status = "Reopened"
-	newBody := renderReopenedBody(cur, byVal, *when, *why, *incident)
+	newBody := reopenedBody(cur, byVal, *when, *why, *incident)
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -404,13 +419,288 @@ func reopenCmd(args []string) int {
 	return exitOK
 }
 
-// renderReopenedBody regenerates the item body for a Reopened item, embedding the
-// §11.4.34 `**Reopened-Details:**` line so the regenerated Markdown carries the
-// four attribution facts within the heading-adjacent meta block.
-func renderReopenedBody(it *item, by, when, why, incident string) string {
-	body := renderItemBody(it.AtmID, it.Title, it.Type, it.Severity, it.Description, "Reopened", it.CreatedBy, it.AssignedTo)
+// reopenedBody produces the body_md for a Reopened item, PRESERVING the authored
+// freeform content.
+//
+// §11.4.93 data-integrity — the reopen half of the body-preservation contract that
+// `update` already carries (see updateCmd's field-only path above). Forensic anchor
+// (FACT, measured on a throwaway copy of the live DB, 2026-07-20): `reopen --id
+// ATM-406` collapsed that item's authored body_md 3740 → 328 bytes (91% destroyed),
+// losing the verbatim user-mandate forensic anchor, the Phase 39.P source-fix
+// description, the `CM-P-PRIMARY-INTERACTIVE` 5-invariant gate + its paired mutation,
+// and every cross-reference. Root cause: the pre-fix renderReopenedBody regenerated
+// the body from COLUMNS via renderItemBody — a minimal template — rather than patching
+// the existing body, so every line the columns do not carry was destroyed. `update`
+// received the preservation fix (SPK-481, 10 KB → 294 bytes); `reopen` never did.
+//
+// A reopen changes exactly TWO things a body must reflect, so exactly two slots are
+// patched and every other line is preserved byte-for-byte:
+//   - the `**Status:**` line → "Reopened" (canonicalizeBodyStatusLine is a SURGICAL
+//     single-line rewrite and a STRICT no-op when the line already reads Reopened);
+//   - the §11.4.34 `**Reopened-Details:**` meta line → UPSERTed (replaced in place when
+//     the item was reopened before, so re-reopening never stacks duplicate detail
+//     lines; inserted into the heading-adjacent meta block otherwise).
+//
+// Two shapes are handled explicitly rather than by regeneration:
+//   - representation == "table" (a legacy Fixed.md pipe-table closure row, parseFixed's
+//     emitLegacyTable): a pipe row has NO meta block, so injecting a `**Reopened-
+//     Details:**` line would corrupt the table and emitting an H2 block would make the
+//     row unparseable on the next round-trip (the F-DBTOOL-2 defect class updateCmd
+//     documents). The row is preserved verbatim; the four §11.4.34 attribution facts
+//     are still captured in full by the item_history row reopenCmd writes, which is the
+//     query-able audit surface §11.4.34 mandates.
+//   - an EMPTY body: the ONLY case where regeneration is correct (there is nothing to
+//     preserve, and canonicalizeBodyStatusLine is a documented no-op on an empty body,
+//     so patching alone would leave the item body-less). Mirrors the empty-body class
+//     owned by repair-bodies / renderItemBody.
+func reopenedBody(it *item, by, when, why, incident string) string {
 	detail := fmt.Sprintf("**Reopened-Details:** By: %s On: %s Reason: %s Evidence: %s", by, when, why, incident)
-	return insertMetaLine(body, detail)
+
+	if it.repOrDefault() == "table" {
+		return ensureTrailingNewline(it.BodyMD)
+	}
+	if strings.TrimSpace(it.BodyMD) == "" {
+		body := renderItemBody(it.AtmID, it.Title, it.Type, it.Severity, it.Description, "Reopened", it.CreatedBy, it.AssignedTo)
+		return ensureTrailingNewline(insertMetaLine(body, detail))
+	}
+	body := canonicalizeBodyStatusLine(it.BodyMD, "Reopened")
+	body = upsertMetaLine(body, "**Reopened-Details:**", detail)
+	return ensureTrailingNewline(body)
+}
+
+// upsertMetaLine REPLACES the first `**Key:** …` metadata line whose prefix matches
+// key, preserving that line's original newline; when no such line exists it delegates
+// to insertMetaLine (insert into the heading-adjacent meta block). Every other line is
+// preserved byte-for-byte.
+//
+// Why replace rather than always insert: a second reopen of an already-reopened item
+// would otherwise stack a duplicate `**Reopened-Details:**` line on every cycle, and
+// the §11.4.34 walk-pattern gates read the detail line adjacent to the heading — two
+// contradictory detail lines is a §11.4.6 ambiguity, not an audit trail (the audit
+// trail is the append-only item_history table, which correctly keeps EVERY reopen).
+func upsertMetaLine(body, key, metaLine string) string {
+	lines := splitKeepNewlines(body)
+	for i, ln := range lines {
+		if strings.HasPrefix(strings.TrimRight(ln, "\n"), key) {
+			nl := ""
+			if strings.HasSuffix(ln, "\n") {
+				nl = "\n"
+			}
+			// F1 (§11.4.34 / §11.4.6): when the matched line is the
+			// `**Reopened-Details:**` header, a PRIOR reopen may have written its
+			// attribution as a MULTI-LINE bulleted block (the ATM-393/398/448 live
+			// shape) whose `- **(By|On|Reason|Evidence):**` bullets do NOT start with
+			// the header key. Replacing only the header would leave those bullets
+			// ORPHANED — a contradictory dual attribution, the exact ambiguity this
+			// upsert exists to prevent. So ALSO consume the CONTIGUOUS run of
+			// attribution bullets IMMEDIATELY following the matched header, so a
+			// single canonical inline attribution survives. Only the immediately-
+			// following contiguous run is consumed: a blank line or any
+			// non-`- **(By|On|Reason|Evidence):**` line ends the run, so a body-
+			// content bullet elsewhere is never touched (§11.4.201(7)(a)
+			// carrier-vs-thing). Scoped to the Reopened-Details header so no other
+			// upsert path is affected.
+			end := i + 1
+			if key == "**Reopened-Details:**" {
+				for end < len(lines) && isReopenedDetailBullet(lines[end]) {
+					end++
+				}
+			}
+			out := make([]string, 0, len(lines)-(end-i-1))
+			out = append(out, lines[:i]...)
+			out = append(out, metaLine+nl)
+			out = append(out, lines[end:]...)
+			return strings.Join(out, "")
+		}
+	}
+	return insertMetaLine(body, metaLine)
+}
+
+// isReopenedDetailBullet reports whether a body line is one of the four §11.4.34
+// `**Reopened-Details:**` attribution bullets (`- **By:**` / `- **On:**` /
+// `- **Reason:**` / `- **Evidence:**`) that the pre-1.2.1 MULTI-LINE reopen shape
+// emitted (the ATM-393/398/448 live shape). upsertMetaLine uses it to consume the
+// contiguous bullet run a prior multi-line reopen left behind. Matches the exact
+// canonical bullet prefix only — no leading-whitespace tolerance — so an indented
+// or differently-shaped body bullet is never mistaken for one
+// (§11.4.201(7)(a) match-structure-not-substring).
+func isReopenedDetailBullet(line string) bool {
+	s := strings.TrimRight(line, "\n")
+	for _, f := range []string{"By", "On", "Reason", "Evidence"} {
+		if strings.HasPrefix(s, "- **"+f+":**") {
+			return true
+		}
+	}
+	return false
+}
+
+// ---- move ----
+
+// runMove implements `move --id <ID> --to <Issues|Fixed> [--status <S>]
+// --why <text> [--evidence <p>] --db <p>`.
+func runMove(args []string) {
+	os.Exit(moveCmd(args))
+}
+
+// moveCmd is the general REVERSE-OF-CLOSE relocation: it moves an item between the
+// Issues and Fixed trackers (row + doc_segment) and optionally sets a new §11.4.15
+// status, LOSSLESSLY — the authored body_md is preserved byte-for-byte apart from the
+// surgical `**Status:**` line sync.
+//
+// WHY THIS EXISTS (and is NOT `reopen --status`): `reopen` is the §11.4.34 mechanism
+// and carries §11.4.34 semantics — it forces status='Reopened', writes a
+// `**Reopened-Details:**` attribution block into the body, and mints a `Reopened`
+// item_history event. §11.4.34's `Reopened` presupposes a closure to demote FROM
+// (§11.4.7), and the reopen event feeds the §11.4.55 reopens_count that §11.4.132(d)
+// + §11.4.189 use to rank the most-fragile work for the deepest live scrutiny.
+// Routing a NON-demotion transition through `reopen` would therefore (a) assert a
+// defect in a fix that has none and (b) INFLATE the reopens_count, corrupting exactly
+// the prioritisation signal §11.4.214 exists to keep true. The canonical case: a fix
+// that has landed and is wired but whose runtime GREEN is still owed (§11.4.69
+// `artifact_not_yet_built`) belongs at `Ready for testing` in Issues — a relocation,
+// not a reopen.
+//
+// LOCATION↔STATUS INVARIANT (§11.4.15 / ATM-627 INTEG-03, enforced not assumed): a
+// terminal `… (→ Fixed.md)` status belongs at Fixed and a non-terminal status belongs
+// at Issues. move REFUSES a combination that would CREATE the very INTEG-03 desync
+// validate catches, so this command can never be the source of the defect class it
+// exists to repair. The predicate is terminalStatuses() — the same closed set
+// fixedLocationNonTerminalStatus (sync.go) checks against, so the guard and the
+// detective gate can never drift apart.
+func moveCmd(args []string) int {
+	fs := flag.NewFlagSet("move", flag.ContinueOnError)
+	dbPath := fs.String("db", "", "path to the workable-items SQLite DB")
+	id := fs.String("id", "", "ticket id of the item to move (required)")
+	to := fs.String("to", "", "destination tracker: Issues | Fixed (required)")
+	status := fs.String("status", "", "new §11.4.15 status to set during the move (optional; must satisfy the location↔status invariant)")
+	why := fs.String("why", "", "reason for the move, recorded in the item_history audit row (required)")
+	evidence := fs.String("evidence", "", "captured-evidence path for the audit row (§11.4.5)")
+	if err := fs.Parse(args); err != nil {
+		return exitUsage
+	}
+	set := map[string]bool{}
+	fs.Visit(func(f *flag.Flag) { set[f.Name] = true })
+
+	if *dbPath == "" {
+		fmt.Fprintln(os.Stderr, "move: --db is required")
+		return exitUsage
+	}
+	if strings.TrimSpace(*id) == "" {
+		fmt.Fprintln(os.Stderr, "move: --id is required")
+		return exitUsage
+	}
+	dest := strings.TrimSpace(*to)
+	if dest != "Issues" && dest != "Fixed" {
+		fmt.Fprintln(os.Stderr, "move: --to is required and must be Issues or Fixed")
+		return exitUsage
+	}
+	// The audit row is the whole point of routing a relocation through the tool
+	// rather than a raw UPDATE; an unexplained relocation is a §11.4.6 gap.
+	if strings.TrimSpace(*why) == "" {
+		fmt.Fprintln(os.Stderr, "move: --why is required (recorded in the item_history audit row)")
+		return exitUsage
+	}
+
+	db, err := openDB(*dbPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "move: %v\n", err)
+		return exitUsage
+	}
+	defer db.Close()
+
+	// Auto-detect the item's CURRENT location (Issues first, then Fixed), mirroring
+	// reopen — the caller states the DESTINATION, never has to know the source.
+	srcLoc := "Issues"
+	cur, err := loadItem(db, *id, srcLoc)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "move: %v\n", err)
+		return exitUsage
+	}
+	if cur == nil {
+		srcLoc = "Fixed"
+		cur, err = loadItem(db, *id, srcLoc)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "move: %v\n", err)
+			return exitUsage
+		}
+	}
+	if cur == nil {
+		fmt.Fprintf(os.Stderr, "move: item %s not found in Issues or Fixed\n", *id)
+		return exitUsage
+	}
+
+	newStatus := cur.Status
+	if set["status"] {
+		newStatus = normalizeStatus(*status)
+	}
+	// §11.4.15 / INTEG-03 guard — refuse to create the desync, naming the real
+	// resolved values so the refusal is actionable (§11.4.201(5)).
+	terminal := terminalStatuses()
+	if dest == "Fixed" && !terminal[strings.TrimSpace(newStatus)] {
+		fmt.Fprintf(os.Stderr, "move: refusing — status %q is NON-terminal and cannot live at Fixed "+
+			"(§11.4.15/ATM-627 INTEG-03: a Fixed-location item must carry a terminal `… (→ Fixed.md)` status)\n", newStatus)
+		return exitUsage
+	}
+	if dest == "Issues" && terminal[strings.TrimSpace(newStatus)] {
+		fmt.Fprintf(os.Stderr, "move: refusing — status %q is TERMINAL and belongs at Fixed, not Issues "+
+			"(§11.4.15; pass --status with a non-terminal value to move it back to Issues)\n", newStatus)
+		return exitUsage
+	}
+
+	// Lossless body: preserve the authored content, syncing ONLY the `**Status:**`
+	// line when the status actually changed (canonicalizeBodyStatusLine is a STRICT
+	// no-op otherwise, so a pure relocation leaves body_md byte-identical).
+	newBody := ensureTrailingNewline(canonicalizeBodyStatusLine(cur.BodyMD, newStatus))
+
+	tx, err := db.Begin()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "move: begin: %v\n", err)
+		return exitUsage
+	}
+	defer tx.Rollback()
+
+	// Relocate in place (an UPDATE, never delete+insert) so every column a
+	// delete+insert would drop — forensic_anchor / closure_criteria / composes_with /
+	// version_tags / assignment — survives. Scoped by representation so a
+	// dual-representation item's sibling row is never clobbered (F-DBTOOL).
+	if _, err := tx.Exec(`UPDATE items SET status=?, current_location=?, body_md=?, last_modified=datetime('now')
+		WHERE atm_id=? AND current_location=? AND representation=?`,
+		newStatus, dest, newBody, *id, srcLoc, cur.repOrDefault()); err != nil {
+		fmt.Fprintf(os.Stderr, "move: %v\n", err)
+		return exitUsage
+	}
+	// The doc_segment moves with the row — otherwise `sync db-to-md` would still
+	// render the item under its OLD document (the ATM-627 dangling-segment class).
+	if dest != srcLoc {
+		if err := removeItemSegment(tx, srcLoc, *id); err != nil {
+			fmt.Fprintf(os.Stderr, "move: remove %s segment: %v\n", srcLoc, err)
+			return exitUsage
+		}
+		if err := appendSegment(tx, dest, *id); err != nil {
+			fmt.Fprintf(os.Stderr, "move: append %s segment: %v\n", dest, err)
+			return exitUsage
+		}
+	}
+	// 'Updated' is the correct event_type: the schema's item_history CHECK is a
+	// CLOSED set ('Opened','Updated','Reopened','Fixed','Implemented','Completed',
+	// 'Obsolete') and a relocation is deliberately NOT a 'Reopened' event (see the
+	// §11.4.55 reopens_count rationale above). Adding a 'Moved' member would be a
+	// live-schema migration whose blast radius exceeds this fix.
+	if err := recordHistory(tx, *id, "Updated", "AI", *why, strings.TrimSpace(*evidence)); err != nil {
+		fmt.Fprintf(os.Stderr, "move: history: %v\n", err)
+		return exitUsage
+	}
+	if err := tx.Commit(); err != nil {
+		fmt.Fprintf(os.Stderr, "move: commit: %v\n", err)
+		return exitUsage
+	}
+
+	if dest != srcLoc {
+		fmt.Printf("move: %s relocated %s→%s (status=%s, reason=%s)\n", *id, srcLoc, dest, newStatus, *why)
+	} else {
+		fmt.Printf("move: %s stays in %s (status=%s, reason=%s)\n", *id, dest, newStatus, *why)
+	}
+	return exitOK
 }
 
 // ---- block ----
