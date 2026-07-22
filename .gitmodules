@@ -7,3 +7,6 @@
 [submodule "submodules/continuum"]
 	path = submodules/continuum
 	url = git@github.com:vasic-digital/continuum.git
+[submodule "submodules/anti_bluff"]
+	path = submodules/anti_bluff
+	url = git@github.com:vasic-digital/anti_bluff.git
