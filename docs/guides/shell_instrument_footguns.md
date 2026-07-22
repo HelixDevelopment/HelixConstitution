@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Revision | 2 |
+| Revision | 3 |
 | Created | 2026-07-22 |
-| Last modified | 2026-07-22T20:17:29Z |
+| Last modified | 2026-07-22T21:02:04Z |
 | Status | active |
 | Authority | Constitution §11.4.201(7)(12) + §11.4.67(6). Consulted by EVERY §11.4.142/§11.4.209 code review that touches a shell-based test, gate, guard, or measurement. |
 | Scope | Universal (§11.4.17) — inherited by reference (§11.4.28/§11.4.177), never copied per project. |
@@ -65,6 +65,14 @@ Every entry below is a shell construct that returns a **clean, confident, WRONG 
 - **Wrong confident answer:** a quiet zero — read as absence — from a query that could never match anything.
 - **Countermeasure + needle:** §11.4.201(7)(b)(c) verbatim — the control needle MUST carry the SAME load-bearing query features (dialect constructs, anchoring, quoting, encoding); a bare-literal needle certifies nothing about an alternation/anchored/encoded query.
 
+### I7. A watchdog subshell spawned inside `$(...)` holds the pipe write-end — the substitution stalls to the FULL budget after instant work
+
+- **Construct:** a background watchdog / timeout subshell started INSIDE code whose output is captured via command-substitution — `out=$(probe)` where `probe` runs `( sleep "$budget"; kill ... ) & wd=$!` as its bound and later disarms it early with `kill "$wd"`.
+- **Wrong confident answer:** the `$(...)` read returns only at EOF on its pipe, and EOF requires EVERY write-end fd closed — the watchdog subshell AND its external-`sleep` child inherited that write-end at spawn; killing the subshell ORPHANS the `sleep`, which keeps the fd open until the budget elapses (demonstrated in bash, where `sleep` forks as an external child; in shells whose `sleep` is a builtin the subshell itself sleeps and dies with the disarm — the GENERAL class, any grandchild holding the write-end, remains). The substitution stalls for the FULL timeout budget even though the real work completed instantly, with every verdict and exit code CORRECT — read as "the probe is slow / hit its timeout / the host is wedged" while everything is healthy (a §11.4.201(1)-class false signal at the TIMING layer; no verdict-checking gate can see it because no verdict is wrong).
+- **Demonstrated:** forensic incident measured 2026-07-23 (a consuming toolchain's install re-review): a fast-stub probe read via command-substitution took 15s — exactly the watchdog budget — while the SAME probe writing to a file took 0s; every install/verify seam stalled +15s on a perfectly healthy host. Control re-demonstration run 2026-07-22T20:36Z UTC (transcript-captured 20:41Z), 3/3 deterministic iterations: naive `$(...)` capture 5006–5007 ms == the full 5000 ms budget on instant work; the SAME probe to a file 43–46 ms (the pipe IS the mechanism); the fd-redirected watchdog 43–45 ms with output intact; a genuinely-wedged probe under the fixed watchdog still bounded at rc=124 ≈ budget (the protective function survives the fix). Repro caution, itself measured: an immediate disarm can RACE the watchdog before it forks its `sleep` — no orphan, no stall; a deterministic repro waits for the grandchild (`pgrep -P "$wd"` — parent-PID match, never cmdline, per I2) before disarming, mirroring real work taking >0 time.
+- **Countermeasure:** redirect the watchdog subshell's fds away from the cmd-subst pipe at spawn — `( sleep "$budget"; kill ... ) >/dev/null 2>&1 &` — or have the probe write its output to a FILE the caller reads instead of being captured via `$(...)`. Both preserve the watchdog's bound PROVIDED the watchdog kills the WORK process (or its process group), never merely the enclosing probe shell: a watchdog that kills only the shell leaves a wedged external child holding the write-end, and the stall becomes the CHILD's lifetime — unbounded by the budget. With the work as the kill target, genuinely-wedged work is still killed at budget with rc=124.
+- **Control needle:** time a KNOWN-instant probe through the SAME `$(...)` capture path; elapsed ≈ the watchdog budget ⇒ the stall is the instrument's own pipe topology, NOT the probed work — the timing measurement says nothing about the work until the needle reads ~0.
+
 ## Part B — Code-side footguns (the shipped shell code lies to its host)
 
 ### C1. Bare `exec` with side redirections in a SOURCED function mutates the caller's shell permanently
@@ -77,5 +85,6 @@ Every entry below is a shell construct that returns a **clean, confident, WRONG 
 ## Sources / evidence
 
 - Control-experiment demonstrations (I1, I2, I3, I4): 2026-07-23, HEL-010 constitution-promotion session — transcript-captured runs (`timeout` on a function → rc=127; `pgrep -fa` unique-needle self-match; column-0-`}` heredoc truncation dropping the tail sentinel; one-line xtrace then blindness after `exec 2>/dev/null`).
+- Control-experiment demonstration (I7): run 2026-07-22T20:36Z UTC, transcript-captured 20:41Z (2026-07-23 local), HEL-010 harvest delta — hermetic repro, 3/3 deterministic iterations, four scenarios (naive `$(...)` stall == full budget; same probe to file ~0; fd-redirected watchdog ~0 with output intact; wedged probe still bounded rc=124), field incident first measured 2026-07-23 by a consuming toolchain's install re-review (cmd-subst read 15s == budget vs file-write 0s).
 - Forensic incidents: 2026-07-22 sourced-`exec` stderr silencing + its xtrace-blinded investigation (§11.4.67(6) FACT); 2026-07-13 `pgrep -f` build-guard false-refusal (§11.4.201 forensic anchor); 2026-07-17 carrier/measurement harvest (I5, I6 — §11.4.201(6)(7) FACTs).
 - Export note (§11.4.65, honest): `.html`/`.pdf` twins for this document are NOT generated in this commit — the governance-twin exporter is not yet a documented runnable in-repo script (the Rev-60 probed finding); twins are owed to the exporter commit, no silent divergence claimed (§11.4.106(E)).
