@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Revision | 1 |
-| Created | 2026-07-23 |
-| Last modified | 2026-07-22T19:20:00Z |
+| Revision | 2 |
+| Created | 2026-07-22 |
+| Last modified | 2026-07-22T20:17:29Z |
 | Status | active |
 | Authority | Constitution §11.4.201(7)(12) + §11.4.67(6). Consulted by EVERY §11.4.142/§11.4.209 code review that touches a shell-based test, gate, guard, or measurement. |
 | Scope | Universal (§11.4.17) — inherited by reference (§11.4.28/§11.4.177), never copied per project. |

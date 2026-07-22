@@ -2,14 +2,14 @@
 
 | Field | Value |
 |---|---|
-| Revision | 2 |
+| Revision | 3 |
 | Created | 2026-05-14 |
-| Last modified | 2026-05-20 |
+| Last modified | 2026-07-22T20:17:29Z |
 | Status | active |
-| Status summary | Universal engineering constitution shared by every project that includes this repository as a Git submodule. Recent additions (2026-05-20): §11.4.73–78 (spec-versioning, submodule-catalogue-first, containers mandate, mechanical enforcement, regeneration mandate, CodeGraph mandate); new QWEN.md for the Qwen Code CLI agent; new `submodules-catalogue.md` enumerating all 142 owned-by-us repositories. |
+| Status summary | Universal engineering constitution shared by every project that includes this repository as a Git submodule. R3 refresh (2026-07-23 — review Minor M3 of the 2026-07-23 round): the anchor corpus now extends through §11.4.225 (scheduler-quota burst-throttling telemetry + interactive-scope isolation) plus the §12.11/§12.12 host-safety axes, with governance mirrored in lockstep across CLAUDE.md / AGENTS.md / QWEN.md / GEMINI.md (§11.4.157); the authoritative per-round history lives in Constitution.md's own header Status summary. The previous R2 blurb (Recent additions 2026-05-20: §11.4.73–78 ...) had been stale for roughly 150 anchors. |
 | Issues | none |
 | Issues summary | — |
-| Fixed | initial creation (R1, 2026-05-14); README overhaul + recent-additions refresh (R2, 2026-05-20). |
+| Fixed | initial creation (R1, 2026-05-14); README overhaul + recent-additions refresh (R2, 2026-05-20); revision-header + recent-anchor-coverage refresh (R3, 2026-07-23 — review Minor M3 of commit 698dd52). |
 | Fixed summary | — |
 | Continuation | — |
 
