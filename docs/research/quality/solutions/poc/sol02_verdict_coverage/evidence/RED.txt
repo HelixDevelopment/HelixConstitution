@@ -1,0 +1,3 @@
+FAIL: missing artifact verdict_gate.sh
+RESULT: RED
+exit=1

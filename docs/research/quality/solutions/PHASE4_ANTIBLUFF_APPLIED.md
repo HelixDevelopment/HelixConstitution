@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Revision | 1 |
-| Last modified | 2026-07-23T00:00:00Z |
+| Last modified | 2026-07-23T04:59:28Z |
 | Author | (T1/main - claude1) BG-QUALITY-ROOTCAUSE Phase 4 subagent, Fable, §11.4.182 |
 | Mandate | Operator directive (verbatim in §0) — full incorporation via the constitution submodule, new `anti_bluff` repos under vasic-digital via GitHub + GitLab CLIs, out-of-the-box for every consumer |
 | Inputs | `README.md` (this dir — 10 SOL docs + 11 POC suites, 65/65 GREEN RED-first), `../ROOT_CAUSE_ANALYSIS.md`, `../GAMECHANGERS_ANALYSIS.md`, `../TOOLING_STACK_VERIFICATION.md` |

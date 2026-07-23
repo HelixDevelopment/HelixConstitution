@@ -1,0 +1,11 @@
+PASS: A absent query + sighted needle -> CERTIFIED-ABSENT (0)
+PASS: B present -> exit 1 with the matching LINES printed (count is a lead, lines are the finding)
+PASS: C blind instrument -> exit 2 INSTRUMENT-BLIND, the zero is never reported as absence
+PASS: D structure-anchored query ignores the prose carrier -> CERTIFIED-ABSENT
+PASS: E alternation query + featureless needle -> refused (bare-literal needle certifies nothing)
+PASS: E2 alternation-carrying needle accepted -> CERTIFIED-ABSENT
+PASS: F1 hazard reproduced: naive 'cat | grep -q' under pipefail reads the PRESENT literal as ABSENT
+PASS: F2 nq_stream_contains reports PRESENT under pipefail (SIGPIPE-safe by construction)
+----------------------------------------
+RESULT: PASS=8 FAIL=0
+exit=0

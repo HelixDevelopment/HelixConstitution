@@ -1,0 +1,13 @@
+PASS: A1 terminal write with full custody chain succeeds
+PASS: A2 history row auto-written by the DB itself
+PASS: A3 sweep PASS on custody-clean DB
+PASS: B1 un-evidenced terminal write refused with custody message
+PASS: C1 sweep FAILs legacy DB and names the offending item
+PASS: D1 sweep does NOT flag an ordinary open item (false-positive guard)
+PASS: E1 un-staged Reopened flip refused
+PASS: E2 staged operator reopen recorded with by_actor=User (closes M6)
+PASS: F1 item_history is append-only (UPDATE refused)
+PASS: G1 identical-fingerprint verdict pair refused (§11.4.115(F))
+----------------------------------------
+RESULT: PASS=10 FAIL=0
+exit=0

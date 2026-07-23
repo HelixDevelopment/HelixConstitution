@@ -1,0 +1,11 @@
+PASS: queue non-empty -> exit 3
+PASS: A fresh guard on current fp not queued
+PASS: B never-executed guard queued
+PASS: C stale-fingerprint guard queued
+PASS: D over-budget-age guard queued
+PASS: E most-reopened (4) guard ordered FIRST (§11.4.189)
+PASS: F topology-absent guard enumerated, not queued (no false pressure)
+PASS: G empty registry -> blind (2)
+----------------------------------------
+RESULT: PASS=8 FAIL=0
+exit=0

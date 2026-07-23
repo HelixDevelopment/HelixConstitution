@@ -1,0 +1,10 @@
+PASS: A single blocks + identical mirrors -> clean
+PASS: B duplicated anchor block -> FAIL naming §11.4.208 (presence>=1 gates stayed green on this)
+PASS: C divergent mirror copies -> FAIL naming the anchor
+PASS: D mid-body citation of another anchor is a carrier, not a duplicate
+FAIL: E dotted sub-anchor false-flagged: rc=1 DUPLICATE-BLOCK: §11.4.10 appears as a block-start more than once in /tmp/.private/milos/tmp.dkE9yUX0xq/dotted.md
+DIVERGENT-MIRRORS: §11.4.10 differs between /tmp/.private/milos/tmp.dkE9yUX0xq/dotted.md and /tmp/.private/milos/tmp.dkE9yUX0xq/dotted.md
+ANCHOR-INTEGRITY: files=1 blocks=2 findings=2
+----------------------------------------
+RESULT: PASS=4 FAIL=1
+exit=1

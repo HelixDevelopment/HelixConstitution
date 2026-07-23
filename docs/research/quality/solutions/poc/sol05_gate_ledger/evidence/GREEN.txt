@@ -1,0 +1,10 @@
+PASS: A ledger generated: 1 implemented, 2 unimplemented
+PASS: F prose carrier in impl-dir does not count as implementation
+PASS: B unimplemented gate without registered deferral -> FAIL naming it
+PASS: C registered deferrals accepted (explicit debt is legal; silent debt is not)
+PASS: D unimplemented count above baseline -> ratchet FAIL
+PASS: E gate name vanished without citation -> FAIL (metric-gaming channel closed)
+PASS: E2 cited removal accepted
+----------------------------------------
+RESULT: PASS=7 FAIL=0
+exit=0

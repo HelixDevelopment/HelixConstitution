@@ -1,0 +1,8 @@
+PASS: A full coverage all-green -> exit 0
+PASS: B M9 shape (5 FAIL + 56 no-verdict) -> exit 1 AND uncovered=56 reported
+PASS: C zero FAILs + 1 uncovered -> exit 3 (absence blocks)
+PASS: D stale-fingerprint verdict treated as absent for the candidate (self-clearing)
+PASS: E topology-absent guard exempt (no false block) AND enumerated (never silent)
+----------------------------------------
+RESULT: PASS=5 FAIL=0
+exit=0

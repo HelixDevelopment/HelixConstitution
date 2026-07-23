@@ -1,0 +1,3 @@
+FAIL: missing artifact evidence_class_check.sh
+RESULT: RED
+exit=1

@@ -1,0 +1,13 @@
+FAIL: A ledger wrong: CM-ALPHA-CHECK	IMPLEMENTED	/tmp/.private/milos/tmp.48UaCQoKQ5/impl/alpha.sh
+CM-BETA-CHECK	IMPLEMENTED	/tmp/.private/milos/tmp.48UaCQoKQ5/impl/carrier.md
+CM-GAMMA-CHECK	UNIMPLEMENTED	- err: 
+FAIL: F .md carrier counted as implementation
+FAIL: B expected 1 naming CM-BETA-CHECK got 1: LEDGER-FAIL: CM-GAMMA-CHECK is UNIMPLEMENTED with no registered deferral (gate_id -> tracked item)
+LEDGER: unimplemented=1 baseline=3 fails=1
+PASS: C registered deferrals accepted (explicit debt is legal; silent debt is not)
+FAIL: D expected ratchet FAIL got 0: LEDGER: unimplemented=1 baseline=1 fails=0
+PASS: E gate name vanished without citation -> FAIL (metric-gaming channel closed)
+PASS: E2 cited removal accepted
+----------------------------------------
+RESULT: PASS=3 FAIL=4
+exit=1

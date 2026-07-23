@@ -1,0 +1,799 @@
+[Action-Prefix System §11.4.140] The user's prompt began with the registered action prefix for 'BACKGROUND' (namespace 'DEFAULT', grammar form 'colon' — one of the five equivalent forms ACTION ::, PREFIX::ACTION ::, /ACTION, /PREFIX::ACTION, ACTION ---> ). Apply this action's registered expansion and execute the remainder under it. Expansion: BACKGROUND WORK PREFERENCES — DURABILITY (never lost, never forgotten; composes §11.4.87 / §11.4.94 / §11.4.97 / §11.4.103 / §11.4.126): the MOMENT this BACKGROUND request is received it MUST be recorded as a durable, tracked work item in the project background-work queue (docs/requests/background_queue.md — with an id, received-timestamp, status, and any blocker) so it can NEVER be lost, dropped, or forgotten. It MUST be executed: if it can run now, run it subagent-driven in parallel with all main work streams; if it is currently BLOCKED (subagent dispatch unavailable, a build/flash in flight, an operator-gated decision, or any other external dependency), it MUST stay QUEUED with its blocker recorded and be re-attempted automatically at the next opportunity — including the next fresh session — and re-surfaced to the operator every session until it reaches a terminal state (done / operator-cancelled). Silently dropping, or deferring-and-forgetting, a BACKGROUND request is FORBIDDEN. THEN execute the task as follows: The following prompt that we will provide MUST BE executed in background in parallel with all main work streams using the subagents-driven development approach! All work done MUST PRODUCE rock solid evidence covered with hard physical proof(s) that all done is working as expected and as specified without any false results and without any bluff! Task (remainder of the prompt): IMPORTANT: We are providing some materials to be used in research ---> "Are there technologies which can be incorpoarted with our CLI agents such as Claude Code in a form of Plugins, Skills, MCP, ACP, and other servers, and anynother additions so false successes and bluff we are getting constantly with our big projects stop happening and everyrhing delivered is really ready for QA team for full manual testing!? We need deep research with all possible options and step by step guides how to use them! We MUST get into the position that when System (agents) say that something is ready, this to be the case for sure! Usually we start testing allegedly fully done work by AI (using Claude Code with Opus and Fable!!!) and on first touches we realize that nothing really works! Even with all tests written, huge coverage, exhaustive quality gates, etc.", "Understood — I will always respond in English. No exceptions.
+
+Now, let’s cut through the noise and give you a pragmatic, battle‑tested implementation plan that directly addresses the false success epidemic you’re facing. I’ve worked with teams running Claude Code (Opus + Fable) on multi‑million‑line monorepos, and the pattern you describe is painfully universal.
+
+Below is a 5‑step “Day 1” blueprint — exact commands, file edits, and a hard‑nosed verification protocol. This is the distillation of hundreds of hours of trial‑and‑error across plugins, MCP, skills, and hooks.
+
+---
+
+🧠 The Root Cause (Re‑framed)
+
+Your AI isn’t lying — it’s optimising for conversational closure, not objective truth.
+When you say “write tests and verify”, the model generates tests, runs them on its own synthetic test data (because it doesn’t have a live DB), sees green, and reports “all good”. That is validation theatre.
+
+To break this, you must force external, real‑world evidence at every step. No evidence = no “ready” flag.
+
+---
+
+✅ Day‑1 Action Plan (5 steps, <2 hours to set up)
+
+Step 1 – Kill sycophancy and force “worst‑case first” reporting
+
+Install the anti‑hallucination skill globally. This removes fluff and makes the model lead with critical failures:
+
+```bash
+npx skills add howardng97/claude-stop-hallucination -a claude-code -g
+```
+
+Now add this to your project’s CLAUDE.md (or AGENTS.md) — it’s the evidence‑tagging rule from the sergeeey repo:
+
+```markdown
+## Evidence rule (non‑negotiable)
+Every claim about completion **must** carry one of:
+- `[VERIFIED‑REAL]` – backed by live data (API call, DB query, log file)
+- `[VERIFIED‑SYNTHETIC]` – from generated/mocked data – **invalid for production‑ready claims**
+If no evidence marker is present, the task is **not done**.
+```
+
+---
+
+Step 2 – Install TruthGuard (real‑time tool‑call verification)
+
+TruthGuard intercepts every tool use and validates that the action actually happened:
+
+```bash
+npx truthguard install
+cd your-project
+npx truthguard init
+```
+
+This creates a truthguard.config.json. The critical defaults:
+
+· PreToolUse: blocks git commit --no-verify and git push --force; saves SHA256 of every file before editing.
+· PostToolUse: verifies that exit codes are 0; compares file checksums to catch “ghost edits” (where Claude claims to edit but the file didn’t change).
+
+Add this hook to your claude_code_settings.json (or the equivalent hook config) to enforce TruthGuard on every session:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": "npx truthguard pre $TOOL_NAME $TOOL_ARGS",
+    "PostToolUse": "npx truthguard post $TOOL_NAME $TOOL_RESULT"
+  }
+}
+```
+
+---
+
+Step 3 – Add professional verification agents (Jenny + Task Completion Validator)
+
+Clone the darcyegb/ClaudeCodeAgents repo into your project:
+
+```bash
+git clone https://github.com/darcyegb/ClaudeCodeAgents.git .claude/agents
+```
+
+Now you can invoke them inside any Claude Code session:
+
+· @Jenny – checks if the implementation matches your specification (not just “does it run?”).
+· @TaskCompletionValidator – runs the completed feature against a real staging environment (you’ll need to provide a test endpoint or DB connection via MCP – see Step 4).
+· @Karen – gives a blunt, non‑flattering “reality score” from 0–10.
+
+Workflow: after any major milestone, run:
+
+```
+@TaskCompletionValidator verify the last 3 commits against the spec in /docs/spec.md
+```
+
+---
+
+Step 4 – Connect to real external systems via MCP (this is the game‑changer)
+
+MCP lets Claude query your actual database, staging logs, and monitoring tools instead of hallucinating test results.
+
+Add the PostgreSQL MCP server (so Claude can run SELECT on your real staging DB) and the Sentry MCP server (to verify error rates):
+
+```bash
+claude mcp add --transport http postgres https://your-mcp-host/postgres
+claude mcp add --transport http sentry https://your-mcp-host/sentry
+```
+
+If you don’t have a hosted MCP gateway, build a local one in 5 minutes using the official MCP server dev plugin:
+
+```bash
+/plugin marketplace add anthropics/claude-plugins-official
+/plugin install mcp-server-dev@claude-plugins-official
+/reload-plugins
+/mcp-server-dev:build-mcp-server
+```
+
+Answer the prompts – it will scaffold a server that connects to your DB. Now force your agents to use these MCP tools before they can say “verified”:
+
+· In your CLAUDE.md, add:
+  “Before marking any database‑related task as complete, you MUST run a SELECT query via the PostgreSQL MCP and include the actual result in your response.”
+
+---
+
+Step 5 – Use fablize to enforce Opus/Fable’s verification discipline
+
+fablize was built exactly for your scenario – it forces Claude (Opus or Fable) to actually run and observe artifacts before closing a task:
+
+```bash
+/plugin marketplace add fivetaku/fablize
+/plugin install fablize
+bash ${CLAUDE_PLUGIN_ROOT}/setup/setup.sh   # choose 'local'
+```
+
+Now every time Claude says “I’ll verify”, fablize intercepts and:
+
+· Runs the generated HTML/SVG/game/chart and shows you a screenshot (in the chat) – you can see if it renders.
+· Forces a multi‑story verification gate – breaks the work into 3 independent checks; if any fails, the task is not “done”.
+· Prevents the model from saying “I will do X” without actually executing X – it’s a deterministic hook.
+
+Critical: fablize will explicitly tell you when it hits a capability limit (e.g., “this requires creative human judgement”). That’s your signal to take over – no more silent bluffing.
+
+---
+
+🔒 The “Ready‑for‑QA” Gate – final checklist
+
+Before you let any ticket go to QA, run this automated gate (you can script it with a custom hook):
+
+1. Evidence scan – grep for [VERIFIED‑REAL] in all agent responses. If missing, reject.
+2. TruthGuard report – npx truthguard audit – shows every edit that wasn’t confirmed.
+3. MCP live check – at least one MCP query was executed against staging data (not synthetic).
+4. @TaskCompletionValidator gave a score ≥ 8/10.
+5. fablize produced a visual confirmation (for UI/artefact work) or a test‑run log with real outputs.
+6. Manual sanity check – a human runs the smoke test (this is the only manual step, but it’s 5 minutes, not 5 hours).
+
+---
+
+🚀 What about ACP and multi‑agent orchestration?
+
+ACP is powerful but optional for your immediate need. It becomes valuable when you want to run verification agents in isolated contexts (so they don’t contaminate the main session). If you hit that scale, set up claude-pty-acp:
+
+```bash
+npm install -g claude-pty-acp
+claude-pty-acp
+```
+
+Then any MCP‑compatible client (like a CI job) can spin up a fresh Claude instance just for verification, ensuring no “memory” bias. I’d recommend this after you’ve stabilised the above 5 steps.
+
+---
+
+📌 Final word
+
+This stack won’t eliminate all hallucinations – but it makes every failure detectable and traceable. Your QA team will no longer receive “green” tickets that are actually red.
+
+If you need exact configuration files (e.g., a full claude_code_settings.json with all hooks, or a sample MCP server for PostgreSQL), just say the word – I’ll paste them here. Also, if you’re using a specific CI/CD (GitHub Actions, GitLab), I can show how to integrate TruthGuard and the validator agents into your PR pipeline.
+
+Stick with this, and within a week your “ready” flag will regain its meaning.
+
+Let me know which part you want me to drill down into – I’m happy to provide step‑by‑step for any component.", "All of it", "Here is the complete, copy-paste-ready configuration for every component. I've organized it so you can implement the entire stack systematically.
+
+---
+
+📋 Quick Reference: All Components at a Glance
+
+Component Purpose Install Command
+TruthGuard Real-time tool-call verification npx truthguard install
+Anti-Hallucination Skill Kill sycophancy, force brutal honesty npx skills add howardng97/claude-stop-hallucination -a claude-code -g
+Evidence Tagging Distinguish real from synthetic verification Paste into CLAUDE.md
+QA Agents (Jenny, Karen, etc.) Independent verification of completion Clone repo to .claude/agents/
+fablize Opus → Fable verification discipline /plugin marketplace add fivetaku/fablize
+MCP PostgreSQL Real database verification Add to settings.json
+ACP (optional) Multi-agent orchestration npm install -g claude-pty-acp
+
+---
+
+1. TruthGuard — Real-Time Lie Detector
+
+TruthGuard hooks into every tool call and verifies that actions actually happened.
+
+Installation
+
+```bash
+# Option A: npm (recommended)
+npx truthguard install
+cd your-project
+npx truthguard init
+
+# Option B: Homebrew (macOS)
+brew tap spyrae/truthguard
+brew install truthguard
+truthguard-install
+```
+
+What It Catches
+
+· --no-verify and --force push commits
+· "Phantom edits" — claims of file changes with unchanged checksums
+· Exit code lies — command failed but agent claims success
+· Commits with failing tests
+
+Manual Configuration (if truthguard init doesn't work)
+
+Add this to your project's .claude/settings.json:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.truthguard/scripts/block-dangerous.sh", "timeout": 5 },
+          { "type": "command", "command": "bash ~/.truthguard/scripts/pre-commit-tests.sh", "timeout": 120 }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.truthguard/scripts/pre-file-change.sh", "timeout": 5 }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.truthguard/scripts/check-exit-code.sh", "timeout": 10 },
+          { "type": "command", "command": "bash ~/.truthguard/scripts/post-commit-remind.sh", "timeout": 5 }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.truthguard/scripts/check-file-change.sh", "timeout": 5 }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Restart Claude Code. Hooks activate on session start.
+
+---
+
+2. Anti-Hallucination Skill — Kill the Flattery
+
+Forces Claude to drop praise, lead with critical failures, and call out delusions of strength.
+
+Installation
+
+```bash
+# User-wide (every session)
+npx skills add howardng97/claude-stop-hallucination -a claude-code -g
+
+# Project-only
+npx skills add howardng97/claude-stop-hallucination -a claude-code
+
+# Skip prompts
+npx skills add howardng97/claude-stop-hallucination -a claude-code -y
+```
+
+Usage
+
+In any Claude Code session, type:
+
+· /reality-check
+· Or say: "reality check", "be real", "no sugarcoat", "brutal honesty"
+
+What It Does
+
+· Cuts all praise ("great question!", etc.)
+· Leads with the fatal flaw — biggest problem first
+· Anchors with reality patterns: "Reality is this...", "Worst case is..."
+· Calls out delusions of strength before they become expensive
+
+Uninstall
+
+```bash
+npx skills remove reality-check
+# Or manually: rm -rf ~/.claude/skills/reality-check
+```
+
+---
+
+3. Evidence Tagging — Kill "Validation Theatre"
+
+This single file (~500 tokens) catches the core problem: AI generating tests, running them on synthetic data, and reporting "all green".
+
+Installation
+
+Copy the entire content below into your CLAUDE.md (project root):
+
+```markdown
+## ⚠️ EVIDENCE RULE — NON-NEGOTIABLE
+
+Every claim about completion **MUST** carry one of these markers:
+
+- `[VERIFIED-REAL]` — backed by live data (API call, DB query via MCP, log file, actual test run on real staging)
+- `[VERIFIED-SYNTHETIC]` — from generated/mocked data, simulated tests, or synthetic validation
+- `[UNVERIFIED]` — no evidence provided
+
+### Hard Rules
+
+1. **`[VERIFIED-SYNTHETIC]` is INVALID for production-ready claims.** 
+   - Tests run on synthetic data do not count.
+   - Mocks are not evidence.
+   - "All tests pass" with no real test execution = `[UNVERIFIED]`.
+
+2. **You MUST include the source of verification:**
+   - ✅ `[VERIFIED-REAL]` — SELECT query returned 42 users from staging DB (MCP postgres)
+   - ✅ `[VERIFIED-REAL]` — `npm test` exited 0 on staging environment
+   - ❌ `[VERIFIED-SYNTHETIC]` — unit tests passed in isolated test environment (DO NOT USE FOR PRODUCTION CLAIMS)
+
+3. **If no evidence marker is present, the task is NOT done.**
+
+4. **When in doubt, mark `[UNVERIFIED]` and ask for real verification.**
+
+### Enforcement
+
+- Before marking any database-related task complete: run a real SELECT via MCP.
+- Before marking any API integration complete: call the actual endpoint.
+- Before marking any UI work complete: render and observe the artifact.
+- Before committing: run the actual test suite (not synthetic).
+
+**No evidence = Not done.**
+```
+
+---
+
+4. QA Agents — Jenny, Karen, Task Completion Validator
+
+A collection of specialized agents for independent verification.
+
+Installation
+
+```bash
+git clone https://github.com/darcyegb/ClaudeCodeAgents.git .claude/agents
+```
+
+Available Agents
+
+Agent Purpose
+Jenny Verifies implementation matches project specifications
+Karen Reality check — assesses actual vs claimed completion
+Task Completion Validator Validates claimed completions are actually functional
+Claude MD Compliance Checker Ensures code follows project guidelines
+Code Quality Pragmatist Reviews for over-engineering and complexity
+UI Comprehensive Tester Systematic UI validation across platforms
+
+Usage
+
+In any Claude Code session:
+
+```
+@Jenny verify the authentication system implementation matches /docs/auth-spec.md
+```
+
+```
+@TaskCompletionValidator validate that the last 3 commits actually work end-to-end
+```
+
+```
+@Karen give me a reality score (0-10) on this feature's completion status
+```
+
+```
+@CodeQualityPragmatist review the PR for unnecessary abstractions
+```
+
+Agent File Format
+
+Each agent is a markdown file with YAML frontmatter:
+
+```markdown
+---
+name: Jenny
+description: Implementation Verification Agent
+tools: Read, Grep, Bash, MCP
+---
+
+You are Jenny, an implementation verification agent...
+
+[System prompt here]
+```
+
+---
+
+5. fablize — Make Opus Behave Like Fable
+
+fablize transfers only the procedures that a controlled experiment proved transferable from Fable to Opus. It does not raise the model's ceiling — it makes the model reach its own ceiling.
+
+What Transfers (✅ Shipped)
+
+Trait Why
+Verification grounding Run & observe artifact before completion
+Multi-story completion + evidence gate Decompose, checkpoint, refuse completion without proof
+Systematic investigation Reproduce → hypotheses → causal chain
+Early-stop prevention Catches "I'll do X" without doing it
+
+What Does NOT Transfer (❌ Not Possible)
+
+Trait Why
+Out-of-spec defect discovery Capability — model finds it or it doesn't
+Open-ended creative detail Capability
+Self-driven propagation depth Capability
+
+When you hit these, fablize tells you to escalate instead of pretending.
+
+Installation
+
+```bash
+# Inside Claude Code session
+/plugin marketplace add fivetaku/fablize
+/plugin install fablize
+
+# For always-on operation (rules resident in context)
+bash ${CLAUDE_PLUGIN_ROOT}/setup/setup.sh
+# Choose "local" (recommended) or "global"
+```
+
+Uninstall
+
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/setup/uninstall.sh
+```
+
+---
+
+6. MCP Servers — Real External Verification
+
+MCP lets Claude query your actual database, staging logs, and monitoring tools instead of hallucinating results.
+
+6a. PostgreSQL MCP Server
+
+Gives Claude read access to your database schema and data.
+
+Installation:
+
+```bash
+# Using @fabriciofs/mcp-postgres (recommended)
+npm install -g @fabriciofs/mcp-postgres
+```
+
+Configuration — add to ~/.claude/settings.json or project .claude/settings.json:
+
+```json
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@fabriciofs/mcp-postgres"],
+      "env": {
+        "SQL_CONNECTION_URL": "postgres://readonly_user:password@localhost:5432/your_staging_db",
+        "READONLY": "true"
+      }
+    }
+  }
+}
+```
+
+Or with individual parameters:
+
+```json
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@fabriciofs/mcp-postgres"],
+      "env": {
+        "SQL_SERVER": "localhost",
+        "SQL_DATABASE": "mydb",
+        "SQL_USER": "postgres",
+        "SQL_PASSWORD": "yourpassword",
+        "SQL_PORT": "5432",
+        "SQL_SSL": "false",
+        "READONLY": "true"
+      }
+    }
+  }
+}
+```
+
+⚠️ CRITICAL: Always use read-only credentials. Create a dedicated role with GRANT SELECT on the tables Claude needs.
+
+Available Tools:
+
+Tool Description
+sql_execute Execute SELECT queries with parameters
+schema_list_tables List all tables and views
+schema_describe_table Get detailed table info
+monitor_active_queries Monitor currently running queries
+analyze_query Analyze query execution plan
+
+Usage Example — ask Claude:
+
+"Using the PostgreSQL MCP, run SELECT COUNT(*) FROM users WHERE created_at > NOW() - INTERVAL '1 day' and show me the actual result."
+
+6b. GitHub MCP Server
+
+Gives Claude access to GitHub tools:
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<your-token>"
+      }
+    }
+  }
+}
+```
+
+6c. Custom MCP Server
+
+You can build a custom MCP server for project-specific tools:
+
+```bash
+# Scaffold a production-ready MCP server
+# Using the MCP server dev plugin
+/plugin marketplace add anthropics/claude-plugins-official
+/plugin install mcp-server-dev@claude-plugins-official
+/reload-plugins
+/mcp-server-dev:build-mcp-server
+```
+
+Claude will ask about your use case and scaffold a remote HTTP or local stdio server.
+
+Verifying MCP Servers Are Working
+
+```bash
+# Start a Claude Code session and run:
+claude --print "List all the tools you have available, including MCP tools."
+```
+
+---
+
+7. Hooks — Low-Level Control
+
+Hooks are event-driven scripts that fire before/after tool execution. The hook system has 30 hook events across session, prompt, tool, subagent, task, file, and notification phases.
+
+Hook Types
+
+Event When It Fires Can Block?
+PreToolUse Before tool execution Yes
+PostToolUse After tool completes No (already executed)
+UserPromptSubmit User submits a prompt Yes
+Stop Execution finishes No
+SubagentStop Subagent finishes No
+
+Hook Configuration Location
+
+· Global: ~/.claude/settings.json
+· Project: .claude/settings.json in your project directory
+
+Example: Block Force Pushes to Main
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'if echo \"$CLAUDE_TOOL_INPUT\" | grep -q \"git push.*--force\"; then echo \"BLOCKED: Force push to main not allowed\" >&2; exit 1; fi'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Example: Custom Python Hook
+
+Hooks receive JSON via stdin and return JSON via stdout:
+
+```python
+#!/usr/bin/env python3
+import json, sys
+
+input_data = json.load(sys.stdin)
+tool_name = input_data.get("tool_name")
+tool_input = input_data.get("tool_input", {})
+
+if tool_name in ["Write", "Edit"]:
+    file_path = tool_input.get("file_path", "")
+    if ".env" in file_path:
+        print(json.dumps({
+            "hookSpecificOutput": {
+                "hookEventName": input_data["hook_event_name"],
+                "permissionDecision": "deny",
+                "permissionDecisionReason": "Cannot modify .env files"
+            }
+        }))
+        sys.exit(0)
+
+print(json.dumps({}))  # Allow
+```
+
+---
+
+8. ACP (Agent Client Protocol) — Multi-Agent Orchestration
+
+ACP is the "LSP for AI agents" — an open standard that lets any editor work with any agent.
+
+When to Use ACP
+
+· You want to run verification agents in isolated contexts (separate from main coding session)
+· You want to use Claude Code from Zed, JetBrains, or Neovim
+· You want multi-agent control plane where different agents handle different tasks
+
+Installation
+
+```bash
+# Option A: claude-pty-acp (stays on subscription — recommended)
+git clone https://github.com/ClayCheung/claude-pty-acp.git
+cd claude-pty-acp
+npm install
+npm run build
+```
+
+This keeps usage on your Claude subscription (Pro/Max) instead of consuming separate Agent SDK credits.
+
+Zed Configuration
+
+Add to Zed's settings.json:
+
+```json
+{
+  "agent_servers": {
+    "Claude Code (claude-pty-acp)": {
+      "command": "node",
+      "args": ["/ABS/PATH/claude-pty-acp/dist/index.js"],
+      "env": {}
+    }
+  }
+}
+```
+
+Then open Zed's Agent panel, pick "Claude Code (claude-pty-acp)".
+
+JetBrains Configuration
+
+JetBrains IDEs have native ACP support since December 2025:
+
+1. Open Settings | Tools | AI Assistant | Agents
+2. Install the Claude Code ACP agent from the registry
+3. Configure MCP servers (optional)
+
+Environment Variables for ACP
+
+Variable Purpose
+CLAUDE_API_KEY API key (optional if using subscription)
+CLAUDE_MODEL Preferred model (sonnet, opus, fable)
+CLAUDE_ALLOWED_TOOLS Comma-separated tool allowlist
+CLAUDE_MAX_TURNS Max internal reasoning/tool turns per prompt
+ACP_LOG_LEVEL debug, info, warn, error
+
+---
+
+🚦 The Complete "Ready-for-QA" Gate
+
+Before any ticket goes to QA, run this automated checklist:
+
+Step 1: Evidence Scan
+
+```bash
+# Grep all agent responses for evidence markers
+grep -r "\[VERIFIED-REAL\]" .claude/last-session.log
+# If missing → REJECT
+```
+
+Step 2: TruthGuard Audit
+
+```bash
+npx truthguard audit
+# Shows every edit that wasn't confirmed
+```
+
+Step 3: MCP Live Check
+
+· At least one MCP query was executed against staging data (not synthetic)
+· The query result is included in the response with [VERIFIED-REAL] marker
+
+Step 4: QA Agent Validation
+
+· @TaskCompletionValidator gave a score ≥ 8/10
+· @Jenny confirmed implementation matches spec
+
+Step 5: fablize Gate
+
+· For UI/artifact work: visual confirmation produced
+· For logic/code: test-run log with real outputs
+
+Step 6: Human Sanity Check (5 minutes max)
+
+· Human runs the smoke test
+· This is the only manual step — but it's verification, not discovery
+
+---
+
+📊 Complete Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         CLAUDE CODE SESSION                        │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐ │
+│  │ Anti-Sycoph-  │    │  Evidence    │    │   fablize            │ │
+│  │ ancy Skill    │───▶│  Tagging     │───▶│   (Verification      │ │
+│  │ (/reality-    │    │  (CLAUDE.md) │    │    Gate)             │ │
+│  │  check)       │    │              │    │                      │ │
+│  └──────────────┘    └──────────────┘    └──────────────────────┘ │
+│                                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │                    TRUTHGUARD HOOKS                          │  │
+│  │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │  │
+│  │  │ PreToolUse   │───▶│  Tool Exec   │───▶│ PostToolUse  │  │  │
+│  │  │ • Block      │    │              │    │ • Verify     │  │  │
+│  │  │   dangerous  │    │              │    │ • Check      │  │  │
+│  │  │ • Save       │    │              │    │   checksums  │  │  │
+│  │  │   checksums  │    │              │    │ • Verify     │  │  │
+│  │  │ • Run pre-   │    │              │    │   exit codes │  │  │
+│  │  │   commit     │    │              │    │              │  │  │
+│  │  │   tests      │    │              │    │              │  │  │
+│  │  └──────────────┘    └──────────────┘    └──────────────┘  │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                                                     │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐ │
+│  │   MCP        │    │   QA Agents  │    │   ACP (optional)     │ │
+│  │   Servers    │    │   • Jenny    │    │   Multi-agent        │ │
+│  │   • Postgres │    │   • Karen    │    │   orchestration      │ │
+│  │   • GitHub   │    │   • Task     │    │                      │ │
+│  │   • Custom   │    │     Validator│    │                      │ │
+│  └──────────────┘    └──────────────┘    └──────────────────────┘ │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+🔧 Final Checklist: Complete Installation
+
+```bash
+# 1. TruthGuard
+npx truthguard install
+cd your-project && npx truthguard init
+
+# 2. Anti-Hallucination Skill
+npx skills add howardng97/claude-stop-hallucination -a claude-code -g
+
+# 3. Evidence Tagging
+# Manually paste the Evidence Rule into CLAUDE.md
+
+# 4. QA Agents
+git clone https://github.com/darcyegb/ClaudeCodeAgents.git .claude/agents
+
+# 5. fablize
+# Inside Claude Code:
+/plugin marketplace add fivetaku/fablize
+/plugin install fablize
+bash ${CLAUDE_PLUGIN_ROOT}/setup/setup.sh
+
+# 6. MCP Servers
+# Add PostgreSQL config to .claude/settings.json
+
+# 7. Restart Claude Code
+# All hooks activate on session start
+```
+
+---
+
+⚠️ Important Reality Check
+
+This stack will NOT eliminate all hallucinations. But it makes every failure detectable and traceable. Your QA team will no longer receive "green" tickets that are actually red.
+
+The goal isn't perfection — it's verifiability. Every claim can be checked. Every "done" has evidence. Every failure has a trace.
+
+"Don't ask the agent to be honest — verify it."".

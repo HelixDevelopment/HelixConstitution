@@ -1,0 +1,8 @@
+PASS: A single blocks + identical mirrors -> clean
+PASS: B duplicated anchor block -> FAIL naming §11.4.208 (presence>=1 gates stayed green on this)
+PASS: C divergent mirror copies -> FAIL naming the anchor
+PASS: D mid-body citation of another anchor is a carrier, not a duplicate
+PASS: E dotted sub-anchor (§11.4.10.A) is distinct from §11.4.10 — no false duplicate
+----------------------------------------
+RESULT: PASS=5 FAIL=0
+exit=0

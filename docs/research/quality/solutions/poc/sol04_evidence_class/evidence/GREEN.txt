@@ -1,0 +1,8 @@
+PASS: A user-visible defect + real runtime evidence accepted
+PASS: B grep transcript wearing a runtime label refused (PC-8 class closed)
+PASS: C runtime label without required machine fields refused
+PASS: D source-layer defect + source evidence accepted (no false refusal)
+PASS: E unreadable evidence -> blind (2), never accepted
+----------------------------------------
+RESULT: PASS=5 FAIL=0
+exit=0

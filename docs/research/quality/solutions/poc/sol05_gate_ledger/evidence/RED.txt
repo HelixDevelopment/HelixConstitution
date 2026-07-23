@@ -1,0 +1,3 @@
+FAIL: missing artifact gate_ledger.sh
+RESULT: RED
+exit=1

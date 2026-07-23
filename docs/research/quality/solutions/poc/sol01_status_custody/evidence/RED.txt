@@ -1,0 +1,5 @@
+FAIL: missing artifact custody_schema.sql
+FAIL: missing artifact custody_triggers.sql
+FAIL: missing artifact custody_sweep.sh
+RESULT: RED (3 missing artifacts)
+exit=1
