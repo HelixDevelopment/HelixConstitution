@@ -11,7 +11,12 @@
 #   (c) an Android `clientId=...AudioManager@...AudioManager$$Synthetic...@hex`
 #       logcat object reference,
 #   (d) a BINARY `*.db` blob embedding an email + a password-shaped token
-#       (proves the .db binary-skip prevents the detector-2 false positive).
+#       (proves the .db binary-skip prevents the detector-2 false positive),
+#   (i) a `PASSWORD=CHANGE_ME` / `api_key=PLACEHOLDER` config-template line
+#       (carrier-strip #8a placeholder-value allowlist),
+#   (j) a `SECRET=…must_not_leak…` test-fixture sentinel (carrier-strip #8a),
+#   (k) a `data:image/png;base64,<blob>` whose base64 image bytes randomly
+#       contain an AKIA-shaped run (carrier-strip #8b base64-image data-URI).
 # GOLDEN-BAD (MUST all be CAUGHT — real leaks):
 #   (1) `user@company.com : S3cretPass99`  (email+password adjacency, lc TLD),
 #   (2) `api_key=AKIA...`                    (known-token + keyword-assignment),
@@ -150,6 +155,41 @@ cat > "$WORK/good_h_var_ref.txt" <<'EOF'
 SMB mount uses password=$SMB_PASS and the jq writer emits api_key:$ENV.CMA_TOK for the provider.
 EOF
 assert_clean "(h) keyword=\$VAR / keyword:\$ENV.x (variable reference, not a secret)" "$WORK/good_h_var_ref.txt"
+
+# (i) §11.4.201 carrier-strip #8a: a recognised secret KEYWORD whose VALUE is a
+# config-template placeholder (CHANGE_ME / PLACEHOLDER) is a template token, not a
+# secret. Origin carrier: CONFIG_TEMPLATES.md "PASSWORD=CHANGE_ME".
+cat > "$WORK/good_i_placeholder.env" <<'EOF'
+# config template — fill these in per deployment
+PASSWORD=CHANGE_ME
+JWT_SECRET=CHANGE_ME
+api_key=PLACEHOLDER
+DB_PASSWORD=changeme
+EOF
+assert_clean "(i) keyword=CHANGE_ME / PLACEHOLDER (config-template placeholder)" "$WORK/good_i_placeholder.env"
+
+# (j) §11.4.201 carrier-strip #8a: a test-fixture marker value (…must_not_leak…) is
+# never a real secret. Origin carrier: test_helix_code_phase1_unit.sh "must_not_leak".
+cat > "$WORK/good_j_must_not_leak.txt" <<'EOF'
+# unit-test fixtures — synthetic sentinel values, never real credentials
+SECRET=supersecret_must_not_leak
+password: must_not_leak_dummy_value
+EOF
+assert_clean "(j) keyword=...must_not_leak... (test-fixture sentinel marker)" "$WORK/good_j_must_not_leak.txt"
+
+# (k) §11.4.201 carrier-strip #8b: a base64 image data-URI blob RANDOMLY contains a
+# token-shaped substring (here an AKIA[0-9A-Z]{16} run embedded in the base64 image
+# bytes). Without the data-URI strip detector-1 WOULD flag it — the strip is what
+# makes it clean, so this fixture proves the strip is load-bearing (§11.4.201).
+# Origin carrier: DEEP_HELIXOTA base64 avatar/image data-URI. The blob is built
+# deterministically so the embedded AKIA token is exactly the right shape.
+{ printf 'avatar_data: data:image/png;base64,'
+  printf 'iVBORw0KGgoAAAANSUhEUg'      # ordinary base64 image-header bytes
+  printf 'AKIA0123456789ABCDEF'        # AKIA + 16 [0-9A-Z] chars, embedded in blob
+  printf 'moreImageBytesHere+/=='      # trailing base64 image bytes
+  printf '\n'
+} > "$WORK/good_k_base64_image.txt"
+assert_clean "(k) data:image/png;base64,<blob with token-shaped substring> (image data)" "$WORK/good_k_base64_image.txt"
 
 echo ""
 # --- GOLDEN-BAD -------------------------------------------------------------

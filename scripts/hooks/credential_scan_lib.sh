@@ -10,7 +10,13 @@
 #   convenience whole-file scanner, so any consuming project's pre-commit hook
 #   can INHERIT the detectors BY REFERENCE (§11.4.28 / §11.4.177) instead of
 #   copying them. Detector-1 = keyword-anchored / known-token-format value
-#   patterns. Detector-2 = email+password-shape adjacency heuristic WITH four
+#   patterns WITH two §11.4.201 carrier-strips — #7 (value-starts-with a
+#   $ / < / % / { sigil, baked into the pattern) and #8 (placeholder-value
+#   allowlist + base64-image data-URI, applied by _helix_cred_detector1_real_hit)
+#   so a `PASSWORD=CHANGE_ME` template line, a `SECRET=…must_not_leak` fixture
+#   marker, and a `data:image/png;base64,…` blob are NOT flagged while a genuine
+#   `password: hunter2hunter2` / `AKIA…` leak still is. Detector-2 =
+#   email+password-shape adjacency heuristic WITH four
 #   §11.4.201 carrier-strips (git SSH remotes, systemd `@N.service` units,
 #   Java/Android object references `@pkg.CamelCaseClass`, Java `$$`-synthetic
 #   tokens) that assert the REAL condition — a genuine `user@company.com : <pw>`
@@ -65,6 +71,32 @@
 # Conservative set covering common API-token / key / secret / password
 # assignment forms. Used with `grep -Ei`.
 HELIX_CRED_VALUE_PATTERN='(AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{36}|github_pat_[0-9A-Za-z_]{22,}|xox[baprs]-[0-9A-Za-z-]{10,}|sk-[0-9A-Za-z]{20,}|AIza[0-9A-Za-z_-]{35}|-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?[^[:space:]"'"'"'$<%{][^[:space:]"'"'"']{7,})'
+
+# --- Detector 1 carrier-strip #8: placeholder-value + base64-image data-URI ---
+# §11.4.201 carrier-strip #8a (placeholder-value allowlist). A recognised secret
+# KEYWORD whose VALUE is a config-template placeholder / test-fixture marker
+# (CHANGE_ME / CHANGEME / PLACEHOLDER / EXAMPLE / DUMMY / REDACTED / TODO / TBD /
+# FIXME / xxx+ / your[_-]... / ...must_not_leak...) is a template or fixture
+# token, NEVER a real secret. (Values that start with $ / < / % / { are ALREADY
+# excluded by carrier-strip #7 in HELIX_CRED_VALUE_PATTERN, so <xliff…> / $VAR /
+# %1$s never reach detector-1 — this strip covers the remaining literal
+# placeholders that DO start with a normal character.) A real secret is NEVER a
+# literal placeholder token, so the strip is TIGHT — it cannot weaken real-secret
+# detection: a value that is anything OTHER than a whole placeholder token (e.g.
+# hunter2hunter2, AKIA…, xxxsecret1) survives and is still flagged. Applied by
+# _helix_cred_detector1_real_hit, which drops any detector-1 match whose whole
+# "keyword<sep>value" reads as keyword + placeholder-value. Proven by golden-good
+# scenarios (i)/(j) + every golden-bad in test_credential_scan_lib.sh (§11.4.107(10)).
+HELIX_CRED_PLACEHOLDER_CARRIER='^(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?(change_?me|placeholder|example|dummy|redacted|todo|tbd|fixme|xxx+|your[_-][a-z0-9._-]*|[a-z0-9._-]*must_not_leak[a-z0-9._-]*)["'"'"']?$'
+
+# §11.4.201 carrier-strip #8b (base64-image data-URI). A data:image/…;base64,<blob>
+# embeds a long base64 run of image bytes that can RANDOMLY contain a token-shaped
+# substring (AKIA… / AIza… / sk-…). The blob is image data, never a credential.
+# The whole data-URI region is BLANKED before detector-1 runs (mirrors the detector-2
+# gsub strips), so an incidental token-shape inside the blob is not flagged while a
+# real token OUTSIDE any data-URI on the same line is untouched. Covers base64
+# (+ / =) and base64url (- _) alphabets. Proven by golden-good (k).
+HELIX_CRED_BASE64_IMAGE_CARRIER='data:image/[^;]*;base64,[A-Za-z0-9+/=_-]+'
 
 # --- Detector 2: email-adjacency plaintext-credential heuristic --------------
 # The keyword-anchored detector-1 only sees a recognised secret KEYWORD followed
@@ -180,6 +212,30 @@ helix_cred_is_binary_skip() {
   esac
 }
 
+# --- Detector-1 real-hit test (applies carrier-strip #8) ---------------------
+# Returns 0 iff a TEXT file contains a detector-1 (keyword / known-token-format)
+# match that is a REAL secret — i.e. one that SURVIVES carrier-strip #8: base64
+# image data-URIs (#8b) are blanked first, then every detector-1 match is checked
+# and any placeholder-value carrier (#8a) is dropped; a surviving non-placeholder
+# match is a real hit. Binary blobs do NOT use this path (helix_cred_scan_file
+# runs the raw grep for them — the #8 carriers are text constructs, and running
+# sed/grep -o over a binary is a §11.4.201 false-positive vector).
+_helix_cred_detector1_real_hit() {
+  _helix_cred_d1_matches="$(
+    sed -E "s#${HELIX_CRED_BASE64_IMAGE_CARRIER}# #g" "$1" 2>/dev/null \
+      | grep -Eio "$HELIX_CRED_VALUE_PATTERN" 2>/dev/null
+  )"
+  # No detector-1 match at all (after #8b) → not a real hit.
+  [ -n "$_helix_cred_d1_matches" ] || return 1
+  # Drop #8a placeholder-value carriers; a surviving match line is a real secret.
+  # The final `grep -q` (not the middle grep -v) determines the verdict, so an
+  # all-carriers input (middle grep -v prints nothing, exits 1) yields a non-zero
+  # pipeline exit under pipefail AND a non-match final grep -q — both mean "clean".
+  printf '%s\n' "$_helix_cred_d1_matches" \
+    | grep -Eiv "$HELIX_CRED_PLACEHOLDER_CARRIER" 2>/dev/null \
+    | grep -q '[^[:space:]]'
+}
+
 # --- Whole-file convenience scanner ------------------------------------------
 # Scans a file ON DISK end-to-end. Returns 0 if a credential is found, 1 if
 # clean (or the path is unreadable). Runs detector-1 (grep value-pattern), then
@@ -190,15 +246,18 @@ helix_cred_is_binary_skip() {
 helix_cred_scan_file() {
   _helix_cred_path="$1"
   [ -f "$_helix_cred_path" ] || return 1
-  # (1) keyword-anchored / known-token-format value scan.
-  if grep -Eiq "$HELIX_CRED_VALUE_PATTERN" "$_helix_cred_path" 2>/dev/null; then
-    return 0
-  fi
-  # (2) email-adjacency heuristic — skipped for binary blobs.
+  # Binary blobs: detector-1 raw grep ONLY (carrier-strip #8 covers text
+  # constructs, and detector-2 is skipped for binaries as before).
   if helix_cred_is_binary_skip "$_helix_cred_path"; then
+    grep -Eiq "$HELIX_CRED_VALUE_PATTERN" "$_helix_cred_path" 2>/dev/null && return 0
     return 1
   fi
-  # awk exit 0 = offending line found. Read status directly (no pipe).
+  # (1) keyword-anchored / known-token-format value scan WITH carrier-strip #8
+  #     (placeholder-value + base64-image data-URI carriers removed).
+  if _helix_cred_detector1_real_hit "$_helix_cred_path"; then
+    return 0
+  fi
+  # (2) email-adjacency heuristic. awk exit 0 = offending line found.
   if awk "$HELIX_CRED_ADJACENCY_AWK" "$_helix_cred_path" >/dev/null 2>&1; then
     return 0
   fi

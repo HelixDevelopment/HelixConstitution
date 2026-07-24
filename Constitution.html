@@ -453,7 +453,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 <tbody>
 <tr>
 <td>Revision</td>
-<td>54</td>
+<td>59</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -461,7 +461,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-07-22T08:52:07Z</td>
+<td>2026-07-22T20:41:41Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -469,79 +469,99 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Round of 2026-07-22 — the DESIGN-METHODOLOGY codification (User
-mandate, 2026-07-22; proving project: the Helix Thready MVP design
-package, <code>docs/public/research/mvp/design/</code> — the complete
-design approach built and verified there is promoted into 8 NEW
-universal anchors §11.4.216–§11.4.223 so every future project inherits
-it out of the box). §11.4.216 — canonical machine-readable design-token
-source: ONE CSS custom-property file (<code>:root {}</code> +
-<code>[data-theme=&quot;dark&quot;]</code> override), every platform consumes
-GENERATED bindings never hand-copies, no invented values (§11.4.6
-applied to design — every color traceable to eyedrop/measured-contrast
-evidence). §11.4.217 — OpenDesign brand contract: every UI-shipping
-product carries a 9-section DESIGN.md (category blockquote, font-labels
-block, <code>:root {}</code> + <code>[data-theme=&quot;dark&quot;]</code>,
-targeted reduced-motion, <code>:focus-visible</code>) + a
-machine-readable tokens.css twin under <code>design/opendesign/</code>;
-brand/accent/semantic are DISJOINT color roles; white-label is a closed
-override set with SERVER-VALIDATED WCAG AA ≥4.5:1 accents; the
-attribution footer is locked, never removed even white-labeled.
-§11.4.218 — living design-library catalogue: every component × state ×
-theme rendered in self-contained artifacts (zero CDNs, real behaviors),
-plus a cross-platform reusability matrix with per-cell
-VERIFIED/PROPOSED/ASSUMED provenance. §11.4.219 — per-app screen
-catalogues: full-IA coverage per surface, per-platform chrome variants,
-honesty markers ([GAP]/[OPEN]) for unbuilt behavior — never a fake flow.
-§11.4.220 — open-first design tooling: self-hosted PenPot is the primary
-design platform, consumed ONLY via the dedicated PenPot submodule
-(working name vasic-digital/PenPot, final name pending — generic
-referent normative meanwhile; mechanisms/utils only: deployment recipe,
-RPC client, access-token minting, import tooling, browser-hydration
-automation, MCP wiring; itself consuming the Containers submodule
-§11.4.76/§11.4.161 with a §11.4.31 helix-deps.yaml declaration; NO
-hand-rolled PenPot deployment/client code in projects
-§11.4.28/§11.4.74); proprietary tools (Figma) are import/export bridges
-only, never the source of truth; design sources live in-repo in open
-formats (SVG/CSS/JSON/Lottie/self-contained HTML); tooling claims
-runtime-probed (§11.4.201/§11.4.99); automation auth =
-token-authenticated RPC access tokens (enable-access-tokens), never
-interactive OAuth relays; API-created files require a browser hydration
-pass before handoff (thumbnails/text layout). §11.4.221 — motion
-discipline: token-bound durations/easings only; every playable animation
-ships a keyframe-derived reduced-motion static fallback named in a
-machine-readable motion manifest (deliberate instant-cut = explicit
-null-with-reason); prefers-reduced-motion honored via targeted gates
-never a global *; every animation render-validated before claimed
-working, unverified runtimes [OPEN]-tracked. §11.4.222 —
-design-completion export wave: a design is not done until per-platform
-token codegen, the FULL icon/asset raster matrix via the honest-output
-raster pipeline (probe-tested renderers §11.4.201, honest SKIP-with-note
-§11.4.3/§11.4.69, NEVER faked/blank outputs, every raster verified
-non-degenerate §11.4.38), both-theme screen renders + the bound design
-book, honest-status hand-off bundles, and the §11.4.65/§11.4.73 doc
-twins land. §11.4.223 — provenance-marker discipline for design docs:
-[VERIFIED]/[OPERATOR]/[DEFAULT — adjustable]/[OPEN: id] markers
-mandatory, every open item centrally registered in the area index
-(tree-verified both directions §11.4.186) and mapped to tracked workable
-items (§11.4.93/§11.4.197). All Classification: universal (§11.4.17) —
-consumers supply brand values, platform lists, paths, and submodule
-pointers as DATA per §11.4.35. Propagation gates
-CM-COVENANT-114-216…223-PROPAGATION + recommended mechanism gates +
-paired §1.1 mutations (gate-code = separate work item). CLAUDE.md +
-AGENTS.md + QWEN.md + GEMINI.md mirrors updated in lockstep (§11.4.157).
-Generated .html/.pdf/.docx twins NOT regenerated this round — no in-repo
-§11.4.65 export-pipeline invocation is available in this checkout; twins
-are honestly STALE pending the exporter run (§11.4.6, no silent
-divergence claimed otherwise). Prior round: Round 2 of 2026-07-17 — the
-CARRIER / MEASUREMENT-INTEGRITY harvest (research-derived from one
-cycle&#39;s forensics in a consuming project). 4 EXTENSIONS + 2 NEW anchors
-+ 1 candidate REJECTED-as-already-covered. The unifying FACT: every
-false finding that cycle had ONE shape — a token that MENTIONS X matched
-as X, or an instrument&#39;s silence read as data (a removal&#39;s ref-count
-matched the audit-trail comments DOCUMENTING the removal; escapes eaten
-by a wrapper shell so the far side searched a literal; <code>|</code> a
-literal pipe under ERE; `check</td>
+<td>Footgun-5 addendum of 2026-07-23 (HEL-010 harvest delta) — the
+§11.4.201(12) standing reference
+docs/guides/shell_instrument_footguns.md gains its FIFTH demonstrated
+instrument-side class (entry I7): a background watchdog/timeout subshell
+spawned INSIDE a <code>$(...)</code> command-substitution inherits the
+substitution&#39;s pipe WRITE-END; disarming the watchdog early
+(<code>kill</code>) ORPHANS its <code>sleep &lt;budget&gt;</code>
+grandchild which keeps that write-end OPEN, so the enclosing
+<code>$(...)</code> BLOCKS until the sleep exits — the substitution
+stalls for the FULL timeout budget even though the real work completed
+instantly, with every verdict and exit code CORRECT (a pure timing lie
+no verdict-checking gate can see; the healthy host reads as
+wedged/slow). Forensic FACT (measured 2026-07-23, a consuming
+toolchain&#39;s install re-review): a fast-stub probe read via
+command-substitution took 15s — exactly the watchdog budget — while the
+SAME probe writing to a file took 0s; every install/verify seam stalled
++15s on a perfectly healthy host. Hermetically re-demonstrated under
+control conditions BEFORE codifying (§11.4.201(12)/§11.4.6, 3/3
+deterministic iterations, 2026-07-22 UTC): naive <code>$(...)</code>
+capture 5006-5007ms == the full 5000ms budget with instant work; the
+SAME probe to a file 43-46ms (the pipe IS the mechanism); the
+fd-redirect countermeasure
+(<code>( … ) &gt;/dev/null 2&gt;&amp;1 &amp;</code>) restores 43-45ms
+with output intact WHILE a genuinely-wedged probe still bounds at rc=124
+~budget — the watchdog&#39;s protective function preserved (the §11.4.201(1)
+false-positive guard). COUNTERMEASURE: redirect the watchdog subshell&#39;s
+fds away from the cmd-subst pipe, or have the probe write to a file
+instead of being captured via <code>$(...)</code>. The §11.4.201(12)
+compact retellings&#39; enumeration + count updated in LOCKSTEP across all
+five governance files (&#39;all five DEMONSTRATED&#39;, §11.4.157 md5-verified);
+the full Constitution.md §11.4.201(12) anchor text is UNCHANGED — its
+enumeration is explicitly fenced to the FOUNDING classes and delegates
+new classes to the LIVING-document append mechanism, which this addendum
+exercises. Guide Revision 3. NO anchor added, removed, strengthened, or
+weakened; every propagation-gate literal unchanged (gates stay GREEN).
+Classification: universal (§11.4.17) — pure POSIX shell semantics, no
+toolchain/project literal. Prior round: Doc-minor remediation of
+2026-07-23 — fix-forward on the independent §11.4.209-substrate review
+of the 2026-07-23 round (review verdict GO: 0 Blocking / 0 Important / 3
+Minor, none gating). M1 — docs/guides/shell_instrument_footguns.md
+header made date-consistent: Created normalized to its UTC creation date
+2026-07-22 (the founding commit was authored 2026-07-22T19:31:31Z; the
+prior 2026-07-23 value was the local +0500 date) and Last modified
+advanced to the real edit timestamp — §11.4.44 fields valid, no
+fabricated future timestamp (§11.4.6, current UTC at edit time was still
+2026-07-22). M2 — the §11.4.201(9) forensic FACT&#39;s Send-Q figure hedged
+from an over-precise byte range the sampled raw ledgers could not
+byte-verify to the ledger-verifiable &#39;a few hundred bytes&#39; (three orders
+of magnitude below the rcv_wnd capacity reading), applied identically in
+the full anchor text and every compact retelling across all five
+governance files (§11.4.157 lockstep preserved, md5-verified); the
+load-bearing semantics — capacity misread as occupancy, real Send-Q
+three orders smaller, app_limited — are unchanged and remain
+twice-confirmed. M3 — the repository&#39;s own README.md refreshed from its
+stale Rev-2 (2026-05-20) state: revision header bumped + the
+recent-anchor coverage note updated through §11.4.225. Wording-precision
++ header-freshness only — NO anchor added, removed, strengthened, or
+weakened; every propagation-gate literal unchanged (gates stay GREEN).
+Prior round: Round of 2026-07-23 — the SYSTEMATIC-DEBUGGING /
+MEASUREMENT-SEMANTICS harvest (HEL-010; research-derived from one day&#39;s
+live forensics across a consuming toolchain&#39;s debugging + measurement +
+review streams; every lesson VERIFIED against its captured evidence or
+re-demonstrated under control conditions BEFORE codifying, §11.4.6 —
+nothing codified on say-so). 1 NEW anchor + 4 EXTENSIONS + 1 NEW
+standing reference doc + 2 candidates resolved ALREADY-COVERED. NEW
+§11.4.225 — scheduler-quota burst-throttling telemetry +
+interactive-scope isolation: progressive/bursty interactive degradation
+MUST be diagnosed from the scheduler&#39;s THROTTLING ACCOUNTING sampled as
+DELTAS over time under load with a quiet-phase control (forensic FACT: a
+session scope at quota 9.6 CPU/100ms on a 64-CPU host, average demand
+4.35 — UNDER quota — yet 16.9% of periods throttled, 0% quiet, worsening
+with session age, the co-located terminal-multiplexer server freezing
+per throttled period into multi-second stalls; every conventional
+average read HEALTHY — a §11.4.201(6) false-null), NEVER from averages;
+and an interactive-latency-sensitive process NEVER shares a fixed-quota
+no-burst scope with a bursty agent/build fleet — burst allowance, own
+scope, host-adaptive quota values with a live read-back (sibling FACT: a
+fixed 2-CPU default quota on a 64-core host → 18.8% of periods
+throttled, 1757s forced idle; fixed by host-adaptive computation, proven
+by a four-quadrant polarity test on the live cgroup); the THIRD
+orthogonal host-exhaustion axis beside §12.6 memory + §12.12 threads.
+EXTENSION §11.4.115(G) — defect-identity binding for CONSTRUCTED
+reproductions: a RED whose precondition the investigator BUILT (a
+hand-made lock holder) rather than TRACED to the reported defect&#39;s real
+evidence mints at most DEFENSIVE HARDENING, never a defect-closing fix —
+the reported item stays OPEN (§11.4.197); systematic-debugging
+refutation of every mechanism a pending fix addresses REVOKES its
+done-claim on the spot (forensic FACT: an exit-hang fix nearly shipped
+on a synthetic-mechanism RED→GREEN; §11.4.199-shape real-PTY re-driving
+refuted every addressed mechanism — 6/6 clean exits — and the change was
+honestly re-labelled in-source &quot;defensive hardening ... NOT a fix for
+the reported exit-hang&quot;); RED verdicts carry a precondition-provenance
+field {observed</td>
 </tr>
 <tr>
 <td>Issues</td>
@@ -7340,7 +7360,7 @@ the cycle would have caught. §11.4.1 already forbids script-bug FAILs.
 under a target shell other than the one in its shebang MUST parse
 cleanly under that target shell. Specifically:</p>
 <ol type="1">
-<li><strong>Closed-set scope.</strong> Every tracked <code>.sh</code>
+<li><p><strong>Closed-set scope.</strong> Every tracked <code>.sh</code>
 file under <code>device/rockchip/rk3588/tests/</code>,
 <code>scripts/</code>, and <code>scripts/testing/</code> (and equivalent
 paths in owned submodules) is in scope. Explicitly OUT of scope:
@@ -7348,13 +7368,13 @@ paths in owned submodules) is in scope. Explicitly OUT of scope:
 <code>packages/modules/</code>, <code>kernel-5.10/</code>,
 <code>out/</code>, <code>build/</code>, <code>scripts/legacy/</code>
 (legacy quarantine), and any third-party vendored shell directory the
-project does not maintain.</li>
-<li><strong>Mandatory parseability invariant.</strong> Every in-scope
+project does not maintain.</p></li>
+<li><p><strong>Mandatory parseability invariant.</strong> Every in-scope
 script MUST parse under POSIX <code>sh -n</code> on the developer host.
 POSIX <code>sh</code> is the closest portable parser to Android mksh —
 passing <code>sh -n</code> on the host gives high confidence the script
-parses on mksh.</li>
-<li><strong>Bash-only syntax requires deferral.</strong> Process
+parses on mksh.</p></li>
+<li><p><strong>Bash-only syntax requires deferral.</strong> Process
 substitution <code>&gt;(...)</code> / <code>&lt;(...)</code>,
 <code>[[ ]]</code>, <code>&lt;&lt;&lt;</code> here-strings, indexed
 arrays <code>arr=()</code>, associative arrays <code>declare -A</code>,
@@ -7366,23 +7386,59 @@ EITHER be wrapped in <code>eval &#39;...bash-only string...&#39;</code> so the
 parser sees only a string OR be guarded by sourcing the file only on
 bash- detected hosts (<code>[ -n &quot;${BASH_VERSION:-}&quot; ]</code> BEFORE the
 script loads — runtime guards inside a single mksh-parsed script do not
-work).</li>
-<li><strong>Honest shebangs.</strong> A script that contains bash-only
-constructs without <code>eval</code>-deferral MUST declare
+work).</p></li>
+<li><p><strong>Honest shebangs.</strong> A script that contains
+bash-only constructs without <code>eval</code>-deferral MUST declare
 <code>#!/bin/bash</code> (or equivalent) AND its callers MUST invoke it
 as <code>bash script.sh</code> rather than <code>sh script.sh</code>. A
 script with <code>#!/system/bin/sh</code> or <code>#!/bin/sh</code>
 shebang MUST be POSIX-clean — no bash-only syntax, no <code>local</code>
 keyword without an mksh fallback, no <code>read -p</code>, no
-<code>echo -e</code> without portable equivalent.</li>
-<li><strong><code>eval</code>-deferral is the safe pattern.</strong>
+<code>echo -e</code> without portable equivalent.</p></li>
+<li><p><strong><code>eval</code>-deferral is the safe pattern.</strong>
 When a bash-only construct is genuinely needed inside a script that may
 be parsed by mksh (e.g. <code>sh script.sh</code> from a callsite
 outside our control), wrap the construct in single-quoted
 <code>eval</code>:
 <code>eval &#39;exec &gt; &gt;(tee -a &quot;$f&quot;) 2&gt;&amp;1&#39;</code>. The parser
 sees a string; the runtime guard around the <code>eval</code> decides
-whether to execute.</li>
+whether to execute.</p></li>
+<li><p><strong>Sourced-function <code>exec</code> redirection-scoping
+(extension, research-derived, 2026-07-23).</strong> In bash-family
+shells, <code>exec</code> WITHOUT a command applies EVERY redirection on
+the line to the CURRENT SHELL, PERMANENTLY. Inside a standalone script
+that is a self-contained choice; inside a SOURCED / library function —
+code that runs in the operator&#39;s interactive shell or a caller&#39;s
+long-lived shell — it is a host-state mutation. Forensic FACT
+(genericised, 2026-07-22): a library lock helper opening its lock fd
+with <code>exec 9&gt;&gt;&quot;$lock&quot; 2&gt;/dev/null</code> permanently
+redirected the INTERACTIVE shell&#39;s stderr to /dev/null — one provider
+launch left the operator&#39;s terminal unable to print any error, from any
+command, for the life of the shell — while the paired unlock helper had
+used the correct brace form
+(<code>{ exec 9&gt;&amp;-; } 2&gt;/dev/null</code>) all along; the
+asymmetry was the defect. Marker-probe proof: pre-fix, a marker echoed
+to stderr after the call never appeared; post-fix it does. The mandate:
+in ANY sourced/library shell function, an <code>exec</code> whose
+purpose is only to open/close/move file descriptors MUST brace-scope its
+side redirections —
+<code>{ exec 9&gt;&gt;&quot;$file&quot;; } 2&gt;/dev/null</code> — so
+error-suppression applies to the fd-operation alone, never to the
+enclosing shell; a command-less <code>exec</code> combining
+fd-manipulation operands with an additional unbraced redirection in
+sourced code is a REVIEW DEFECT (§11.4.142) and a greppable
+pre-build-gate class. Recommended gate
+<code>CM-SHELL-EXEC-REDIRECTION-SCOPED</code> (scan in-scope
+sourced/library shell sources for command-less <code>exec</code> lines
+that combine fd-open/close operands with additional unbraced
+redirections → FAIL citing file:line; brace-scoped forms and
+<code>exec</code> WITH a command are exempt — the §11.4.201(1)
+false-positive guard) + paired §1.1 mutation (unwrap one brace-scoped
+fd-open back to the bare form → the gate FAILs; gate-code = separate
+work item). The instrument-side twin of this construct — the SAME
+<code>exec ... 2&gt;/dev/null</code> blinding <code>bash -x</code>
+tracing of the code under test — is catalogued in <a href="docs/guides/shell_instrument_footguns.md"><code>docs/guides/shell_instrument_footguns.md</code></a>
+per §11.4.201(12).</p></li>
 </ol>
 <p><strong>Captured-evidence enforcement.</strong> Pre-build gate
 <code>CM-SCRIPT-TARGET-SHELL-PARSEABLE</code> walks every
@@ -13818,6 +13874,57 @@ does not re-verify, or pair a gate with a string-deletion mutation → the
 gate FAILs; gate-code = separate work item). Composes §11.4.6 / §11.4.50
 / §11.4.69 / §11.4.107(10) / §11.4.108 / §11.4.135 / §11.4.139 /
 §11.4.146 / §11.4.194 / §11.4.205.</p>
+<p><strong>(G) Defect-identity binding for CONSTRUCTED reproductions — a
+fix validated only against an investigator-built mechanism is HARDENING,
+never the fix for the reported defect (extension, research-derived,
+2026-07-23).</strong> Forensic FACT (genericised, 2026-07-22): an
+exit-hang fix (a bounded lock wait + a corrected file-descriptor open)
+was built and nearly shipped with a confident RED→GREEN pair — but the
+RED reproduced a mechanism the INVESTIGATOR had constructed (a hand-made
+process holding the lock), not the operator&#39;s reported defect; later
+systematic debugging (§11.4.102), driving the operator&#39;s sequence shape
+per §11.4.199 with per-step trace timing on a real PTY, REFUTED every
+mechanism the fix addressed (the lock/unlock pair provably completes on
+the real path — 6/6 clean interactive exits), and the change was
+honestly RE-LABELLED in-source as &quot;defensive hardening ... NOT a fix for
+the reported exit-hang&quot;. The gap clauses (A)–(F) leave open: the
+constructed RED genuinely FAILED on the real pre-fix artifact — this
+anchor&#39;s letter was satisfied — while the MECHANISM it reproduced was
+the investigator&#39;s invention, so the pair proved only that the fix
+closes the invented mechanism, not the reported defect. Therefore (ALL
+hold): <strong>(1)</strong> a RED test&#39;s PRECONDITION MUST be TRACEABLE
+to the reported defect&#39;s real evidence — the reporter&#39;s reproduction
+sequence (§11.4.199), a captured failure log/trace, or a probe showing
+the precondition actually occurs in the reported environment — and that
+traceability is recorded WITH the RED verdict (the clause-(F) fields
+plus a precondition-provenance field: <code>observed</code> vs
+<code>constructed</code>). <strong>(2)</strong> When NO working
+reproduction of the reported defect exists and the RED&#39;s precondition is
+CONSTRUCTED, the resulting fix mints AT MOST &quot;defensive hardening&quot; —
+labelled as such in the commit AND the tracker — and NEVER closes the
+reported defect&#39;s item; the item stays OPEN (§11.4.197) until a RED with
+an <code>observed</code> precondition lands, or the item is closed with
+§11.4.7-grade non-reproduction evidence or a §11.4.90/§11.4.112
+evidence-backed reason. <strong>(3)</strong> When systematic debugging
+REFUTES every mechanism a pending fix addresses, the fix&#39;s done-claim
+for the reported defect is REVOKED on the spot — the change may still
+land re-labelled as hardening (independently crossing
+§11.4.142/§11.4.194 review), but claiming it fixes the reported defect
+after its mechanisms were refuted is a §11.4/§11.4.1 bluff at the
+investigation layer even though its RED→GREEN pair is real. STRENGTHENS
+clause (A)&#39;s &quot;never a synthetic failure&quot; from artifact-synthetic to
+MECHANISM-synthetic, and §11.4.199 for the no-working-repro case its
+clause (1) cannot reach (there is no existing sequence to deviate FROM).
+Recommended gate <code>CM-RED-PRECONDITION-DEFECT-TRACEABLE</code>
+(every defect-CLOSING claim&#39;s RED verdict carries
+precondition-provenance <code>observed</code> + its evidence path;
+<code>constructed</code> provenance on a defect-closing claim → FAIL,
+while the SAME provenance on an item honestly labelled hardening PASSES
+— the §11.4.201(1) false-positive guard) + paired §1.1 mutation (flip a
+<code>constructed</code>-provenance item from hardening to a
+defect-closing status → the gate FAILs; gate-code = separate work item).
+Composes §11.4.6 / §11.4.7 / §11.4.102 / §11.4.142 / §11.4.146 /
+§11.4.197 / §11.4.199 / §11.4.201.</p>
 <p><strong>Canonical authority:</strong> this Constitution.md §11.4.115
 in the HelixConstitution submodule. All consuming projects restate +
 cite via §11.4.35 inheritance.</p>
@@ -16187,6 +16294,24 @@ evidence — it does NOT replace the §11.4.108 four-layer
 runtime-signature verification nor the §11.4.40 full-suite retest; it is
 one of MULTIPLE STRONG LAYERS, and the FIRST one every change
 crosses.</p>
+<p><strong>Forensic FACT (teaching citation, 2026-07-22 —
+review-before-push is not optional).</strong> A transport-hardening
+change was committed AND pushed to a project&#39;s <code>main</code> BEFORE
+any independent review (the author honestly flagged the omission); the
+post-hoc §11.4.209-substrate review then returned CONDITIONAL/NO-GO with
+ONE BLOCKING finding — the change had left a security-relevant
+protection default in the unsafe direction (an
+operator-keystroke-obscuring option shipped default-off with no
+disclosure) — plus two Important and four Minor findings, and the
+remediation consumed a full fix-forward cycle (RED-first test updates
+per §11.4.115, the launcher fix, three documentation surfaces, and a
+§11.4.134 re-review) that a pre-push review would have folded into the
+original change. This is the exact class this anchor forbids: the review
+found a real security-default defect that was ALREADY public on every
+mirror when it was found. The review comes BEFORE commit/push; a
+post-hoc review that catches a Blocking issue PROVES the mandate, it is
+not a substitute for it (remediation is fix-forward per §11.4.113 —
+never a history rewrite).</p>
 <p>Classification: universal (§11.4.17) — a platform-neutral
 acceptance-gate discipline reusable by ANY project; the consuming
 project supplies its concrete reviewer-dispatch mechanism + the
@@ -21186,6 +21311,39 @@ reproducer) MUST be stated as an EXPLICIT gap (<code>UNCONFIRMED:</code>
 / <code>UNKNOWN:</code> / <code>PENDING_FORENSICS:</code> with a tracked
 follow-up) — NEVER silently assumed safe. A silently-assumed-safe
 un-analysed dimension is the §11.4.194 violation.</p>
+<p><strong>(6) The quality-harvest review classes (research-derived
+extension, 2026-07-23 — operator mandate: every check, diagnostic
+method, and preventive measure from the reopen/first-touch root-cause
+forensics is checked through EVERY code-review process).</strong> In
+addition to (1)–(5), every review MUST explicitly CHECK, per reviewed
+change: <strong>(a) closure-evidence class vs defect layer
+(§11.4.226)</strong> — no terminal or ready-class status in the change&#39;s
+scope moves on evidence whose class ranks below the defect layer&#39;s
+floor; a user-visible property &quot;verified&quot; by file-existence checks plus
+greps, an echo-assertion, or a state-only repair closing a defect as
+fixed is a FINDING; <strong>(b) needled measurements</strong> — every
+load-bearing measurement the change or its tests performs satisfies
+§11.4.201(6)–(12) (a reported absence cites its class-matched control
+needle), and NO count was converted into a finding without reading the
+underlying lines — a COUNT IS A LEAD, THE LINES ARE THE FINDING
+(forensic FACT: twice in one measured cycle a count was read as state —
+a &quot;mixed half-written doc&quot; that was actually coherent with a labelled
+historical citation, and an inflated FAIL total that included the
+summary line counting itself); <strong>(c) governance-and-gate integrity
+(§11.4.227)</strong> — a change that NAMES a gate lands its
+implementation or a registered deferral in the same change, and a
+governance edit preserves anchor-block integrity (exactly-once per
+mirror, lockstep-identical, no anchor-number collision); <strong>(d)
+reviewer-authored adversarial mutations</strong> — the author&#39;s
+self-authored mutation set is NECESSARY but NOT SUFFICIENT validation of
+a guard/test: forensic FACT (from the consuming project&#39;s dated forensic
+corpus cited in the 2026-07-22 root-cause analysis): an author&#39;s six
+self-authored mutations were ALL caught while an independent reviewer&#39;s
+FIRST THREE different mutations ALL sailed through, each restoring a
+user-visible defect. The reviewer MUST attempt at least one mutation the
+author did not write (or record honest infeasibility per §11.4.3); a
+guard whose reviewer-authored mutation survives is unvalidated
+instrumentation per §11.4.115(F) and a FINDING.</p>
 <p>Classification: universal (§11.4.17) — a platform-neutral
 review-rigor discipline reusable by ANY project; the consuming project
 supplies its concrete input registries, must-not-break constraint set,
@@ -22028,6 +22186,130 @@ query → (ii) FAILs; strip the needle entirely from a reported absence →
 (i) FAILs; register a metric whose correct end-state moves it AWAY from
 target → (iii) FAILs. Gate-code = a separate work item; this is the
 contract, not a claim that the code has shipped (§11.4.6).</p>
+<p><strong>(9) FIELD-IDENTITY + UNITS + SEMANTICS — capacity is not
+occupancy (extension, research-derived, 2026-07-23).</strong> Forensic
+FACT (genericised, 2026-07-22): a load-bearing latency claim — &quot;a
+standing ~1.4-second send queue&quot; — was minted by reading a socket
+diagnostic&#39;s WINDOW-CAPACITY field (<code>rcv_wnd</code> 181120 bytes,
+the ceiling the peer ADVERTISES) as if it were QUEUE OCCUPANCY; the real
+observed Send-Q was a few hundred bytes (in-flight-sized,
+<code>app_limited</code>), three orders of magnitude smaller. The
+misread propagated into THREE parallel agents&#39; briefs and into operator
+reports before anyone re-read the raw field; two INDEPENDENT
+re-derivations from the raw samples then converged on the correction,
+and the false figure had to be publicly withdrawn from a changelog.
+Therefore: before ANY metric read from a summary / diagnostic line /
+dashboard cell may gate a decision, rank work, or propagate into a brief
+/ report / tracker, its FIELD IDENTITY (which field, exactly, in the
+authoritative raw output), its UNITS, and its SEMANTIC CLASS —
+capacity/limit vs occupancy/backlog vs rate vs cumulative counter vs
+high-water mark — MUST be verified against the authoritative source&#39;s
+own field definition (§11.4.99 latest-source where the tool&#39;s
+documentation defines it). CAPACITY≠OCCUPANCY is the named canonical
+instance; limit-vs-current, cumulative-vs-delta, and
+advertised-vs-measured are the same defect. This is the clause-(6)
+FALSE-MATCH at the metric layer — the instrument matched A number, not
+THE quantity — and a downstream consumer of an unverified metric
+INHERITS the bluff (§11.4.6: re-derive from the raw source before
+re-publishing; a figure carried between agents/briefs without its
+field-identity verification is a rumour with units).</p>
+<p><strong>(10) OBSERVER DECONTAMINATION — the instrument&#39;s own
+footprint is identified, excluded, and the decontaminated instrument
+re-proven seeing (extension, research-derived, 2026-07-23).</strong>
+Forensic FACT (genericised, 2026-07-22): a socket census read TIME-WAIT
+counts of 68–80 and nearly minted a leak finding — after excluding the
+SAMPLER&#39;S OWN probe ports the real count was 4–5 (the census was ~16×
+observer-induced); the control needle proving the decontaminated
+instrument still SAW real state: the same scan did detect a genuine
+step-change (+264 MB RSS, 1→93 sockets) in a monitored process. Every
+measurement whose instrument CONTRIBUTES to the measured population
+(probe connections in a socket census, sampler CPU/IO in a load profile,
+probe processes in a process census, trace overhead in a latency
+measurement — the §12.12 self-match generalised from kill-lists to
+counts) MUST identify and EXCLUDE its own footprint before reporting,
+AND MUST prove via a (7)(b)-class control needle that the decontaminated
+instrument still sees genuine signal (an over-broad exclusion is a
+self-inflicted clause-(6) false-null). Composes §11.4.128(1)
+(observer-effect budget — the recorder must not perturb the recorded;
+clause (10) adds the measurement-side half: where the footprint is
+unavoidable it is measured and SUBTRACTED, never reported as the
+system&#39;s own behaviour) and §11.4.119 (single-resource-owner — a
+measurement arm racing a concurrent driver of the same resource produces
+cross-contaminated evidence; partition or serialize FIRST, as measured
+work this cycle did by refusing to touch a sibling stream&#39;s in-flight
+file region).</p>
+<p><strong>(11) ARTIFACT-USABILITY, NOT PREREQUISITE-PRESENCE
+(extension, research-derived, 2026-07-23).</strong> Forensic FACT
+(genericised, 2026-07-22): an install/verify pipeline keyed its &quot;can
+this host run the tool?&quot; verdict on the presence of a BUILD prerequisite
+(a <code>command -v &lt;compiler&gt;</code> probe) — and turned a host
+holding a WORKING prebuilt binary into a false &quot;cannot launch&quot; FAIL,
+exit 1, in one transcript that showed BOTH &quot;[ok] ... verified&quot; AND
+&quot;[FAILED] ... cannot launch&quot; for the same artifact; the independent
+§11.4.142 review graded it BLOCKING (it breaks every upgrade on hosts
+that install from prebuilts). A readiness / install / health / build
+gate whose CLAIM is about an ARTIFACT (&quot;the tool works here&quot;) MUST probe
+the ARTIFACT ITSELF — execute it through its real invocation path and
+assert its observable behaviour (§11.4.224(A)&#39;s real-invocation-path
+discipline; §11.4.200&#39;s verify-the-target sibling at the readiness seam)
+— NEVER the presence of a prerequisite for ONE of several ways of
+producing it (a compiler, an SDK, a package manager). The proxy fails in
+BOTH directions at once: prerequisite-present ≠ artifact-usable (a
+toolchain with no artifact) AND prerequisite-absent ≠ artifact-unusable
+(a prebuilt with no toolchain) — clause (1) and clause (2) in a single
+check.</p>
+<p><strong>(12) SHELL-INSTRUMENT FOOTGUN CHECKLIST — a standing (7)(c)
+reference that shell-touching reviews MUST consult (extension,
+research-derived, 2026-07-23).</strong> The measured shell-instrument
+footgun classes are catalogued in the standing reference <a href="docs/guides/shell_instrument_footguns.md"><code>docs/guides/shell_instrument_footguns.md</code></a>
+(inherited by reference per §11.4.28/§11.4.177, never copied per
+project). Among the founding, DEMONSTRATED classes:
+<code>timeout</code>/<code>nice</code>/<code>env</code>-class EXEC
+WRAPPERS cannot run shell functions/aliases (rc=127 &quot;command not found&quot;
+while the function is healthy — a clause-(1) false refusal; demonstrated
+2026-07-23 under control conditions);
+<code>pgrep -f</code>/<code>pkill -f</code> matching the PROBING
+script&#39;s own command line (the §11.4.196(D)/§12.12 carrier —
+re-demonstrated 2026-07-23: a unique needle matched exactly ONE process,
+the probe&#39;s own harness); structural-delimiter text extractors (a
+column-0-<code>}</code>-terminated awk function extractor) that TRUNCATE
+the extracted unit when its body legitimately contains the delimiter
+(heredoc/string content) and hand the test a PARTIAL artifact — a FALSE
+PASS when the truncated tail carried the code under test (demonstrated
+2026-07-23: the tail marker vanished from the extraction); and xtrace
+(<code>bash -x</code>) BLINDED when the code under test redirects the
+shell&#39;s stderr (<code>exec ... 2&gt;/dev/null</code> silenced the trace
+mid-stream in the real 2026-07-22 incident — countermeasure: route the
+trace via <code>BASH_XTRACEFD</code> to a dedicated fd the code under
+test does not own). Every §11.4.142/§11.4.209 code review of a
+shell-based test, gate, guard, or measurement MUST consult the
+checklist, and every zero/absence/PASS a shell instrument produces
+remains bound by (7)(b)&#39;s class-matched control needle. The checklist is
+a LIVING document: a newly-measured footgun class is APPENDED with its
+captured demonstration (§11.4.5) in the same change-window, never
+carried as tribal memory (§11.4.215 — the binding reference lives
+tracked, in-repo).</p>
+<p><strong>Gate contract for clauses (9)-(12) (extension,
+2026-07-23).</strong> <code>CM-GUARD-ASSERTS-REAL-CONDITION</code> is
+EXTENDED: <strong>(iv)</strong> every load-bearing metric cited in a
+gating / ranking / report context carries its verified field-identity +
+units + semantic class (capacity / occupancy / rate / cumulative /
+high-water) traced to the authoritative source definition — an
+unverified-semantics metric gating a decision → FAIL;
+<strong>(v)</strong> every census/profile whose instrument contributes
+to the measured population records its observer-exclusion AND a
+post-exclusion control-needle result — an undecontaminated census
+minting a finding → FAIL; <strong>(vi)</strong> every artifact-readiness
+verdict cites a probe of the artifact&#39;s own invocation path — a
+prerequisite-presence-only readiness verdict → FAIL;
+<strong>(vii)</strong> every review record touching a shell-based
+instrument cites the §11.4.201(12) checklist consultation. Paired §1.1
+mutations: relabel a capacity field as occupancy in a gating metric →
+(iv) FAILs; strip the observer-exclusion from a census fixture → (v)
+FAILs; swap the artifact probe for a bare
+<code>command -v &lt;compiler&gt;</code> while the fixture host carries
+a working prebuilt → (vi) FAILs. Gate-code = a separate work item; this
+is the contract, not a claim that the code has shipped (§11.4.6).</p>
 <p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.201.</p>
 <p>Non-compliance is a release blocker regardless of context. No escape
 hatch — no <code>--proxy-signal-OK</code>,
@@ -22039,7 +22321,12 @@ hatch — no <code>--proxy-signal-OK</code>,
 <code>--substring-is-good-enough</code>,
 <code>--carrier-match-OK</code>, <code>--trust-the-null</code>,
 <code>--metric-without-done-check</code>,
-<code>--gate-on-unvalidated-metric</code> flag.</p>
+<code>--gate-on-unvalidated-metric</code>,
+<code>--capacity-is-occupancy-OK</code>,
+<code>--skip-field-identity-check</code>,
+<code>--observer-footprint-included-OK</code>,
+<code>--prerequisite-presence-proves-artifact</code>,
+<code>--skip-shell-footgun-checklist</code> flag.</p>
 <p><strong>§11.4.202 — Reporting directives: a report MUST auto-create a
 fully-populated, fully-synced workable item — never a prose
 acknowledgement (User mandate, 2026-07-15).</strong> Verbatim operator
@@ -23706,5 +23993,685 @@ hatch — no <code>--unmarked-claims-OK</code>,
 <code>--assumption-as-verified</code>,
 <code>--unregistered-open-item</code>, <code>--registry-optional</code>,
 <code>--silently-abandon-open</code> flag exists.</p>
+<h3 id="114224--test-first-tdd-for-all-work-not-only-fixes--a-minimum-code-coverage-floor-that-is-necessary-never-sufficient-user-mandate-2026-07-22">§11.4.224
+— Test-first (TDD) for ALL work, not only fixes + a minimum
+code-coverage floor that is NECESSARY-never-sufficient (User mandate,
+2026-07-22)</h3>
+<p><strong>Forensic anchor — verbatim user mandate
+(2026-07-22):</strong></p>
+<blockquote>
+<p>&quot;Any work we do MUST START by writing the test! We MUST FULLY comply
+and follow the TDD - The test driven development! It MUST BE applied for
+any change, implementation, wiring, tests, challenges and any other form
+of codebase we write! Bash scripts as well! Coverage with TDD MUST BE
+close to 100%, not less than 85% !!!&quot;</p>
+</blockquote>
+<p><strong>The gap this closes.</strong> §11.4.43 mandates the
+test-first (RED → … → GREEN → VERIFY → DOCUMENT) workflow but its
+operative text binds <strong>fixes</strong> only (&quot;Every fix MUST follow
+the 5-step TDD-fix workflow&quot;); §11.4.115 refines that RED step onto the
+broken artifact; §11.4.146 binds reproduce-first. NONE of them binds a
+brand-new feature, a new wiring/integration, a new gate, a new
+Challenge, or a NEW BASH SCRIPT — none of which is a &quot;fix&quot;, so none of
+which inherits a test-first obligation today. Separately, §11.4.27 and
+§11.4.169 mandate 100% <strong>test-TYPE</strong> coverage (breadth:
+WHICH KINDS of test exist per feature × platform) — an orthogonal axis
+that states no <strong>code-coverage</strong> figure anywhere. §11.4.224
+closes exactly those two holes and claims nothing else as new.</p>
+<p><strong>(A) TEST-FIRST BINDS ALL WORK, not only fixes.</strong> For
+EVERY work product with an executable surface — a change, a new feature,
+an implementation, a wiring/integration, a refactor, a pre-build gate, a
+§1.1 mutation, a Challenge, test-harness code itself, AND <strong>bash /
+shell scripts</strong> — the test is WRITTEN FIRST, RUN FIRST, and
+OBSERVED TO FAIL for the right reason before the implementation exists;
+only then is the implementation written to make it pass. Where a broken
+artifact already exists the RED baseline is taken ON THAT ARTIFACT per
+§11.4.115 (and its polarity switch converts the same source into the
+permanent §11.4.135 guard); where the work is genuinely new, the RED is
+the test failing against the absent/unimplemented behaviour, captured
+before the implementation lands. A test authored AFTER its
+implementation demonstrates only that the test AGREES with the code that
+already exists — never that it CATCHES the defect (the §11.4.43
+PASS-bluff, here generalised to every work class). <strong>What counts
+as &quot;the test&quot; per work class (§11.4.6 — named, never left to
+interpretation):</strong> behaviour code → an executing test asserting
+the behaviour; a bash/shell script → an executing test that invokes the
+script through its REAL invocation path and asserts its real observable
+effect (exit status + emitted output + state delta), never a
+<code>bash -n</code> parse-check alone (parse-cleanliness is §11.4.67&#39;s
+separate obligation and proves nothing about behaviour); a pre-build
+GATE → its paired §1.1 mutation IS the test-first artifact, authored and
+observed to make the gate FAIL BEFORE the gate is trusted (a gate
+TRUSTED before its mutation was observed to FAIL is unvalidated
+instrumentation per §11.4.115(F) — the condition is
+observation-before-trust, NOT authorship order, so a gate and its
+mutation authored in the same commit are compliant when the mutation is
+observed to make the gate FAIL before the gate is relied upon); a
+Challenge → its scored assertion against captured evidence per
+§11.4.5/§11.4.69; a behaviour-bearing config/data change (an init-script
+line, a package-set manifest, an action-registry row — any committed
+DATA an executing consumer reads to decide behaviour) → an executing
+test that drives that CONSUMER through the changed value and asserts the
+changed observable behaviour (the clause-(F) executable-surface test
+reaches the config THROUGH its consumer — a config change is never
+parked under the prose-exempt class, which is strictly pure prose /
+governance / documentation).</p>
+<p><strong>(B) CODE-COVERAGE FLOOR — ≥ 85% MINIMUM, ~100%
+TARGET.</strong> Every governed codebase carries a measured
+code-coverage figure that MUST NOT fall below <strong>85%</strong>, with
+<strong>as close to 100% as the domain permits</strong> as the standing
+target (composing §11.4.169&#39;s &quot;100% coverage as the domain permits&quot;
+phrasing on its own test-type axis). The floor applies to the executable
+codebase INCLUDING bash/shell scripts — a shell corpus exempted from
+measurement is exactly the gap the operator&#39;s &quot;Bash scripts as well!&quot;
+closes.</p>
+<p><strong>(C) COVERAGE IS NECESSARY, NEVER SUFFICIENT — the anti-gaming
+clause (§11.4.201(8) / §11.4/§1.1).</strong> A coverage percentage is
+trivially gameable and MUST NEVER be reported as evidence a change is
+correct: <strong>MEASURED FACT (in-session, 2026-07-22, this
+host):</strong> a line-granular coverage instrument reported an
+<code>if …; then …; else …; fi</code> line as COVERED while the
+<code>else</code> branch was NEVER taken — the metric read fully-covered
+on a line half of whose behaviour was untested; and a test that EXECUTES
+a line while ASSERTING NOTHING raises the same number by the same amount
+as a test that proves the behaviour. Therefore: (1) the REAL bar remains
+the §11.4 anti-bluff covenant + §1.1 — every test MUST catch its own
+negation, PROVEN by a paired mutation that makes it FAIL; a line
+executed by an assertion-free test is NOT covered in the sense that
+matters; (2) the floor is a MINIMUM ON A MEASURABLE PROXY, never a
+certificate of correctness — citing &quot;≥ 85% covered&quot; as proof a change
+works is a §11.4 PASS-bluff at the metric layer; (3) the floor NEVER
+stands alone — it composes with the §1.1 mutation pair, the
+§11.4.5/§11.4.69/§11.4.107 captured-evidence bar, and the §11.4.108
+runtime signature, and it does NOT displace any of them.</p>
+<p><strong>(D) METRIC VALIDATION AGAINST THE DEFINITION OF DONE
+(§11.4.201(8)) — split verdict, stated honestly.</strong> §11.4.201(8)
+requires every gating metric to be evaluated at the correct end-state
+and REFUSED if the correct end-state does not move it to target.
+<strong>Directional validation, performed 2026-07-22:</strong> at the
+correct end-state — every behaviour test-driven, every test catching its
+own negation — the lines implementing that behaviour ARE executed by
+their own tests, so the metric DOES move to target; the correct
+end-state does NOT refute the floor, and the floor is therefore VALID as
+a NECESSARY condition. <strong>The converse is REFUTED</strong> by the
+clause-(C) measured gameability fact: reaching the floor does NOT imply
+the end-state — hence necessary-never-sufficient, and hence clause (C)
+is load-bearing rather than decorative. <strong>OWED, not claimed
+(§11.4.197):</strong> the EMPIRICAL calibration of the specific 85%
+threshold against a given project&#39;s REAL corpus — whether a genuinely
+correct end-state on THAT corpus lands at 85%, higher, or lower — has
+NOT been performed and MUST be tracked as a §11.4.197 work item by every
+consuming project that enforces the floor; this anchor asserts no
+project has already filed it (asserting an unverified tracker state
+would be the §11.4.6 violation this clause exists to prevent).
+<strong>Interim precedence</strong> (mirroring the precedent
+§11.4.201(8) itself set for the §11.4.135 ratchet): until that
+calibration lands the ≥ 85% floor KEEPS GATING — an uncalibrated floor
+blocking a merge is bounded, visible and operator-resolvable, whereas
+disarming the only mechanism that surfaces untested code silently
+re-opens the hole (the §11.4.101 reversible-safe choice); the
+calibration is OWED WORK, never a licence to switch the floor off.</p>
+<p><strong>(E) HOW COVERAGE IS MEASURED — per language, honestly
+(§11.4.6 / §11.4.35).</strong> The consuming project supplies its
+per-language coverage instrument as DATA per §11.4.35; the UNIVERSAL
+rule is that an instrument MUST exist and MUST actually be RUN —
+<strong>a floor nobody can measure is an unmeasurable gate and is itself
+a §11.4.201 bluff</strong>, and a percentage nobody measured is a
+§11.4.6 fabrication. <strong>Measured host reality (2026-07-22, the
+project instantiating this anchor):</strong> Go coverage is available
+built-in (<code>go test -coverprofile</code> +
+<code>go tool cover</code>); C/C++ via <code>gcov</code>; and
+<strong>for bash/shell NO dedicated coverage tool was installed</strong>
+— <code>kcov</code>, <code>bashcov</code>, <code>bats</code>,
+<code>shellspec</code> and <code>shunit2</code> were ALL probed ABSENT
+(<code>shellcheck</code> IS present but is a LINTER, not a coverage
+instrument, and satisfies nothing here). <strong>PROVEN-FEASIBLE bash
+mechanism (measured in-session, never asserted):</strong> trace-based
+line accounting needs NO additional tooling —
+<code>PS4=&#39;+COV:${BASH_SOURCE##*/}:${LINENO}:&#39; bash -x &lt;script&gt;</code>
+emits the executed line numbers, and executed-lines ÷ executable
+(non-blank, non-comment) source-lines yields line coverage; a probe run
+correctly identified an uncovered function body as uncovered, and
+subshell bodies ARE traced. <strong>HONEST LIMITS of that mechanism
+(measured, stated as fact):</strong> it is LINE coverage, NOT branch
+coverage — the clause-(C) same-line <code>if/else</code> counted as
+covered with one branch never taken; <code>set +x</code> regions and
+traps are not accounted. It is therefore a FLOOR-measuring instrument
+only; where branch-level assurance is required the project MUST install
+a real coverage tool (e.g. <code>kcov</code>) or record the shortfall
+honestly. <strong>Where NO instrument exists</strong> for a language on
+a host, the honest responses are to INSTALL one, or to record an
+§11.4.3/§11.4.69 SKIP-with-reason plus a tracked §11.4.197 item — NEVER
+an invented percentage, and NEVER a silently-dropped floor.
+<strong>EXCLUSION-LIST FENCE (amendment, remediation round of 2026-07-22
+— the §11.4.135 exemption pattern applied to the coverage
+corpus).</strong> The corpus-scope exclusion list is NOT an
+unconstrained consumer knob: an exclusion is legal ONLY via a CHECKED-IN
+exclusion list, with EVERY entry justified from a CLOSED class set —
+<code>generated-code</code> (output of a committed generator per
+§11.4.77), <code>vendored-third-party</code> (executable code the
+project does not author),
+<code>non-shipping-fixtures-and-golden-assets</code> (test fixtures /
+golden files that never execute in the shipped product) — and enumerated
+as honest gaps in the coverage report, never silent (the exact
+discipline §11.4.135 applies to topology exemptions: legal ONLY via a
+checked-in map, enumerated as honest gaps — never silent). Excluding
+FIRST-PARTY executable code additionally REQUIRES a tracked §11.4.197
+work item naming the plan to bring it into scope. An unlisted,
+unjustified, or un-tracked-first-party exclusion VOIDS the measured
+figure — a consumer that excludes most of its first-party executable
+code and truthfully measures ≥ 85% on the remainder has satisfied the
+operator&#39;s floor in letter and voided it in substance; that
+silent-evasion channel is exactly what this fence closes.</p>
+<p><strong>(F) HONEST BOUNDARY / SCOPE (§11.4.6).</strong> &quot;All work&quot;
+means work products with an EXECUTABLE surface. A pure prose /
+governance / documentation edit has no executable surface and is NOT
+coverage-scoped — its discipline is §11.4.44 / §11.4.65 / §11.4.106 /
+§11.4.212 plus the §11.4.142 universal review; quoting a coverage
+percentage for a prose document would be meaningless, and demanding one
+would be a §11.4.201(1) false-positive refusal. BUT a governance change
+that SHIPS an executable artifact (a gate, a hook, a script, a mutation)
+is FULLY in scope for both (A) and (B). Test-first does NOT replace the
+§11.4.108 four-layer verification, the §11.4.40 full-suite retest, or
+the §11.4.185 manual-QA final gate — it PRECEDES them. And §11.4.224&#39;s
+CODE-coverage axis is DISTINCT from §11.4.27 / §11.4.169&#39;s 100%
+TEST-TYPE coverage (breadth of test kinds per feature × platform): both
+apply simultaneously, neither substitutes for the other, and satisfying
+one is never evidence for the other.</p>
+<p>Classification: universal (§11.4.17) — references no project-specific
+hardware, vendor, or language; the consuming project supplies its
+per-language coverage instruments, its corpus scope, its CHECKED-IN
+clause-(E)-fenced exclusion list, and its threshold calibration per
+§11.4.35. Composes §11.4 / §11.4.1 / §11.4.5 / §11.4.6 / §11.4.27 /
+§11.4.35 / §11.4.43 (generalises its fix-scoped test-first to ALL work)
+/ §11.4.50 / §11.4.66 (brownfield adoption is an operator question) /
+§11.4.67 / §11.4.69 / §11.4.77 / §11.4.85 / §11.4.107 / §11.4.108 /
+§11.4.110 / §11.4.115 / §11.4.122 / §11.4.135 / §11.4.142 / §11.4.146 /
+§11.4.169 (orthogonal test-TYPE axis) / §11.4.185 / §11.4.197 /
+§11.4.201(8) / §11.4.202 / §1.1. Propagation gate
+<code>CM-COVENANT-114-224-PROPAGATION</code> (literal
+<code>11.4.224</code>) + recommended gates
+<code>CM-TEST-FIRST-ALL-WORK</code> (every commit adding an executable
+artifact carries its test, and that test&#39;s failing-first observation is
+recorded — a new script/gate/feature landing with no test, or with a
+test whose RED was never captured, FAILs) +
+<code>CM-COVERAGE-FLOOR</code> (a measured coverage figure exists per
+declared language, was produced by a real instrument run rather than
+asserted, and is ≥ the declared floor; a declared language with NO
+instrument FAILs rather than silently passing; <strong>the measured
+numerator counts ONLY lines covered by RED-CAPABLE tests</strong> —
+every test contributing to the measured corpus MUST carry a recorded
+failing-first run (its clause-(A) RED record) OR a paired mutation
+observed to make it FAIL, with sampling-based mutation verification an
+acceptable stated implementation and a contributing test carrying ZERO
+assertions rejected by construction, so assertion-free execution cannot
+raise the measured figure and ONE real RED-captured test plus
+assertion-free padding to 85% FAILs this gate; AND the gate FAILs on any
+corpus exclusion that is absent from the checked-in list, not justified
+from the clause-(E) closed class set, or first-party without its tracked
+§11.4.197 item) + paired §1.1 mutations (land an executable artifact
+with no test → <code>CM-TEST-FIRST-ALL-WORK</code> FAILs; record a
+coverage percentage with no instrument run behind it, or drop a
+language&#39;s measurement entirely, or pad the numerator with an
+assertion-free test, or slip an unjustified exclusion into the corpus
+scope → <code>CM-COVERAGE-FLOOR</code> FAILs; strip the literal → the
+propagation gate FAILs). <strong>Brownfield adoption is DELIBERATELY
+UNDEFINED by this anchor (§11.4.66):</strong> when
+<code>CM-COVERAGE-FLOOR</code> first lands on a project whose legacy
+corpus measures below 85%, the gate-code work item MUST surface the
+adoption question to the OPERATOR per §11.4.66 BEFORE first enforcement
+— candidate options to present: immediate hard floor (day-one RED until
+the corpus is raised) / a ONE-TIME monotone-decrease ratchet per the
+§11.4.135 precedent / per-corpus phase-in (per language or module as
+each enters scope) / floor-on-changed-code-only with a scheduled
+full-corpus deadline — recording the operator&#39;s answer as consumer DATA
+(§11.4.35); this anchor does NOT autonomously weaken the operator&#39;s
+unconditional &quot;not less than 85% !!!&quot; with an invented ratchet (a
+§11.4.122-class decision the operator owns). Gate-code = a separate work
+item — the CONTRACT is landed here, the gate CODE is NOT claimed shipped
+(§11.4.6).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.224.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--test-after-OK</code>, <code>--skip-red-first</code>,
+<code>--bash-exempt-from-tests</code>,
+<code>--coverage-not-applicable</code>, <code>--below-floor-OK</code>,
+<code>--coverage-proves-correct</code>,
+<code>--unmeasured-percentage-OK</code>,
+<code>--assertion-free-test-counts</code> flag exists.</p>
+<h3 id="114225--scheduler-quota-burst-throttling-telemetry--interactive-scope-isolation-from-bursty-fleets-progressive-interactive-degradation-is-diagnosed-from-throttling-accounting-over-time-never-from-averages-and-an-interactive-latency-sensitive-process-never-shares-a-fixed-quota-no-burst-scope-with-a-bursty-fleet-research-derived-2026-07-23">§11.4.225
+— Scheduler-quota burst-throttling telemetry + interactive-scope
+isolation from bursty fleets: progressive interactive degradation is
+diagnosed from throttling accounting over time, never from averages, and
+an interactive-latency-sensitive process never shares a fixed-quota
+no-burst scope with a bursty fleet (research-derived, 2026-07-23)</h3>
+<p><strong>Forensic anchor (genericised, 2026-07-22 — two independent
+instances in one day).</strong> (a) Progressive interactive sluggishness
+— worsening with the number of live subagents — was root-caused to a
+scheduler CPU quota (a cgroup <code>cpu.max</code> limit) with NO burst
+allowance on a session scope hosting BOTH the operator&#39;s interactive
+terminal-multiplexer server AND a spawning agent fleet. Measured live on
+a 64-CPU host: the scope&#39;s quota was 9.6 CPU per 100 ms enforcement
+period; average demand was 4.35 CPU — comfortably UNDER quota — yet 51
+of 301 periods (16.9%) were throttled during active phases, ~6.4
+runqueue-seconds of forced idle per wall-second at peak, 0% throttled
+during quiet phases (episodic, fleet-phase-correlated), and the lifetime
+ratio (10.9%) vs the live ratio (16.9%) showed it WORSENING with session
+age. The terminal server was co-resident in the throttled scope: it
+froze for ≥100 ms per throttled period, and consecutive throttled
+periods compounded into multi-second interactive stalls. Every
+conventional instrument read HEALTHY — CPU average under quota, load
+average unremarkable, memory fine, thread counts fine — the degradation
+was INVISIBLE to averages and lived entirely in the throttling
+accounting (<code>cpu.stat</code> <code>nr_throttled</code> /
+<code>throttled_usec</code> deltas). (b) A sibling session launcher
+shipped a FIXED default quota (2 CPUs) on the same 64-core host — 18.8%
+of periods throttled and 1757 s of cumulative forced idle — fixed by
+computing the default from real detected host capacity (a per-core
+fraction with a floor and a cap), proven by a four-quadrant polarity
+test reading the LIVE cgroup back.</p>
+<p>Two operative halves, BOTH mandatory:</p>
+<p><strong>(A) DIAGNOSTIC — throttling accounting over time under load,
+never averages.</strong> Any investigation of progressive / bursty /
+load-correlated interactive degradation (sluggish TUI or terminal,
+editor lag, stalls that worsen with parallel-agent or worker count) MUST
+sample the scheduling scope&#39;s THROTTLING ACCOUNTING — on Linux cgroup
+v2, <code>cpu.stat</code> <code>nr_throttled</code> +
+<code>throttled_usec</code> as DELTAS over a measured window under load,
+expressed as a fraction of elapsed enforcement periods, WITH a
+quiet-phase control sample (the §11.4.201(7)(b) needle in time: a
+mechanism that fires 17% under load and 0% quiet is proven load-coupled,
+not ambient) — BEFORE any verdict on the cause is minted. A HEALTHY
+AVERAGE WITH A HIGH THROTTLE RATIO IS THE TRAP: quota enforcement is
+per-period (canonically 100 ms), so a workload can sit far below its
+quota ON AVERAGE while a large fraction of individual periods hit the
+ceiling and stall every co-resident process; CPU averages, load average,
+memory, and thread counts are all structurally BLIND to it — their quiet
+&quot;healthy&quot; readings are §11.4.201(6) FALSE-NULLS, and &quot;the averages look
+healthy, so the host is fine&quot; without throttle-accounting deltas is a
+§11.4.6 guess. The same discipline applies to EVERY quota&#39;d scheduler
+(container CPU limits, VM caps, hypervisor shares / steal time): the
+throttle/steal accounting IS the authoritative source (§11.4.201); the
+utilisation average is a proxy that the real condition does not have to
+satisfy.</p>
+<p><strong>(B) DESIGN — an interactive-latency-sensitive process NEVER
+shares a fixed-quota, no-burst scope with a bursty fleet.</strong> An
+interactive-latency-sensitive process (terminal-multiplexer server, TUI,
+editor, operator shell) MUST NOT be co-resident in a fixed-quota
+scheduling scope that has NO burst allowance together with a bursty
+multi-process fleet (spawning subagents, build workers, test runners):
+the fleet&#39;s demand spikes consume whole enforcement periods and the
+interactive process freezes with them — in bursts, progressively as the
+fleet grows (the §11.4.103/§11.4.183 parallel-stream mechanics make the
+fleet&#39;s demand spiky BY DESIGN, so the collision is structural, not
+incidental). The consuming project MUST (1) grant the shared scope a
+burst allowance sized for the fleet&#39;s measured spike profile, OR (2)
+isolate the interactive process in its OWN scope (or leave it unquoted
+where host policy allows), OR both. Quota values MUST be HOST-ADAPTIVE —
+computed from real detected capacity with a documented floor and cap
+(§12.11&#39;s dynamic-detection discipline; §11.4.6 never hardcode), never a
+fixed literal that silently strangles a many-core host (the forensic
+clause-(b) instance); and a quota change is verified by READING THE LIVE
+scope&#39;s values BACK (§11.4.108 runtime signature — the configured value
+is not the effective value until read back). Composes §12.6 (memory
+ceiling) + §12.12 (thread/RLIMIT_NPROC headroom) as the THIRD orthogonal
+host-exhaustion axis: abundant RAM and abundant thread headroom do NOT
+imply an un-throttled scheduler — each axis has its own authoritative
+instrument, and none substitutes for another.</p>
+<p>Honest boundary (§11.4.6): throttle telemetry proves WHERE
+enforcement periods were lost — it does NOT prove throttling is the ONLY
+degrader (network RTT floors, in-process GC/event-loop load, and
+sink-side effects remain separately measurable; the founding
+investigation ranked them independently and REFUTED five candidate
+mechanisms with the same instrumentation rigor); and clause (B) bounds
+PLACEMENT + SIZING — it does not exempt the fleet from the
+§12.6/§12.8/§12.12 host-safety ceilings, and it never licenses removing
+a quota that host policy requires (widen/isolate/burst within policy,
+per §12).</p>
+<p>Classification: universal (§11.4.17) — scheduler-quota throttling is
+a platform-general mechanism (cgroup v1/v2, container runtimes, VM
+hypervisors); the consuming project supplies its concrete scope layout,
+quota/burst values, sampling windows, and instruments per §11.4.35.
+Composes §11.4.6 / §11.4.24 (build-resource stats — the sampler seam
+this telemetry extends) / §11.4.102 (systematic-debugging — the throttle
+sample is Phase-1 fact-gathering, and the forensic investigation reached
+it only by refusing to stop at healthy averages) / §11.4.108 (read the
+live scope back) / §11.4.128(1) (observer-effect budget — the sampler
+itself stays lightweight) / §11.4.201 (authoritative-source measurement;
+the averages-only verdict is a false-null) / §12.6 / §12.8 / §12.11 /
+§12.12. Propagation gate <code>CM-COVENANT-114-225-PROPAGATION</code>
+(literal <code>11.4.225</code>) + recommended gates
+<code>CM-QUOTA-THROTTLE-TELEMETRY</code> (every
+progressive/bursty-degradation investigation&#39;s verdict cites
+throttle-accounting DELTAS sampled over a measured window under load + a
+quiet-phase control; an averages-only verdict on a
+progressive-degradation issue → FAIL) and
+<code>CM-INTERACTIVE-SCOPE-NOT-QUOTA-STARVED</code> (no
+interactive-latency-sensitive process is co-resident in a fixed-quota
+no-burst scope with a bursty fleet; quota defaults are host-adaptive
+with a live read-back, never fixed literals) + paired §1.1 mutations
+(record a progressive-degradation verdict citing only averages → the
+telemetry gate FAILs; pin a fixed low quota literal as the default on a
+detected many-core host, or co-locate the terminal server with the fleet
+in a no-burst quota scope → the isolation gate FAILs; strip the literal
+→ the propagation gate FAILs; gate-code = separate work item).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.225.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--averages-prove-healthy</code>,
+<code>--skip-throttle-telemetry</code>,
+<code>--fixed-quota-default-OK</code>,
+<code>--interactive-in-fleet-scope-OK</code>,
+<code>--no-burst-needed</code>, <code>--skip-quiet-phase-control</code>
+flag exists.</p>
+<h3 id="114226--evidence-class-at-closure--standing-detection-pressure-machinery-presence-does-not-predict-whether-a-fix-holds--the-evidence-class-at-closure-runtime-vs-source-under-real-detection-pressure-does-prose-does-not-bind-seams-do-research-derived-2026-07-23">§11.4.226
+— Evidence-class-at-closure + standing detection pressure: machinery
+presence does NOT predict whether a fix holds — the EVIDENCE CLASS at
+closure (runtime vs source) under real DETECTION PRESSURE does; prose
+does not bind, seams do (research-derived, 2026-07-23)</h3>
+<p><strong>Forensic anchor (genericised — the 2026-07-22
+reopen/first-touch root-cause forensics; operator mandate 2026-07-22,
+verbatim: &quot;do deep research on how we have for very long time so much
+reopened workable items!? Why the quality of delivered releases was so
+poor mostly? We mostly detect the same major problems on first touch
+when new releases are available, and this happens over and over
+again!&quot;).</strong> The single strongest empirical result across four
+independent evidence lines (internal forensics; a 76-source external
+literature pass; one cross-project corpus WITHOUT tracking machinery;
+one corpus WITH exemplary machinery): <strong>every fix whose done-claim
+was preceded by an on-target RED→GREEN polarity flip that held recorded
+ZERO reopens; every fix confirmed only at source-green bounced.</strong>
+Cross-corpus: the runtime-evidence-closure corpus recorded median
+attempts-to-stick = 1 and a ~0.3% corrected reopen rate (its own
+analysis marks that a FLOOR under weak detection pressure), while the
+source-green corpus recorded 52% — itself a proven undercount; the
+healthy corpus&#39;s ONLY bouncing fix family was closed by a wrong-layer
+echo-assertion (a unit test asserting a Noop echo — the discriminator&#39;s
+predicted loser, sign right); 69 commits in a two-month window moved
+claims at &quot;PENDING-BUILD&quot;; the last audited release entered manual QA
+with <strong>1 of 25</strong> in-scope items validated at the
+user-visible layer — the operator was the FIRST user-layer oracle most
+claims had ever met, so first-touch rediscovery of the same majors was
+the deterministic output of the pipeline shape, not bad luck; a
+pixel-layer defect was &quot;verified&quot; by a file-existence check plus five
+greps; and the corpus WITHOUT machinery shipped a &quot;fully working&quot;
+release hours before a total field brick with its whole hermetic
+(wrong-layer) suite green. The law this evidence selects:
+<strong>machinery presence (trackers, guards, gates, anchors) is signal
+and custody, NOT prevention; what predicts whether a fix holds is the
+EVIDENCE CLASS AT CLOSURE (runtime vs source) under real DETECTION
+PRESSURE. Prose does not bind — seams do. Coverage has a blind
+complement at any maturity.</strong></p>
+<p>The mandate (ALL hold; the STRICT FORMALIZATION of §11.4.115(F)&#39;s
+evidence-class clause + §11.4.146(D3)&#39;s custody chain + §11.4.108&#39;s four
+layers — it supplies the closed taxonomy, rank floor, machine fields,
+and freshness contract those anchors did not state):</p>
+<p><strong>(1) Closed evidence-class ranking with a per-defect-layer
+floor, enforced at every closure seam.</strong> Defect layers form the
+closed set {user-visible, runtime, artifact, source} (§11.4.108);
+evidence classes form the closed RANKED set {runtime &gt; artifact &gt;
+source}. Every terminal or ready-class status write carries evidence
+whose class meets its defect layer&#39;s floor: a user-visible or
+runtime-layer defect can NEVER close on artifact- or source-class
+evidence; source-on-source stays legal (the §11.4.201(1) false-refusal
+guard — legitimate source-layer work is never refused).</p>
+<p><strong>(2) Class is proven by MACHINE FIELDS, never by a
+label.</strong> <code>runtime</code> requires a target fingerprint read
+FROM the target at run time (§11.4.115(F)) plus a runtime observable;
+<code>artifact</code> requires the artifact path plus its content hash;
+<code>source</code> requires the source ref. A class label without its
+fields is SHAPE-INCOMPLETE and refused; unreadable evidence is BLIND,
+never accepted.</p>
+<p><strong>(3) The ANTI-ECHO rule.</strong> A &quot;runtime observable&quot; that
+IS a grep/source-scan transcript is WRONG-LAYER and refused — a grep can
+never observe a pixel; the wrong-layer oracle dies by construction (the
+pixel-defect-by-five-greps closure and the Noop-echo family both cross
+this seam and are refused at it).</p>
+<p><strong>(4) Per-status evidence preconditions.</strong> Every status
+in the §11.4.15/§11.4.33 lifecycle carries a CHECKED evidence
+precondition — not only the terminal write. Forensic FACT: a penultimate
+&quot;ready&quot;-class status functioned as design-complete-but-UNVERIFIED and
+parked 79 items — 42% of the done-claiming population; the operator
+sampling &quot;done&quot; items was sampling a set dominated by never-verified
+work without either party being wrong about their own definition
+(semantic drift between claim-maker and claim-consumer). A status that
+sounds like progress but carries no checked precondition becomes the
+parking lot for unverified work.</p>
+<p><strong>(5) Fix-kind honesty.</strong> Every defect closure
+classifies its fix-kind; a STATE-ONLY repair (restart / cache-clear /
+re-deploy / manual re-run) or a mitigation CANNOT close a defect item as
+fixed — it is recorded as a mitigation and the item stays open or is
+honestly reclassified (composes §11.4.102&#39;s Iron Law + §11.4.146;
+forensic FACT: a sibling corpus&#39;s recurrence chains — 11 chains, median
+3 and max 7 attempts per defect — were dominated by state-only &quot;fixes&quot;
+that closed and bounced).</p>
+<p><strong>(6) STANDING DETECTION PRESSURE.</strong> Detection pressure
+is a CAUSAL INPUT to every measured quality rate — a
+reopen/defect/quality figure reported without its detection-pressure
+regime is incomparable and misleading (§11.4.6): the measured
+52%-vs-~0.3% cross-corpus split is explained by pressure + closure
+class, not machinery, and the healthy corpus&#39;s one genuine recurrence
+surfaced at 24 days — the next SWEEP, not the next use (&quot;we only see
+what we test&quot;, §11.4.118). Therefore: every registered, topology-present
+guard carries a FRESHNESS CONTRACT — a verdict on the CURRENT artifact
+fingerprint, no older than a declared staleness budget; the
+never-executed / stale-fingerprint / over-budget set feeds a STANDING,
+risk-ordered re-run queue (most-reopened-first per §11.4.189, then
+stalest-first) that the zero-idle loop (§11.4.94/§11.4.97) drains as
+regular development-cycle work; the §11.4.135 release seam remains the
+blocking BACKSTOP, never the only executor. Forensic FACT: two standing
+guards, finally executed during the forensics, immediately emitted the
+FAILs that had been latent the whole time — one reproduced the
+operator&#39;s loudest defect 3/3; registration had been treated as coverage
+while execution was nobody&#39;s job. Topology-absent guards are enumerated,
+never queued (no false pressure, §11.4.201(1)); an empty registry is
+BLIND, never &quot;all fresh&quot;; staleness budgets are consumer data (§11.4.35)
+bounded by the alarm-fatigue trade-off — the queue is a work FEED, only
+the release seam blocks.</p>
+<p><strong>Regular-cycle + review + pull binding (operator mandate
+2026-07-23).</strong> This anchor applies during EVERY regular
+development cycle (the freshness queue is standing §11.4.94 work, and
+every closure crosses seam (1)); it is CHECKED through every code-review
+per §11.4.194(6); and on every constitution fetch/pull the §11.4.32
+post-pull validation sweep + the §11.4.164 auto-propagation hook analyze
+the new additions and run their gates against the post-pull tree, with
+violations tracked (§11.4.15) and cleared — no parallel mechanism is
+invented.</p>
+<p><strong>Honest boundary (§11.4.6).</strong> (i) The discriminator is
+a measured correlation with a stated mechanism and zero counter-cases in
+the record — NOT a randomized trial (guarded items had less operator
+exposure; the clean exemplars are few; the confound is carried, not
+hidden). (ii) Fabricated machine fields are not fully closed here —
+provenance stays with §11.4.115(F) harness-written verdicts + the
+§11.4.135 candidate-fingerprint join, where an invented fingerprint
+fails to match the real candidate and reads as absence; layered, not
+eliminated. (iii) Oracle calibration stays §11.4.107(10) — runtime-class
+evidence from a mis-calibrated analyzer still passes this seam; goldens
+are necessary, not sufficient. (iv) The defect-layer taxonomy is
+authored data — mislabelling a user-visible defect as source-layer
+lowers its floor; the §11.4.194(6)(a) review class is the detective
+counter (cheap to spot: the item&#39;s own description names user symptoms).
+(v) Re-running a weak guard often proves nothing — oracle strength
+remains §1.1/§11.4.115(F)&#39;s job, and orthogonal discovery (§11.4.85
+chaos, §11.4.118 discovery pressure) is a different feed this queue does
+not generate.</p>
+<p><strong>Reference mechanisms (proven, NOT wired —
+§11.4.6/§11.4.205).</strong> Runnable seam mechanisms with RED-first
+POCs, golden-good/golden-bad/negative-control fixtures (§11.4.107(10)),
+live-data runs, and stated boundaries exist in this repository&#39;s
+quality-solutions research corpus
+(<code>docs/research/quality/solutions/</code> — SOL-01 status-custody,
+SOL-02 verdict-coverage, SOL-04 evidence-class, SOL-09
+detection-pressure; 65/65 GREEN across the ten-POC set on a
+deterministic second iteration). Per §11.4.205 they carry NO force until
+their seams are wired by separate tracked work items (§11.4.197);
+§11.4.227(A)&#39;s ledger is the instrument that keeps that wiring debt
+visible.</p>
+<p>Classification: universal (§11.4.17) — no hardware/vendor/project
+literal; the consuming project supplies its defect-layer bindings,
+evidence-store paths, verdict registries, and staleness budgets as DATA
+per §11.4.35. Composes §11.4.1 / §11.4.5 / §11.4.6 / §11.4.15 / §11.4.33
+/ §11.4.69 / §11.4.94 / §11.4.97 / §11.4.102 / §11.4.107(10) / §11.4.108
+/ §11.4.115(F) / §11.4.118 / §11.4.123 / §11.4.132 / §11.4.135 /
+§11.4.146(D3) / §11.4.185 / §11.4.189 / §11.4.194(6) / §11.4.201 /
+§11.4.205 / §11.4.214. Propagation gate
+<code>CM-COVENANT-114-226-PROPAGATION</code> (literal
+<code>11.4.226</code>) + recommended gates
+<code>CM-EVIDENCE-CLASS-AT-CLOSURE</code> (every terminal/ready-class
+status write carries class-matched, machine-field-proven evidence
+meeting its defect layer&#39;s floor; a grep-transcript &quot;runtime observable&quot;
+→ FAIL; a state-only repair closing a defect as fixed → FAIL) and
+<code>CM-GUARD-FRESHNESS-SCHEDULER</code> (every registered,
+topology-present guard is fresh-on-the-current-fingerprint or present in
+the visible, risk-ordered re-run queue; an empty registry → BLIND, never
+&quot;all fresh&quot;) + paired §1.1 mutations (close a runtime-layer item on
+source-class evidence → the closure gate FAILs; attach a runtime label
+with no machine fields → FAILs; let a registered guard sit past its
+staleness budget with no queue entry → the scheduler gate FAILs; strip
+the literal → the propagation gate FAILs; gate-code = separate work
+item, NOT claimed shipped §11.4.6).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.226.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--source-green-closes-runtime-defect</code>,
+<code>--label-is-class</code>, <code>--echo-observable-OK</code>,
+<code>--registration-is-coverage</code>,
+<code>--rate-without-pressure-regime</code>,
+<code>--mitigation-closes-defect</code>,
+<code>--skip-freshness-queue</code> flag exists.</p>
+<h3 id="114227--governance-corpus-self-custody-the-rule-corpus-is-bound-by-the-same-custody-it-imposes--every-named-gate-is-implemented-or-registered-deferral-under-a-monotone-ratchet-and-propagation-gates-count-anchor-blocks-exactly-once--lockstep-identical-never-bare-literals-research-derived-2026-07-23">§11.4.227
+— Governance-corpus self-custody: the rule corpus is bound by the same
+custody it imposes — every named gate is
+implemented-or-registered-deferral under a monotone ratchet, and
+propagation gates count anchor BLOCKS (exactly-once +
+lockstep-identical), never bare literals (research-derived,
+2026-07-23)</h3>
+<p><strong>Forensic anchor (measured on THIS corpus, 2026-07-22 —
+commands and control needles preserved in the root-cause
+analysis).</strong> The canonical rule file held 10,735 lines and 220
+distinct §11.4.N anchors; <strong>413 named CM-* gates, of which 241
+(58%) had no implementation in either canonical gate site, plus 85
+literal &quot;gate-code = separate work item&quot; deferrals</strong>; the
+status-custody seam DESIGNED on 2026-07-17 was still prose on 2026-07-22
+— the corpus&#39;s highest-value remediation fell into its own gap within
+five days; the two anchors that state the fix-confirmation discipline
+verbatim predate the failures they failed to prevent by five-plus weeks.
+The positive complement: <strong>every fully-mechanised rule in the
+record either prevented or exposed its failure mode</strong> (the suite
+PENDING-semantics + the release verdict-coverage seam landed within a
+day of diagnosis and now block) — the gap is not rule quality, it is the
+prose-to-seam conversion rate. The SHAPE defect: the propagation-gate
+family — the ONLY gate family that runs everywhere — asserts
+literal-presence ≥ 1, mechanically rewarding restatement over
+implementation (&quot;the corpus measures its own health in words present,
+and so it grows words&quot;); measured consequences: two anchor blocks
+duplicated verbatim-divergently in ALL FOUR mirrors while every
+presence-gate stayed green; one anchor NUMBER heading two DIFFERENT
+mandates (the §11.4.140/§11.4.141 collision — independently re-detected
+by the block-integrity instrument&#39;s live run; resolution is an
+operator-owned re-mint, tracked); two canonical entry-point mandates
+contradicting each other (the mandated resumption file unreachable from
+the mandated README). External corroboration: a mandated-checklist
+adoption WITHOUT workflow embedding produced no measurable improvement
+across 101 hospitals (the Ontario null, cited in the external-research
+corpus) — prescription without a seam does not move outcomes at any
+scale.</p>
+<p>The mandate (ALL hold):</p>
+<p><strong>(A) NAMED-GATE LEDGER + IMPLEMENTATION RATCHET.</strong>
+Naming a gate is a commitment with a same-commit cost: every
+<code>CM-*</code>-class gate token named anywhere in the governance
+corpus MUST, at every build (of the governance repo and of every wired
+consumer), be either IMPLEMENTED — the token present in an EXECUTABLE
+gate site; prose carriers NEVER count (§11.4.201(7)(a)) — or covered by
+a REGISTERED DEFERRAL row pointing at a tracked work item (§11.4.197).
+Silent gate debt is refused at the build seam. The unimplemented count
+is a MONOTONE-DECREASING ratchet, validated per §11.4.201(8) against the
+definition of done (at the correct end-state — every named gate
+implemented — the count is 0, so the metric reaches target and is valid
+as a necessary floor). A gate NAME that vanishes from the corpus without
+an explicit removal citation FAILs — the metric-gaming channel (deleting
+names to lower the count) is closed structurally; repeals stay legal and
+visible (the §11.4.166 pattern). <strong>An anchor&#39;s &quot;done&quot; state is its
+SEAM landing, not its TEXT landing</strong> — a rule authored without
+its seam is, by §11.4.205&#39;s own criterion, in the worse-than-nothing
+state, and this ledger makes that state visible, counted, and shrinking
+instead of silent. Brownfield adoption (ratchet down from the measured
+baseline vs hard-fail day one) is an operator §11.4.66 decision
+mirroring §11.4.224(E)&#39;s adoption fence — never an invented ratchet.</p>
+<p><strong>(B) ANCHOR-BLOCK INTEGRITY — the propagation-gate SHAPE
+fix.</strong> Every propagation-class gate MUST count anchor
+BLOCK-STARTS (structural, line-anchored heading patterns), never bare
+literals: (i) exactly ONE block per anchor per governance file — 0 is
+the old absence check, &gt; 1 is the DUPLICATION check, FAIL naming the
+anchor and file; (ii) content-hash EQUALITY across the declared lockstep
+mirror set (§11.4.157) — divergent copies FAIL naming both files
+(compact-vs-full variance ACROSS layers — canonical file vs mirror —
+remains legitimate; equality binds only within the declared lockstep
+set, and canonical-vs-mirror semantic drift stays the §11.4.186
+cross-doc family&#39;s job); (iii) mid-body citations of an anchor literal
+are CARRIERS and never count (§11.4.201(7)(a)); (iv) ZERO blocks
+extracted from a governance file is BLIND-OR-EMPTY, never clean
+(§11.4.201(6)); (v) one anchor NUMBER heading two different mandates is
+a COLLISION and FAILs (§11.4.54&#39;s never-reuse discipline applied to
+anchor ids); (vi) the block extractor MUST capture full dotted ids so a
+sub-anchor (<code>…10.A</code>) never prefix-matches its parent
+(<code>…10</code>) — a measured §11.4.201(1) false positive in the
+founding instrument itself, fixed RED-first.</p>
+<p><strong>(C) Consolidation pressure + honest boundary.</strong>
+Nothing mechanical decides SEMANTIC contradiction between two different
+anchors — only the decidable projections are mechanized here (block
+counts, lockstep hashes, anchor numbers; fenced verdict scopes stay
+§11.4.112(5), seam declarations stay §11.4.120); the remainder is
+§11.4.142/§11.4.194 review territory — stated, never claimed. This
+anchor adds the measured enforcement-ratio INSTRUMENT, not a growth ban:
+the counterweights to corpus growth remain §11.4.17 classification,
+§11.4.141 token-efficiency, and the visible-repeal precedent
+(§11.4.166).</p>
+<p><strong>Regular-cycle + review + pull binding (operator mandate
+2026-07-23).</strong> The ledger regenerates and diffs on every
+governance edit and every build — regular development cycles, never an
+on-demand audit; a change that NAMES a gate is review-checked for its
+implementation-or-deferral per §11.4.194(6)(c); and on every
+constitution fetch/pull the §11.4.32 post-pull sweep + the §11.4.164
+auto-propagation hook run the ledger + block-integrity checks against
+the post-pull tree, with violations tracked (§11.4.15) and cleared — no
+parallel mechanism is invented.</p>
+<p><strong>Reference mechanisms (proven, NOT wired —
+§11.4.6/§11.4.205).</strong> SOL-05 (gate ledger + ratchet) and SOL-06
+(anchor-block integrity) under
+<code>docs/research/quality/solutions/</code> are runnable RED-first
+POCs with golden fixtures: SOL-05&#39;s live read-only run reproduced the
+413-named-gate census exactly (234 unimplemented by its slightly-laxer
+structure rule — the 7-gate methodological delta stated in-doc);
+SOL-06&#39;s live run confirmed the four mirrors CLEAN post-F7 and
+independently re-detected the §11.4.140/§11.4.141 collision. Per
+§11.4.205 they carry NO force until wired by separate tracked work items
+(§11.4.197).</p>
+<p>Classification: universal (§11.4.17) — no project literal; every
+consuming project (and this governance repo itself) supplies its
+gate-site list, deferral registry, and lockstep mirror set as DATA per
+§11.4.35. Composes §11.4.6 / §11.4.15 / §11.4.17 / §11.4.32 / §11.4.54 /
+§11.4.66 / §11.4.75 / §11.4.141 / §11.4.157 / §11.4.164 / §11.4.166 /
+§11.4.186 / §11.4.194(6) / §11.4.197 / §11.4.201 / §11.4.205 /
+§11.4.224(E). Propagation gate
+<code>CM-COVENANT-114-227-PROPAGATION</code> (literal
+<code>11.4.227</code> — itself REQUIRED to be block-start-shaped per
+clause (B)) + recommended gates <code>CM-GATE-LEDGER-RATCHET</code>
+(every named gate implemented-or-registered-deferral; the unimplemented
+count monotone-decreasing; vanished names cite removals) and
+<code>CM-ANCHOR-BLOCK-INTEGRITY</code> (exactly-once per anchor per file
++ lockstep content-hash equality + carrier exclusion + BLIND-on-zero +
+collision detection) + paired §1.1 mutations (name a gate with no
+implementation and no deferral row → the ledger gate FAILs; delete a
+gate name without a removal citation → FAILs; duplicate an anchor block
+in one mirror, let two lockstep copies diverge, or re-mint an existing
+anchor number → the integrity gate FAILs; strip the literal → the
+propagation gate FAILs; gate-code = separate work item, NOT claimed
+shipped §11.4.6).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.227.</p>
+<p>Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--name-gate-without-seam</code>,
+<code>--silent-gate-debt-OK</code>,
+<code>--delete-name-to-lower-count</code>,
+<code>--presence-gte-1-suffices</code>,
+<code>--duplicate-anchor-OK</code>, <code>--mirror-drift-OK</code>,
+<code>--reuse-anchor-number</code> flag exists.</p>
 </body>
 </html>
