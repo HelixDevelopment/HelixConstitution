@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+
+:root {
+
+--od-bg: #f5f8ff; 
+--od-surface: #ffffff; 
+--od-surface-warm: #eaf1ff; 
+--od-surface-muted: #f4f6fb; 
+
+--od-fg: #101828; 
+--od-fg-2: #344054; 
+--od-muted: #667085; 
+
+--od-border: #d7e0ef; 
+--od-border-soft: #edf2f8; 
+
+--od-accent: #2563eb; 
+--od-accent-on: #ffffff; 
+--od-accent-hover: #205fd6; 
+--od-accent-tint: #eaf1ff; 
+
+--od-success: #16a34a; 
+--od-warn: #f59e0b; 
+--od-danger: #ef4444; 
+
+
+--od-font-body: "Source Sans 3", "Source Sans Pro", "Source Sans", Inter,
+-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+"Helvetica Neue", Arial, "Noto Sans", "DejaVu Sans", sans-serif,
+"Apple Color Emoji", "Segoe UI Emoji";
+--od-font-mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace,
+SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+--od-leading-body: 1.65;
+--od-leading-tight: 1.2;
+
+--od-radius-xs: 4px;
+--od-radius-sm: 6px;
+--od-radius: 8px;
+--od-radius-lg: 12px;
+--od-radius-pill: 9999px;
+
+--od-elev-ring: 0 0 0 1px var(--od-border);
+--od-elev-raised: 0 18px 48px rgba(16, 24, 40, 0.10);
+--od-focus-ring: 0 0 0 4px rgba(37, 99, 235, 0.22);
+
+--doc-fg: var(--od-fg);
+--doc-fg-muted: var(--od-muted);
+--doc-bg: var(--od-bg);
+--doc-surface: var(--od-surface);
+--doc-accent: var(--od-accent);
+--doc-accent-soft: var(--od-accent-tint);
+--doc-border: var(--od-border);
+--doc-border-soft: var(--od-border-soft);
+--doc-code-bg: #eef2fb;
+--doc-code-fg: #1d2433;
+--doc-quote-bar: var(--od-accent);
+--doc-quote-bg: #f4f7fe;
+--doc-table-stripe:#f7f9fe;
+}
+
+html {
+font-size: 16px;
+}
+body {
+font-family: var(--od-font-body);
+color: var(--doc-fg);
+background: var(--doc-bg);
+line-height: var(--od-leading-body);
+font-size: 1rem;
+max-width: 58rem;
+margin: 2.5rem auto;
+padding: 2.25rem 2.5rem 4rem;
+background-clip: padding-box;
+border-radius: var(--od-radius-lg);
+-webkit-text-size-adjust: 100%;
+text-rendering: optimizeLegibility;
+-webkit-font-smoothing: antialiased;
+}
+
+@media screen and (min-width: 62rem) {
+body {
+background: var(--doc-surface);
+box-shadow: var(--od-elev-raised);
+}
+html { background: var(--doc-bg); }
+}
+
+h1, h2, h3, h4, h5, h6 {
+font-family: var(--od-font-body);
+font-weight: 600;
+line-height: var(--od-leading-tight);
+letter-spacing: -0.011em;
+margin: 1.8em 0 0.6em;
+color: var(--od-fg);
+}
+h1 {
+font-size: 2.1rem;
+font-weight: 700;
+letter-spacing: -0.022em;
+border-bottom: 2px solid var(--doc-border);
+padding-bottom: 0.32em;
+margin-top: 0;
+}
+h2 {
+font-size: 1.55rem;
+border-bottom: 1px solid var(--doc-border-soft);
+padding-bottom: 0.25em;
+}
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.1rem; }
+h5 { font-size: 1.0rem; color: var(--od-fg-2); }
+h6 { font-size: 0.92rem; color: var(--doc-fg-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+h3.status-group-heading {
+margin-top: 1.6em;
+padding: 0.4em 0.7em;
+background: var(--doc-accent-soft);
+color: var(--od-fg);
+border-left: 4px solid var(--doc-accent);
+border-radius: var(--od-radius-sm);
+font-size: 1.15rem;
+}
+
+p { margin: 0.75em 0; }
+a {
+color: var(--doc-accent);
+text-decoration: none;
+border-bottom: 1px solid transparent;
+transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+a:hover { color: var(--od-accent-hover); border-bottom-color: currentColor; }
+a:focus-visible {
+outline: none;
+border-radius: var(--od-radius-xs);
+box-shadow: var(--od-focus-ring);
+}
+strong { font-weight: 600; color: var(--od-fg); }
+em { font-style: italic; }
+hr {
+border: 0;
+border-top: 1px solid var(--doc-border);
+margin: 2.25em 0;
+}
+blockquote {
+margin: 1.1em 0;
+padding: 0.6em 1.2em;
+color: var(--od-fg-2);
+border-left: 4px solid var(--doc-quote-bar);
+background: var(--doc-quote-bg);
+border-radius: 0 var(--od-radius-sm) var(--od-radius-sm) 0;
+}
+ul, ol { padding-left: 1.6em; margin: 0.75em 0; }
+li { margin: 0.3em 0; }
+li::marker { color: var(--doc-fg-muted); }
+
+code, pre, kbd, samp {
+font-family: var(--od-font-mono);
+font-size: 0.88em;
+}
+code {
+background: var(--doc-code-bg);
+color: var(--doc-code-fg);
+padding: 0.15em 0.42em;
+border-radius: var(--od-radius-xs);
+border: 1px solid var(--doc-border-soft);
+}
+pre {
+background: var(--doc-code-bg);
+color: var(--doc-code-fg);
+padding: 1em 1.2em;
+border-radius: var(--od-radius);
+overflow-x: auto;
+line-height: 1.5;
+border: 1px solid var(--doc-border);
+}
+pre code {
+background: transparent;
+padding: 0;
+border: 0;
+border-radius: 0;
+}
+kbd {
+background: var(--od-surface);
+color: var(--od-fg-2);
+padding: 0.1em 0.45em;
+border-radius: var(--od-radius-xs);
+border: 1px solid var(--doc-border);
+box-shadow: 0 1px 0 var(--doc-border);
+}
+
+table {
+border-collapse: separate;
+border-spacing: 0;
+width: 100%;
+margin: 1.3em 0;
+font-size: 0.93rem;
+display: block;
+overflow-x: auto;
+border: 1px solid var(--doc-border);
+border-radius: var(--od-radius-sm);
+}
+thead th {
+background: var(--doc-accent-soft);
+color: var(--od-fg);
+font-weight: 600;
+text-align: left;
+}
+th, td {
+border-bottom: 1px solid var(--doc-border-soft);
+border-right: 1px solid var(--doc-border-soft);
+padding: 0.55em 0.8em;
+vertical-align: top;
+
+overflow-wrap: break-word;
+word-break: normal;
+white-space: normal;
+hyphens: auto;
+}
+tr > th:last-child, tr > td:last-child { border-right: 0; }
+tbody tr:last-child > td { border-bottom: 0; }
+tbody tr:nth-child(even) { background: var(--doc-table-stripe); }
+
+
+td.cell-type-bug { background: #fdecec; } 
+td.cell-type-feature { background: #e7f6ec; } 
+td.cell-type-task { background: #eef2fb; } 
+
+td.cell-status-queued { background: #eef1f6; } 
+td.cell-status-in-progress { background: #e7eefc; } 
+td.cell-status-ready-for-testing { background: #e3eefe; } 
+td.cell-status-in-testing { background: #d8e6fd; } 
+td.cell-status-reopened { background: #fdeccd; } 
+td.cell-status-operator-blocked { background: #fdd9d9; } 
+td.cell-status-fixed { background: #d8f3e2; } 
+td.cell-status-obsolete { background: #e3e6ec; color: var(--doc-fg-muted); } 
+
+tr.row-status-fixed { background: #f1faf4; }
+tr.row-status-fixed td { border-color: #cfead8; }
+tr.row-status-operator-blocked { background: #fdf4f4; }
+tr.row-status-operator-blocked td { border-color: #f4cccc; }
+
+tr.row-status-obsolete {
+background: #e3e6ec;
+color: var(--doc-fg-muted);
+}
+tr.row-status-obsolete td {
+text-decoration: line-through;
+border-color: #d1d5dd;
+}
+
+tr.row-status-obsolete td.cell-status-obsolete {
+text-decoration: line-through;
+}
+
+.tag-done, .tag-completed, .tag-in-progress, .tag-future, .tag-planned {
+display: inline-block;
+padding: 0.12em 0.66em;
+border-radius: var(--od-radius-pill);
+font-size: 0.82em;
+font-weight: 600;
+line-height: 1.5;
+letter-spacing: 0.01em;
+white-space: nowrap;
+border: 1px solid transparent;
+vertical-align: baseline;
+}
+
+.tag-done, .tag-completed {
+background: #e7f6ec;
+color: #14773a;
+border-color: #bfe6cd;
+}
+
+.tag-in-progress {
+background: #e7eefc;
+color: #1c4fce;
+border-color: #c4d6fb;
+}
+
+.tag-future, .tag-planned {
+background: #fdf3d3;
+color: #8a6400;
+border-color: #f0dca0;
+}
+
+img {
+max-width: 100%;
+height: auto;
+border-radius: var(--od-radius-sm);
+}
+
+@media screen and (prefers-color-scheme: dark) {
+:root {
+--od-bg: #0f1420;
+--od-surface: #161c2b;
+--od-surface-warm: #1c2740;
+--od-surface-muted: #141a28;
+--od-fg: #e6ebf4;
+--od-fg-2: #c2cad8;
+--od-muted: #8b94a7;
+--od-border: #2a3346;
+--od-border-soft: #1f2839;
+--od-accent: #5b8def; 
+--od-accent-on: #0f1420;
+--od-accent-hover: #79a3f4;
+--od-accent-tint: #19233a;
+--od-success: #4caf72;
+--od-warn: #e0a13a;
+--od-danger: #e0655f;
+--od-elev-ring: 0 0 0 1px var(--od-border);
+--od-elev-raised: 0 18px 48px rgba(0, 0, 0, 0.5);
+--od-focus-ring: 0 0 0 4px rgba(91, 141, 239, 0.32);
+--doc-code-bg: #11192a;
+--doc-code-fg: #d7def0;
+--doc-quote-bg: #161f33;
+--doc-table-stripe:#141b29;
+}
+
+td.cell-type-bug { background: #2a1110; }
+td.cell-type-feature { background: #0f2a18; }
+td.cell-type-task { background: #141f38; }
+
+td.cell-status-queued { background: #1c2330; }
+td.cell-status-in-progress { background: #14233f; }
+td.cell-status-ready-for-testing { background: #14223c; }
+td.cell-status-in-testing { background: #182a4a; }
+td.cell-status-reopened { background: #2c2008; }
+td.cell-status-operator-blocked { background: #2f0f0d; }
+td.cell-status-fixed { background: #0f2a18; }
+td.cell-status-obsolete { background: #20242e; color: var(--od-muted); }
+
+tr.row-status-fixed { background: #0d1f15; }
+tr.row-status-fixed td { border-color: #1c402a; }
+tr.row-status-operator-blocked { background: #220d0c; }
+tr.row-status-operator-blocked td { border-color: #45201e; }
+tr.row-status-obsolete { background: #20242e; color: var(--od-muted); }
+tr.row-status-obsolete td { border-color: #2c313c; }
+
+.tag-done, .tag-completed { background: #0f2a18; color: #6fd497; border-color: #1c4a2c; }
+.tag-in-progress { background: #14233f; color: #88aef7; border-color: #28406a; }
+.tag-future, .tag-planned { background: #2c2208; color: #e3bd55; border-color: #54430f; }
+
+h3.status-group-heading { background: var(--od-accent-tint); color: var(--od-fg); }
+kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">README</h1>
+</header>
+<h1 id="helix-constitutionpowered-speckitsuperpowers-bridge-implementation-documentation">Helix
+Constitution–Powered SpecKit–Superpowers Bridge: Implementation
+Documentation</h1>
+<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
+2026-07-24T12:00:00Z <strong>Description:</strong> Master index and
+architecture overview for the Helix Constitution–powered
+SpecKit–Superpowers Bridge implementation. <strong>Maintainer:</strong>
+HelixDevelopment <strong>Scope:</strong>
+<code>constitution/docs/research/extensions/speckit_superpowers/implementation/</code></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="#executive-summary">Executive Summary</a></li>
+<li><a href="#system-architecture">System Architecture</a>
+<ul>
+<li><a href="#architecture-diagram">Architecture Diagram</a></li>
+<li><a href="#layer-1--developer-workstation">Layer 1 — Developer
+Workstation</a></li>
+<li><a href="#layer-2--spec-kit-core-governance-layer">Layer 2 —
+Spec-Kit Core (Governance Layer)</a></li>
+<li><a href="#layer-3--superspec-bridge-orchestration-layer">Layer 3 —
+SuperSpec Bridge (Orchestration Layer)</a></li>
+<li><a href="#layer-4--superb-extension-discipline-enforcement">Layer 4
+— SuperB Extension (Discipline Enforcement)</a></li>
+<li><a href="#layer-5--superbridge-mcp-execution-layer">Layer 5 —
+SuperBridge MCP (Execution Layer)</a></li>
+<li><a href="#layer-6--helix-llm-inference-layer">Layer 6 — Helix LLM
+(Inference Layer)</a></li>
+<li><a href="#layer-7--distributed-host-cluster">Layer 7 — Distributed
+Host Cluster</a></li>
+</ul></li>
+<li><a href="#data-flow">Data Flow</a>
+<ul>
+<li><a href="#feature-lifecycle-through-the-layers">Feature Lifecycle
+Through the Layers</a></li>
+<li><a href="#nano-task-decomposition-flow">Nano-Task Decomposition
+Flow</a></li>
+</ul></li>
+<li><a href="#document-index">Document Index</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#key-design-decisions">Key Design Decisions</a></li>
+<li><a href="#constitutional-mandates-applied">Constitutional Mandates
+Applied</a></li>
+<li><a href="#directory-structure">Directory Structure</a></li>
+<li><a href="#references">References</a></li>
+</ol>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>This documentation defines the <strong>Helix Constitution–Powered
+SpecKit–Superpowers Bridge</strong> — a unified, multi-layer development
+system that integrates the full SDD (Specification-Driven Development)
+lifecycle of <a href="https://github.com/github/spec-kit">Spec-Kit</a>
+with the agent-skill ecosystem of <a href="https://github.com/obra/superpowers">Superpowers</a>, orchestrated
+through the <a href="https://github.com/WangX0111/superspec">SuperSpec</a> and <a href="https://speckit-community.github.io/extensions/superb">SuperB</a>
+bridge extensions, with distributed inference powered by <a href="https://github.com/HelixDevelopment/helix_llm">Helix LLM</a>
+backed by a <code>llama.cpp</code> RPC cluster.</p>
+<h3 id="problem-it-solves">Problem It Solves</h3>
+<p>Modern software development with LLM-assisted agents suffers from
+four structural problems:</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Manifestation</th>
+<th>Root Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Context fragmentation</strong></td>
+<td>Each tool (specifier, planner, coder, reviewer) runs in its own
+silo; no shared understanding of what is being built</td>
+<td>No canonical bridge between specification artifacts and execution
+tools</td>
+</tr>
+<tr>
+<td><strong>Discipline drift</strong></td>
+<td>Specifications written but never consulted during implementation;
+plans that do not reflect reality; &quot;fix it later&quot; culture</td>
+<td>No mechanical enforcement that the spec <em>governs</em> the
+work</td>
+</tr>
+<tr>
+<td><strong>Inference latency &amp; cost</strong></td>
+<td>Centralized LLM APIs introduce round-trip latency, rate limits, and
+per-token billing that blocks autonomous-loops</td>
+<td>No local-first distributed inference pipeline</td>
+</tr>
+<tr>
+<td><strong>Anti-bluff gap</strong></td>
+<td>Tests pass but features do not work; configuration-only PASS;
+metadata-only PASS; grep-without-runtime PASS</td>
+<td>No §11.4 positive-evidence mandate wired into the development
+lifecycle</td>
+</tr>
+</tbody>
+</table>
+<p>This bridge closes all four gaps by composing Spec-Kit&#39;s
+<code>specify → plan → tasks → implement</code> lifecycle with
+Superpowers&#39; <code>brainstorm / debug / review / test</code> skills
+under a single Constitution-governed execution framework, all powered by
+local distributed inference that keeps the autonomous loop running
+without API rate-limit interruptions.</p>
+<h3 id="what-this-documentation-covers">What This Documentation
+Covers</h3>
+<ol type="1">
+<li>The <strong>7-layer system architecture</strong> with each layer&#39;s
+responsibilities, technologies, and contractual interfaces.</li>
+<li>The <strong>data flow</strong> — how a natural-language feature
+description moves through the layers and emerges as tested, verified,
+checked-in code.</li>
+<li>The <strong>nano-task decomposition engine</strong> — how Helix LLM
+breaks tasks into sub-100-line units suitable for subagent-driven
+execution per §11.4.70.</li>
+<li>The <strong>constitutional enforcement points</strong> — where the
+Helix Constitution §11.4 anti-bluff covenant, TDD-fix-discipline,
+mechanical enforcement, and reporting-directive system plug into the
+bridge.</li>
+<li>The <strong>onboarding path</strong> — how any consuming project
+(e.g., ATMOSphere) integrates the Constitution submodule, wires its
+CLI-agent context carriers, installs the bridge extensions, and goes
+from zero to full autonomous-loop development.</li>
+</ol>
+<hr />
+<h2 id="system-architecture">System Architecture</h2>
+<h3 id="architecture-diagram">Architecture Diagram</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│  Layer 7: Distributed Host Cluster                                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │ llama.cpp    │  │ llama.cpp    │  │ llama.cpp    │  │ llama.cpp    │     │
+│  │ RPC Node 1   │  │ RPC Node 2   │  │ RPC Node 3   │  │ RPC Node N   │     │
+│  │ (GPU 0)      │  │ (GPU 1)      │  │ (GPU 2)      │  │ (GPU N)      │     │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘     │
+│         │                 │                 │                 │              │
+├─────────┼─────────────────┼─────────────────┼─────────────────┼──────────────┤
+│         └─────────────────┴────────┬────────┴─────────────────┘              │
+│                                    │                                         │
+│  Layer 6: Helix LLM (Inference Layer)                                        │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                │   │
+│  │  │ Gateway      │  │ Brain        │  │ Knowledge    │                │   │
+│  │  │ (API router, │  │ (planner,    │  │ (RAG,        │                │   │
+│  │  │  load-       │  │  reasoner,   │  │  embeddings,  │                │   │
+│  │  │  balancer,   │  │  prompt-     │  │  vector       │                │   │
+│  │  │  fallback)   │  │  optimizer)  │  │  store)       │                │   │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘                │   │
+│  │  ┌──────────────────────────────────────────────────────────────┐    │   │
+│  │  │ Agents (subagent dispatch, lifecycle, registry, respawn)     │    │   │
+│  │  └──────────────────────────────────────────────────────────────┘    │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                         │
+├────────────────────────────────────┼─────────────────────────────────────────┤
+│                                    │                                         │
+│  Layer 5: SuperBridge MCP (Execution Layer)                                  │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │  MCP Server exposing Superpowers skill suite:                        │   │
+│  │  brainstorm │ debug │ review │ test-gen │ red-green-refactor │        │   │
+│  │  analyze-arch │ refactor │ document │ search │ more...               │   │
+│  │                                                                       │   │
+│  │  Tool contracts:    each tool emits structured (PASS/FAIL + evidence  │   │
+│  │                     path) per §11.4.69; self-validated with golden-   │   │
+│  │                     good/golden-bad fixtures per §11.4.107(10)        │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                         │
+├────────────────────────────────────┼─────────────────────────────────────────┤
+│                                    │                                         │
+│  Layer 4: SuperB Extension (Discipline Enforcement)                          │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │  ┌─────────┐  ┌─────────┐  ┌───────────────┐  ┌──────────────────┐   │   │
+│  │  │ check   │  │brainstorm│  │implementation │  │ critique /      │   │   │
+│  │  │(pre-    │  │(solution │  │-gate          │  │ debug / finish  │   │   │
+│  │  │gate)    │  │design)   │  │(TDD RED-first)│  │(verify+close)   │   │   │
+│  │  └─────────┘  └─────────┘  └───────────────┘  └──────────────────┘   │   │
+│  │                                                                       │   │
+│  │  Gate contracts:    Each gate emits a PASS/FAIL verdict backed by     │   │
+│  │                     captured physical evidence; no metadata-only PASS │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                         │
+├────────────────────────────────────┼─────────────────────────────────────────┤
+│                                    │                                         │
+│  Layer 3: SuperSpec Bridge (Orchestration Layer)                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │  ┌─────────┐  ┌──────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │   │
+│  │  │ status  │  │brainstorm│  │ tasks   │  │ execute │  │ review  │   │   │
+│  │  │(context │  │(solution │  │(nano-   │  │(subagent│  │(indep.  │   │   │
+│  │  │ snapshot│  │design)   │  │decomp)  │  │dispatch)│  │review)  │   │   │
+│  │  └─────────┘  └──────────┘  └─────────┘  └─────────┘  └─────────┘   │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                         │
+├────────────────────────────────────┼─────────────────────────────────────────┤
+│                                    │                                         │
+│  Layer 2: Spec-Kit Core (Governance Layer)                                   │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                │   │
+│  │  │ Constitution │  │ Specify      │  │ Plan         │                │   │
+│  │  │ (mandates,   │  │ (feature     │  │ (architectural│               │   │
+│  │  │  invariants, │  │  specification│  │  design,     │               │   │
+│  │  │  enforcement)│  │  with accept- │  │  research)    │               │   │
+│  │  └──────────────┘  │  ance criteria│  └──────────────┘                │   │
+│  │                    └──────────────┘                                   │   │
+│  │  ┌──────────────┐  ┌──────────────────────────────────────────────┐  │   │
+│  │  │ Tasks        │  │ Implement (subagent-driven per §11.4.70,     │  │   │
+│  │  │ (nano-task   │  │ TDD RED→GREEN per §11.4.43, four-layer       │  │   │
+│  │  │  dependency  │  │  coverage per §11.4.4(b), independent         │  │   │
+│  │  │  DAG)        │  │  code-review per §11.4.125/§11.4.142)        │  │   │
+│  │  └──────────────┘  └──────────────────────────────────────────────┘  │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                         │
+├────────────────────────────────────┼─────────────────────────────────────────┤
+│                                    │                                         │
+│  Layer 1: Developer Workstation    │                                         │
+│  ┌─────────────────────────────────┴─────────────────────────────────────┐   │
+│  │  Threadripper 64-core / 256GB DDR5 ECC / RTX A6000 32GB               │   │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │   │
+│  │  │ CLI Agent   │  │ Git repos   │  │ Container   │  │ MCP Servers │  │   │
+│  │  │ (Claude     │  │ (main +     │  │ runtime     │  │ (bridge,    │  │   │
+│  │  │  Code /     │  │  submodules │  │ (podman     │  │  codegraph, │  │   │
+│  │  │  Cursor /   │  │  + worktrees│  │  rootless   │  │  semgrep,   │  │   │
+│  │  │  Gemini CLI)│  │  )          │  │  §11.4.161) │  │  filesystem)│  │   │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘  │   │
+│  │  ┌─────────────────────────────────────────────────────────────────┐ │   │
+│  │  │ Helix LLM Gateway (local instance on workstation)               │ │   │
+│  │  └─────────────────────────────────────────────────────────────────┘ │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="layer-1--developer-workstation">Layer 1 — Developer
+Workstation</h3>
+<p>The physical development machine running the CLI agent, git
+repositories, container runtime, MCP servers, and the local Helix LLM
+Gateway instance.</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Specification</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CPU</strong></td>
+<td>AMD Threadripper 64-core (128 threads)</td>
+<td>Parallel subagent execution (§11.4.70/.103), AOSP builds,
+multi-track development</td>
+</tr>
+<tr>
+<td><strong>RAM</strong></td>
+<td>256 GB DDR5 ECC (384 GB peak per §12.6 ceiling)</td>
+<td>Bounded by §12.6 60% memory budget; <code>bounded_run</code>
+enforced</td>
+</tr>
+<tr>
+<td><strong>GPU</strong></td>
+<td>NVIDIA RTX A6000 32 GB VRAM</td>
+<td>Local inference for Helix LLM Gateway; offloads smaller models</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>NVMe RAID, ≥4 TB</td>
+<td>btrfs CoW for feature work-streams per §11.4.167</td>
+</tr>
+<tr>
+<td><strong>Container Runtime</strong></td>
+<td>Podman rootless (§11.4.161)</td>
+<td>AOSP 42 GB containerised builds per §12.9</td>
+</tr>
+<tr>
+<td><strong>MCP Servers</strong></td>
+<td>CodeGraph, SuperBridge, filesystem</td>
+<td>Tool-accessible subprocesses providing structured agent
+capabilities</td>
+</tr>
+<tr>
+<td><strong>CLI Agent</strong></td>
+<td>Claude Code / Cursor / Gemini CLI / Qwen Code</td>
+<td>The human-facing agent conducting the autonomous loop
+(§11.4.126)</td>
+</tr>
+<tr>
+<td><strong>Git Layout</strong></td>
+<td>Multi-track with own <code>.git</code> per track (§11.4.179)</td>
+<td>Isolated concurrent development streams</td>
+</tr>
+</tbody>
+</table>
+<h3 id="layer-2--spec-kit-core-governance-layer">Layer 2 — Spec-Kit Core
+(Governance Layer)</h3>
+<p>The canonical <a href="https://github.com/github/spec-kit">Spec-Kit</a> SDD toolkit,
+extended by the Helix Constitution. This is the <strong>source of
+truth</strong> for what is being built and how.</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Tool</th>
+<th>Input</th>
+<th>Output</th>
+<th>Constitutional Binding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Constitution</strong></td>
+<td><code>speckit-constitution</code></td>
+<td>Project principles, invariants</td>
+<td>Constitution file with mandates and enforcement points</td>
+<td>§11.4 (anti-bluff covenant), §11.4.6 (no-guessing), §11.4.10
+(credentials), §11.4.75 (mechanical enforcement), §11.4.65
+(documentation exports)</td>
+</tr>
+<tr>
+<td><strong>Specify</strong></td>
+<td><code>speckit-specify</code></td>
+<td>Natural-language feature description</td>
+<td><code>spec.md</code> with acceptance criteria, edge cases, topology
+constraints</td>
+<td>§11.4.91 (≥6-word/≥40-char clear meaning), §11.4.146
+(reproduce-first test workflow)</td>
+</tr>
+<tr>
+<td><strong>Plan</strong></td>
+<td><code>speckit-plan</code></td>
+<td><code>spec.md</code> + <code>constitution.md</code></td>
+<td><code>plan.md</code> with architecture, data-model, research
+citations, contract definitions</td>
+<td>§11.4.8 (deep-web-research citation), §11.4.99 (latest authoritative
+sources), §11.4.150 (multi-angle research pass)</td>
+</tr>
+<tr>
+<td><strong>Tasks</strong></td>
+<td><code>speckit-tasks</code></td>
+<td><code>spec.md</code> + <code>plan.md</code></td>
+<td><code>tasks.md</code> with dependency-ordered nano-task DAG</td>
+<td>§11.4.70 (subagent-driven default), §11.4.58 (PWU parallel
+pipeline)</td>
+</tr>
+<tr>
+<td><strong>Implement</strong></td>
+<td><code>speckit-implement</code> /
+<code>speckit-speckit-superpowers-bridge-execute</code></td>
+<td><code>tasks.md</code> → bridge dispatch</td>
+<td>Checked-in code with four-layer coverage</td>
+<td>§11.4.43 (TDD RED→GREEN), §11.4.4(b) (four-layer coverage),
+§11.4.125/§11.4.142 (code review)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Governance enforcement</strong> — The Constitution file
+produced by <code>speckit-constitution</code> contains:</p>
+<ul>
+<li><strong>Invariants</strong> — assertions that must hold true at
+every gate (e.g., &quot;no commit without captured evidence&quot;)</li>
+<li><strong>Gates</strong> — <code>CM-*</code> pre-build / post-build /
+pre-commit / pre-push gates with paired §1.1 meta-test mutations</li>
+<li><strong>Propagation directives</strong> — §11.4.17 classification
+markers that determine which rules propagate to submodules and
+dependencies</li>
+</ul>
+<h3 id="layer-3--superspec-bridge-orchestration-layer">Layer 3 —
+SuperSpec Bridge (Orchestration Layer)</h3>
+<p>The <a href="https://github.com/WangX0111/superspec">SuperSpec</a>
+bridge sits between Spec-Kit&#39;s governance artifacts and the execution
+layer. It translates <code>spec.md</code> / <code>plan.md</code> /
+<code>tasks.md</code> into structured workflows that can be dispatched
+to subagents.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>superspec status</code></td>
+<td>Capture current project context snapshot</td>
+<td>All <code>.md</code> artifacts + git state</td>
+<td>Structured context JSON fed to every subagent dispatch</td>
+</tr>
+<tr>
+<td><code>superspec brainstorm</code></td>
+<td>Generate solution approaches</td>
+<td><code>spec.md</code> + <code>plan.md</code> + constitution</td>
+<td>Ranked solution alternatives with trade-offs</td>
+</tr>
+<tr>
+<td><code>superspec tasks</code></td>
+<td>Nano-task decomposition DAG</td>
+<td><code>spec.md</code> + <code>plan.md</code> +
+<code>tasks.md</code></td>
+<td>Sub-100-line tasks with file-scope manifests per §11.4.58</td>
+</tr>
+<tr>
+<td><code>superspec execute</code></td>
+<td>Subagent dispatch loop</td>
+<td>Nano-task DAG + context snapshot</td>
+<td>Checked-in code with verdict files per task</td>
+</tr>
+<tr>
+<td><code>superspec review</code></td>
+<td>Independent code-review dispatch</td>
+<td>Change diff + context snapshot</td>
+<td>Review findings + GO/NO-GO verdict per §11.4.142</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Nano-task contract</strong> — Each nano-task MUST:</p>
+<ul>
+<li>Be ≤100 lines of net-new / changed code (breaker rule: a task
+exceeding this splits)</li>
+<li>Declare a file-scope manifest (exactly which files it touches, per
+§11.4.58 L4 locking)</li>
+<li>Carry a <code>RED_MODE=1</code> acceptance test BEFORE the
+implementation (per §11.4.115/§11.4.146)</li>
+<li>Emit a machine-written verdict file (per §11.4.115(F)) with the
+pre-fix artifact fingerprint</li>
+<li>Be independently reviewable (per §11.4.142 — a nano-task is the
+atomic review unit)</li>
+</ul>
+<h3 id="layer-4--superb-extension-discipline-enforcement">Layer 4 —
+SuperB Extension (Discipline Enforcement)</h3>
+<p>The <a href="https://speckit-community.github.io/extensions/superb">SuperB</a>
+extension enforces Spec-Kit discipline mechanically — no implementation
+proceeds past any gate that fails its §11.4.107(10)
+golden-good/golden-bad self-validation.</p>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>When It Fires</th>
+<th>What It Checks</th>
+<th>Pass Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>superb check</code></td>
+<td>Pre-specify, pre-plan, pre-implement</td>
+<td>Constitution invariants, spec completeness, plan consistency</td>
+<td>All <code>CM-*</code> gates GREEN</td>
+</tr>
+<tr>
+<td><code>superb brainstorm</code></td>
+<td>After <code>speckit-plan</code>, before
+<code>speckit-tasks</code></td>
+<td>Solution design covers all acceptance criteria, cites research,
+enumerates alternatives</td>
+<td>Zero unexamined acceptance criteria</td>
+</tr>
+<tr>
+<td><code>superb implementation-gate</code></td>
+<td>Before <code>superspec execute</code> dispatches any subagent</td>
+<td>RED test exists per nano-task, file-scope manifests declared,
+pre-build gates wired</td>
+<td>All RED tests parse with <code>sh -n</code> / <code>bash -n</code>
+per §11.4.67</td>
+</tr>
+<tr>
+<td><code>superb critique</code></td>
+<td>After each nano-task&#39;s subagent returns</td>
+<td>Independent adversarial review of the subagent&#39;s output</td>
+<td>Zero unreviewed outputs; findings iterate to GO per §11.4.134</td>
+</tr>
+<tr>
+<td><code>superb debug</code></td>
+<td>Triggered by any test FAIL or critique finding</td>
+<td>Systematic-debugging per §11.4.102</td>
+<td>Root cause identified at <code>file:line</code>, not &quot;the test timed
+out&quot;</td>
+</tr>
+<tr>
+<td><code>superb finish</code></td>
+<td>After all nano-tasks complete + review clean</td>
+<td>Full-suite retest per §11.4.40, meta-test mutation sweep per §1.1,
+Issues.md→Fixed.md migration per §11.4.19</td>
+<td>Zero FAIL, zero WARN, zero uncovered verdicts</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Discipline enforcement is mechanical, not advisory</strong> —
+per §11.4.205, every gate is a <code>commit_all.sh</code>-wrapper
+refusal, not a prose suggestion. The gate&#39;s paired §1.1 mutation MUST
+FAIL the gate; a gate whose mutation passes is a bluff gate and a
+release blocker.</p>
+<h3 id="layer-5--superbridge-mcp-execution-layer">Layer 5 — SuperBridge
+MCP (Execution Layer)</h3>
+<p>An MCP (Model Context Protocol) server that exposes the Superpowers
+skill suite as tool-callable endpoints consumable by any MCP-compatible
+CLI agent.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Superpowers Skill</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>superbridge_brainstorm</code></td>
+<td><code>superpowers:brainstorming</code></td>
+<td>Input: problem statement + constraints. Output: ranked alternatives
+with evidence per §11.4.69.</td>
+</tr>
+<tr>
+<td><code>superbridge_debug</code></td>
+<td><code>superpowers:systematic-debugging</code></td>
+<td>Input: failure evidence (logcat, tombstone, crash dump). Output:
+<code>file:line</code> root cause + blast radius.</td>
+</tr>
+<tr>
+<td><code>superbridge_review</code></td>
+<td><code>superpowers:executing-code-review</code></td>
+<td>Input: diff + context. Output: findings classified
+(BLOCKING/WARNING/NIT) per §11.4.134.</td>
+</tr>
+<tr>
+<td><code>superbridge_test_gen</code></td>
+<td><code>superpowers:writing-tests</code></td>
+<td>Input: function signatures + spec. Output: TDD RED test with
+four-layer coverage.</td>
+</tr>
+<tr>
+<td><code>superbridge_red_green</code></td>
+<td><code>superpowers:executing-testing-tdd</code></td>
+<td>Input: RED test. Output: GREEN implementation + verdict file per
+§11.4.115(F).</td>
+</tr>
+<tr>
+<td><code>superbridge_analyze</code></td>
+<td><code>superpowers:systematic-debugging</code> (impact)</td>
+<td>Input: change diff. Output: §11.4.145 eight-angle impact research
+report.</td>
+</tr>
+<tr>
+<td><code>superbridge_refactor</code></td>
+<td>Writing clean / refactoring code</td>
+<td>Input: target file + goal. Output: refactored code with preserved
+behaviour proven by tests.</td>
+</tr>
+<tr>
+<td><code>superbridge_document</code></td>
+<td><code>superpowers:writing-documentation</code></td>
+<td>Input: code + context. Output: §11.4.44 revision-headed, §11.4.65
+four-format-exported doc.</td>
+</tr>
+<tr>
+<td><code>superbridge_search</code></td>
+<td>Web research per §11.4.8 / §11.4.99 / §11.4.150</td>
+<td>Input: research question + angle set. Output: cited findings with
+URLs + access dates.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MCP server requirements:</strong></p>
+<ul>
+<li>Runs rootless per §11.4.161 (no rootful Docker; podman-compose or
+systemd user unit)</li>
+<li>Emits structured <code>conduit.events.jsonl</code> per §11.4.116
+(append-only event stream)</li>
+<li>All verdicts carry <code>evidence_path</code> per §11.4.69</li>
+<li>Self-validated with golden-good + golden-bad + negative-control
+fixtures per §11.4.107(10)</li>
+</ul>
+<h3 id="layer-6--helix-llm-inference-layer">Layer 6 — Helix LLM
+(Inference Layer)</h3>
+<p>The <a href="https://github.com/HelixDevelopment/helix_llm">Helix
+LLM</a> distributed inference system provides <strong>local-first,
+zero-cost-per-token</strong> inference powering the entire bridge
+pipeline.</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Role</th>
+<th>Technology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Gateway</strong></td>
+<td>API router, load-balancer, fallback-orchestrator, rate-limit
+manager</td>
+<td>Go HTTP server with RPC client pool; routes to local instance first,
+then remote cluster nodes</td>
+</tr>
+<tr>
+<td><strong>Brain</strong></td>
+<td>Planner (task decomposition), reasoner (systematic debugging per
+§11.4.102), prompt-optimizer (constitution-aware system prompts)</td>
+<td>Helix LLM model loaded via <code>llama.cpp</code>; prompt templates
+keyed to skill</td>
+</tr>
+<tr>
+<td><strong>Knowledge</strong></td>
+<td>RAG (Retrieval-Augmented Generation) with vector embeddings of all
+project specs, plans, constitution, and codebase</td>
+<td><code>llama.cpp</code> embedding endpoint + <code>chromadb</code> /
+<code>qdrant</code> vector store</td>
+</tr>
+<tr>
+<td><strong>Agents</strong></td>
+<td>Subagent dispatch lifecycle, registry per §11.4.147,
+respawn-on-crash per §11.4.147(b), verdict tracking per §11.4.116</td>
+<td>Go agent orchestration calling the Gateway</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gateway routing logic:</strong></p>
+<pre><code>Request arrives at Gateway
+  ├── Can the local GPU handle it? (check VRAM available, model loaded)
+  │     YES → route to local llama.cpp instance
+  │     NO  → check remote cluster health
+  │              ├── N ≥ 1 nodes available → round-robin to remote RPC nodes
+  │              └── N = 0 nodes available → fallback to Helix LLM cloud API
+  │                                           or Operator-blocked per §11.4.21
+  └── Return response to caller</code></pre>
+<p><strong>Models supported (2026-07-24):</strong></p>
+<ul>
+<li><strong>Fable</strong> (<code>deepseek-v4-pro</code>) — architecture
+design, code review (§11.4.209), merge-conflict resolution
+(§11.4.211)</li>
+<li><strong>Opus</strong> (<code>claude-opus-4-20250514</code>) —
+fallback for Fable-only tasks, systematic debugging</li>
+<li><strong>Helix-local</strong> (custom fine-tune on RK3588/ATMOSphere
+corpus) — nano-task implementation, test generation, documentation</li>
+</ul>
+<h3 id="layer-7--distributed-host-cluster">Layer 7 — Distributed Host
+Cluster</h3>
+<p>A pool of machines running <code>llama.cpp</code> in RPC-server mode,
+providing horizontally-scalable inference capacity.</p>
+<table>
+<thead>
+<tr>
+<th>Node Type</th>
+<th>Hardware</th>
+<th>Role</th>
+<th>Typical Model Assignment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GPU Node</strong></td>
+<td>≥1 × RTX 4090 / A6000 / H100</td>
+<td>High-throughput batch inference</td>
+<td>Fable (32B+), Opus (large models)</td>
+</tr>
+<tr>
+<td><strong>CPU Node</strong></td>
+<td>≥64-core, ≥128 GB RAM</td>
+<td>Inference for smaller models, RAG embedding generation</td>
+<td>Helix-local (7-13B), embeddings</td>
+</tr>
+<tr>
+<td><strong>Edge Node</strong></td>
+<td>Orange Pi 5 Max / RK3588 (16 GB)</td>
+<td>Inference at the edge for on-device agents</td>
+<td>Tiny (1-3B) models for on-device classification</td>
+</tr>
+</tbody>
+</table>
+<p><strong>RPC configuration</strong> (per node
+<code>llama-server</code> invocation):</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># On each cluster node:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">llama-server</span> <span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--model</span> /models/deepseek-v4-pro-Q4_K_M.gguf <span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--host</span> 0.0.0.0 <span class="dt">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--port</span> 8080 <span class="dt">\</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--n-gpu-layers</span> 40 <span class="dt">\</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--ctx-size</span> 32768 <span class="dt">\</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--parallel</span> 4 <span class="dt">\</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--cont-batching</span> <span class="dt">\</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mlock</span></span></code></pre></div>
+<p><strong>Health monitoring:</strong></p>
+<ul>
+<li>Per-node heartbeat at 5 s interval (via <code>/health</code>
+endpoint)</li>
+<li>Gateway auto-evicts unresponsive nodes after 3 consecutive missed
+heartbeats</li>
+<li>Re-admission requires 5 consecutive successful heartbeats
+(hysteresis prevents flapping)</li>
+<li>All node state changes logged to <code>conduit.events.jsonl</code>
+per §11.4.116</li>
+</ul>
+<hr />
+<h2 id="data-flow">Data Flow</h2>
+<h3 id="feature-lifecycle-through-the-layers">Feature Lifecycle Through
+the Layers</h3>
+<pre><code>Operator prompt: &quot;Add multi-channel audio passthrough for Dolby TrueHD&quot;
+       │
+       ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ L7: Helix LLM Brain classifies intent → &quot;Feature&quot;, enriches with│
+│     RAG context (existing audio HAL docs, ALSA config, ES8388   │
+│     codec spec, HDMI EDID passthrough constraints)              │
+└──────────────────────────┬───────────────────────────────────────┘
+                           │ enriched prompt + context
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ L2: speckit-specify generates spec.md:                          │
+│     - Feature: Dolby TrueHD passthrough over HDMI               │
+│     - Acceptance criteria: Arvus AVR reports Codec-In-Use ==   │
+│       &quot;Dolby TrueHD&quot; when TrueHD stream is played              │
+│     - Edge cases: fallback to PCM on non-TrueHD sink, channel   │
+│       count mismatch, sample-rate negotiation                   │
+│     - Topology constraints: D1 (HDMI sink present), D2 (no sink)│
+└──────────────────────────┬───────────────────────────────────────┘
+                           │ spec.md
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ L2: speckit-plan generates plan.md:                             │
+│     - Research: HDMI 2.1 audio infoframe spec, CEA-861, ALSA   │
+│       IEC958 passthrough driver implementation, Rockchip audio  │
+│       HAL codec_config path                                     │
+│     - Architecture: modify audio_hw.c out_set_parameters,       │
+│       add TrueHD codec profile to audio_policy_config,          │
+│       add Arvus sink-probe assertion to test harness            │
+│     - Contract: audio_hw.c:audio_out_set_parameters() must       │
+│       accept AUDIO_FORMAT_TRUEHD and set IEC958 non-audio bit   │
+└──────────────────────────┬───────────────────────────────────────┘
+                           │ plan.md
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ L2: speckit-tasks generates tasks.md:                           │
+│     T1: [RED] test_audio_truehd_passthrough_red.sh — captures   │
+│         pre-fix Arvus state (Codec-In-Use != TrueHD)            │
+│     T2: audio_hw.c: add TrueHD format to supported codecs       │
+│     T3: audio_policy_config_hifi.xml: register TrueHD devicePort│
+│     T4: Arvus probe assertion in test harness                   │
+│     T5: [GREEN] T1 flipped to RED_MODE=0 — captures post-fix    │
+│         Arvus state (Codec-In-Use == TrueHD)                    │
+│     Dependency DAG: T1 → T2,T3 → T4 → T5                        │
+└──────────────────────────┬───────────────────────────────────────┘
+                           │ tasks.md
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ L3+L4+L5: SuperSpec + SuperB + SuperBridge execute loop:        │
+│                                                                  │
+│   superb check → superspec status → superspec tasks (nano) →   │
+│   → superb implementation-gate (verify RED tests) →             │
+│   → superspec execute (dispatch nano-subagents per task) →      │
+│   → superb critique (review each subagent output) →             │
+│   → superb debug (fix any findings) →                           │
+│   → superb check (re-verify) → loop until GO                    │
+│                                                                  │
+│   Each nano-task subagent:                                       │
+│     1. Reads context snapshot (superspec status)                 │
+│     2. Reads spec + plan + tasks                                 │
+│     3. Reads existing code via CodeGraph MCP                    │
+│     4. Writes RED test first (§11.4.43 step 1)                  │
+│     5. Writes implementation (§11.4.43 step 3)                  │
+│     6. Runs RED test → GREEN (§11.4.43 step 4)                  │
+│     7. Writes verdict file + evidence path (§11.4.115(F))       │
+│     8. Submits for review                                       │
+└──────────────────────────┬───────────────────────────────────────┘
+                           │ completed nano-tasks + verdicts
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ L2: speckit-converge assesses remaining gaps, appends to        │
+│     tasks.md any unbuilt work                                   │
+└──────────────────────────┬───────────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ Final gate (§11.4.40 full-suite):                               │
+│   - pre_build_verification.sh → ALL GREEN                        │
+│   - post_build_verification.sh → ALL GREEN                       │
+│   - On-device (D1+D2) test_all_fixes.sh → ALL GREEN             │
+│   - meta_test_false_positive_proof.sh → ALL MUTATIONS FAIL       │
+│   - HelixQA Challenge sweep → ALL GREEN                          │
+│   - Issues.md → Fixed.md migration → COMMITTED                   │
+│   - Tag created + pushed to all remotes + submodules             │
+└──────────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="nano-task-decomposition-flow">Nano-Task Decomposition Flow</h3>
+<p>The SuperSpec bridge&#39;s nano-task decomposer (backed by Helix LLM
+Brain) transforms Spec-Kit tasks into subagent-dispatchable units:</p>
+<pre><code>Input: tasks.md task &quot;T2: audio_hw.c: add TrueHD format to supported codecs&quot;
+
+Step 1 — File-scope partition (§11.4.58 L4):
+  ├── NT2a: audio_hw.c: add AUDIO_FORMAT_TRUEHD to format enum (7 lines)
+  ├── NT2b: audio_hw.c: add TrueHD case to out_set_parameters() (23 lines)
+  └── NT2c: audio_hw.c: add TrueHD pcm_config entry (12 lines)
+
+Step 2 — Dependency resolution:
+  ├── NT2a (no deps) → dispatchable immediately
+  ├── NT2b (depends on NT2a — needs the enum value) → queued after NT2a
+  └── NT2c (depends on NT2a + NT2b) → queued after NT2b
+
+Step 3 — Parallel dispatch (when deps permit):
+  ┌─────────────────────────────────────────────┐
+  │ Queue: [NT2a]                               │
+  │ Dispatch NT2a → subagent-1                  │
+  │   NT2a completes → enqueue NT2b             │
+  │     Dispatch NT2b → subagent-2              │
+  │       NT2b completes → enqueue NT2c         │
+  │         Dispatch NT2c → subagent-3          │
+  │           NT2c completes → done             │
+  └─────────────────────────────────────────────┘
+
+Step 4 — Per-nano-task verdict:
+  NT2a/verdict.json: {&quot;id&quot;:&quot;NT2a&quot;,&quot;status&quot;:&quot;PASS&quot;,&quot;red-exit&quot;:1,&quot;green-exit&quot;:0,
+                       &quot;artifact-fingerprint&quot;:&quot;a3f8...&quot;,&quot;evidence&quot;:&quot;qa-results/.../NT2a/&quot;}
+
+Step 5 — Merge gate (§11.4.41):
+  All nano-tasks for T2 complete → merge subagent outputs → superb critique →
+  → T2 complete → ready for T3 dispatch</code></pre>
+<p><strong>Nano-task size rule (mechanical):</strong> The decomposer
+counts net-new/changed lines. A task producing &gt;100 net-new/changed
+lines is automatically split. A split task &lt;5 lines merges back into
+its parent. This bounds every subagent&#39;s context to ≤100 lines of
+code-under-test + surrounding context.</p>
+<hr />
+<h2 id="document-index">Document Index</h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Path</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Architecture Deep Dive</strong></td>
+<td><code>01_architecture/</code></td>
+<td>Detailed layer-by-layer architecture with component diagrams,
+interface definitions, and contract specifications</td>
+</tr>
+<tr>
+<td><strong>SpecKit Extensions</strong></td>
+<td><code>02_extensions/</code></td>
+<td>Custom Spec-Kit skill extensions
+(<code>speckit-superpowers-bridge-*</code>), manifest definitions,
+extension installation guide</td>
+</tr>
+<tr>
+<td><strong>Helix LLM Integration</strong></td>
+<td><code>03_helix_llm/</code></td>
+<td>Gateway configuration, Brain prompt templates, Knowledge RAG
+pipeline, Agents orchestration engine, llama.cpp RPC backend setup</td>
+</tr>
+<tr>
+<td><strong>TDD &amp; QA Pipeline</strong></td>
+<td><code>04_tdd_qa/</code></td>
+<td>TDD workflow automation, RED→GREEN verdict pipeline, four-layer test
+coverage, HelixQA Challenge bank integration, quality-gate
+configuration</td>
+</tr>
+<tr>
+<td><strong>Deployment &amp; Operations</strong></td>
+<td><code>05_deployment/</code></td>
+<td>Container setup (podman-compose), MCP server deployment, multi-node
+cluster provisioning, health monitoring, backup/restore</td>
+</tr>
+<tr>
+<td><strong>Risk &amp; Mitigation</strong></td>
+<td><code>06_risk/</code></td>
+<td>Risk register, failure-mode analysis, circuit-breaker design,
+fallback chains, rollback procedures</td>
+</tr>
+<tr>
+<td><strong>Proof-of-Concept</strong></td>
+<td><code>poc/</code></td>
+<td>Working POC walkthrough, sample feature lifecycle trace, benchmark
+results, known limitations</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Minimum</th>
+<th>Verified Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git</td>
+<td>2.40+</td>
+<td><code>git --version</code></td>
+</tr>
+<tr>
+<td>Podman</td>
+<td>4.0+ (rootless)</td>
+<td><code>podman info | grep rootless</code></td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.11+</td>
+<td><code>python3 --version</code></td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>20+ (for MCP servers)</td>
+<td><code>node --version</code></td>
+</tr>
+<tr>
+<td>Go</td>
+<td>1.22+ (for Helix LLM Gateway / Agents)</td>
+<td><code>go version</code></td>
+</tr>
+<tr>
+<td>llama.cpp</td>
+<td>Built with RPC support</td>
+<td><code>llama-server --help | grep rpc</code></td>
+</tr>
+<tr>
+<td>Disk space</td>
+<td>≥50 GB free (container images + models)</td>
+<td><code>df -h /var/lib/containers</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-1--add-the-constitution-submodule">Step 1 — Add the
+Constitution Submodule</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In the consuming project&#39;s root (e.g., /mnt/track1/atmosphere-t1):</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule add git@github.com:HelixDevelopment/helix_constitution.git constitution</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule update <span class="at">--init</span> <span class="at">--recursive</span></span></code></pre></div>
+<h3 id="step-2--wire-cli-agent-context-carriers">Step 2 — Wire CLI-Agent
+Context Carriers</h3>
+<p>Add the inheritance pointer to the consuming project&#39;s context
+carriers:</p>
+<p><strong>CLAUDE.md</strong> (project root):</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## INHERITED FROM constitution/CLAUDE.md</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Base agent rules: </span><span class="in">`constitution/CLAUDE.md`</span><span class="at"> ...</span></span></code></pre></div>
+<p><strong>AGENTS.md</strong> (project root):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## INHERITED FROM constitution/AGENTS.md</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Base agent rules: </span><span class="in">`constitution/AGENTS.md`</span><span class="at"> ...</span></span></code></pre></div>
+<p>Do the same for <code>QWEN.md</code>, <code>GEMINI.md</code>, and any
+other LLM-specific context carrier.</p>
+<h3 id="step-3--install-the-bridge-extensions">Step 3 — Install the
+Bridge Extensions</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># From the consuming project root:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/extensions/install_speckit_superpowers_bridge.sh</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This script:</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1. Clones or updates spec-kit, superpowers, superspec, superb as</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     submodules under constitution/submodules/</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  2. Builds the SuperBridge MCP server (npm install + build)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  3. Registers the MCP server in the CLI agent&#39;s MCP config</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  4. Installs the Spec-Kit extensions into .claude/skills/</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  5. Runs self-check: all extensions parse, MCP server health-check</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#     responds, Spec-Kit skills load</span></span></code></pre></div>
+<h3 id="step-4--run-the-self-validation-suite">Step 4 — Run the
+Self-Validation Suite</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/extensions/validate_bridge.sh</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected output:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   [PASS] SuperBridge MCP server health-check</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   [PASS] speckit-specify extension loads</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   [PASS] speckit-plan extension loads</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   [PASS] speckit-tasks extension loads</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   [PASS] superspec status returns valid JSON</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   [PASS] superb check passes on constitution files</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   [PASS] Helix LLM Gateway reachable</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   [PASS] llama.cpp RPC backend health-check</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   ─────────────────────────────────────────</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   ALL 8/8 CHECKS PASSED — bridge ready</span></span></code></pre></div>
+<h3 id="step-5--create-your-first-speckit-feature">Step 5 — Create Your
+First SpecKit Feature</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Operator prompt (any of the six §11.4.140 forms):</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   /FEATURE Add multi-channel audio passthrough for Dolby TrueHD</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The CLI agent with the bridge wired will:</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1. speckit-specify  → spec.md</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2. speckit-plan     → plan.md</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3. speckit-tasks    → tasks.md</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4. superb check     → constitution gate verification</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5. superspec status → context snapshot</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6. superspec tasks  → nano-task decomposition</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7. superspec execute → subagent-driven implementation</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8. superb critique  → independent review</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9. superb finish    → full-suite retest + migration</span></span></code></pre></div>
+<h3 id="step-6--verify-the-autonomous-loop">Step 6 — Verify the
+Autonomous Loop</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the feature completed through all layers:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> docs/features/<span class="op">&lt;</span>feature-slug<span class="op">&gt;</span>/Status.md <span class="kw">|</span> <span class="fu">grep</span> <span class="st">&quot;Validation:&quot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected: Validation: PASS (evidence: qa-results/&lt;run-id&gt;/&lt;feature&gt;/)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the verdict store:</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> device/rockchip/rk3588/tests/regression_guard/verdicts/<span class="op">&lt;</span>feature-slug<span class="op">&gt;</span>/</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected: RED_*.json + GREEN_*.json</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the Issues→Fixed migration:</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">&quot;&lt;feature-slug&gt;&quot;</span> docs/Fixed.md</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected: Row with Status &quot;Implemented (→ Fixed.md)&quot;</span></span></code></pre></div>
+<hr />
+<h2 id="key-design-decisions">Key Design Decisions</h2>
+<h3 id="1-seven-layer-separation-why-not-monolithic">1. Seven-Layer
+Separation (Why Not Monolithic?)</h3>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Governance (L2) separate from Orchestration
+(L3)</strong></td>
+<td>Spec-Kit artifacts are static documents; SuperSpec interprets them.
+Separating lets Spec-Kit evolve independently and lets SuperSpec adapt
+to different CLI-agent tool shapes without touching governance
+files.</td>
+</tr>
+<tr>
+<td><strong>Orchestration (L3) separate from Execution
+(L5)</strong></td>
+<td>SuperSpec manages workflows; SuperBridge MCP manages tool contracts.
+A new skill added to Superpowers updates only the MCP server, not the
+orchestration logic.</td>
+</tr>
+<tr>
+<td><strong>Discipline (L4) is its own layer, not a sub-component of
+Orchestration</strong></td>
+<td>SuperB&#39;s enforcement is adversarial — it MUST refuse work that
+passes orchestration but fails constitutional invariants. Embedding it
+in SuperSpec would create the self-review blind spot (§11.4.70).</td>
+</tr>
+<tr>
+<td><strong>Inference (L6) separate from Execution (L5)</strong></td>
+<td>The MCP server calls the Gateway via HTTP; the Gateway abstracts
+local/remote/cloud routing. Swapping the inference backend (llama.cpp →
+vLLM → cloud API) changes only Layer 6, nothing above it.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-nano-tasks-as-the-atomic-work-unit-why-100-lines">2.
+Nano-Tasks as the Atomic Work Unit (Why ≤100 Lines?)</h3>
+<ul>
+<li><strong>Context-bounded subagents</strong> — Each subagent processes
+~100 lines of code-under-test + ~200 lines of surrounding context. A
+400-line change would need 3 separate subagents; forcing decomposition
+upfront avoids a subagent silently exceeding its context window.</li>
+<li><strong>§11.4.197 zero-loss</strong> — A crashed subagent loses ≤100
+lines of work. A crashed subagent on a 500-line task loses potentially
+irrecoverable state.</li>
+<li><strong>Review granularity</strong> — A 100-line diff gets a
+thorough adversarial review (§11.4.194). A 1000-line diff gets a rubber
+stamp.</li>
+<li><strong>Parallelizability</strong> — Nano-tasks with no mutual file
+dependencies dispatch in parallel (§11.4.103 ≥3 concurrent
+streams).</li>
+</ul>
+<h3 id="3-tdd-everywhere-why-not-write-tests-after">3. TDD Everywhere
+(Why Not &quot;Write Tests After&quot;?)</h3>
+<p>Per §11.4.43, a test authored after the fix is a PASS-bluff — it
+demonstrates only that the test agrees with the fix, not that the test
+catches the bug. The bridge enforces:</p>
+<ol type="1">
+<li>RED test FIRST (<code>RED_MODE=1</code> on the pre-fix
+artifact)</li>
+<li>RED must FAIL (the defect is reproduced)</li>
+<li>Implementation lands</li>
+<li>SAME test flipped to <code>RED_MODE=0</code> → GREEN</li>
+<li>GREEN artifact fingerprint MUST differ from RED (proves the fix
+deployed)</li>
+</ol>
+<p>The SuperB <code>implementation-gate</code> refuses to dispatch a
+nano-task that lacks a pre-existing RED test.</p>
+<h3 id="4-local-first-distributed-inference-why-not-cloud-api">4.
+Local-First Distributed Inference (Why Not Cloud API?)</h3>
+<ul>
+<li><strong>§11.4.126 autonomous-loop</strong> requires continuous
+execution. A cloud API rate limit (429 Too Many Requests) that kills 5
+subagents at once (§11.4.147 forensic anchor) is structurally
+incompatible with an always-on loop.</li>
+<li><strong>§11.4.10 credentials-handling</strong> — local inference
+eliminates the API-key-in-every-request surface.</li>
+<li><strong>§11.4.6 no-guessing</strong> — a local Gateway logs every
+prompt + response. A cloud API&#39;s opaque logging (or lack thereof) makes
+forensic debugging of an agent&#39;s decision path impossible.</li>
+<li><strong>Cost</strong> — autonomous loops issue thousands of
+inference calls per day. At cloud API pricing, that is hundreds of
+dollars per day; at local inference, it is electricity-only.</li>
+</ul>
+<h3 id="5-constitution-as-the-single-source-of-truth-why-not-per-project-rules">5.
+Constitution as the Single Source of Truth (Why Not Per-Project
+Rules?)</h3>
+<p>Per §11.4.17 / §11.4.35, universal rules live in the Constitution
+submodule; project-specific extensions live in the consumer&#39;s context
+carriers. The bridge reads the Constitution file at startup and
+derives:</p>
+<ul>
+<li><strong>Allowed status vocabulary</strong> (§11.4.15)</li>
+<li><strong>Required evidence classes per feature</strong>
+(§11.4.69)</li>
+<li><strong>Gating pipeline</strong> (which <code>CM-*</code> gates fire
+at which seam)</li>
+<li><strong>Propagation targets</strong> (§11.4.17 classification
+markers)</li>
+</ul>
+<p>A new constitutional mandate added to the submodule takes effect in
+every consuming project on the next <code>git pull</code> +
+<code>post_update_hook.sh</code> run (§11.4.164) — no per-project
+reconfiguration.</p>
+<hr />
+<h2 id="constitutional-mandates-applied">Constitutional Mandates
+Applied</h2>
+<table>
+<thead>
+<tr>
+<th>Mandate</th>
+<th>How the Bridge Applies It</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>§11.4</strong> (anti-bluff covenant)</td>
+<td>Every gate, review, and verdict carries captured physical evidence
+(§11.4.5) keyed to a §11.4.69 feature class. No metadata-only PASS, no
+config-only PASS, no absence-of-error PASS.</td>
+</tr>
+<tr>
+<td><strong>§11.4.6</strong> (no-guessing mandate)</td>
+<td>Every verdict cites a <code>file:line</code> or a captured-evidence
+path. The bridge&#39;s decomposer, reviewer, and debugger all refuse to emit
+<code>likely</code>/<code>probably</code>/<code>maybe</code>/<code>seems</code>
+in any formal output.</td>
+</tr>
+<tr>
+<td><strong>§11.4.10</strong> (credentials-handling)</td>
+<td>API keys, tokens, and passwords never appear in tracked files. The
+<code>.env.example</code> template documents required env vars; real
+values live in git-ignored <code>.env</code> files
+(<code>chmod 600</code>). The <code>pre-commit</code> hook scans staged
+files for credential patterns and refuses the commit.</td>
+</tr>
+<tr>
+<td><strong>§11.4.65</strong> (universal Markdown export)</td>
+<td>Every <code>.md</code> produced by Spec-Kit (<code>spec.md</code>,
+<code>plan.md</code>, <code>tasks.md</code>) gets synchronized
+<code>.html</code> + <code>.pdf</code> + <code>.docx</code> siblings via
+<code>sync_all_markdown_exports.sh</code>, auto-invoked by the
+<code>post-commit</code> hook (§11.4.75 Layer 4).</td>
+</tr>
+<tr>
+<td><strong>§11.4.74</strong> (catalogue-first)</td>
+<td>All extensions, skills, MCP servers, and plugins are registered in
+<code>constitution/actions/registry.yaml</code> via the §11.4.164
+<code>post_update_hook.sh</code>. No extension is wired ad-hoc.</td>
+</tr>
+<tr>
+<td><strong>§11.4.75</strong> (mechanical enforcement)</td>
+<td>Four-layer enforcement: <code>pre-commit</code> hook (refuses orphan
+<code>.md</code>), <code>commit_all.sh</code> integration (auto-runs
+exports), <code>pre-push</code> hook (re-checks propagation gates),
+<code>post-commit</code> hook (auto-repairs drift).</td>
+</tr>
+<tr>
+<td><strong>§11.4.76</strong> (containers submodule)</td>
+<td>All containerized services (Helix LLM Gateway, SuperBridge MCP,
+ChromaDB, llama.cpp RPC nodes) are defined in
+<code>constitution/submodules/containers/compose/</code> and booted via
+<code>pkg/boot</code>. No ad-hoc <code>podman run</code>.</td>
+</tr>
+<tr>
+<td><strong>§11.4.202</strong> (reporting directives)</td>
+<td>Every intake path (operator prompt, test failure, review finding,
+HelixQA Challenge verdict) feeds through <code>report_item.sh</code>,
+creating a tracked workable item in the SQLite SSoT (§11.4.93) and
+pushing to the external tracker (§11.4.148 D5).</td>
+</tr>
+<tr>
+<td><strong>§11.4.43</strong> (TDD-fix-discipline)</td>
+<td>The five-step TDD workflow (RED → LIVE-ADB-PROBE → GREEN → VERIFY →
+DOCUMENT) is mechanically enforced by the SuperB
+<code>implementation-gate</code> + <code>critique</code> +
+<code>debug</code> + <code>finish</code> gates. No implementation
+subagent dispatches without a registered RED test.</td>
+</tr>
+<tr>
+<td><strong>§11.4.70</strong> (subagent-driven default)</td>
+<td>Every nano-task dispatches as an isolated subagent. The conductor&#39;s
+role is task decomposition + review; the subagent&#39;s role is isolated
+implementation.</td>
+</tr>
+<tr>
+<td><strong>§11.4.116</strong> (real-time sync channel)</td>
+<td>The bridge emits <code>conduit.events.jsonl</code> and
+atomically-updated <code>conduit.status.json</code> so the conductor can
+tail live progress.</td>
+</tr>
+<tr>
+<td><strong>§11.4.147</strong> (crashed-agent respawn)</td>
+<td>The Agents component tracks every subagent in the durable registry.
+Crashed/rate-limited agents are respawned with preserved state +
+§11.4.84 quiescence check. Agent output with missing verdict =
+<code>crashed</code>, never <code>complete</code>.</td>
+</tr>
+<tr>
+<td><strong>§11.4.161</strong> (rootless container runtime)</td>
+<td>All containerized components boot via podman rootless. No
+<code>sudo docker</code>, no rootful podman.</td>
+</tr>
+<tr>
+<td><strong>§11.4.209</strong> (code-review Fable xhigh)</td>
+<td>Every code-review subagent dispatches on Fable model at xhigh
+effort. Opus xhigh is the fallback. Lower-effort or non-Fable/non-Opus
+review substrate is a refusal.</td>
+</tr>
+<tr>
+<td><strong>§11.4.211</strong> (merge-conflict Fable xhigh)</td>
+<td>Merge-conflict resolution runs on Fable xhigh (Opus xhigh fallback).
+Conflict-resolution subagent carries its own scope + evidence.</td>
+</tr>
+<tr>
+<td><strong>§11.4.205</strong> (enforced-not-advisory)</td>
+<td>Every gate is a commit-wrapper refusal, not prose. Every gate&#39;s
+paired §1.1 mutation FAILs the gate. A gate whose mutation passes is a
+bluff gate.</td>
+</tr>
+<tr>
+<td><strong>§11.4.194</strong> (exhaustive review all scenarios)</td>
+<td>The review subagent enumerates the full input/scenario space, proves
+every &quot;unreachable&quot; assumption, cross-checks against captured runtime
+evidence.</td>
+</tr>
+<tr>
+<td><strong>§11.4.214</strong> (recurrence-links-not-mints)</td>
+<td>Before minting a new item for a test failure, the bridge checks the
+workable-items DB for an existing item describing the same defect. Match
+→ link + reopen (terminal only).</td>
+</tr>
+<tr>
+<td><strong>§11.4.186</strong> (cross-document consistency)</td>
+<td>The no-divergence gate runs before export/sync-verify/commit. DEDUP,
+TIMELINE, CROSS-DOC, INTEGRITY, STRUCTURAL check families.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="directory-structure">Directory Structure</h2>
+<pre><code>constitution/docs/research/extensions/speckit_superpowers/implementation/
+│
+├── README.md                          ← THIS FILE — master index + architecture overview
+│
+├── 01_architecture/
+│   ├── README.md                      Layer-by-layer deep dive with component diagrams
+│   ├── layer_1_workstation.md         Developer workstation specification
+│   ├── layer_2_speckit.md             Spec-Kit governance layer details
+│   ├── layer_3_superspec.md           SuperSpec orchestration engine
+│   ├── layer_4_superb.md              SuperB discipline enforcement
+│   ├── layer_5_mcp.md                 SuperBridge MCP server contract
+│   ├── layer_6_helix_llm.md           Helix LLM inference pipeline
+│   ├── layer_7_cluster.md             Distributed inference cluster
+│   └── contracts/                     Interface contracts between layers
+│       ├── spec_to_superspec.md       Spec-Kit → SuperSpec bridge contract
+│       ├── superspec_to_mcp.md        SuperSpec → SuperBridge MCP contract
+│       ├── mcp_to_helix.md            MCP → Helix LLM contract
+│       └── helix_to_cluster.md        Helix LLM → llama.cpp RPC contract
+│
+├── 02_extensions/
+│   ├── README.md                      Extensions overview + installation guide
+│   ├── superbridge_mcp/               SuperBridge MCP server source + config
+│   ├── speckit_bridge_skills/         Extended Spec-Kit skills for bridge integration
+│   ├── skill_manifests/               Per-skill manifest files
+│   └── constitution_registry.yaml     Action registry entries for bridge commands
+│
+├── 03_helix_llm/
+│   ├── README.md                      Helix LLM integration guide
+│   ├── gateway/                       Gateway configuration + deployment
+│   ├── brain/                         Prompt templates (per skill per model)
+│   ├── knowledge/                     RAG pipeline configuration
+│   ├── agents/                        Agent orchestration engine
+│   └── rpc_backend/                   llama.cpp RPC node configuration
+│
+├── 04_tdd_qa/
+│   ├── README.md                      TDD + QA pipeline guide
+│   ├── red_green_pipeline.md          RED→GREEN verdict pipeline specification
+│   ├── four_layer_coverage.md         Four-layer coverage per §11.4.4(b)
+│   ├── helixqa_integration.md         HelixQA Challenge bank wiring
+│   └── quality_gates.md              Quality-gate configuration + thresholds
+│
+├── 05_deployment/
+│   ├── README.md                      Deployment guide
+│   ├── podman_compose/                podman-compose definitions for all services
+│   ├── health_monitoring/             Health-check scripts + dashboards
+│   ├── backup_restore/                Backup/restore procedures
+│   └── cluster_provisioning/          Multi-node cluster setup automation
+│
+├── 06_risk/
+│   ├── README.md                      Risk management guide
+│   ├── risk_register.md               Enumerated risks with severity + mitigation
+│   ├── failure_modes.md               Failure-mode analysis per component
+│   ├── circuit_breakers.md            Circuit-breaker design + thresholds
+│   ├── fallback_chains.md             Fallback chains (local→remote→cloud)
+│   └── rollback_procedures.md         Rollback procedures per scenario
+│
+└── poc/
+    ├── README.md                      POC walkthrough
+    ├── feature_trace.md               Sample feature lifecycle trace (end-to-end)
+    ├── benchmarks.md                  Performance benchmarks
+    └── limitations.md                 Known limitations + tracked migration items</code></pre>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Title</th>
+<th>URL</th>
+<th>Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Spec-Kit</strong> (SDD toolkit)</td>
+<td><a href="https://github.com/github/spec-kit">https://github.com/github/spec-kit</a></td>
+<td>Spec-Kit core: specify, plan, tasks, implement lifecycle</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Superpowers</strong> (agent skills)</td>
+<td><a href="https://github.com/obra/superpowers">https://github.com/obra/superpowers</a></td>
+<td>15+ agent skills: brainstorming, TDD, debugging, code review,
+refactoring, documentation</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>SuperSpec</strong> (SpecKit-Superpowers bridge)</td>
+<td><a href="https://github.com/WangX0111/superspec">https://github.com/WangX0111/superspec</a></td>
+<td>Bridge orchestration: status, brainstorm, tasks, execute,
+review</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>SuperB</strong> (Spec-Kit discipline enforcement)</td>
+<td><a href="https://speckit-community.github.io/extensions/superb">https://speckit-community.github.io/extensions/superb</a></td>
+<td>Discipline gates: check, brainstorm, implementation-gate, critique,
+debug, finish</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Helix LLM</strong> (distributed inference)</td>
+<td><a href="https://github.com/HelixDevelopment/helix_llm">https://github.com/HelixDevelopment/helix_llm</a></td>
+<td>Local-first distributed LLM inference: Gateway, Brain, Knowledge,
+Agents</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>llama.cpp</strong> (inference engine)</td>
+<td><a href="https://github.com/ggerganov/llama.cpp">https://github.com/ggerganov/llama.cpp</a></td>
+<td>RPC-server mode for distributed inference backend</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Helix Constitution</strong> (governance submodule)</td>
+<td><a href="mailto:git@github.com">git@github.com</a>:HelixDevelopment/helix_constitution.git</td>
+<td>Universal development mandates, mechanical enforcement, agent
+rules</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>MCP (Model Context Protocol)</strong></td>
+<td><a href="https://modelcontextprotocol.io">https://modelcontextprotocol.io</a></td>
+<td>Protocol for LLM-tool interoperability</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Podman</strong> (rootless containers)</td>
+<td><a href="https://podman.io">https://podman.io</a></td>
+<td>Rootless container runtime per §11.4.161</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Claude Code</strong> (CLI agent)</td>
+<td><a href="https://docs.anthropic.com/en/docs/claude-code">https://docs.anthropic.com/en/docs/claude-code</a></td>
+<td>Primary CLI agent implementing the autonomous loop</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>ATMOSphere</strong> (consuming project)</td>
+<td><a href="mailto:git@github.com">git@github.com</a>:vasic-digital/Android_15.git</td>
+<td>Reference consuming project implementing the bridge</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>Constitution submodule documentation</strong></td>
+<td><code>constitution/docs/</code> (this repository)</td>
+<td>Full constitutional mandates, agent rules, and project-independent
+extensions</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>SECURITY</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+
+:root {
+
+--od-bg: #f5f8ff; 
+--od-surface: #ffffff; 
+--od-surface-warm: #eaf1ff; 
+--od-surface-muted: #f4f6fb; 
+
+--od-fg: #101828; 
+--od-fg-2: #344054; 
+--od-muted: #667085; 
+
+--od-border: #d7e0ef; 
+--od-border-soft: #edf2f8; 
+
+--od-accent: #2563eb; 
+--od-accent-on: #ffffff; 
+--od-accent-hover: #205fd6; 
+--od-accent-tint: #eaf1ff; 
+
+--od-success: #16a34a; 
+--od-warn: #f59e0b; 
+--od-danger: #ef4444; 
+
+
+--od-font-body: "Source Sans 3", "Source Sans Pro", "Source Sans", Inter,
+-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+"Helvetica Neue", Arial, "Noto Sans", "DejaVu Sans", sans-serif,
+"Apple Color Emoji", "Segoe UI Emoji";
+--od-font-mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace,
+SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+--od-leading-body: 1.65;
+--od-leading-tight: 1.2;
+
+--od-radius-xs: 4px;
+--od-radius-sm: 6px;
+--od-radius: 8px;
+--od-radius-lg: 12px;
+--od-radius-pill: 9999px;
+
+--od-elev-ring: 0 0 0 1px var(--od-border);
+--od-elev-raised: 0 18px 48px rgba(16, 24, 40, 0.10);
+--od-focus-ring: 0 0 0 4px rgba(37, 99, 235, 0.22);
+
+--doc-fg: var(--od-fg);
+--doc-fg-muted: var(--od-muted);
+--doc-bg: var(--od-bg);
+--doc-surface: var(--od-surface);
+--doc-accent: var(--od-accent);
+--doc-accent-soft: var(--od-accent-tint);
+--doc-border: var(--od-border);
+--doc-border-soft: var(--od-border-soft);
+--doc-code-bg: #eef2fb;
+--doc-code-fg: #1d2433;
+--doc-quote-bar: var(--od-accent);
+--doc-quote-bg: #f4f7fe;
+--doc-table-stripe:#f7f9fe;
+}
+
+html {
+font-size: 16px;
+}
+body {
+font-family: var(--od-font-body);
+color: var(--doc-fg);
+background: var(--doc-bg);
+line-height: var(--od-leading-body);
+font-size: 1rem;
+max-width: 58rem;
+margin: 2.5rem auto;
+padding: 2.25rem 2.5rem 4rem;
+background-clip: padding-box;
+border-radius: var(--od-radius-lg);
+-webkit-text-size-adjust: 100%;
+text-rendering: optimizeLegibility;
+-webkit-font-smoothing: antialiased;
+}
+
+@media screen and (min-width: 62rem) {
+body {
+background: var(--doc-surface);
+box-shadow: var(--od-elev-raised);
+}
+html { background: var(--doc-bg); }
+}
+
+h1, h2, h3, h4, h5, h6 {
+font-family: var(--od-font-body);
+font-weight: 600;
+line-height: var(--od-leading-tight);
+letter-spacing: -0.011em;
+margin: 1.8em 0 0.6em;
+color: var(--od-fg);
+}
+h1 {
+font-size: 2.1rem;
+font-weight: 700;
+letter-spacing: -0.022em;
+border-bottom: 2px solid var(--doc-border);
+padding-bottom: 0.32em;
+margin-top: 0;
+}
+h2 {
+font-size: 1.55rem;
+border-bottom: 1px solid var(--doc-border-soft);
+padding-bottom: 0.25em;
+}
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.1rem; }
+h5 { font-size: 1.0rem; color: var(--od-fg-2); }
+h6 { font-size: 0.92rem; color: var(--doc-fg-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+h3.status-group-heading {
+margin-top: 1.6em;
+padding: 0.4em 0.7em;
+background: var(--doc-accent-soft);
+color: var(--od-fg);
+border-left: 4px solid var(--doc-accent);
+border-radius: var(--od-radius-sm);
+font-size: 1.15rem;
+}
+
+p { margin: 0.75em 0; }
+a {
+color: var(--doc-accent);
+text-decoration: none;
+border-bottom: 1px solid transparent;
+transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+a:hover { color: var(--od-accent-hover); border-bottom-color: currentColor; }
+a:focus-visible {
+outline: none;
+border-radius: var(--od-radius-xs);
+box-shadow: var(--od-focus-ring);
+}
+strong { font-weight: 600; color: var(--od-fg); }
+em { font-style: italic; }
+hr {
+border: 0;
+border-top: 1px solid var(--doc-border);
+margin: 2.25em 0;
+}
+blockquote {
+margin: 1.1em 0;
+padding: 0.6em 1.2em;
+color: var(--od-fg-2);
+border-left: 4px solid var(--doc-quote-bar);
+background: var(--doc-quote-bg);
+border-radius: 0 var(--od-radius-sm) var(--od-radius-sm) 0;
+}
+ul, ol { padding-left: 1.6em; margin: 0.75em 0; }
+li { margin: 0.3em 0; }
+li::marker { color: var(--doc-fg-muted); }
+
+code, pre, kbd, samp {
+font-family: var(--od-font-mono);
+font-size: 0.88em;
+}
+code {
+background: var(--doc-code-bg);
+color: var(--doc-code-fg);
+padding: 0.15em 0.42em;
+border-radius: var(--od-radius-xs);
+border: 1px solid var(--doc-border-soft);
+}
+pre {
+background: var(--doc-code-bg);
+color: var(--doc-code-fg);
+padding: 1em 1.2em;
+border-radius: var(--od-radius);
+overflow-x: auto;
+line-height: 1.5;
+border: 1px solid var(--doc-border);
+}
+pre code {
+background: transparent;
+padding: 0;
+border: 0;
+border-radius: 0;
+}
+kbd {
+background: var(--od-surface);
+color: var(--od-fg-2);
+padding: 0.1em 0.45em;
+border-radius: var(--od-radius-xs);
+border: 1px solid var(--doc-border);
+box-shadow: 0 1px 0 var(--doc-border);
+}
+
+table {
+border-collapse: separate;
+border-spacing: 0;
+width: 100%;
+margin: 1.3em 0;
+font-size: 0.93rem;
+display: block;
+overflow-x: auto;
+border: 1px solid var(--doc-border);
+border-radius: var(--od-radius-sm);
+}
+thead th {
+background: var(--doc-accent-soft);
+color: var(--od-fg);
+font-weight: 600;
+text-align: left;
+}
+th, td {
+border-bottom: 1px solid var(--doc-border-soft);
+border-right: 1px solid var(--doc-border-soft);
+padding: 0.55em 0.8em;
+vertical-align: top;
+
+overflow-wrap: break-word;
+word-break: normal;
+white-space: normal;
+hyphens: auto;
+}
+tr > th:last-child, tr > td:last-child { border-right: 0; }
+tbody tr:last-child > td { border-bottom: 0; }
+tbody tr:nth-child(even) { background: var(--doc-table-stripe); }
+
+
+td.cell-type-bug { background: #fdecec; } 
+td.cell-type-feature { background: #e7f6ec; } 
+td.cell-type-task { background: #eef2fb; } 
+
+td.cell-status-queued { background: #eef1f6; } 
+td.cell-status-in-progress { background: #e7eefc; } 
+td.cell-status-ready-for-testing { background: #e3eefe; } 
+td.cell-status-in-testing { background: #d8e6fd; } 
+td.cell-status-reopened { background: #fdeccd; } 
+td.cell-status-operator-blocked { background: #fdd9d9; } 
+td.cell-status-fixed { background: #d8f3e2; } 
+td.cell-status-obsolete { background: #e3e6ec; color: var(--doc-fg-muted); } 
+
+tr.row-status-fixed { background: #f1faf4; }
+tr.row-status-fixed td { border-color: #cfead8; }
+tr.row-status-operator-blocked { background: #fdf4f4; }
+tr.row-status-operator-blocked td { border-color: #f4cccc; }
+
+tr.row-status-obsolete {
+background: #e3e6ec;
+color: var(--doc-fg-muted);
+}
+tr.row-status-obsolete td {
+text-decoration: line-through;
+border-color: #d1d5dd;
+}
+
+tr.row-status-obsolete td.cell-status-obsolete {
+text-decoration: line-through;
+}
+
+.tag-done, .tag-completed, .tag-in-progress, .tag-future, .tag-planned {
+display: inline-block;
+padding: 0.12em 0.66em;
+border-radius: var(--od-radius-pill);
+font-size: 0.82em;
+font-weight: 600;
+line-height: 1.5;
+letter-spacing: 0.01em;
+white-space: nowrap;
+border: 1px solid transparent;
+vertical-align: baseline;
+}
+
+.tag-done, .tag-completed {
+background: #e7f6ec;
+color: #14773a;
+border-color: #bfe6cd;
+}
+
+.tag-in-progress {
+background: #e7eefc;
+color: #1c4fce;
+border-color: #c4d6fb;
+}
+
+.tag-future, .tag-planned {
+background: #fdf3d3;
+color: #8a6400;
+border-color: #f0dca0;
+}
+
+img {
+max-width: 100%;
+height: auto;
+border-radius: var(--od-radius-sm);
+}
+
+@media screen and (prefers-color-scheme: dark) {
+:root {
+--od-bg: #0f1420;
+--od-surface: #161c2b;
+--od-surface-warm: #1c2740;
+--od-surface-muted: #141a28;
+--od-fg: #e6ebf4;
+--od-fg-2: #c2cad8;
+--od-muted: #8b94a7;
+--od-border: #2a3346;
+--od-border-soft: #1f2839;
+--od-accent: #5b8def; 
+--od-accent-on: #0f1420;
+--od-accent-hover: #79a3f4;
+--od-accent-tint: #19233a;
+--od-success: #4caf72;
+--od-warn: #e0a13a;
+--od-danger: #e0655f;
+--od-elev-ring: 0 0 0 1px var(--od-border);
+--od-elev-raised: 0 18px 48px rgba(0, 0, 0, 0.5);
+--od-focus-ring: 0 0 0 4px rgba(91, 141, 239, 0.32);
+--doc-code-bg: #11192a;
+--doc-code-fg: #d7def0;
+--doc-quote-bg: #161f33;
+--doc-table-stripe:#141b29;
+}
+
+td.cell-type-bug { background: #2a1110; }
+td.cell-type-feature { background: #0f2a18; }
+td.cell-type-task { background: #141f38; }
+
+td.cell-status-queued { background: #1c2330; }
+td.cell-status-in-progress { background: #14233f; }
+td.cell-status-ready-for-testing { background: #14223c; }
+td.cell-status-in-testing { background: #182a4a; }
+td.cell-status-reopened { background: #2c2008; }
+td.cell-status-operator-blocked { background: #2f0f0d; }
+td.cell-status-fixed { background: #0f2a18; }
+td.cell-status-obsolete { background: #20242e; color: var(--od-muted); }
+
+tr.row-status-fixed { background: #0d1f15; }
+tr.row-status-fixed td { border-color: #1c402a; }
+tr.row-status-operator-blocked { background: #220d0c; }
+tr.row-status-operator-blocked td { border-color: #45201e; }
+tr.row-status-obsolete { background: #20242e; color: var(--od-muted); }
+tr.row-status-obsolete td { border-color: #2c313c; }
+
+.tag-done, .tag-completed { background: #0f2a18; color: #6fd497; border-color: #1c4a2c; }
+.tag-in-progress { background: #14233f; color: #88aef7; border-color: #28406a; }
+.tag-future, .tag-planned { background: #2c2208; color: #e3bd55; border-color: #54430f; }
+
+h3.status-group-heading { background: var(--od-accent-tint); color: var(--od-fg); }
+kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">SECURITY</h1>
+</header>
+<h1 id="security-architecture--threat-model">Security Architecture &amp;
+Threat Model</h1>
+<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
+2026-07-24T00:00:00Z</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="#1-threat-model">Threat Model</a></li>
+<li><a href="#2-threat-vectors--mitigations">Threat Vectors &amp;
+Mitigations</a></li>
+<li><a href="#3-security-layers">Security Layers</a></li>
+<li><a href="#4-constitutional-security-mandates">Constitutional
+Security Mandates</a></li>
+<li><a href="#5-network-architecture">Network Architecture</a></li>
+<li><a href="#6-incident-response">Incident Response</a></li>
+</ol>
+<hr />
+<h2 id="1-threat-model">1. Threat Model</h2>
+<h3 id="11-what-we-protect">1.1 What We Protect</h3>
+<p>The SpecKit-Superpowers bridge system spans multiple trust
+domains:</p>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Sensitivity</th>
+<th>Impact if Compromised</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nano-task source code</td>
+<td>Moderate</td>
+<td>Malicious code injection into the build pipeline</td>
+</tr>
+<tr>
+<td>Task decomposition DAG</td>
+<td>High</td>
+<td>Reordering/dropping tasks → incorrect system behaviour</td>
+</tr>
+<tr>
+<td>LLM prompt streams</td>
+<td>High</td>
+<td>Credential leakage through task descriptions (§11.4.10)</td>
+</tr>
+<tr>
+<td>Implementation gate verdicts</td>
+<td>Critical</td>
+<td>Bluffed PASS → broken features shipped</td>
+</tr>
+<tr>
+<td>Workable items database</td>
+<td>High</td>
+<td>Status manipulation, loss of evidence trail</td>
+</tr>
+<tr>
+<td>llama.cpp RPC communication</td>
+<td>Moderate</td>
+<td>Intercepted/injected model inference</td>
+</tr>
+<tr>
+<td>Distributed host GPU resources</td>
+<td>High</td>
+<td>VRAM exhaustion → denial of service</td>
+</tr>
+<tr>
+<td>Container runtime</td>
+<td>High</td>
+<td>Host escape through container breakout</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-threat-actors">1.2 Threat Actors</h3>
+<table>
+<thead>
+<tr>
+<th>Actor</th>
+<th>Capability</th>
+<th>Motivation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Malicious nano-task</strong></td>
+<td>Code execution in sandboxed container</td>
+<td>Inject backdoor, exhaust resources, corrupt evidence</td>
+</tr>
+<tr>
+<td><strong>Compromised LLM endpoint</strong></td>
+<td>Intercepted inference requests</td>
+<td>Model poisoning, credential exfiltration</td>
+</tr>
+<tr>
+<td><strong>Network adversary (MITM)</strong></td>
+<td>Packet capture on plain TCP RPC</td>
+<td>Intercept llama.cpp inference, inject responses</td>
+</tr>
+<tr>
+<td><strong>Rogue subagent</strong></td>
+<td>Agent spawned with excessive permissions</td>
+<td>Bypass gates, write to unauthorized paths</td>
+</tr>
+<tr>
+<td><strong>Insider (operator error)</strong></td>
+<td>Misconfiguration of secrets</td>
+<td>Credential leakage, access token exposure</td>
+</tr>
+<tr>
+<td><strong>Resource attacker</strong></td>
+<td>Crafted tasks causing infinite loops</td>
+<td>GPU VRAM exhaustion, CPU pinning, DoS</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-trust-boundaries">1.3 Trust Boundaries</h3>
+<pre><code>┌───────────── Trust Boundary: Host ─────────────┐
+│                                                 │
+│  ┌── Boundary: Container ──────────────────┐   │
+│  │  Nano-task sandbox (per task)            │   │
+│  │  - No host fs access                     │   │
+│  │  - Memory/CPU/disk limits                │   │
+│  │  - Network: blocked (default-deny)       │   │
+│  └──────────────────────────────────────────┘   │
+│                                                 │
+│  ┌── Boundary: Inter-service ──────────────┐   │
+│  │  SuperBridge MCP ↔ Helix LLM Gateway    │   │
+│  │  Implementation Gate ↔ Verdict Store    │   │
+│  │  DAG Engine ↔ Task Granulator           │   │
+│  └──────────────────────────────────────────┘   │
+│                                                 │
+│  ┌── Boundary: Cross-host ────────────────┐   │
+│  │  llama.cpp RPC (worker → master)        │   │
+│  │  Build artifact distribution            │   │
+│  │  Verdict replication                    │   │
+│  └──────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘</code></pre>
+<hr />
+<h2 id="2-threat-vectors--mitigations">2. Threat Vectors &amp;
+Mitigations</h2>
+<h3 id="21-vram-exhaustion-attacks-on-gpu-nodes">2.1 VRAM Exhaustion
+Attacks on GPU Nodes</h3>
+<p><strong>Vector:</strong> A malicious or poorly-constructed nano-task
+submits an LLM inference with context size exceeding the GPU&#39;s VRAM
+capacity, causing OOM or forcing fallback to CPU (degrading all
+co-located inference workloads).</p>
+<p><strong>Mitigations:</strong></p>
+<ol type="1">
+<li><strong>Per-task context budget enforcement.</strong> The Helix LLM
+Gateway enforces a maximum context window per nano-task. Tasks exceeding
+the budget are rejected with a categorized error:</li>
+</ol>
+<div class="sourceCode" id="cb2"><pre class="sourceCode go"><code class="sourceCode go"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// gateway/limits.go</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> TaskContextBudget <span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    MaxTokens    <span class="dt">int</span> <span class="st">`json:&quot;max_tokens&quot;`</span>    <span class="co">// hard cap: 4096 for nano-tasks</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    MaxKVSize    <span class="dt">int</span> <span class="st">`json:&quot;max_kv_size&quot;`</span>   <span class="co">// estimated KV cache in MB</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    MaxPromptLen <span class="dt">int</span> <span class="st">`json:&quot;max_prompt_len&quot;`</span> <span class="co">// characters</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="op">(</span>g <span class="op">*</span>Gateway<span class="op">)</span> enforceBudget<span class="op">(</span>task NanoTask<span class="op">)</span> <span class="dt">error</span> <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> task<span class="op">.</span>EstimatedTokens <span class="op">&gt;</span> g<span class="op">.</span>config<span class="op">.</span>MaxTokens <span class="op">{</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> fmt<span class="op">.</span>Errorf<span class="op">(</span><span class="st">&quot;REJECTED: task %s estimated %d tokens exceeds budget %d&quot;</span><span class="op">,</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>            task<span class="op">.</span>ID<span class="op">,</span> task<span class="op">.</span>EstimatedTokens<span class="op">,</span> g<span class="op">.</span>config<span class="op">.</span>MaxTokens<span class="op">)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ot">nil</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ol start="2" type="1">
+<li><p><strong>GPU health telemetry.</strong> Continuous sampling of
+<code>nvidia-smi</code> / <code>rocm-smi</code> per GPU. VRAM usage
+tracked as deltas. Threshold alerts at 85% utilization trigger
+backpressure.</p></li>
+<li><p><strong>Task isolation at GPU level.</strong> Disjoint GPU
+assignment per task class (no single nano-task can consume all GPUs).
+Multi-host clusters distribute tasks across nodes.</p></li>
+<li><p><strong>Recovery:</strong> OOM-killed task is marked
+<code>crashed</code> per §11.4.147, respawned with halved
+budget.</p></li>
+</ol>
+<h3 id="22-insecure-rpc-llamacpp-plain-tcp">2.2 Insecure RPC (llama.cpp
+Plain TCP)</h3>
+<p><strong>Vector:</strong> llama.cpp&#39;s RPC protocol operates over plain
+TCP with no authentication, encryption, or integrity protection. An
+adversary on the same network can intercept inference requests (reading
+prompts), inject responses (model poisoning), or replay requests
+(resource exhaustion).</p>
+<p><strong>Proposed Mitigations:</strong></p>
+<ol type="1">
+<li><strong>TLS wrapper (recommended).</strong> Wrap the TCP RPC in
+mutual TLS (mTLS) using per-host certificates:</li>
+</ol>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># TLS-wrapped llama.cpp RPC</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">llama-server</span> <span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--host</span> 0.0.0.0 <span class="at">--port</span> 8443 <span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--ssl-cert</span> /etc/llama/certs/server.crt <span class="dt">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--ssl-key</span> /etc/llama/certs/server.key <span class="dt">\</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--ssl-ca</span> /etc/llama/certs/ca.crt <span class="dt">\</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--ssl-require-client-cert</span></span></code></pre></div>
+<ol start="2" type="1">
+<li><p><strong>Isolated VLAN (fallback).</strong> If TLS wrapping is not
+feasible (llama.cpp does not natively support it), isolate all RPC
+traffic to a dedicated VLAN with no external routing. The VLAN is
+provisioned via the Containers submodule (§11.4.76).</p></li>
+<li><p><strong>Per-request HMAC.</strong> Append an HMAC-SHA256 of the
+request body + a shared secret to each RPC message. The server validates
+before processing.</p></li>
+<li><p><strong>Audit:</strong> RPC traffic volume and timing is logged.
+Anomaly detection flags unusual patterns (burst of identical requests,
+requests from unknown IPs).</p></li>
+</ol>
+<h3 id="23-verification-loop-hangs-maliciously-crafted-tasks">2.3
+Verification-Loop Hangs (Maliciously Crafted Tasks)</h3>
+<p><strong>Vector:</strong> A task is crafted to create an infinite TDD
+loop — a test that can never pass (asserting <code>1 === 2</code>) or a
+test whose RED phase depends on an unreachable condition. The
+implementation gate spins indefinitely, consuming resources and blocking
+the task queue.</p>
+<p><strong>Mitigations:</strong></p>
+<ol type="1">
+<li><p><strong>Per-task timeout.</strong> The implementation gate
+enforces a hard timeout (default: 300 seconds) per RED/GREEN phase.
+Exceeded timeout → mark <code>crashed</code> + systematic-debugging
+auto-trigger.</p></li>
+<li><p><strong>Loop detection.</strong> If the same item_id re-enters
+the RED→GREEN cycle more than N times (default: 5) without reaching
+GREEN, the implementation gate classifies it as a possible
+verification-loop attack and blocks further cycles:</p></li>
+</ol>
+<div class="sourceCode" id="cb4"><pre class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> maxCycles <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> cycleCount <span class="op">=</span> <span class="cf">await</span> <span class="fu">getCycleCount</span>(itemId)<span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (cycleCount <span class="op">&gt;</span> maxCycles) {</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    verdict<span class="op">:</span> <span class="st">&#39;BLOCKED&#39;</span><span class="op">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    reason<span class="op">:</span> <span class="vs">`VERIFICATION_LOOP: </span><span class="sc">${</span>itemId<span class="sc">}</span><span class="vs"> has cycled RED→GREEN </span><span class="sc">${</span>cycleCount<span class="sc">}</span><span class="vs"> times without reaching GREEN. Possible malicious task or unfixable defect. Systematic debugging required.`</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<ol start="3" type="1">
+<li><strong>Resource budget per task.</strong> CPU time, memory, and
+disk I/O are capped per nano-task via container limits.</li>
+</ol>
+<h3 id="24-state-drift-attacks">2.4 State Drift Attacks</h3>
+<p><strong>Vector:</strong> An attacker manipulates intermediate state
+(verdict JSONs, evidence files, DAG node status) to bypass gates.
+Example: overwriting a RED verdict&#39;s <code>exit_code</code> from 1 to 0
+to satisfy GREEN-precondition-gate.</p>
+<p><strong>Mitigations:</strong></p>
+<ol type="1">
+<li><strong>Content-addressed verdict store.</strong> Every verdict
+file&#39;s path includes its SHA-256 hash. A modified file has a different
+hash and is no longer reachable by the gate:</li>
+</ol>
+<pre><code>qa-results/tdd_verdicts/
+  RED_ATM-512_sha256=abc123def456.json
+  GREEN_ATM-512_sha256=def789abc012.json</code></pre>
+<ol start="2" type="1">
+<li><p><strong>Immutable append-only ledger.</strong> All verdicts are
+also written to an append-only JSONL ledger (§11.4.116 sync channel).
+Any modification is detectable by comparing the ledger&#39;s
+hash-chain.</p></li>
+<li><p><strong>Digital signatures.</strong> Verdicts are signed with the
+conductor&#39;s key. The gate verifies the signature before accepting a
+verdict.</p></li>
+<li><p><strong>Single-writer ownership.</strong> Only the implementation
+gate process owns the verdict directory. Per §11.4.206, exactly ONE
+writer — every other consumer is read-only.</p></li>
+</ol>
+<h3 id="25-credential-leakage-through-task-prompts">2.5 Credential
+Leakage Through Task Prompts</h3>
+<p><strong>Vector:</strong> An operator&#39;s prompt or a task description
+contains an API key, token, or password. This text is serialized into a
+nano-task, transmitted over the network, logged, and potentially
+committed to the evidence store.</p>
+<p><strong>Mitigations:</strong></p>
+<ol type="1">
+<li><strong>Pre-ingest credential scan (§11.4.10).</strong> The task
+granulator scans every task description for credential patterns before
+creating nano-tasks. Matches are redacted:</li>
+</ol>
+<div class="sourceCode" id="cb6"><pre class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> CREDENTIAL_PATTERNS <span class="op">=</span> [</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="ss">/</span><span class="sc">(?</span><span class="ss">:api</span><span class="sc">[_-]?</span><span class="ss">key</span><span class="sc">|</span><span class="ss">apikey</span><span class="sc">|</span><span class="ss">access</span><span class="sc">[_-]?</span><span class="ss">token</span><span class="sc">|</span><span class="ss">secret</span><span class="sc">|</span><span class="ss">password</span><span class="sc">|</span><span class="ss">passwd</span><span class="sc">)\s*[:=]\s*\S+</span><span class="ss">/gi</span><span class="op">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="ss">/ghp_</span><span class="sc">[a-zA-Z0-9]{36}</span><span class="ss">/g</span><span class="op">,</span>   <span class="co">// GitHub PAT</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="ss">/sk-</span><span class="sc">[a-zA-Z0-9]{32,}</span><span class="ss">/g</span><span class="op">,</span>    <span class="co">// OpenAI key</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="ss">/xox</span><span class="sc">[bpras]</span><span class="ss">-</span><span class="sc">[a-zA-Z0-9-]+</span><span class="ss">/g</span> <span class="co">// Slack token</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>]<span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">redactCredentials</span>(text<span class="op">:</span> <span class="dt">string</span>)<span class="op">:</span> <span class="dt">string</span> {</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> redacted <span class="op">=</span> text<span class="op">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> pattern <span class="kw">of</span> CREDENTIAL_PATTERNS) {</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    redacted <span class="op">=</span> redacted<span class="op">.</span><span class="fu">replace</span>(pattern<span class="op">,</span> <span class="st">&#39;***REDACTED***&#39;</span>)<span class="op">;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> redacted<span class="op">;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<ol start="2" type="1">
+<li><p><strong>Credential-bearing tasks refused at creation.</strong> If
+a task description contains a credential after redaction (the redacted
+text itself is a marker), the granulator refuses to create the task and
+surfaces an alert.</p></li>
+<li><p><strong>Never-logged.</strong> Logging infrastructure strips
+credential patterns before writing. Evidence files are scanned
+post-generation.</p></li>
+</ol>
+<h3 id="26-task-injection-malicious-code-in-decomposed-tasks">2.6 Task
+Injection (Malicious Code in Decomposed Tasks)</h3>
+<p><strong>Vector:</strong> A compromised subagent or LLM injects
+malicious code into a nano-task&#39;s implementation. The TDD gate sees
+GREEN (the injected code also passes the test), but the shipped artifact
+contains a backdoor.</p>
+<p><strong>Mitigations:</strong></p>
+<ol type="1">
+<li><p><strong>Independent code review (§11.4.142).</strong> Every
+nano-task&#39;s implementation is reviewed by a structurally-separate agent
+BEFORE the GREEN verdict is accepted.</p></li>
+<li><p><strong>Static analysis.</strong> Each nano-task&#39;s implementation
+is scanned by the SonarQube scanner (§11.4.184) for common vulnerability
+patterns.</p></li>
+<li><p><strong>Sandboxed execution.</strong> Nano-task tests run in an
+isolated container with no network access and read-only host filesystem.
+Even if malicious code executes, its blast radius is bounded.</p></li>
+<li><p><strong>Diff audit.</strong> The commit diff for each nano-task
+is minimal (typically 10–50 lines). Unusually large diffs trigger manual
+review.</p></li>
+</ol>
+<h3 id="27-model-poisoning-tampered-model-weights">2.7 Model Poisoning
+(Tampered Model Weights)</h3>
+<p><strong>Vector:</strong> The llama.cpp model weights are replaced
+with a tampered version that produces subtly incorrect or malicious
+outputs.</p>
+<p><strong>Mitigations:</strong></p>
+<ol type="1">
+<li><strong>Model integrity verification.</strong> Before loading, the
+Helix LLM Gateway verifies the model file&#39;s SHA-256 against a known-good
+hash stored in a git-tracked manifest:</li>
+</ol>
+<div class="sourceCode" id="cb7"><pre class="sourceCode go"><code class="sourceCode go"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> verifyModelIntegrity<span class="op">(</span>modelPath<span class="op">,</span> expectedHash <span class="dt">string</span><span class="op">)</span> <span class="dt">error</span> <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    f<span class="op">,</span> err <span class="op">:=</span> os<span class="op">.</span>Open<span class="op">(</span>modelPath<span class="op">)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> err <span class="op">!=</span> <span class="ot">nil</span> <span class="op">{</span> <span class="cf">return</span> err <span class="op">}</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">defer</span> f<span class="op">.</span>Close<span class="op">()</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    h <span class="op">:=</span> sha256<span class="op">.</span>New<span class="op">()</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> _<span class="op">,</span> err <span class="op">:=</span> io<span class="op">.</span>Copy<span class="op">(</span>h<span class="op">,</span> f<span class="op">);</span> err <span class="op">!=</span> <span class="ot">nil</span> <span class="op">{</span> <span class="cf">return</span> err <span class="op">}</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    actual <span class="op">:=</span> hex<span class="op">.</span>EncodeToString<span class="op">(</span>h<span class="op">.</span>Sum<span class="op">(</span><span class="ot">nil</span><span class="op">))</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> actual <span class="op">!=</span> expectedHash <span class="op">{</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> fmt<span class="op">.</span>Errorf<span class="op">(</span><span class="st">&quot;MODEL_INTEGRITY_FAIL: %s hash %s != expected %s&quot;</span><span class="op">,</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            modelPath<span class="op">,</span> actual<span class="op">,</span> expectedHash<span class="op">)</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ot">nil</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ol start="2" type="1">
+<li><p><strong>Known-good hash registry.</strong>
+<code>models/manifest.yaml</code> tracks every model variant, its
+expected hash, and the source URL.</p></li>
+<li><p><strong>Read-only model storage.</strong> The model file is
+mounted read-only into the inference container.</p></li>
+</ol>
+<h3 id="28-cloud-provider-mitm-intercepted-api-calls">2.8 Cloud Provider
+MITM (Intercepted API Calls)</h3>
+<p><strong>Vector:</strong> When falling back to a cloud LLM provider
+(after all local llama.cpp workers are at capacity), API calls traverse
+the public internet. An adversary at the cloud provider or on the
+network path intercepts or modifies API requests/responses.</p>
+<p><strong>Mitigations:</strong></p>
+<ol type="1">
+<li><p><strong>Mandatory HTTPS.</strong> All cloud provider API calls
+use TLS 1.3 with certificate pinning.</p></li>
+<li><p><strong>Request signing.</strong> Requests are signed with
+HMAC-SHA256 using a per-project secret. The provider-agnostic gateway
+layer adds the signature; the consumer verifies it.</p></li>
+<li><p><strong>Provider fallback as last resort (§11.4.196).</strong>
+Native local models are always preferred. Cloud providers are used only
+when ALL local workers are exhausted.</p></li>
+<li><p><strong>Audit logging of all external calls.</strong> Every cloud
+API call is logged with request hash, response hash, latency, and
+provider identity.</p></li>
+</ol>
+<hr />
+<h2 id="3-security-layers">3. Security Layers</h2>
+<h3 id="31-constitution-enforced-credential-handling-11410">3.1
+Constitution-Enforced Credential Handling (§11.4.10)</h3>
+<ul>
+<li>All credentials live in <code>.env</code> files (git-ignored).</li>
+<li>Templates with placeholder values are committed as
+<code>.env.example</code>.</li>
+<li>Pre-commit hook scans staged files for credential patterns.</li>
+<li>Tests load credentials at runtime, never hardcoded.</li>
+<li>Credential-bearing frames in recordings are redacted.</li>
+<li>Per-service credential separation (<code>.netflix.env</code>,
+<code>.disney.env</code>).</li>
+</ul>
+<h3 id="32-tls--mtls-for-inter-service-communication">3.2 TLS / mTLS for
+Inter-Service Communication</h3>
+<table>
+<thead>
+<tr>
+<th>Service Pair</th>
+<th>Protocol</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SuperBridge MCP ↔︎ Helix LLM Gateway</td>
+<td>mTLS (TLS 1.3)</td>
+<td>Client cert</td>
+</tr>
+<tr>
+<td>Implementation Gate ↔︎ Verdict Store</td>
+<td>Local Unix socket</td>
+<td>Filesystem permissions</td>
+</tr>
+<tr>
+<td>DAG Engine ↔︎ Task Granulator</td>
+<td>mTLS (TLS 1.3)</td>
+<td>Client cert</td>
+</tr>
+<tr>
+<td>llama.cpp RPC (worker → master)</td>
+<td>TLS wrapper or isolated VLAN</td>
+<td>Cert or network isolation</td>
+</tr>
+<tr>
+<td>Cloud provider API</td>
+<td>HTTPS (TLS 1.3)</td>
+<td>API key + request signing</td>
+</tr>
+</tbody>
+</table>
+<p>Certificate management via <code>constitution/scripts/certs/</code>
+(shared tooling, inherited by reference per §11.4.177).</p>
+<h3 id="33-sandboxed-nano-task-execution">3.3 Sandboxed Nano-Task
+Execution</h3>
+<p>Every nano-task executes in an isolated container provisioned via the
+<code>vasic-digital/containers</code> submodule (§11.4.76). Container
+profile:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># container profile: nano-task-sandbox</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">nano-task</span><span class="kw">:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;nano-task-runner:latest&quot;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">read_only</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">tmpfs</span><span class="kw">:</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> /tmp:size=128M</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">mem_limit</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;256m&quot;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">cpus</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;0.5&quot;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">pids_limit</span><span class="kw">:</span><span class="at"> </span><span class="dv">50</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">network_mode</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;none&quot;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">security_opt</span><span class="kw">:</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> no-new-privileges:true</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">cap_drop</span><span class="kw">:</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> ALL</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">cap_add</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span><span class="co">  # zero capabilities</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">user</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;1000:1000&quot;</span><span class="co">  # non-root</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> bind</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">source</span><span class="kw">:</span><span class="at"> ./task_input</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target</span><span class="kw">:</span><span class="at"> /task/input:ro</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> bind</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">source</span><span class="kw">:</span><span class="at"> ./task_output</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target</span><span class="kw">:</span><span class="at"> /task/output</span></span></code></pre></div>
+<p>Key invariants:</p>
+<ul>
+<li>No network access (network_mode: none) — nano-tasks cannot
+exfiltrate data.</li>
+<li>Read-only root filesystem except <code>/tmp</code>.</li>
+<li>Non-root user.</li>
+<li>Dropped ALL Linux capabilities.</li>
+<li>Per-task memory/time/PID limits.</li>
+<li>Rootless Podman (§11.4.161) — no rootful Docker.</li>
+</ul>
+<h3 id="34-input-validation-at-every-layer">3.4 Input Validation at
+Every Layer</h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task Granulator (granulator.ts)</td>
+<td>Schema-validate task spec against JSON Schema</td>
+</tr>
+<tr>
+<td>DAG Engine (dag.go)</td>
+<td>Validate graph is acyclic, all dependencies resolve</td>
+</tr>
+<tr>
+<td>Implementation Gate</td>
+<td>Validate test is not a tautology, verify RED/GREEN chain</td>
+</tr>
+<tr>
+<td>Helix LLM Gateway</td>
+<td>Enforce context budget, sanitize prompts, verify model
+integrity</td>
+</tr>
+<tr>
+<td>Verdict Store</td>
+<td>Validate verdict JSON schema, verify signature</td>
+</tr>
+<tr>
+<td>External Tracker Sync</td>
+<td>Validate against tracker field map, idempotency-key</td>
+</tr>
+</tbody>
+</table>
+<h3 id="35-audit-logging-with-immutability">3.5 Audit Logging with
+Immutability</h3>
+<p>All security-relevant events are written to an append-only,
+integrity-protected audit log:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;event&quot;</span><span class="fu">:</span> <span class="st">&quot;nano_task_execution&quot;</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;item_id&quot;</span><span class="fu">:</span> <span class="st">&quot;ATM-512&quot;</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phase&quot;</span><span class="fu">:</span> <span class="st">&quot;GREEN&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;container_id&quot;</span><span class="fu">:</span> <span class="st">&quot;abc123&quot;</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;exit_code&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;resource_usage&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;cpu_sec&quot;</span><span class="fu">:</span> <span class="fl">1.2</span><span class="fu">,</span> <span class="dt">&quot;mem_mb&quot;</span><span class="fu">:</span> <span class="dv">45</span><span class="fu">,</span> <span class="dt">&quot;disk_kb&quot;</span><span class="fu">:</span> <span class="dv">120</span> <span class="fu">},</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sandbox_escapes_detected&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2026-07-24T12:05:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;signature&quot;</span><span class="fu">:</span> <span class="st">&quot;sha256:...&quot;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>The audit log is:</p>
+<ul>
+<li>Append-only (no deletion, no modification).</li>
+<li>Hash-chained (each entry includes the hash of the previous
+entry).</li>
+<li>Replicated to a separate host (tamper-evident).</li>
+<li>Monitored for anomalies (unusual exit codes, resource spikes,
+repeated failures).</li>
+</ul>
+<hr />
+<h2 id="4-constitutional-security-mandates">4. Constitutional Security
+Mandates</h2>
+<h3 id="41-credential-handling-11410">4.1 Credential Handling
+(§11.4.10)</h3>
+<blockquote>
+<p>&quot;Credentials or any secret and sensitive data MUST NOT leak!&quot;</p>
+</blockquote>
+<p>Every credential path and pattern is documented in
+<code>docs/accesses/accounts.md</code> (the single source of truth). The
+pre-commit hook, the credential leak scan, and the task-granulator
+prompt scanner form a defense-in-depth barrier.</p>
+<h3 id="42-rootless-containers-114161">4.2 Rootless Containers
+(§11.4.161)</h3>
+<blockquote>
+<p>&quot;Every project MUST use Podman in rootless mode for ALL containerized
+workloads.&quot;</p>
+</blockquote>
+<p>All nano-task sandboxes, build containers, and service containers run
+rootless. No <code>sudo</code>, no Docker daemon, no root-equivalent
+capabilities. Container-to-root privilege escalation is structurally
+prevented, not merely gated.</p>
+<h3 id="43-credential-single-source-of-truth-atmosphere-project-mandate">4.3
+Credential Single-Source-of-Truth (ATMOSphere project mandate)</h3>
+<p>The <code>docs/accesses/accounts.md</code> file is the canonical
+credential registry. Any new credential MUST be added there. Any
+credential change MUST update it. Credentials MUST NOT leak through any
+other file.</p>
+<h3 id="44-no-silent-removal-114122">4.4 No-Silent-Removal
+(§11.4.122)</h3>
+<p>Security components (credential scanners, sandbox profiles, TLS
+certificates, audit logging) are end-user capabilities. They MUST NOT be
+removed without explicit operator confirmation.</p>
+<h3 id="45-target-system--hardware-safety-114133">4.5 Target-System +
+Hardware Safety (§11.4.133)</h3>
+<p>Every security change MUST be safe for BOTH the target system (MUST
+NOT brick, boot-loop, or corrupt data) AND the hardware (MUST NOT exceed
+electrical/thermal/voltage limits).</p>
+<hr />
+<h2 id="5-network-architecture">5. Network Architecture</h2>
+<h3 id="51-single-host-deployment-development">5.1 Single-Host
+Deployment (Development)</h3>
+<pre><code>┌────────────────────────────────────────────────────────┐
+│  Host: AMD Threadripper 64-core, 256GB DDR5, RTX 32GB  │
+│                                                        │
+│  ┌──────────────────────┐  ┌────────────────────────┐  │
+│  │ SuperBridge MCP      │  │ Helix LLM Gateway      │  │
+│  │ (localhost:3100)     │←→│ (localhost:3101)        │  │
+│  │ - implementation-gate│  │ - context budgeting    │  │
+│  │ - verify_anti_bluff  │  │ - model integrity      │  │
+│  │ - tdd_enforce        │  │ - provider routing      │  │
+│  └──────────┬───────────┘  └───────────┬────────────┘  │
+│             │                          │               │
+│             │    mTLS (TLS 1.3)        │               │
+│             └──────────┬───────────────┘               │
+│                        │                               │
+│  ┌─────────────────────┴──────────────────────────┐    │
+│  │ llama.cpp Server (GPU: CUDA/Metal/ROCm)        │    │
+│  │ - Local inference (port 8080, localhost only)  │    │
+│  └────────────────────────────────────────────────┘    │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ Container Runtime (Rootless Podman)              │  │
+│  │ ┌──────────┐ ┌──────────┐ ┌───────────────────┐  │  │
+│  │ │Nano-task │ │Nano-task │ │Build Container    │  │  │
+│  │ │Sandbox 1 │ │Sandbox 2 │ │(distributed build)│  │  │
+│  │ └──────────┘ └──────────┘ └───────────────────┘  │  │
+│  └──────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="52-multi-host-deployment-production">5.2 Multi-Host Deployment
+(Production)</h3>
+<pre><code>┌──────────────────────┐      ┌──────────────────────┐
+│  Host: Developer WS  │      │  Host: Build Server   │
+│  (SpecKit +          │      │  (Containerized       │
+│   SuperBridge MCP)   │      │   Android/FW builds)  │
+└──────┬───────────────┘      └───────────────────────┘
+       │ mTLS                        │ mTLS
+       │                             │
+┌──────┴─────────────────────────────┴──────────────────┐
+│                  TLS-Terminating Proxy                 │
+│                  (nginx / haproxy)                     │
+│                  - Client cert verification            │
+│                  - Rate limiting                       │
+│                  - Request logging                     │
+└──────┬──────────────────────────────┬─────────────────┘
+       │                              │
+┌──────┴──────┐              ┌───────┴───────┐
+│  GPU Node 1 │              │  GPU Node N   │
+│  (llama.cpp │  Isolated    │  (llama.cpp   │
+│   RPC node) │─── VLAN ────│   RPC node)   │
+│  RTX 32GB   │              │  RTX 32GB     │
+└─────────────┘              └───────────────┘
+
+┌──────────────────────┐
+│  Audit Log Server    │
+│  (append-only,       │
+│   tamper-evident)    │
+└──────────────────────┘</code></pre>
+<h3 id="53-security-zones">5.3 Security Zones</h3>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Network Access</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Green (Internal)</strong></td>
+<td>None</td>
+<td>Nano-task sandboxes</td>
+</tr>
+<tr>
+<td><strong>Yellow (Service Mesh)</strong></td>
+<td>mTLS-only, localhost</td>
+<td>SuperBridge MCP, Gateway, Verdict Store</td>
+</tr>
+<tr>
+<td><strong>Orange (GPU Compute)</strong></td>
+<td>Isolated VLAN</td>
+<td>llama.cpp RPC nodes</td>
+</tr>
+<tr>
+<td><strong>Red (External)</strong></td>
+<td>HTTPS-only, rate-limited</td>
+<td>Cloud LLM providers</td>
+</tr>
+<tr>
+<td><strong>Blue (Audit)</strong></td>
+<td>One-way push</td>
+<td>Audit log replication target</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-incident-response">6. Incident Response</h2>
+<h3 id="61-detection">6.1 Detection</h3>
+<p>Security events are automatically detected by:</p>
+<ol type="1">
+<li><strong>Implementation gate anomalies:</strong> Repeated RED→GREEN
+loops on the same nano-task (loop detection), unusual exit codes,
+container escape attempts.</li>
+<li><strong>Audit log monitoring:</strong> Anomalous resource usage,
+unexpected container exit codes, modified verdict files (hash
+mismatch).</li>
+<li><strong>Credential scan alerts:</strong> Pre-commit hook rejects,
+task-granulator redaction events.</li>
+<li><strong>Network traffic anomalies:</strong> Unexpected RPC sources,
+burst traffic patterns, TLS certificate mismatches.</li>
+</ol>
+<h3 id="62-response-procedures">6.2 Response Procedures</h3>
+<p><strong>Level 1 — Credential Leak Detected:</strong></p>
+<ol type="1">
+<li>Pre-commit hook or credential scan triggers.</li>
+<li>The offending text is redacted or the commit is blocked.</li>
+<li>The operator is notified of the exact file + line + pattern
+detected.</li>
+<li>If the credential was pushed, rotate the credential at the provider
+immediately.</li>
+<li>Audit git history for the leaked value&#39;s presence.</li>
+<li>Document in
+<code>docs/audit/credential_leak_&lt;date&gt;.md</code>.</li>
+</ol>
+<p><strong>Level 2 — Suspicious Nano-Task Detected:</strong></p>
+<ol type="1">
+<li>Implementation gate&#39;s loop detection fires.</li>
+<li>The nano-task is marked <code>BLOCKED</code> (not crashed —
+different recovery path).</li>
+<li>Systematic debugging is auto-activated per §11.4.102(D).</li>
+<li>The task&#39;s source, the test, and the DAG path are manually
+reviewed.</li>
+<li>If confirmed malicious: isolate the subagent that created it, revoke
+its credentials, audit all its other tasks.</li>
+<li>If false positive: adjust loop detection threshold, record the
+finding.</li>
+</ol>
+<p><strong>Level 3 — Container Escape or Host Compromise:</strong></p>
+<ol type="1">
+<li>Isolate the affected host from the network immediately.</li>
+<li>Stop all running containers on that host.</li>
+<li>Preserve forensic evidence: container logs, audit logs, filesystem
+snapshots.</li>
+<li>Investigate the escape vector (kernel vulnerability?
+misconfiguration?).</li>
+<li>Patch and redeploy.</li>
+<li>Full post-incident audit per §11.4.138 (what assertion should have
+caught this?).</li>
+</ol>
+<p><strong>Level 4 — Model Poisoning or Provider
+Compromise:</strong></p>
+<ol type="1">
+<li>Model integrity check fires (hash mismatch).</li>
+<li>The compromised model is quarantined (moved, not deleted — preserve
+for forensics).</li>
+<li>All recent inference results using that model are flagged for
+re-verification.</li>
+<li>The known-good model is restored from backup (hash-verified).</li>
+<li>If a cloud provider is the source: revoke API keys, rotate,
+investigate with provider.</li>
+</ol>
+<h3 id="63-post-incident-obligations">6.3 Post-Incident Obligations</h3>
+<p>Per §11.4.138, every security incident MUST produce:</p>
+<ol type="1">
+<li>A systematic-debugging root-cause analysis.</li>
+<li>A bluff-audit identifying the exact assertion/check that should have
+caught it.</li>
+<li>A permanent regression guard registered in the same commit as the
+fix.</li>
+<li>The bluff-audit committed under
+<code>docs/research/security/&lt;incident&gt;_bluff_audit/</code>.</li>
+</ol>
+<hr />
+<p><strong>End of Security Architecture &amp; Threat Model.</strong></p>
+</body>
+</html>

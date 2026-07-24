@@ -8726,5 +8726,40 @@ infeasibility per §11.4.3) — a guard whose reviewer-authored mutation
 survives is unvalidated instrumentation per §11.4.115(F) and a FINDING.
 The literal <code>11.4.194</code> is unchanged — its propagation gate
 stays GREEN.</p>
+<p><strong>§11.4.228 — Cross-agent extension lifecycle mandate:
+per-platform compatibility, source tracking, documentation with
+compatibility matrix, and auto-wiring on constitution pull
+(research-derived from Extensions Catalog forensics,
+2026-07-24).</strong> Compact summary: every governed extension (Skill,
+MCP, ACP, LSP, plugin) MUST (A) ship a per-platform compatibility
+declaration (Claude Code, OpenCode, Gemini CLI, Qwen Code minimum) with
+closed vocabulary
+<code>{SUPPORTED|UNTESTED|UNSUPPORTED|CONFIG-ONLY}</code>, NEVER cause
+loops/broken behavior in any platform, and carry a per-platform liveness
+test §11.4.169; (B) be traceable to its exact canonical origin (repo +
+commit SHA + path, recorded in <code>EXTENSION_SOURCE.yaml</code> —
+symlinks preferred over copies, blind copies without provenance are
+§11.4.124 dead-code-in-waiting), with a per-project extensions catalog
+(<code>docs/extensions/EXTENSIONS_CATALOG.md</code>) as the single
+source of truth, §11.4.86 roster/corpus-backed fingerprint; (C) the
+extensions catalog MUST carry a per-platform compatibility matrix +
+liveliness-testing evidence per extension × platform per §11.4.69
+<code>feature_class=extension_loading</code>, four-format export per
+§11.4.65, auto-synced via §11.4.106 docs-chain; (D) the §11.4.164
+<code>post_update_hook.sh</code> is EXTENDED to auto-detect all governed
+agent platforms, symlink constitution skills into each
+(<code>.claude/skills/</code>, <code>.opencode/skills/</code>, platform
+equivalents), register MCP servers into each platform&#39;s config,
+self-validate, and be idempotent — closing the gap where 4 constitution
+skills exist in source but are un-wired to any platform (the §11.4.108
+source-present-runtime-absent gap). Honest boundary §11.4.6 — wiring
+guarantees REACHABILITY, never runtime acceptance. Classification:
+universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-228-PROPAGATION</code> + recommended gates
+<code>CM-EXTENSION-PER-PLATFORM-COMPAT</code> /
+<code>CM-EXTENSION-SOURCE-TRACKED</code> /
+<code>CM-EXTENSION-CATALOG-DOCUMENTED</code> /
+<code>CM-CONSTITUTION-EXTENSIONS-AUTO-WIRED</code> + paired §1.1
+mutations. Full text in <code>Constitution.md</code> §11.4.228.</p>
 </body>
 </html>
