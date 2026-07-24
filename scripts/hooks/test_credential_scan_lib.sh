@@ -133,6 +133,24 @@ Tester abkmusic64@gmail.com now logs in on all browsers but still fails on D3; R
 EOF
 assert_clean "(f) email + distant technical tokens (proximity window)" "$WORK/good_f_distant_tokens.txt"
 
+# (g) detector-1 carrier-strip: a recognised secret KEYWORD followed by a
+# separator whose VALUE is an XML/localization PLACEHOLDER (starts with '<' or
+# '%') is a UI label, not a secret. Forensic FP: AOSP Settings
+# "Wi-Fi password: <xliff:g id="password">%1$s</xliff:g>".
+cat > "$WORK/good_g_xliff_placeholder.xml" <<'EOF'
+    <string name="wifi_dpp_wifi_password">Wi-Fi password: <xliff:g id="password" example="my password">%1$s</xliff:g></string>
+EOF
+assert_clean "(g) keyword: <xliff placeholder> (UI label, not a secret)" "$WORK/good_g_xliff_placeholder.xml"
+
+# (h) detector-1 carrier-strip: a recognised secret KEYWORD followed by a
+# separator whose VALUE is a shell/jq VARIABLE REFERENCE (starts with '$') is a
+# reference, never a literal secret. Forensic FP: docs prose quoting
+# "password=$SMB_PASS" / "api_key:$ENV.CMA_TOK".
+cat > "$WORK/good_h_var_ref.txt" <<'EOF'
+SMB mount uses password=$SMB_PASS and the jq writer emits api_key:$ENV.CMA_TOK for the provider.
+EOF
+assert_clean "(h) keyword=\$VAR / keyword:\$ENV.x (variable reference, not a secret)" "$WORK/good_h_var_ref.txt"
+
 echo ""
 # --- GOLDEN-BAD -------------------------------------------------------------
 cat > "$WORK/bad_1_email_pw.txt" <<'EOF'
