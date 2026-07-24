@@ -116,6 +116,23 @@ assert_clean "(c) Android object reference @pkg.CamelCaseClass" "$WORK/good_c_ja
 printf 'SQLite format 3\000\000admin@example.com S3cretDbToken99\000\000rows\000' > "$WORK/good_d_binary.db"
 assert_clean "(d) binary .db with embedded email+token (binary-skip)" "$WORK/good_d_binary.db"
 
+# (e) §11.4.201 carrier-strip #5: a Markdown-emphasized plain WORD adjacent to an
+# email in bug-report prose is emphasis, not a password. Forensic FP:
+# docs/Issues.md:3794 "abkmusic64@gmail.com ... **BROWSERS**".
+cat > "$WORK/good_e_markdown_word.txt" <<'EOF'
+- **Bug 12** (`abkmusic64@gmail.com`) now logs in on **ALL BROWSERS** but *fails* on `code`.
+EOF
+assert_clean "(e) markdown-emphasized word near email (**BROWSERS**)" "$WORK/good_e_markdown_word.txt"
+
+# (f) §11.4.201 carrier-strip #6: a long PROSE line where an email co-occurs with
+# DISTANT technical tokens (config keys, code identifiers, product names) is not a
+# credential — the password of a real email:pass leak is IMMEDIATELY adjacent.
+# Forensic FP: docs/Issues.md:3794 attestation discussion.
+cat > "$WORK/good_f_distant_tokens.txt" <<'EOF'
+Tester abkmusic64@gmail.com now logs in on all browsers but still fails on D3; RK3588 verified_boot_state=UNVERIFIED device_locked=false Widevine-L3 Pixel-8 persist.atmosphere.attest.device_keybox=true remains the blocker.
+EOF
+assert_clean "(f) email + distant technical tokens (proximity window)" "$WORK/good_f_distant_tokens.txt"
+
 echo ""
 # --- GOLDEN-BAD -------------------------------------------------------------
 cat > "$WORK/bad_1_email_pw.txt" <<'EOF'
@@ -147,6 +164,16 @@ assert_caught "(4) OPENSSH PRIVATE KEY marker" "$WORK/bad_4_privkey.txt"
 # would silently WEAKEN the gate, so generate the 35-char run deterministically.
 { printf 'gmaps_key=AIza'; printf 'x%.0s' {1..35}; printf '\n'; } > "$WORK/bad_5_aiza.txt"
 assert_caught "(5) AIza Google-API-key format (39 chars)" "$WORK/bad_5_aiza.txt"
+
+# (6) proximity-window MUST NOT over-narrow: a real password IMMEDIATELY adjacent
+# to an email (within the §11.4.201 carrier-strip #6 window) MUST still be caught.
+# This pins that carrier-strip #6 tightened the scan WITHOUT weakening real-leak
+# detection — the paired §1.1 mutation (widening the window to scan whole prose
+# lines re-introduces the FP; narrowing it below the compact leak form fails THIS).
+cat > "$WORK/bad_6_adjacent_pw.txt" <<'EOF'
+AVR account: tester@company.com / Tr0ub4dor3Special!
+EOF
+assert_caught "(6) real password adjacent to email (window not over-narrow)" "$WORK/bad_6_adjacent_pw.txt"
 
 echo ""
 echo "== RESULT: ${pass} passed, ${fail} failed =="

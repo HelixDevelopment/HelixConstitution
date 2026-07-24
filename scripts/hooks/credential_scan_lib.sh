@@ -117,6 +117,19 @@ HELIX_CRED_ADJACENCY_AWK='
   gsub("[A-Za-z0-9_$.]*\\$\\$[A-Za-z0-9_$.]*", " ", line)
   if (match(line, /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z][A-Za-z]+/)) {
     rest = substr(line, RSTART + RLENGTH)
+    # §11.4.201 carrier-strip #6: an email-adjacency credential (email:pass,
+    # email / pass, email  pass) has the password IMMEDIATELY adjacent to the
+    # email — every documented leak form and every golden-bad fixture places the
+    # password within ~25 chars. A long PROSE line where an email co-occurs with
+    # DISTANT technical tokens (config keys, code identifiers, product names in a
+    # bug report) is NOT a credential. Restrict the scan to a compact adjacency
+    # window after the email; a genuine leaked password fits well within it
+    # (proven by the golden-bad fixtures), while the docs/Issues.md line 3794
+    # attestation discussion — email at col 169 then RK3588 / Play-Integrity /
+    # verified_boot_state config tokens far beyond it — falls outside. Detector-1
+    # (keyword-value) is
+    # untouched and still catches a widely-separated keyword=value leak.
+    rest = substr(rest, 1, 48)
     n = split(rest, toks, "[[:space:]/:|,;()]+")
     for (i = 1; i <= n; i++) {
       t = toks[i]
@@ -125,6 +138,21 @@ HELIX_CRED_ADJACENCY_AWK='
       if (t ~ /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z][A-Za-z]+$/) continue
       if (t ~ /^[-+0-9(). _]+$/) continue
       if (t ~ /\.(md|html|pdf|docx|sh|txt|json|ya?ml|xml|png|jpe?g|gif|svg|log|go|py|kt|java|cpp|ts|js|tsv|csv|db|c|h)$/) continue
+      # §11.4.201 carrier-strip #5: a Markdown-emphasized plain WORD (**BROWSERS**,
+      # *note*, `code`) is prose emphasis in a doc, NOT a password. The ** / * / `
+      # emphasis runs make the "hasSpec" test below read an ordinary word as
+      # password-shaped. Strip leading/trailing * and backtick runs; if what
+      # remains is a pure ASCII word (all letters, NO digit, NO non-markdown
+      # special), it is not password-shaped. A real password near an email carries
+      # a digit or a non-markdown special (Passw0rd!, **MyP@ss1**) and SURVIVES this
+      # strip (its de-emphasized form is not pure-alpha), so detector-2 still
+      # refuses it — detector-1 is untouched. Forensic FP: docs/Issues.md:3794
+      # bug-report line "abkmusic64@gmail.com ... **BROWSERS**". Proven by
+      # golden-good scenario (e) + the (real-password-near-email) golden-bad in
+      # test_credential_scan_lib.sh (§11.4.107(10)).
+      tclean = t
+      gsub(/^[*`]+/, "", tclean); gsub(/[*`]+$/, "", tclean)
+      if (tclean ~ /^[A-Za-z]+$/) continue
       hasLetter = (t ~ /[A-Za-z]/)
       hasDigit  = (t ~ /[0-9]/)
       hasSpec   = (t ~ /[!#$%^&*()=+_]/)
