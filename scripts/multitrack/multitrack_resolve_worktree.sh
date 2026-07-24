@@ -202,10 +202,53 @@ _mrw_binding_for_alias() {
     ' "$MRW_BIND"
 }
 
+# --- ATM-834: machine-readable alias-exclusion set ---------------------------
+# `excluded_aliases:` (§11.4.187(4)) names aliases that must NEVER be bound to a
+# worktree — a dead/disabled subscription, an operator-excluded alias. Before
+# this, the ONLY machine-readable alias policy was the single `conductor:`
+# scalar, so any further exclusion could live only in prose comments the engine
+# cannot read (§11.4.6: policy READ from config, never inferred from comments).
+#
+# ADDITIVE + ZERO-CHANGE-WHEN-ABSENT: an absent key yields an EMPTY set, so
+# `_mrw_alias_excluded` is always false and `_mrw_eligible_native_aliases`
+# degenerates to the previous non-conductor list. Consumers that do not set the
+# key observe byte-identical behaviour.
+_mrw_excluded_aliases() {
+    mt_config_excluded_aliases "$MRW_CFG" 2>/dev/null || true
+}
+
+# True (exit 0) IFF $1 is a member of the configured exclusion set.
+# Exact whole-line match — never a substring (§11.4.201(7)(a) carrier-vs-thing:
+# a substring match would exclude `claude1` because `claude10` is listed).
+_mrw_alias_excluded() {
+    local alias="$1" a
+    [ -n "$alias" ] || return 1
+    while IFS= read -r a; do
+        [ -n "$a" ] || continue
+        [ "$a" = "$alias" ] && return 0
+    done <<EOF
+$(_mrw_excluded_aliases)
+EOF
+    return 1
+}
+
+# The native aliases eligible for a positional feature-track slot: every native
+# alias MINUS the conductor MINUS every excluded alias, order preserved.
+_mrw_eligible_native_aliases() {
+    local cond a
+    cond="$(mt_config_conductor "$MRW_CFG" 2>/dev/null || true)"
+    _mrw_native_aliases | while IFS= read -r a; do
+        [ -n "$a" ] || continue
+        [ -n "$cond" ] && [ "$a" = "$cond" ] && continue
+        _mrw_alias_excluded "$a" && continue
+        printf '%s\n' "$a"
+    done
+}
+
 # --- default positional map: native alias -> feature track (id + mount) -------
 # emit "track-id<TAB>mount" for the alias, or non-zero if unmapped.
 _mrw_default_track_for_alias() {
-    local alias="$1" idx=0 want=-1 a _cond
+    local alias="$1" idx=0 want=-1 a
     # §11.4.111/RB-01 FIX: index over NON-CONDUCTOR natives. The configured
     # conductor alias is NEVER worktree-bound (§11.4.177) -- it MUST NOT consume a
     # feature-track positional slot, otherwise the feature track at the
@@ -214,14 +257,17 @@ _mrw_default_track_for_alias() {
     # out of the positional list maps the N non-conductor natives 1:1 onto the N
     # feature tracks in order (conductor=claude1 => claude2->track-2, claude3->
     # track-3, claude4->track-4), matching operator intent and covering track-2.
-    _cond="$(mt_config_conductor "$MRW_CFG" 2>/dev/null || true)"
-    # index of alias among non-conductor native aliases
+    # index of alias among ELIGIBLE native aliases (non-conductor AND
+    # non-excluded). ATM-834: an `excluded_aliases:` member must ALSO be filtered
+    # out of the positional list — leaving it in would shift every later alias
+    # onto the wrong track and orphan the last one, the exact off-by-one the
+    # conductor filter above already fixes for the conductor.
     while IFS= read -r a; do
         [ -n "$a" ] || continue
         [ "$a" = "$alias" ] && { want="$idx"; break; }
         idx=$((idx + 1))
     done <<EOF
-$(_mrw_native_aliases | { if [ -n "$_cond" ]; then grep -vxF -e "$_cond"; else cat; fi; })
+$(_mrw_eligible_native_aliases)
 EOF
     [ "$want" -ge 0 ] || return 1
     # the want-th feature track
@@ -280,6 +326,12 @@ _mrw_pick() {
     local cond
     cond="$(mt_config_conductor "$MRW_CFG" 2>/dev/null || true)"
     [ -n "$cond" ] && [ "$alias" = "$cond" ] && return 10
+    # ATM-834 / §11.4.187(4): an alias listed in the machine-readable
+    # `excluded_aliases:` set is treated EXACTLY like the conductor — never
+    # worktree-bound, never a bindings.snapshot row. Additive: an absent key
+    # yields an empty set, so configs without it behave identically (§11.4.6 —
+    # the policy is READ from config, never inferred from prose comments).
+    if _mrw_alias_excluded "$alias"; then return 10; fi
 
     local track="" mount="" wt="" b btrack bwt
     # 1) active orchestrator binding wins
@@ -357,6 +409,11 @@ _mrw_map() {
         # §11.4.177 conductor: never worktree-bound; its session stays on /home.
         if [ -n "$cond" ] && [ "$a" = "$cond" ]; then
             printf '%-10s %-9s %-32s %s\n' "$a" "-" "-" "conductor(/home)"
+            continue
+        fi
+        # ATM-834: an `excluded_aliases:` member is never worktree-bound either.
+        if _mrw_alias_excluded "$a"; then
+            printf '%-10s %-9s %-32s %s\n' "$a" "-" "-" "excluded(/home)"
             continue
         fi
         local d track mount wt state
