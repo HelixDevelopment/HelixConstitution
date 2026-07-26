@@ -15,8 +15,9 @@
 #           CLAUDE_CONFIG_DIR env (alias + native-alias transcript root),
 #           CLAUDE_CODE_SESSION_ID env (native-alias transcript file),
 #           HOME env (provider-registry root, see <model> CASE B below).
-# Outputs : one line on stdout: `(T<N>/<branch> - <alias> - <model>)`
-#           + trailing newline.
+# Outputs : one line on stdout: `(T<N>/<branch> - <alias> - <model> - <effort>)`
+#           + trailing newline. (The 5-field form; the 3-field and 4-field
+#           legacy forms remain valid + accepted by the guard during migration.)
 # Side-effects: none (read-only; §11.4.128-safe). The native-alias model
 #           lookup reads at most the last 500 LINES of the live session
 #           transcript (bounded, fast even on multi-thousand-line files).
@@ -97,6 +98,19 @@
 #               model list). If <alias> doesn't resolve to a provider file
 #               directly, a leading `prov-` is stripped and retried once.
 #               Unresolvable -> <model> is '?'.
+#
+#   <effort>: the reasoning-EFFORT setting CURRENTLY in force for the work-stream,
+#             from the closed ladder {low|medium|high|xhigh|max}, read from a live
+#             effort signal the execution path exposes (an env effort setting, the
+#             Workflow tool's agent() effort argument surfaced into the env, or a
+#             future Agent-tool effort parameter); unset / unrecognised / out-of-
+#             ladder -> the honest '?' (§11.4.6, never fabricated). HONEST HARNESS
+#             BOUNDARY (do NOT overstate): the current Claude Code Agent tool
+#             (subagent dispatch) exposes a `model` parameter but NO `effort`
+#             parameter, so a subagent's effort is NOT settable via that path and
+#             degrades to '?' — a DOCUMENTED capability-gap, exactly like the
+#             §11.4.209/§11.4.211 Fable-xhigh review/merge pins (§11.4.182
+#             EXTENSION 2026-07-26 / §11.4.231 clause (F)).
 
 set -uo pipefail
 
@@ -204,4 +218,31 @@ case "$_al" in
   *) _mo="$(_provider_model "$_al")" ;;
 esac
 
-printf '(T%s/%s - %s - %s)\n' "$_n" "$_br" "$_al" "$_mo"
+# --- effort from a live effort signal (honest '?' when the path exposes none) ---
+# §11.4.182 EXTENSION (2026-07-26) + §11.4.231 clause (F). The current Claude Code
+# Agent tool (subagent dispatch) exposes a `model` parameter but NO `effort`
+# parameter, so a subagent's effort is NOT settable via that path and degrades to
+# the honest '?' (documented capability-gap, §11.4.6 — never fabricated). Where the
+# execution path DOES expose an effort control (the Workflow tool's agent() effort
+# argument surfaced into the environment, a future Agent-tool effort parameter, or
+# a toolkit/env effort setting) it is read here and validated against the closed
+# ladder {low|medium|high|xhigh|max}; anything unset / unrecognised / out-of-ladder
+# yields the honest '?'.
+# Precedence-ordered candidate env vars name the SAME effort signal; the FIRST
+# PRESENT (non-empty) one is authoritative, and its value is then validated
+# against the closed ladder: an out-of-ladder value on that first present signal
+# yields the honest '?' (§11.4.182 EXTENSION clause (7)(a) / §11.4.231 clause (F):
+# "any value outside the closed set yields the honest '?'"). It does NOT fall
+# through to a lower-precedence var — masking a present-but-misconfigured effort
+# value behind a different env var would be exactly the guess §11.4.6 forbids.
+_ef='?'
+for _cand in "${CLAUDE_EFFORT:-}" "${CLAUDE_CODE_EFFORT:-}" "${AGENT_EFFORT:-}" "${CMA_EFFORT:-}"; do
+  [[ -n "$_cand" ]] || continue   # unset/empty: no signal on THIS var, try the next
+  case "$_cand" in
+    low|medium|high|xhigh|max) _ef="$_cand" ;;
+    *)                         _ef='?' ;;   # present but out-of-ladder -> honest '?'
+  esac
+  break                            # the first PRESENT signal is authoritative
+done
+
+printf '(T%s/%s - %s - %s - %s)\n' "$_n" "$_br" "$_al" "$_mo" "$_ef"

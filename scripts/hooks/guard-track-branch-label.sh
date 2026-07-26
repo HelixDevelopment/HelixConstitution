@@ -19,14 +19,16 @@
 # SCOPE: only the agent-dispatching tools carry a work-stream label:
 #   tool_name in { Agent, Task, TaskCreate }.
 #   For those, the `description` (or, as a fallback, a `subagent` label) MUST
-#   START with EITHER the 3-field legacy form `^\(T[0-9]+/[^)]+ - [^)]+\) `
-#   (e.g. `(T1/main - claude1) ATM-312 ...`) OR the 4-field form the reference
-#   labeler now emits, `^\(T[0-9]+/[^)]+ - [^)]+ - [^)]+\) ` (e.g.
-#   `(T1/main - claude1 - opus) ATM-312 ...`) — BOTH accepted so an
-#   already-in-flight dispatcher using the pre-model-field labeler is never
-#   blocked during migration (§11.4.6 — an honest `?` model, or NO model field
-#   at all, is a valid label, never a block-cause; mirrors §11.4.182's
-#   existing honest-`?` rule for track/alias).
+#   START with ONE of the 3-field legacy form `^\(T[0-9]+/[^)]+ - [^)]+\) `
+#   (e.g. `(T1/main - claude1) ATM-312 ...`), the 4-field form
+#   `^\(T[0-9]+/[^)]+ - [^)]+ - [^)]+\) ` (e.g.
+#   `(T1/main - claude1 - opus) ATM-312 ...`), OR the 5-field form the reference
+#   labeler now emits, `^\(T[0-9]+/[^)]+ - [^)]+ - [^)]+ - [^)]+\) ` (e.g.
+#   `(T1/main - claude1 - opus - high) ATM-312 ...`) — ALL THREE accepted so an
+#   already-in-flight dispatcher using the pre-model-field or pre-effort-field
+#   labeler is never blocked during migration (§11.4.6 — an honest `?` model or
+#   `?` effort, or NO model/effort field at all, is a valid label, never a
+#   block-cause; mirrors §11.4.182's existing honest-`?` rule for track/alias).
 #   Missing / malformed label -> exit 2 with the expected form + how to fix.
 #   EVERY OTHER tool passes through untouched (exit 0) — this hook never breaks
 #   non-agent tools.
@@ -44,8 +46,8 @@
 #   alias genuinely unknown (CLAUDE_CONFIG_DIR unset) OR the caller honestly
 #   declaring `?` — is ACCEPTED; the hook only BLOCKS a CONCRETE alias that
 #   provably disagrees with a KNOWN live alias, never a fabricated verdict.
-#   The `<model>` field (when present) is NEVER cross-checked against a "live"
-#   value here — a model can legitimately switch mid-turn (§11.4.6: no guard
+#   The `<model>` and `<effort>` fields (when present) are NEVER cross-checked
+#   against a "live" value here — a model/effort can legitimately switch mid-turn (§11.4.6: no guard
 #   asserts a condition it cannot resolve authoritatively at dispatch time;
 #   the labeler's own model derivation already documents its honest
 #   limitations — see track_branch_label.sh header, CASE A).
@@ -129,16 +131,27 @@ if [[ -z "$LABEL" ]]; then
   LABEL="$(json_field .tool_input.subagent)"
 fi
 
-# The required prefix: (T<N>/<branch> - <alias>[ - <model>]) followed by a
-# single space. §11.4.182 mandates the alias component — the claude-toolkit
+# The required prefix: (T<N>/<branch> - <alias>[ - <model>[ - <effort>]]) followed
+# by a single space. §11.4.182 mandates the alias component — the claude-toolkit
 # alias in use — so parallel-track work (each track driven by a DISTINCT
 # alias) is never ambiguous; the OPTIONAL trailing <model> field records which
 # model is currently answering for that alias (native short-name or provider
-# real model id — see track_branch_label.sh). Track MAY be '?' (honest when
-# not on a /mnt/trackN path — §11.4.6); alias MAY be '?' (honest when
-# CLAUDE_CONFIG_DIR is unset / non-matching); model MAY be '?' or simply
-# ABSENT (3-field legacy form) — both accepted, neither is ever a block-cause.
-LABEL_RE='^\(T([0-9]+|\?)/[^)]+ - [^)]+( - [^)]+)?\) '
+# real model id — see track_branch_label.sh), and the OPTIONAL <effort> field
+# (added 2026-07-26 per §11.4.231 clause (F)) records the reasoning-effort setting
+# in force. Track MAY be '?' (honest when not on a /mnt/trackN path — §11.4.6);
+# alias MAY be '?' (honest when CLAUDE_CONFIG_DIR is unset / non-matching); model
+# and effort MAY be '?' or simply ABSENT (3-field / 4-field legacy forms) — all
+# accepted, none is ever a block-cause. The regex admits AT LEAST the 3-, 4-, and
+# 5-field forms via the 0/1/2 optional " - <field>" segments after the alias
+# ({0,2}); because each field atom is [^)]+ (which itself matches ' - '), a label
+# carrying MORE than 5 fields ALSO matches — permissive by design, an extra field
+# is never a block-cause, and the positional alias-correctness check below reads
+# the alias field (the one immediately after the track/branch segment) regardless
+# of how many trailing fields follow. NOTE the atom is intentionally NOT tightened
+# to a dash-excluding class ([^)-]): branch names AND aliases legitimately contain
+# '-' (e.g. `feature/mistiq-vader`, `kimi-for-coding`), which such a class would
+# wrongly REJECT (a §11.4.201(1) false-positive refusal).
+LABEL_RE='^\(T([0-9]+|\?)/[^)]+ - [^)]+( - [^)]+){0,2}\) '
 
 # --------------------------------------------------------------------------
 # Canonical label for THIS checkout + session, from the reference labeler
@@ -159,11 +172,11 @@ fi
 # Defensive fallback (ONLY if the sibling labeler is unreachable): derive the
 # track/branch/alias fields inline so the hook always emits an actionable
 # message and never exits with a non-0/2 code. This fallback intentionally
-# does NOT duplicate the labeler's <model> derivation (session-transcript /
-# provider-registry lookup, §11.4.182 — kept in ONE place, DRY); it honestly
-# reports the model as '?' (genuinely not derived on this path) rather than
-# guess (§11.4.6), so the emitted example stays FORMAT-consistent with the
-# primary path's 4-field shape without silently fabricating a value.
+# does NOT duplicate the labeler's <model>/<effort> derivation (session-transcript
+# / provider-registry / effort-signal lookup, §11.4.182 — kept in ONE place, DRY);
+# it honestly reports the model AND effort as '?' (genuinely not derived on this
+# path) rather than guess (§11.4.6), so the emitted example stays FORMAT-consistent
+# with the primary path's 5-field shape without silently fabricating a value.
 if [[ -z "$_expected" ]]; then
   _dir="$(pwd -P 2>/dev/null || pwd)"
   case "$_dir" in
@@ -176,7 +189,7 @@ if [[ -z "$_expected" ]]; then
     _cfgbase="$(basename "$CLAUDE_CONFIG_DIR" 2>/dev/null || true)"
     case "$_cfgbase" in .claude-?*) _al="${_cfgbase#.claude-}" ;; esac
   fi
-  _expected="(T${_n}/${_br} - ${_al} - ?)"
+  _expected="(T${_n}/${_br} - ${_al} - ? - ?)"
 fi
 
 # Extract the <alias> field from a
@@ -237,8 +250,8 @@ fi
     echo "  (Live alias is derived from CLAUDE_CONFIG_DIR basename '.claude-<alias>'; a stale/remembered alias is the usual cause.)"
     echo "  Found label:  ${LABEL}"
   else
-    echo "guardrails: BLOCKED — §11.4.182 track+branch+alias[+model] label required"
-    echo "Every ${TOOL_NAME} dispatch's description MUST start with a (T<N>/<branch> - <alias>[ - <model>]) label."
+    echo "guardrails: BLOCKED — §11.4.182 track+branch+alias[+model[+effort]] label required"
+    echo "Every ${TOOL_NAME} dispatch's description MUST start with a (T<N>/<branch> - <alias>[ - <model>[ - <effort>]]) label."
     if [[ -z "$LABEL" ]]; then
       echo "  Found: <no description/subagent label>"
     else
@@ -246,8 +259,8 @@ fi
     fi
   fi
   echo "  Correct prefix for THIS checkout+session: '${_expected} '"
-  echo "  Form: (T<track-number>/<git-branch> - <alias>[ - <model>]) <space> then the task text."
-  echo "    (<model> is OPTIONAL — the 3-field legacy form without it is still accepted.)"
+  echo "  Form: (T<track-number>/<git-branch> - <alias>[ - <model>[ - <effort>]]) <space> then the task text."
+  echo "    (<model> and <effort> are OPTIONAL — the 3-field and 4-field legacy forms without them are still accepted; a '?' effort is never a block-cause.)"
   echo "  Example: '${_expected} ATM-312 MPV drm_prime investigation'"
   echo "  Derive the exact label with: scripts/multitrack/track_branch_label.sh"
 } >&2

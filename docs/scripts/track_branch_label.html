@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>guard-track-branch-label</title>
+  <title>track_branch_label</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -440,185 +440,261 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">guard-track-branch-label</h1>
+<h1 class="title">track_branch_label</h1>
 </header>
-<h1 id="guard-track-branch-labelsh--114182-trackbranchalias-label-guard-hook">guard-track-branch-label.sh
-— §11.4.182 track+branch+alias label guard hook</h1>
-<p><strong>Revision:</strong> 2 <strong>Last modified:</strong>
+<h1 id="track_branch_labelsh--114182-trackbranchaliasmodeleffort-work-stream-label">track_branch_label.sh
+— §11.4.182 track+branch+alias+model+effort work-stream label</h1>
+<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
 2026-07-26T12:18:28Z <strong>Authority:</strong> constitution submodule
-§11.4.182 (Track+branch work-stream identity label — extended 2026-07-26
-with the <code>&lt;model&gt;</code> + <code>&lt;effort&gt;</code>
-fields) · §11.4.231 clause (F) (effort-tier) · §11.4.177
-(inherited-by-reference) · §11.4.6 (no-guessing / honest boundary)
-<strong>Classification:</strong> universal (§11.4.17)</p>
+§11.4.182 (Track+branch work-stream identity label + the 2026-07-26
+<code>&lt;model&gt;</code>/<code>&lt;effort&gt;</code> EXTENSION) ·
+§11.4.231 clause (F) (effort-tier) · §11.4.178 (track-qualified
+identity) · §11.4.177 (inherited-by-reference) · §11.4.6 (no-guessing /
+honest boundary) <strong>Classification:</strong> universal
+(§11.4.17)</p>
 <h2 id="overview">Overview</h2>
-<p><code>scripts/hooks/guard-track-branch-label.sh</code> is a Claude
-Code <strong>PreToolUse guard hook</strong> that enforces §11.4.182:
-every agent-dispatching tool call (<code>Agent</code> /
-<code>Task</code> / <code>TaskCreate</code>) MUST carry a work-stream
-identity label at the START of its <code>description</code> (or, as a
-fallback, its <code>subagent</code> field), so parallel-track work
-(<code>/mnt/track1..4</code>, each on its own branch, each driven by a
-distinct claude-toolkit alias) is never ambiguous.</p>
-<p>The label form was extended 2026-07-26 (§11.4.182 EXTENSION /
-§11.4.231 clause (F)) from the original 3-field
-<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt;)</code> to the 5-field
-<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt; - &lt;model&gt; - &lt;effort&gt;)</code>,
-where <code>&lt;model&gt;</code> records the model currently answering
-for that alias and <code>&lt;effort&gt;</code> the reasoning-effort
-setting in force (closed ladder
-<code>{low | medium | high | xhigh | max}</code>). The hook accepts
-<strong>all three forms</strong> — the 3-field legacy, the 4-field
-(<code>+ &lt;model&gt;</code>), and the 5-field
-(<code>+ &lt;model&gt; + &lt;effort&gt;</code>) — so a dispatcher still
-emitting a pre-model/pre-effort label is never blocked during
-migration.</p>
-<p>The hook is inherited <strong>by reference</strong> (§11.4.177) — it
-lives in the constitution submodule and is wired into a consuming
-project&#39;s <code>.claude/settings.json</code> PreToolUse hooks. It is
-NEVER copied per project.</p>
-<h2 id="what-it-enforces">What it enforces</h2>
-<ol type="1">
-<li><strong>FORMAT</strong> — the label matches
-<code>^\(T([0-9]+|\?)/[^)]+ - [^)]+( - [^)]+){0,2}\) </code> (a
-numeric-or-<code>?</code> track, a branch, <code>-</code>, an alias,
-then 0/1/2 optional <code> - &lt;field&gt;</code> segments for the
-<code>&lt;model&gt;</code> and <code>&lt;effort&gt;</code> fields,
-<code>)</code>, then a space). This admits the 3-, 4-, and 5-field
-forms; because each field atom is <code>[^)]+</code> (which itself can
-contain <code>-</code>), a label with even MORE trailing fields also
-matches — permissive by design, an extra field is never a block-cause.
-The atom is deliberately NOT tightened to a dash-excluding class: branch
-names AND aliases legitimately contain <code>-</code> (e.g.
-<code>feature/mistiq-vader</code>, <code>kimi-for-coding</code>), which
-such a class would wrongly REJECT (a §11.4.201(1) false-positive). A
-missing/malformed label on an agent dispatch is BLOCKED (exit 2).</li>
-<li><strong>ALIAS-CORRECTNESS</strong> (the §11.4.182 alias field) — a
-format-valid label is NOT sufficient. The label&#39;s
-<code>&lt;alias&gt;</code> (the field immediately after the track/branch
-segment, read positionally regardless of whether
-<code>&lt;model&gt;</code> / <code>&lt;effort&gt;</code> fields follow
-it) MUST match the <strong>LIVE</strong> alias derived from
-<code>CLAUDE_CONFIG_DIR</code> (basename
-<code>.claude-&lt;alias&gt;</code> → <code>&lt;alias&gt;</code>). A
-hand-typed / remembered / <strong>stale</strong> alias (e.g.
-<code>claude4</code> while the live session is <code>claude3</code>) is
-BLOCKED (exit 2) with the CORRECT label printed. The
-<code>&lt;model&gt;</code> and <code>&lt;effort&gt;</code> fields are
-NEVER cross-checked here (a model / effort can legitimately switch
-mid-turn, §11.4.6) — an honest <code>?</code> model or <code>?</code>
-effort, or an ABSENT model/effort field, is NEVER a block-cause.</li>
-</ol>
-<p>The live alias is derived by <strong>calling the reference
-labeler</strong> <code>scripts/multitrack/track_branch_label.sh</code> —
-the single source of truth for the T/branch/alias derivation. The hook
-does not duplicate the derivation regex (DRY); the same labeler output
-drives both the alias check and the block message&#39;s &quot;correct label&quot;
-line.</p>
-<h2 id="honest-boundary-1146">Honest boundary (§11.4.6)</h2>
-<p>A <code>?</code> on <strong>either</strong> side is ACCEPTED, never
-fabricated into a verdict:</p>
+<p><code>constitution/scripts/multitrack/track_branch_label.sh</code> is
+the <strong>reference labeler</strong> — the single source of truth for
+the §11.4.182 work-stream identity label. It prints, for the CURRENT
+checkout + live session, the canonical prefix that every agent /
+subagent / work-stream label AND every operator-facing work-stream
+reference MUST start with, so parallel-track work
+(<code>/mnt/track1..4</code>) is never ambiguous.</p>
+<p>The §11.4.182 guard hook (<code>guard-track-branch-label.sh</code>)
+calls this labeler to derive the live alias for its alias-correctness
+check and its &quot;correct label&quot; block message (DRY — the derivation lives
+in ONE place).</p>
+<p>The current (2026-07-26 EXTENSION) output is the
+<strong>5-field</strong> form:</p>
+<pre><code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt; - &lt;model&gt; - &lt;effort&gt;)</code></pre>
+<p>The earlier 3-field
+<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt;)</code> and 4-field
+<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt; - &lt;model&gt;)</code>
+forms remain valid and are still accepted by the guard during migration;
+this labeler emits the full 5-field form.</p>
+<h2 id="fields-all-deterministic-every--fallback-is-honest-never-guessed--1146">Fields
+(all deterministic; every <code>?</code> fallback is honest, never
+guessed — §11.4.6)</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Source</th>
+<th><code>?</code> when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;N&gt;</code></td>
+<td>cwd path <code>/mnt/track&lt;N&gt;/...</code></td>
+<td>cwd not under <code>/mnt/trackN</code>, or the token is
+non-numeric</td>
+</tr>
+<tr>
+<td><code>&lt;branch&gt;</code></td>
+<td><code>git rev-parse --abbrev-ref HEAD</code></td>
+<td>not a git repo (<code>HEAD</code> on detached HEAD)</td>
+</tr>
+<tr>
+<td><code>&lt;alias&gt;</code></td>
+<td><code>CLAUDE_CONFIG_DIR</code> basename
+<code>.claude-&lt;alias&gt;</code> → <code>&lt;alias&gt;</code></td>
+<td><code>CLAUDE_CONFIG_DIR</code> unset /
+non-<code>.claude-*</code></td>
+</tr>
+<tr>
+<td><code>&lt;model&gt;</code></td>
+<td>model currently answering for <code>&lt;alias&gt;</code> — see
+below</td>
+<td>derivation source unreadable / absent</td>
+</tr>
+<tr>
+<td><code>&lt;effort&gt;</code></td>
+<td>live reasoning-effort signal, closed ladder
+<code>{low|medium|high|xhigh|max}</code></td>
+<td>no signal exposed, or a present value outside the ladder</td>
+</tr>
+</tbody>
+</table>
+<h3 id="model-derivation--a-closed-two-case-split-on-the-shape-of-alias"><code>&lt;model&gt;</code>
+derivation — a closed two-case split on the shape of
+<code>&lt;alias&gt;</code></h3>
 <ul>
-<li><strong>live alias unknown</strong> (<code>CLAUDE_CONFIG_DIR</code>
-unset / non-<code>.claude-*</code>) → the hook cannot verify the alias,
-so any label is accepted on the alias axis;</li>
-<li><strong>caller honestly declares <code>?</code></strong>
-(<code>(T1/main - ?)</code>) → accepted even when the live alias is
-known.</li>
+<li><strong>CASE A — native alias</strong> (<code>&lt;alias&gt;</code>
+matches <code>claude[0-9]*</code>, e.g. <code>claude1..claude5</code>):
+native aliases talk to the real Anthropic API with NO fixed model —
+Claude Code itself chooses/switches the serving model per turn and does
+not expose that choice via any env var. The only live source is the
+CURRENT session&#39;s OWN transcript at
+<code>$CLAUDE_CONFIG_DIR/projects/&lt;slug&gt;/$CLAUDE_CODE_SESSION_ID.jsonl</code>
+(where <code>&lt;slug&gt;</code> is the cwd with every non-alphanumeric
+char replaced by <code>-</code>, the exact project-slug algorithm the
+Claude Code CLI itself uses). The LAST <code>&quot;type&quot;:&quot;assistant&quot;</code>
+entry&#39;s <code>message.model</code> is mapped to a short native name by
+case-insensitive substring match against
+<code>{opus, sonnet, haiku, fable}</code>. An id matching none of the
+four is printed VERBATIM (real-but-unrecognised is never silently
+dropped to <code>?</code>). Missing session-id / config-dir / an
+unreadable or model-less transcript ⇒ <code>&lt;model&gt;</code> is
+<code>?</code>.</li>
+<li><strong>CASE B — provider alias</strong> (everything else, e.g.
+<code>deepseek</code>, <code>xiaomi</code>,
+<code>kimi-for-coding</code>, <code>opencode</code>, or a raw
+<code>prov-&lt;id&gt;</code> basename): the real serving model is HOST
+CONFIG DATA, read directly from
+<code>$HOME/.local/share/claude-multi-account/providers/&lt;id&gt;.env</code>
+as <code>CMA_PROVIDER_MODEL=&#39;&lt;real-model-id&gt;&#39;</code> — the single
+source of truth the claude-multi-account launcher itself exports at
+launch (no duplicated model list). A leading <code>prov-</code> is
+stripped and retried once. Unresolvable ⇒ <code>?</code>.</li>
 </ul>
-<p>The hook BLOCKS only a <strong>concrete</strong> alias that
-<strong>provably disagrees</strong> with a <strong>known</strong> live
-alias. <code>?</code> is the honest value, never a bluff.</p>
+<p><strong>Consistency (§11.4.182 EXTENSION clause (3)) is by
+construction:</strong> the native model is read from THAT alias&#39;s own
+live transcript and the provider model from THAT provider&#39;s own registry
+entry — so the derived <code>&lt;model&gt;</code> definitionally belongs
+to the shown <code>&lt;alias&gt;</code>; a model that does not belong to
+the alias is never emitted.</p>
+<h3 id="effort-derivation--precedence-ordered-first-present-authoritative"><code>&lt;effort&gt;</code>
+derivation — precedence-ordered, first-present-authoritative</h3>
+<p><code>&lt;effort&gt;</code> is read from the first PRESENT
+(non-empty) of the precedence-ordered candidate env vars
+<code>CLAUDE_EFFORT</code> → <code>CLAUDE_CODE_EFFORT</code> →
+<code>AGENT_EFFORT</code> → <code>CMA_EFFORT</code> (they name the SAME
+effort signal). The first present candidate is
+<strong>authoritative</strong>: an in-ladder value is used, and a
+present value OUTSIDE the closed ladder yields the honest <code>?</code>
+(§11.4.182 EXTENSION clause (7)(a) / §11.4.231 clause (F) — an
+out-of-set value never falls through to a lower-precedence var, which
+would mask a misconfigured effort behind a different env var). No
+candidate present ⇒ <code>?</code>.</p>
+<p><strong>HONEST HARNESS BOUNDARY (§11.4.6 — stated, never
+overstated):</strong> effort-tiering is REAL where the execution path
+exposes an effort control and a DOCUMENTED capability-gap where it does
+not. The current Claude Code <strong>Agent tool</strong> (subagent
+dispatch) exposes a <code>model</code> parameter but <strong>NO
+<code>effort</code> parameter</strong>, so a subagent&#39;s effort is NOT
+settable via that path and its <code>&lt;effort&gt;</code> field
+degrades honestly to <code>?</code>. The <strong>Workflow tool&#39;s
+<code>agent()</code></strong> DOES take an <code>effort</code> argument,
+so effort IS settable there. The label reports whichever path is live,
+never invents one — the same aspirational-vs-harness posture the
+§11.4.209 / §11.4.211 Fable-<code>xhigh</code> review/merge pins
+occupy.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
-<li><code>bash</code> (the hook and labeler are
-<code>#!/usr/bin/env bash</code>).</li>
-<li><code>git</code> (optional — the labeler falls back to
-<code>?</code> for the branch if absent).</li>
-<li>The sibling labeler present at
-<code>scripts/multitrack/track_branch_label.sh</code> (a defensive
-inline fallback keeps the hook functional if it is unreachable).</li>
-<li><code>CLAUDE_CONFIG_DIR</code> exported by the driving session (its
-basename encodes the alias). Absent ⇒ live alias <code>?</code> ⇒ alias
-axis not enforced (honest boundary).</li>
+<li><code>bash</code> (<code>#!/usr/bin/env bash</code>).</li>
+<li><code>git</code> (optional — its absence yields
+<code>&lt;branch&gt;=?</code>, not an error).</li>
+<li><code>sed</code> (used by the <code>?</code>-safe model/effort
+parsing).</li>
+<li><code>jq</code> (OPTIONAL — used when present for a structural,
+order-independent parse of the native-alias transcript; its absence
+degrades to a documented line-anchored
+<code>grep</code>/<code>sed</code> fallback, never a failure).</li>
+<li><code>CLAUDE_CONFIG_DIR</code> (optional — its absence/non-match
+yields <code>&lt;alias&gt;=?</code> and, in turn,
+<code>&lt;model&gt;=?</code>).</li>
+<li><code>CLAUDE_CODE_SESSION_ID</code> (optional — its absence yields
+<code>&lt;model&gt;=?</code> for a native alias).</li>
 </ul>
 <h2 id="usage">Usage</h2>
-<p>Wired as a PreToolUse hook (matcher
-<code>Agent|Task|TaskCreate</code>) in
-<code>.claude/settings.json</code>:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span> <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;command&quot;</span><span class="fu">,</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;command&quot;</span><span class="fu">:</span> <span class="st">&quot;bash </span><span class="ch">\&quot;</span><span class="st">$CLAUDE_PROJECT_DIR/constitution/scripts/hooks/guard-track-branch-label.sh</span><span class="ch">\&quot;</span><span class="st">&quot;</span> <span class="fu">}</span></span></code></pre></div>
-<p>The hook receives the tool invocation as JSON on stdin and:</p>
-<ul>
-<li><strong>exit 0</strong> → allow (Claude proceeds);</li>
-<li><strong>exit 2</strong> → BLOCK; stderr is fed back to Claude as the
-refusal reason and includes the CORRECT label for this checkout+session
-so the caller can fix it;</li>
-<li>any other exit → non-blocking error (never used; the defensive
-fallback keeps the hook to 0/2).</li>
-</ul>
-<p>Derive the exact label manually with:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/multitrack/track_branch_label.sh   <span class="co"># e.g. (T1/main - claude3 - opus - high)</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/multitrack/track_branch_label.sh</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># -&gt; e.g. (T1/main - claude1 - opus - high)</span></span></code></pre></div>
+<p>Run from within the checkout whose label you want. Read-only;
+§11.4.128-safe (the native-alias lookup reads at most the last 500 lines
+of the transcript).</p>
 <h2 id="edge-cases">Edge cases</h2>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th><code>&lt;model&gt;</code> / <code>&lt;effort&gt;</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>native alias, transcript readable, last assistant model
+<code>claude-opus-4-8</code></td>
+<td><code>&lt;model&gt;=opus</code></td>
+</tr>
+<tr>
+<td>native alias, missing <code>CLAUDE_CODE_SESSION_ID</code> /
+unreadable transcript</td>
+<td><code>&lt;model&gt;=?</code></td>
+</tr>
+<tr>
+<td>provider alias <code>deepseek</code> with a resolvable
+<code>deepseek.env</code></td>
+<td><code>&lt;model&gt;=&lt;CMA_PROVIDER_MODEL&gt;</code></td>
+</tr>
+<tr>
+<td><code>CLAUDE_EFFORT=high</code></td>
+<td><code>&lt;effort&gt;=high</code></td>
+</tr>
+<tr>
+<td><code>CLAUDE_EFFORT=garbage</code> (present, out-of-ladder)</td>
+<td><code>&lt;effort&gt;=?</code> (no fall-through)</td>
+</tr>
+<tr>
+<td><code>CLAUDE_EFFORT</code> empty,
+<code>CLAUDE_CODE_EFFORT=xhigh</code></td>
+<td><code>&lt;effort&gt;=xhigh</code></td>
+</tr>
+<tr>
+<td>no effort env var set (e.g. Agent-tool subagent)</td>
+<td><code>&lt;effort&gt;=?</code> (documented harness gap)</td>
+</tr>
+</tbody>
+</table>
+<p>The script exits <code>0</code> in all of these — a <code>?</code>
+field is a valid honest label, not an error.</p>
+<h2 id="honest-limitations-1146--stated-never-hidden">Honest limitations
+(§11.4.6 — stated, never hidden)</h2>
 <ul>
-<li><strong>Non-agent tools</strong> (<code>Bash</code>,
-<code>Read</code>, <code>Edit</code>, unknown tools) pass through
-untouched (exit 0) — the hook never breaks non-agent tools.</li>
-<li><strong>Empty / missing alias</strong> (<code>(T1/main)</code>,
-<code>(T1/main - )</code>) → BLOCKED on FORMAT.</li>
-<li><strong>Extended forms</strong> — the 4-field
-<code>(T1/main - claude3 - opus)</code> and 5-field
-<code>(T1/main - claude3 - opus - high)</code> labels are accepted; a
-<code>?</code> model / <code>?</code> effort, or an absent model/effort
-field, is never a block-cause.</li>
-<li><strong>Branch names with <code>-</code></strong> (e.g.
-<code>feature/mistiq-vader</code>) — a git ref cannot contain a space,
-so the <code>-</code> alias separator is unambiguous.</li>
-<li><strong>Labeler unreachable</strong> — a defensive inline derivation
-mirrors the labeler so the hook still emits an actionable message and
-never exits non-0/2.</li>
+<li><strong>Subagent self-introspection of
+<code>&lt;model&gt;</code>.</strong> The native-alias transcript lookup
+is proven reliable when invoked from the DISPATCHING process&#39;s own shell
+(the guard hook&#39;s actual execution context at dispatch time). Invoked
+from INSIDE an already-dispatched background subagent it was observed to
+return the DISPATCHING conductor&#39;s model — the two processes share the
+same <code>$CLAUDE_CODE_SESSION_ID</code> / transcript file on this
+host&#39;s multitrack ruler (§11.4.187) with no <code>isSidechain</code>
+marker distinguishing them. An open, honestly-scoped follow-up (see
+<code>docs/research/model_in_label_20260726/DESIGN.md</code>), never
+silently &quot;fixed&quot; by guessing.</li>
+<li><strong><code>&lt;effort&gt;</code> on the Agent tool.</strong> Not
+settable via the Agent-tool subagent dispatch path (no
+<code>effort</code> parameter) — degrades to <code>?</code> per the
+harness boundary above.</li>
 </ul>
-<h2 id="internal-behaviour">Internal behaviour</h2>
-<ol type="1">
-<li>Read stdin JSON; extract <code>tool_name</code> (jq if present, else
-an awk fallback).</li>
-<li>Non-agent tool ⇒ exit 0.</li>
-<li>Extract the label from <code>description</code> (fallback
-<code>subagent</code>).</li>
-<li>Call the labeler for the canonical
-<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt; - &lt;model&gt; - &lt;effort&gt;)</code>
-label; extract <code>_live_alias</code> from its alias field.</li>
-<li>Extract <code>_dispatch_alias</code> from the caller&#39;s label.</li>
-<li>Decide: FORMAT fails ⇒ BLOCK (format); FORMAT ok AND both aliases
-concrete AND they differ ⇒ BLOCK (alias); otherwise ⇒ exit 0.</li>
-<li>On BLOCK, print the CORRECT label + how to fix; exit 2.</li>
-</ol>
-<h2 id="tests--gates">Tests / gates</h2>
-<ul>
-<li><strong>Hermetic test:</strong>
-<code>scripts/hooks/test_guard_track_branch_label.sh</code> (30 cases;
-controls <code>CLAUDE_CONFIG_DIR</code> per case for determinism —
-§11.4.50/§11.4.98).</li>
-<li><strong>Pre-build gate:</strong>
-<code>scripts/gates/cm_track_branch_label.sh</code>
-(<code>CM-TRACK-BRANCH-LABEL</code> — presence/exec/parseable + doc +
-behavioral alias-validation).</li>
-<li><strong>Paired §1.1 mutation:</strong>
-<code>scripts/gates/cm_track_branch_label_mutation_test.sh</code> (a
-format-only hook that skips the alias check → the gate FAILs).</li>
-</ul>
+<h2 id="divergent-labeler-note-114182-extension-clause-6--114227">Divergent-labeler
+note (§11.4.182 EXTENSION clause (6) / §11.4.227)</h2>
+<p>This constitution copy carries the full 5-field (model + effort)
+form. The top-level project duplicate
+<code>scripts/multitrack/track_branch_label.sh</code> currently carries
+the 4-field (model, no effort) form — functionally equivalent on the
+alias+model fields, diverging on the effort field. Reconciling the two
+copies to a single source of truth (the top-level a thin wrapper
+exec-ing this constitution copy, §11.4.177 inherited-by-reference) is a
+standing to-be-tracked follow-up, never a silent divergence.</p>
 <h2 id="related-scripts">Related scripts</h2>
 <ul>
-<li><code>scripts/multitrack/track_branch_label.sh</code> — the
-reference labeler (single source of truth for the derivation).</li>
-<li><code>scripts/hooks/guard-work-track-binding.sh</code> — the
-§11.4.191 work→track binding guard (sibling PreToolUse hook).</li>
-<li><code>scripts/hooks/guard-forbidden-commands.sh</code> — the
-§11.4.109 anti-forgetting guard.</li>
+<li><code>constitution/scripts/hooks/guard-track-branch-label.sh</code>
+— the §11.4.182 PreToolUse guard that calls this labeler (companion doc:
+<code>constitution/docs/scripts/guard-track-branch-label.md</code>).</li>
+<li><code>constitution/scripts/hooks/guard-work-track-binding.sh</code>
+— the §11.4.191 work→track binding guard (sibling PreToolUse hook).</li>
 </ul>
-<p><strong>Last verified:</strong> 2026-07-26 (Rev 2 doc-sync for the
-§11.4.182 EXTENSION 5-field label; guard exit-code matrix re-verified on
-this checkout — 3/4/5/6-field format accept → 0, alias-mismatch → 2,
-no-label → 2, non-agent passthrough → 0).</p>
+<h2 id="constitutional-cross-references">Constitutional
+cross-references</h2>
+<p>§11.4.182 (track+branch+alias+model+effort label) · §11.4.231 clause
+(F) (effort-tier) · §11.4.178 (track-qualified identity) · §11.4.187
+(multitrack engine) · §11.4.29 (naming) · §11.4.75 (mechanical
+enforcement) · §11.4.6 (no-guessing) · §11.4.18 (script
+documentation).</p>
+<p><strong>Last verified:</strong> 2026-07-26 (Rev 1 — created alongside
+the §11.4.182 EXTENSION 5-field labeler; effort-loop behaviour
+re-verified on this checkout: first present candidate authoritative,
+out-of-ladder → <code>?</code>, no fall-through).</p>
 </body>
 </html>
