@@ -454,7 +454,7 @@ Universal QWEN.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>63</td>
+<td>64</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -462,7 +462,7 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-07-26T11:48:35Z</td>
+<td>2026-07-26T18:27:34Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -470,7 +470,33 @@ Universal QWEN.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Amendment of 2026-07-26 — the EFFORT-tiering + 5-field-label batch
+<td>Amendment of 2026-07-26 — NEW universal anchor §11.4.234 (operator
+mandate 2026-07-26, verbatim: &quot;We MUST have dedicated script to run hook
+validations, and commit and push mechanism ALWAYS unblocked!&quot;): hook
+validations run as an EXPLICIT stage of a dedicated, idempotent
+commit/push script (consumer-bound path as DATA per §11.4.35 — Lava
+binding: scripts/commit-push-all.sh); automatic git hooks wired via
+core.hooksPath MUST NOT gate routine commit/push (disconnect = hooksPath
+unset, hook file preserved UNMODIFIED, --no-verify never the routine
+path); NO gate is lost (every disconnected check remains executed at a
+named script stage or release/tag gate, silently dropping one is a §11.4
+PASS-bluff at the process layer); the commit/push mechanism is ALWAYS
+unblocked (failing validation = clear per-check report + documented
+remediation path, long multi-minute gates separable from cheap checks
+and skippable ONLY via an explicit recorded deferral flag — Lava
+binding: LAVA_SYNC_SKIP_CI=1 — never an opaque hung/rejected push).
+Classification: universal (§11.4.17). Propagation gate
+CM-COVENANT-114-234-PROPAGATION + recommended mechanism gates
+CM-DEDICATED-HOOK-VALIDATION-SCRIPT / CM-HOOKS-NEVER-BLOCK-PUSH /
+CM-NO-GATE-LOST-ON-HOOK-DISCONNECT / CM-COMMIT-PUSH-ALWAYS-UNBLOCKED +
+paired §1.1 mutations (gate-code = separate work item, NOT claimed
+shipped §11.4.6/§11.4.227). Amendment region byte-identical across all 5
+governance files (md5-verified); §11.4.234 exactly-once block-start per
+file (§11.4.227(B)), no anchor-number collision. CLAUDE.md + AGENTS.md +
+QWEN.md + GEMINI.md mirrors updated in lockstep (§11.4.157). Generated
+.html/.pdf/.docx twins NOT regenerated (exporter still not a runnable
+in-repo script — honestly STALE per §11.4.106(E)). Prior round:
+Amendment of 2026-07-26 — the EFFORT-tiering + 5-field-label batch
 (operator IMPORTANT mandate 2026-07-26, verbatim: &quot;Besides dynamic
 determining proper models to use, we MUST decide the effort as well and
 switch between the effort settings same as we do now for chosen model!
@@ -8544,5 +8570,157 @@ FAILs; gate-code = separate work item, NOT claimed shipped
 <code>--unvalidated-detector</code>,
 <code>--control-plane-does-work</code>,
 <code>--assume-clean-without-reconcile</code> flag.</p>
+<p><strong>§11.4.234 — Dedicated hook-validation script: hook checks run
+as an explicit stage of a dedicated commit/push script, and the
+commit/push mechanism is ALWAYS unblocked (operator mandate,
+2026-07-26).</strong></p>
+<p>Forensic anchor (genericised): a consumer project wired its full
+local CI gate as an automatic git <code>pre-push</code> hook
+(<code>core.hooksPath</code> → hook → multi-minute build/test/sweep
+stage on EVERY push). The result, captured 2026-07-26: routine pushes
+took many minutes each, and when one gate stage inside the hook failed
+or stalled, the push was rejected outright — the commit/push mechanism
+itself became blocked, with pending commits stranded locally and no
+operator-usable path forward short of a forbidden
+<code>--no-verify</code> bypass. The gate logic was sound; wiring it as
+an uninterruptible implicit hook on the commit/push code path was the
+architectural flaw — an edge-triggered enforcer (§11.4.233) placed
+directly on the operator&#39;s only forward path, violating the §2
+single-entrypoint discipline by making the entrypoint unusable.</p>
+<p>The mandate, ALL of which hold:</p>
+<p><strong>(A) DEDICATED SCRIPT AS THE SINGLE COMMIT/PUSH
+ENTRYPOINT.</strong> Every consumer MUST ship a dedicated, executable,
+idempotent script (Lava binding:
+<code>scripts/commit-push-all.sh</code>; consumers bind their own path
+as DATA per §11.4.35) that runs, in order: (1) submodule/workspace sync,
+(2) commit of all pending state, (3) the hook validations as an EXPLICIT
+stage — the unmodified hook logic fed the real push range, Layer-cheap
+checks always, long gates stage-separated, (4) push to ALL configured
+upstreams (§2.1), (5) a closing green/clean verification (clean status +
+zero unpushed commits, recursive over submodules). The script prints
+per-stage evidence and is safe to re-run; direct
+<code>git commit</code>/<code>git push</code> on the main repo ceases to
+be the routine workflow (§2).</p>
+<p><strong>(B) HOOKS MUST NOT BLOCK THE MECHANISM.</strong> Automatic
+git hooks wired via <code>core.hooksPath</code> MUST NOT gate routine
+commit/push in a way that can leave the repository uncommittable or
+unpushable. Disconnecting means: <code>core.hooksPath</code> unset, the
+hook file itself preserved UNMODIFIED in the repo, and
+<code>--no-verify</code> NEVER used as the routine path. Validation
+relocates from the implicit hook to the explicit script stage (A) and to
+tag/release-time gates — it is never deleted.</p>
+<p><strong>(C) NO GATE IS LOST.</strong> Every check the disconnected
+hook performed MUST remain executed — by the dedicated script&#39;s
+validation stage, by the tag/release gate, or by a documented scheduled
+run. Dropping a check silently because the hook no longer fires is a
+§11.4 PASS-bluff at the process layer (&quot;the gate still exists&quot; while
+nothing invokes it); the script&#39;s stage list MUST name every check it
+runs and every check it defers, with the deferral target recorded.</p>
+<p><strong>(D) ALWAYS-UNBLOCKED INVARIANT.</strong> The commit/push
+mechanism MUST always be able to complete. A failing validation yields a
+clear per-check report plus a documented remediation path — never an
+opaque hung or rejected push. Long gates (multi-minute build/test/sweep
+stages) MUST be separable from the cheap checks and skippable via an
+explicit, documented flag (Lava binding:
+<code>LAVA_SYNC_SKIP_CI=1</code>), with every skip recorded in the
+commit message or evidence pack so the deferred gate is tracked, never
+forgotten. The escape hatch is a recorded deferral, not a bypass: the
+skipped gate remains owed and is caught at the next full run or tag
+gate.</p>
+<p><strong>Honest boundary (§11.4.6).</strong> This anchor relocates
+WHERE validation executes (implicit hook → explicit script stage +
+release gates); it does NOT weaken any substantive gate — the
+Sixth/Seventh-Law-equivalent anti-bluff covenant, the tag-time full
+gate, and §11.4.32&#39;s sweep-after-constitution-pull all still bind at
+their own seams. It does NOT mandate deleting hooks (the hook file is
+preserved), does NOT authorise <code>--no-verify</code> as routine
+practice, and does NOT make a failing gate pass — it makes the mechanism
+reachable while the failure is remediated. Composes §2 / §2.1 (single
+entrypoint + all-upstreams push — this anchor keeps that entrypoint
+usable), §11.4.32 (sweep still runs, now as a named stage), §11.4.113
+(no force-push history-rewrite — the unblocked path never rewrites),
+§11.4.201 (the script is a guard: a false GREEN verification is a
+FAIL-bluff), §11.4.227 (amendment discipline), §11.4.233 (the
+commit/push path is a gated transition the anti-mess control plane
+reconciles).</p>
+<p>Classification: universal (§11.4.17) — no hardware/vendor/project
+literal; consumers supply their script path, upstream-remote list,
+cheap-vs-long gate split, and skip-flag name as DATA per §11.4.35.
+Propagation gate <code>CM-COVENANT-114-234-PROPAGATION</code> (literal
+<code>11.4.234</code>) + recommended mechanism gates
+<code>CM-DEDICATED-HOOK-VALIDATION-SCRIPT</code> (A) /
+<code>CM-HOOKS-NEVER-BLOCK-PUSH</code> (B) /
+<code>CM-NO-GATE-LOST-ON-HOOK-DISCONNECT</code> (C) /
+<code>CM-COMMIT-PUSH-ALWAYS-UNBLOCKED</code> (D) + paired §1.1 mutations
+(wire the full gate back as an automatic blocking pre-push hook → (B)
+FAILs; disconnect the hook AND drop a check from every stage → (C)
+FAILs; a validation failure that strands commits with no remediation
+report → (D) FAILs; strip the literal → propagation FAILs; gate-code =
+separate work item, NOT claimed shipped §11.4.6/§11.4.227). No escape
+hatch beyond the recorded (D) deferral — no
+<code>--no-verify-routine</code>,
+<code>--skip-all-gates-silently</code>,
+<code>--delete-blocking-hook</code>,
+<code>--push-without-any-validation</code> flag.</p>
+<p><strong>§11.4.235 — Build-and-deploy the moment source fixes are
+proven-correct (test-side hardening is a parallel stage, never a build
+gate) + post-deploy version increment (operator mandate,
+2026-07-27).</strong></p>
+<p><strong>(A) BUILD-AND-DEPLOY THE MOMENT THE SOURCE FIXES ARE
+PROVEN-CORRECT — TEST-SIDE WORK IS A PARALLEL STAGE, NEVER A BUILD
+GATE.</strong> The moment the SOURCE fixes of a batch are done AND
+proven-correct — proven-correct = the mandatory independent
+SOURCE-correctness review has returned a clean GO
+(§11.4.125/§11.4.142/§11.4.194 on the source diff, on the §11.4.209
+Fable-<code>xhigh</code> substrate, iterated to
+zero-finding/zero-warning GO per §11.4.134) — the build MUST be
+triggered, pre-build + post-build tests EXECUTED (§11.4.108 layer-1
+before, layer-2 after), and the artifact deployed. IN PARALLEL WITH the
+build AND the manual-QA session (§11.4.185), NEVER gating the build: (1)
+gate-instrumentation hardening + new-gate authoring (§11.4.110); (2)
+paired §1.1 mutations + four-layer §11.4.4(b) coverage + HelixQA
+Challenges; (3) &quot;gates and checks of all kinds&quot; (§11.4.96); (4) the
+re-review of THAT test-instrumentation work. The build&#39;s GO-SIGNAL is
+source-correctness alone; test-guard hardening (future-regression
+coverage) + its re-review are a deploy-independent parallel stage per
+§11.4.230(A). Holding the build sequentially — waiting for the
+test-instrumentation buildout + its re-review — when the source is
+already proven-correct is a §11.4.235(A) violation.</p>
+<p><strong>(B) POST-DEPLOY VERSION INCREMENT.</strong> The moment
+image(s)/artifact(s) deploy, the version code/version is INCREMENTED
+(next build targets the next version; every deployed artifact carries a
+distinct, monotonic, greppable id — §11.4.151/§11.4.108/§11.4.200). Two
+deployments sharing one version id defeats per-deploy artifact identity
+→ §11.4.235(B) violation.</p>
+<p><strong>(C) STANDING DEFAULT</strong>
+(§11.4.126/§11.4.230/§11.4.103), never a per-request opt-in.</p>
+<p><strong>Honest boundary (§11.4.6):</strong> relocates the
+TEST-INSTRUMENTATION re-review + gate/check hardening OFF the build
+critical path; does NOT weaken any substantive gate. The
+SOURCE-correctness review (§11.4.125/§11.4.142/§11.4.194
+Fable-<code>xhigh</code> §11.4.209 → GO §11.4.134) STILL PRECEDES +
+gates the build (it IS &quot;source proven-correct&quot;); pre/post-build tests
+(§11.4.108 L1-2) run at their seams; §11.4.185 manual-QA-final
+un-weakened; §11.4.129/§11.4.40 un-weakened. &quot;Test-side work is
+parallel, never a build gate&quot; is bounded to future-regression
+instrumentation — a check that proves the SHIPPED artifact wrong is a
+source/artifact-correctness gate (§11.4.108 L1-2), stays on the critical
+path.</p>
+<p>Classification: universal (§11.4.17). Propagation gate
+<code>CM-COVENANT-114-235-PROPAGATION</code> (literal
+<code>11.4.235</code>) + recommended
+<code>CM-BUILD-ON-SOURCE-PROVEN-NOT-TEST-SIDE</code> (FAIL: build held
+past source-GO w/ unfinished test-instrumentation; FAIL: build started
+with NO source-review GO — the §11.4.201(1) dual-assertion guard) +
+<code>CM-VERSION-INCREMENT-ON-DEPLOY</code> (FAIL: new-artifact deploy
+shares a version id) + paired §1.1 mutations; gate-code = separate work
+item (§11.4.6/§11.4.227).</p>
+<p>Non-compliance is a release blocker. No escape hatch — no
+<code>--build-behind-test-hardening</code>,
+<code>--test-side-gates-the-build</code>,
+<code>--skip-source-correctness-review</code>,
+<code>--deploy-without-version-increment</code>,
+<code>--not-default-speed-mode</code>,
+<code>--serialise-build-and-validate</code>.</p>
 </body>
 </html>
