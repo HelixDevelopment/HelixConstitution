@@ -9580,12 +9580,28 @@ coverage) + its re-review are a deploy-independent parallel stage per
 §11.4.230(A). Holding the build sequentially — waiting for the
 test-instrumentation buildout + its re-review — when the source is
 already proven-correct is a §11.4.235(A) violation.</p>
-<p><strong>(B) POST-DEPLOY VERSION INCREMENT.</strong> The moment
+<p><strong>(B) POST-DEPLOY VERSION INCREMENT + MANUAL-QA-DEPLOY CYCLE
+BOUNDARY (extended 2026-07-28 — operator mandate, verbatim: &quot;Increase
+upcoming release to 0.1.5 since new cycle starts every time we deploy
+release for manual QA testing! This is how we will be working this
+ALWAYS! Extend the constitution!&quot;).</strong> The moment
 image(s)/artifact(s) deploy, the version code/version is INCREMENTED
 (next build targets the next version; every deployed artifact carries a
 distinct, monotonic, greppable id — §11.4.151/§11.4.108/§11.4.200). Two
 deployments sharing one version id defeats per-deploy artifact identity
-→ §11.4.235(B) violation.</p>
+→ §11.4.235(B) violation. EVERY deployment of a release FOR MANUAL QA
+TESTING (§11.4.185) is a DEVELOPMENT-CYCLE BOUNDARY: the manual-QA
+deploy CLOSES the outgoing cycle and STARTS a NEW development cycle, and
+the version code/version is incremented AT THAT POINT — the new cycle&#39;s
+work targets the NEXT monotonic version (§11.4.151 project-prefixed
+naming preserved) — ALWAYS, the STANDING working model per clause (C),
+never a per-request opt-in. The manual-QA deploy is the canonical
+clause-(B) increment trigger (a deploy-for-manual-QA IS a deploy), and
+it SHAPES the §11.4.126 release-cycle framing: fixes for QA findings
+against the deployed artifact land in the NEW cycle on the NEW version
+id, never patched onto the already-QA-deployed version id. Starting a
+new cycle&#39;s work still targeting the QA-deployed version id is a
+§11.4.235(B) violation.</p>
 <p><strong>(C) STANDING DEFAULT</strong>
 (§11.4.126/§11.4.230/§11.4.103), never a per-request opt-in.</p>
 <p><strong>Honest boundary (§11.4.6):</strong> relocates the
@@ -9607,8 +9623,10 @@ path.</p>
 past source-GO w/ unfinished test-instrumentation; FAIL: build started
 with NO source-review GO — the §11.4.201(1) dual-assertion guard) +
 <code>CM-VERSION-INCREMENT-ON-DEPLOY</code> (FAIL: new-artifact deploy
-shares a version id) + paired §1.1 mutations; gate-code = separate work
-item (§11.4.6/§11.4.227).</p>
+shares a version id; FAIL: work of the cycle opened by a manual-QA
+deploy still targets the QA-deployed version id — the clause-(B)
+cycle-boundary increment skipped) + paired §1.1 mutations; gate-code =
+separate work item (§11.4.6/§11.4.227).</p>
 <p>Non-compliance is a release blocker. No escape hatch — no
 <code>--build-behind-test-hardening</code>,
 <code>--test-side-gates-the-build</code>,
