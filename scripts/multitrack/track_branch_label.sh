@@ -114,19 +114,39 @@
 
 set -uo pipefail
 
-# --- track number from the checkout path -----------------------------------
-_dir="$(pwd -P 2>/dev/null || pwd)"
-case "$_dir" in
-  /mnt/track[0-9]*)
-    _n="${_dir#/mnt/track}"; _n="${_n%%/*}"
-    case "$_n" in ''|*[!0-9]*) _n='?' ;; esac
-    ;;
-  *) _n='?' ;;
-esac
-
 # --- branch from git --------------------------------------------------------
+# Derived BEFORE the track number, because the trunk rule below keys off it.
 _br="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 [[ -n "$_br" ]] || _br='?'
+
+# --- track number -----------------------------------------------------------
+# TRUNK RULE (operator mandate, 2026-07-28): work performed on the canonical
+# trunk (main/master) is ALWAYS Track 1, regardless of checkout path. A trunk
+# checkout that does not live under /mnt/track<N> previously emitted 'T?',
+# which is not merely cosmetic: §11.4.182 labels are how concurrent streams are
+# told apart, so an unnumbered trunk label makes trunk work indistinguishable
+# from a genuinely unknown track in every dispatch, report and progress line.
+# The trunk is a well-known, singular stream — it is never unknown.
+#
+# Precedence is deliberate: the branch decides first, the path only decides for
+# non-trunk branches. A trunk checkout under /mnt/track4 is still Track 1,
+# because the identity that matters is which STREAM the work belongs to, not
+# which directory it happens to sit in.
+_dir="$(pwd -P 2>/dev/null || pwd)"
+case "$_br" in
+  main|master)
+    _n='1'
+    ;;
+  *)
+    case "$_dir" in
+      /mnt/track[0-9]*)
+        _n="${_dir#/mnt/track}"; _n="${_n%%/*}"
+        case "$_n" in ''|*[!0-9]*) _n='?' ;; esac
+        ;;
+      *) _n='?' ;;
+    esac
+    ;;
+esac
 
 # --- alias from CLAUDE_CONFIG_DIR basename '.claude-<alias>' -----------------
 _al='?'
