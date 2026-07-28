@@ -154,14 +154,17 @@ sha256_of() {
 # This predicate tracks fence state (```/~~~ toggles) and only recognises
 # `## INHERITED FROM ` OUTSIDE any fence as a genuine pointer. Returns 0 (true)
 # iff a real, non-fenced pointer heading exists.
-is_pointer_carrier() {
-    awk '
-        BEGIN { fenced = 0; found = 0 }
-        /^(```|~~~)/ { fenced = !fenced; next }
-        !fenced && /^## INHERITED FROM / { found = 1; exit }
-        END { exit !found }
-    ' "$1"
-}
+# §11.4.28/§11.4.177 — is_pointer_carrier() is now inherited BY REFERENCE from
+# the shared lib (single source of truth), never an inline copy. The fence-aware
+# predicate is unchanged (byte-identical awk to the former inline definition).
+_pc_lib="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/lib/pointer_carrier.sh"
+if [ -r "$_pc_lib" ]; then
+    # shellcheck source=lib/pointer_carrier.sh
+    . "$_pc_lib"
+else
+    echo "${GATE}: shared pointer-carrier lib not found at $_pc_lib" >&2
+    exit 2
+fi
 
 # ── Control needle (§11.4.201(7)(b)) ─────────────────────────────────────────
 needle_line="**§${ANCHOR} — control-needle synthetic block-start.**"

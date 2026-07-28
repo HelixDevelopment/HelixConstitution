@@ -80,6 +80,17 @@ done
 [ -d "$root" ] || { echo "${GATE}: consumer root not found: $root" >&2; exit 2; }
 root="$(cd "$root" && pwd)"
 
+# §11.4.28/§11.4.177 — inherit the shared §11.4.35 pointer-carrier predicate BY
+# REFERENCE (never a copy). Resolve relative to THIS script's dir, not cwd.
+_pc_lib="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/lib/pointer_carrier.sh"
+if [ -r "$_pc_lib" ]; then
+    # shellcheck source=lib/pointer_carrier.sh
+    . "$_pc_lib"
+else
+    echo "${GATE}: shared pointer-carrier lib not found at $_pc_lib" >&2
+    exit 2
+fi
+
 # Discover owned governance carriers, excluding non-authored trees.
 carriers="$(find "$root" \
     \( -path '*/node_modules' -o -path '*/.git' -o -path '*/out' \
@@ -93,12 +104,19 @@ if [ -z "${carriers//[$' \t\r\n']/}" ]; then
     exit 2
 fi
 
-pass=0 fail=0
+pass=0 fail=0 skip=0
 while IFS= read -r f; do
     [ -n "$f" ] || continue
     if grep -qF "$ANCHOR" "$f"; then
         pass=$((pass + 1))
         [ -n "$quiet" ] || echo "✅ PRESENT  ${f#"$root"/}"
+    elif is_pointer_carrier "$f" 2>/dev/null; then
+        # §11.4.35 pointer-inheritance consumer — inherits the anchor BY POINTER,
+        # legitimately does NOT restate the literal. Skipping it is the
+        # §11.4.201(1) false-positive fix, NOT an over-skip: a NON-pointer
+        # carrier that omits the literal still falls through to MISSING below.
+        skip=$((skip + 1))
+        [ -n "$quiet" ] || echo "⏭ POINTER-INHERITANCE-SKIP  ${f#"$root"/}  — §11.4.35 pointer consumer (inherits ${ANCHOR} by pointer)"
     else
         fail=$((fail + 1))
         echo "❌ MISSING  ${f#"$root"/}  — lacks anchor literal ${ANCHOR}"
@@ -106,7 +124,7 @@ while IFS= read -r f; do
 done <<< "$carriers"
 
 echo "----------------------------------------------------------------------"
-echo "${GATE}: ${pass} PRESENT, ${fail} MISSING (anchor ${ANCHOR}) under ${root}"
+echo "${GATE}: ${pass} PRESENT, ${skip} POINTER-INHERITANCE-SKIP, ${fail} MISSING (anchor ${ANCHOR}) under ${root}"
 if [ "$fail" -gt 0 ]; then
     echo "❌ ${GATE}: FAIL — ${fail} owned carrier(s) missing §11.4.213 anchor"
     exit 1
