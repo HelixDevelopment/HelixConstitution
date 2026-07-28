@@ -220,20 +220,59 @@ helix_cred_is_binary_skip() {
 # match is a real hit. Binary blobs do NOT use this path (helix_cred_scan_file
 # runs the raw grep for them — the #8 carriers are text constructs, and running
 # sed/grep -o over a binary is a §11.4.201 false-positive vector).
-_helix_cred_detector1_real_hit() {
+# STREAM variant: reads candidate content on STDIN and applies the SAME
+# #8b data-URI blank → detector-1 value-pattern extract (grep -Eio, so the
+# extracted MATCH is `keyword<sep>value`, e.g. `PASSWORD=CHANGE_ME`, not the whole
+# host line) → #8a placeholder strip → survivor test. Any consumer that scans a
+# STREAM rather than a path — a pre-commit hook reading `git show :FILE`, the
+# commit_all.sh cascade credscan — MUST use THIS, never a raw
+# `grep -Eiq "$HELIX_CRED_VALUE_PATTERN"`: the raw grep BYPASSES the #8a
+# placeholder carrier-strip and false-positive-REFUSES a legitimate mid-line
+# `PASSWORD=CHANGE_ME` template/example/tracker-item line (§11.4.201(1)
+# false-positive-refusal = a FAIL-bluff, exactly as a false-negative pass is a
+# PASS-bluff). ONE implementation feeds both the file variant and every stream
+# consumer, so the two cannot drift (§11.4.227). Exit 0 = a real hit survives, 1 =
+# clean. The #8a strip is tight (a real secret is never a whole placeholder
+# token), so this never weakens real-secret detection — proven by the golden-bad
+# fixtures in test_credential_scan_lib.sh (§11.4.201(2) / §11.4.107(10)).
+helix_cred_detector1_real_hit_stream() {
+  # `-a` on the extraction: a BINARY stream (a staged .db/.so/.apk with an
+  # embedded plaintext secret, or text carrying a stray NUL) must still yield its
+  # keyword=value matches. Without `-a`, GNU grep on binary prints "binary file
+  # matches" to STDERR with EMPTY stdout, so `grep -Eio` extracts nothing → the
+  # secret would pass CLEAN at the pre-commit seam where the old raw `grep -Eiq`
+  # caught it (§11.4.201(2) false negative — Fable review B2, proven). #8a stays
+  # tight (it strips only whole placeholder-shaped tokens, `$`-anchored), so `-a`
+  # cannot weaken real-secret detection. #8b (data-URI blank) runs first.
   _helix_cred_d1_matches="$(
-    sed -E "s#${HELIX_CRED_BASE64_IMAGE_CARRIER}# #g" "$1" 2>/dev/null \
-      | grep -Eio "$HELIX_CRED_VALUE_PATTERN" 2>/dev/null
+    sed -E "s#${HELIX_CRED_BASE64_IMAGE_CARRIER}# #g" 2>/dev/null \
+      | grep -Eioa "$HELIX_CRED_VALUE_PATTERN" 2>/dev/null
   )"
   # No detector-1 match at all (after #8b) → not a real hit.
   [ -n "$_helix_cred_d1_matches" ] || return 1
-  # Drop #8a placeholder-value carriers; a surviving match line is a real secret.
-  # The final `grep -q` (not the middle grep -v) determines the verdict, so an
-  # all-carriers input (middle grep -v prints nothing, exits 1) yields a non-zero
-  # pipeline exit under pipefail AND a non-match final grep -q — both mean "clean".
-  printf '%s\n' "$_helix_cred_d1_matches" \
-    | grep -Eiv "$HELIX_CRED_PLACEHOLDER_CARRIER" 2>/dev/null \
-    | grep -q '[^[:space:]]'
+  # Drop #8a placeholder-value carriers; a surviving match is a real secret.
+  # VERDICT WITHOUT a short-circuiting `| grep -q`: under `set -o pipefail` a
+  # `grep -q` that exits 0 at the FIRST survivor SIGPIPE-kills the upstream grep,
+  # so the pipeline exits 141 → wrongly CLEAN on a LARGE credential dump (>~64 KB
+  # of matches crossing the pipe buffer) (§11.4.201(2) false negative — Fable
+  # review B1, proven with a 60k-line probe). Capture survivors into a variable
+  # (no pipe short-circuit → no SIGPIPE), then test for any non-whitespace
+  # survivor with a case glob. `|| true`: grep -v exits 1 when EVERY match is a
+  # placeholder (all stripped) = clean, which must not abort under `set -e`.
+  _helix_cred_d1_survivors="$(
+    printf '%s\n' "$_helix_cred_d1_matches" \
+      | grep -Eiv "$HELIX_CRED_PLACEHOLDER_CARRIER" 2>/dev/null || true
+  )"
+  case "$_helix_cred_d1_survivors" in
+    *[![:space:]]*) return 0 ;;   # a real (non-placeholder) secret survived
+    *)              return 1 ;;   # clean
+  esac
+}
+
+# FILE variant: delegates to the stream variant so the two share ONE
+# implementation of the #8b/extract/#8a/survivor pipeline (§11.4.227 no-drift).
+_helix_cred_detector1_real_hit() {
+  helix_cred_detector1_real_hit_stream < "$1"
 }
 
 # --- Whole-file convenience scanner ------------------------------------------

@@ -233,6 +233,73 @@ AVR account: tester@company.com / Tr0ub4dor3Special!
 EOF
 assert_caught "(6) real password adjacent to email (window not over-narrow)" "$WORK/bad_6_adjacent_pw.txt"
 
+# (l) §11.4.201(1) MID-LINE placeholder (the raw-grep-bypass forensic, 2026-07-28):
+# a recognised secret KEYWORD=PLACEHOLDER appearing MID-LINE inside a doc / JSONL
+# registry / tracker-item that QUOTES it as the example (a self-referential
+# carrier — the credscan-fix tracker item quotes `PASSWORD=CHANGE_ME`). detector-1
+# uses `grep -Eio`, so the EXTRACTED MATCH is `PASSWORD=CHANGE_ME` (not the whole
+# line) and #8a strips it — MUST be CLEAN. The prior hook/commit_all raw
+# `grep -Eiq value_pattern` bypassed #8a and false-positive-REFUSED this; the fix
+# routes both through helix_cred_detector1_real_hit_stream.
+cat > "$WORK/good_l_midline_placeholder.txt" <<'EOF'
+{"ts":"2026-07-27T21:50:46Z","event":"complete","label":"(T1/main - claude4) credscan false-positive on legit PASSWORD=CHANGE_ME example"}
+The task quotes the placeholder api_key=PLACEHOLDER in prose to describe the fix.
+EOF
+assert_clean "(l) MID-LINE keyword=PLACEHOLDER in doc/registry prose (self-referential carrier)" "$WORK/good_l_midline_placeholder.txt"
+
+echo ""
+# (7) FALSE-NEGATIVE GUARD (§11.4.201(2)): a line carrying BOTH a real secret AND a
+# placeholder MUST still be CAUGHT — the mid-line #8a strip removes ONLY the
+# placeholder match; the real-secret match survives. If this ever MISSES, the fix
+# WEAKENED the gate (a release blocker). This is the paired guard for (l).
+cat > "$WORK/bad_7_real_plus_placeholder.txt" <<'EOF'
+db: password: hunter2hunter2realleak  note: fill PASSWORD=CHANGE_ME in prod
+EOF
+assert_caught "(7) real secret + placeholder on ONE line (mid-line strip must not leak the real one)" "$WORK/bad_7_real_plus_placeholder.txt"
+
+echo ""
+# --- STREAM DETECTOR CONTRACT (the function the hook + commit_all call directly) --
+# helix_cred_detector1_real_hit_stream reads STDIN. Exit 1 = clean, 0 = hit. The
+# file scanner delegates to it, but the hook/commit_all call it on a `git show`
+# stream — pin its contract directly so a regression in either path is caught.
+if printf 'note PASSWORD=CHANGE_ME in a captured prompt\n' | helix_cred_detector1_real_hit_stream; then
+    bad "(stream-good) mid-line PASSWORD=CHANGE_ME — FALSE POSITIVE (stream reported credential; expected clean)"
+else
+    ok "(stream-good) mid-line PASSWORD=CHANGE_ME stream — clean"
+fi
+if printf 'password: hunter2hunter2realleak\n' | helix_cred_detector1_real_hit_stream; then
+    ok "(stream-bad) real secret stream — caught"
+else
+    bad "(stream-bad) real secret stream — MISSED (stream detector WEAKENED)"
+fi
+# (stream-bad-B1 §11.4.115/§11.4.201(2), Fable-review 2026-07-28): a LARGE dump of
+# real secrets (>~64 KB of matches) under `set -o pipefail` — the pre-fix verdict
+# `printf … | grep -Eiv CARRIER | grep -q '[^space]'` short-circuited at the first
+# survivor, SIGPIPE-killed the upstream grep, and the pipeline exited 141 → wrongly
+# CLEAN (a credential DUMP is the highest-value leak). BOTH new consumers run
+# pipefail (pre-commit:15 `set -uo pipefail`, commit_all.sh:98 `set -euo pipefail`),
+# so reproduce under pipefail exactly as those seams do. The fix captures survivors
+# into a variable (no pipe short-circuit) + a case-glob non-whitespace test.
+if ( set -o pipefail
+     awk 'BEGIN{for (i = 0; i < 60000; i++) print "password: hunter2hunter2realleak"}' \
+       | helix_cred_detector1_real_hit_stream ); then
+    ok "(stream-bad-B1) 60k-line real-secret dump under pipefail — caught"
+else
+    bad "(stream-bad-B1) 60k-line dump under pipefail — MISSED (pipefail SIGPIPE false negative)"
+fi
+# (stream-bad-B2 §11.4.115/§11.4.201(2), Fable-review 2026-07-28): a BINARY stream
+# (NUL bytes) carrying a plaintext secret — the pre-fix `grep -Eio` (no `-a`) on
+# binary emits "binary file matches" to STDERR with EMPTY stdout → extracted
+# nothing → wrongly CLEAN at the pre-commit seam (`git show | stream_fn`, NULs
+# intact), where the old raw `grep -Eiq` had caught it. The fix adds `-a` to the
+# extraction so a .db/.so/.apk with an embedded plaintext secret is still caught.
+if printf 'BIN\000\001\002 password: hunter2hunter2realsecret \000\377 more\n' \
+     | helix_cred_detector1_real_hit_stream; then
+    ok "(stream-bad-B2) binary stream with plaintext secret — caught"
+else
+    bad "(stream-bad-B2) binary stream with plaintext secret — MISSED (binary -o false negative)"
+fi
+
 echo ""
 echo "== RESULT: ${pass} passed, ${fail} failed =="
 [ "$fail" -eq 0 ]
