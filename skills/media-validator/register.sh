@@ -30,6 +30,11 @@ PROJECT_ROOT="${1:-$(pwd)}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_NAME="media-validator"
 
+# Relocation-proof symlink creation (§11.4.111): the link target MUST be stored
+# RELATIVE to the link, never as this machine's absolute path — an absolute
+# target only resolves on the host that ran the install.
+. "$(cd "${SCRIPT_DIR}/../.." && pwd)/scripts/portable_symlink_lib.sh"
+
 echo "[register.sh] Registering skill: ${SKILL_NAME}"
 
 # 1. Ensure skills directory exists
@@ -38,9 +43,8 @@ mkdir -p "${PROJECT_ROOT}/skills"
 # 2. Create/update symlink
 LINK_TARGET="${PROJECT_ROOT}/skills/${SKILL_NAME}"
 if [ -L "$LINK_TARGET" ] || [ ! -e "$LINK_TARGET" ]; then
-    rm -f "$LINK_TARGET"
-    ln -sf "$SCRIPT_DIR" "$LINK_TARGET"
-    echo "[register.sh]  -> Linked: ${LINK_TARGET} -> ${SCRIPT_DIR}"
+    hc_ln_relative "$SCRIPT_DIR" "$LINK_TARGET"
+    echo "[register.sh]  -> Linked: ${LINK_TARGET} -> $(readlink "$LINK_TARGET")"
 else
     echo "[register.sh]  -> ${LINK_TARGET} already exists and is not a symlink — skipping"
 fi
