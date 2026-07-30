@@ -25,7 +25,14 @@ var schemaSQL string
 // openDB opens (creating if absent) the SQLite DB at path and applies the
 // schema. The schema is idempotent (CREATE TABLE IF NOT EXISTS), so re-opening
 // an existing DB is safe.
+//
+// HXC-201: a relative path is first anchored against the invoking shell's
+// directory (see pathresolve.go) rather than trusted as relative to this
+// process's actual cwd — every `--db` flag across every subcommand shares
+// this single chokepoint, so the `go run -C` footgun documented in
+// pathresolve.go is closed once, here, for the whole tool.
 func openDB(path string) (*sql.DB, error) {
+	path = resolveInvocationRelative(path)
 	if dir := filepath.Dir(path); dir != "" && dir != "." {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return nil, fmt.Errorf("create db dir %q: %w", dir, err)
