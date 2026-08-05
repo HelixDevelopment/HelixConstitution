@@ -79,6 +79,39 @@ type DedupCfg struct {
 	TicketField       string   `yaml:"ticket_field"`        // logical ticket column name
 	DateToleranceDays int      `yaml:"date_tolerance_days"` // date-agreement tolerance for DEDUP-02
 	Allowlist         []string `yaml:"allowlist"`           // "subject_norm|scope_norm" pairs known-distinct
+
+	// ExemptStatuses lists the statuses whose records are RETIRED and are
+	// therefore excluded from DEDUP-02 grouping (§11.4.90 / §11.4.214 /
+	// §11.4.201(1)). Consumer-owned vocabulary (§11.4.35) — the engine holds
+	// no project literal and the default (empty) preserves the pre-existing
+	// behaviour exactly, so no other consumer changes.
+	//
+	// WHY this exists: the sanctioned resolution of a duplicate is to CLOSE
+	// the duplicate (§11.4.90 `Obsolete`, reason `duplicate-of`) and LINK it
+	// to the canonical item, never to renumber or delete it (§11.4.214(5),
+	// §11.4.54 id stability). A retired duplicate therefore keeps the
+	// canonical item's subject BY CONSTRUCTION, so an unfiltered
+	// (subject, scope) grouping reports DEDUP-02 on the CORRECT end state —
+	// a §11.4.201(1) false-positive refusal (a FAIL-bluff), and one that
+	// recurs on every future duplicate-of closure.
+	//
+	// NARROWNESS (the check is NOT weakened): only the individually-exempt
+	// RECORDS are removed from the grouping; every non-exempt record still
+	// groups, so two LIVE records sharing the key still FAIL DEDUP-02.
+	// Proven by the paired golden fixtures golden-good-dedup-exempt-status
+	// (PASS) and golden-bad/bad_dedup_exempt_status_still_dedup02 (FAIL).
+	//
+	// HONEST BOUNDARY (§11.4.6): this keys on STATUS, not on the §11.4.90
+	// obsolescence REASON — the reason lives in a sibling table the
+	// single-table sqlite adapter does not read. Every value in the §11.4.90
+	// closed reason-set (`superseded-by-design-change`,
+	// `superseded-by-later-mandate`, `feature-removed`, `duplicate-of`,
+	// `unsupported-topology`, `not-reproducible`) means the record is
+	// deliberately retired and can no longer be one half of the LIVE
+	// divergence DEDUP-02 exists to catch, so status is a sufficient
+	// discriminator for this rule. Reason-level precision would need an
+	// adapter join and is not required to remove the false positive.
+	ExemptStatuses []string `yaml:"exempt_statuses"`
 }
 
 // Thresholds holds calibrated numeric knobs.

@@ -12,9 +12,17 @@
 //       exactly the shape found in the real live tracker (docs/Issues.md
 //       [SPK-481] carries this pattern verbatim). The prior test fixtures in
 //       atm627_status_desync_test.go all use single-Status-line toy bodies;
-//       this proves the "last **Status:** line wins" derivation (lastBodyStatus,
-//       parse.go) is exercised correctly when a genuine second Status-bearing
-//       block is present, and that a desync introduced in EITHER line is caught.
+//       this proves the derivation (lastBodyStatus, parse.go) is exercised
+//       correctly when a genuine second Status-bearing block is present.
+//
+//       ATM-842 UPDATE (§11.4.120 reconciliation): the derivation was then
+//       "last **Status:** line anywhere in the block wins", so a desync in
+//       EITHER line was caught. That last-wins scanning WAS the ATM-842 defect
+//       (a nested sub-item's Status displaced the item's own). Derivation is now
+//       scoped to the item's OWN metadata region, so this test asserts the NEW
+//       mechanism: a desync in the item's OWN Status line is caught, and a
+//       diverged NESTED sub-item line is correctly NOT an item-level desync
+//       (the golden-FALSE / false-positive guard).
 //
 //       Live reproduction performed against a throwaway temp COPY of the real
 //       docs/workable_items.db (2026-07-07, never touching the tracked DB, per
@@ -111,14 +119,21 @@ func buildSPK481ShapedFixtureDB(t *testing.T) string {
 	return dbPath
 }
 
-// injectSubHeadingStatusDesync mutates ONLY the SECOND (embedded sub-heading)
-// `**Status:** Operator-blocked` line in ATM-950's stored body_md to a stale
+// injectSubHeadingStatusDesync mutates ONLY the SECOND (embedded `### `
+// sub-item) `**Status:** Operator-blocked` line in ATM-950's stored body_md to
 // "Reopened", leaving the FIRST (top-of-body) line and the items.status column
-// untouched. Because lastBodyStatus derives from the LAST such line
-// (last-line-wins, mirroring buildItem's own semantics), this specifically
-// exercises the "second, embedded Status-bearing block goes stale" realistic
-// shape — the exact structural complexity present in the real live SPK-481 item
-// — rather than the single-line toy bodies the pre-existing atm627 tests use.
+// untouched.
+//
+// ATM-842 RECONCILIATION (§11.4.120): this used to be the test's DESYNC
+// injection, because lastBodyStatus then derived the item's status from the
+// LAST `**Status:**` line anywhere in the block — so a nested SUB-ITEM's line
+// displaced the item's own. That last-wins scanning was the ATM-842 defect
+// (measured on the live registry: 11 items carried a sub-item's Status and 8 a
+// sub-item's Type in their own columns, e.g. ATM-415). Derivation is now scoped
+// to the item's OWN metadata region, so this mutation is CORRECTLY no longer an
+// item-level desync — a sub-item's status is not the item's status, and there
+// is no column for it to be out of sync with. The injection is retained as the
+// guard's golden-FALSE (negative-control) case per §11.4.201.
 func injectSubHeadingStatusDesync(t *testing.T, dbPath string) {
 	t.Helper()
 	db, err := openDB(dbPath)
@@ -150,6 +165,38 @@ func injectSubHeadingStatusDesync(t *testing.T, dbPath string) {
 	}
 }
 
+// injectOwnStatusDesync mutates ONLY the item's OWN (top-of-body) Status line
+// to a stale "Reopened", leaving the items.status column ("Operator-blocked")
+// and the nested sub-item's line untouched. Anchored on the unique
+// `**Reopens-count:** 1` line that follows the item's own Status line (the
+// sub-item's is followed by `**Type:** Bug` + `**Sub-item status:**`), so the
+// replace is unambiguous.
+//
+// ATM-842 (§11.4.120): this is now the test's REAL desync injection — the
+// item's own Status line disagreeing with its own column is what
+// statusColumnBodyDesyncs exists to catch.
+func injectOwnStatusDesync(t *testing.T, dbPath string) {
+	t.Helper()
+	db, err := openDB(dbPath)
+	if err != nil {
+		t.Fatalf("openDB: %v", err)
+	}
+	defer db.Close()
+	res, err := db.Exec(`UPDATE items SET body_md = replace(
+		body_md,
+		'**Status:** Operator-blocked
+**Reopens-count:** 1',
+		'**Status:** Reopened
+**Reopens-count:** 1'
+	) WHERE atm_id='ATM-950' AND current_location='Issues'`)
+	if err != nil {
+		t.Fatalf("inject own-status desync: %v", err)
+	}
+	if n, _ := res.RowsAffected(); n != 1 {
+		t.Fatalf("inject own-status desync: expected 1 row affected, got %d (replace target not found — fixture drifted?)", n)
+	}
+}
+
 // TestATM627_StatusDesync_RealisticMultiBlockBody hardens statusColumnBodyDesyncs
 // + validateCmd against the REAL SPK-481 structural shape: a body with TWO
 // `**Status:**` lines (top-of-body + an embedded sub-heading). RED_MODE=1
@@ -176,10 +223,30 @@ func TestATM627_StatusDesync_RealisticMultiBlockBody(t *testing.T) {
 		t.Fatalf("freshly-synced SPK-481-shaped fixture reported %d desync(s) (false positive): %v", len(d), d)
 	}
 
-	// Desync the SUB-HEADING's Status line to "Reopened", leaving the
-	// top-of-body line + the items.status column ("Operator-blocked") untouched
-	// — the exact shape reported against the live SPK-481 record.
+	// ATM-842 golden-FALSE (§11.4.201 false-positive guard): mutating the NESTED
+	// sub-item's Status line is NOT an item-level desync — the item's own Status
+	// line and its column still agree, and a sub-item has no column of its own.
 	injectSubHeadingStatusDesync(t, dbPath)
+
+	db, err = openDB(dbPath)
+	if err != nil {
+		t.Fatalf("openDB (post-subitem-inject): %v", err)
+	}
+	items, err = loadItems(db)
+	db.Close()
+	if err != nil {
+		t.Fatalf("loadItems (post-subitem-inject): %v", err)
+	}
+	if d := statusColumnBodyDesyncs(items); len(d) != 0 {
+		t.Fatalf("ATM-842: mutating a NESTED sub-item's Status line reported %d item-level "+
+			"desync(s) (false positive — sub-item status is not the item's status): %v", len(d), d)
+	}
+
+	// Desync the ITEM'S OWN (top-of-body) Status line to "Reopened", leaving the
+	// items.status column ("Operator-blocked") untouched. The sub-item's line
+	// stays mutated, proving the guard keys on the item's OWN line even when a
+	// nested block also diverges.
+	injectOwnStatusDesync(t, dbPath)
 
 	db, err = openDB(dbPath)
 	if err != nil {
@@ -227,8 +294,11 @@ func TestATM627_StatusDesync_RealisticMultiBlockBody(t *testing.T) {
 		t.Fatalf("GREEN: validateCmd returned exitOK on a desynced realistic-shape DB (§11.4.93 bluff gate regressed)")
 	}
 
-	// Repair: restore the sub-heading Status line — proves specificity (the
-	// guard is not a blanket failure on complex multi-block bodies).
+	// Repair: restore the ITEM'S OWN Status line — proves specificity (the guard
+	// is not a blanket failure on complex multi-block bodies). The nested
+	// sub-item's line stays mutated, so a clean result here ALSO re-proves the
+	// ATM-842 scope: a diverged sub-item never manufactures an item-level
+	// desync.
 	repair, err := openDB(dbPath)
 	if err != nil {
 		t.Fatalf("openDB (repair): %v", err)
@@ -236,13 +306,9 @@ func TestATM627_StatusDesync_RealisticMultiBlockBody(t *testing.T) {
 	if _, err := repair.Exec(`UPDATE items SET body_md = replace(
 		body_md,
 		'**Status:** Reopened
-**Type:** Bug
-
-**Sub-item status:**',
+**Reopens-count:** 1',
 		'**Status:** Operator-blocked
-**Type:** Bug
-
-**Sub-item status:**'
+**Reopens-count:** 1'
 	) WHERE atm_id='ATM-950' AND current_location='Issues'`); err != nil {
 		repair.Close()
 		t.Fatalf("repair: %v", err)

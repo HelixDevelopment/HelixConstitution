@@ -2425,8 +2425,28 @@ operator-facing reference) / §11.4.29 / §11.4.75 / §11.4.109 / §11.4.177
 / §11.4.6 / §11.4.58 / §11.4.103 / §11.4.119 / §11.4.116 / §11.4.147.
 Propagation gate <code>CM-COVENANT-114-182-PROPAGATION</code> (literal
 <code>11.4.182</code>) + recommended gate
-<code>CM-TRACK-BRANCH-LABEL</code> + paired §1.1 mutation.
-<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.182.
+<code>CM-TRACK-BRANCH-LABEL</code> + paired §1.1 mutation. <strong>TRUNK
+RULE (operator mandate, 2026-07-28):</strong> work performed on the
+canonical trunk (<code>main</code>/<code>master</code>) is
+<strong>ALWAYS Track 1</strong> — the label reads
+<code>(T1/main - …)</code>, NEVER <code>(T?/main - …)</code>, regardless
+of checkout path. Precedence is deliberate: the BRANCH decides first and
+the checkout path decides only for non-trunk branches, so a trunk
+checkout living outside <code>/mnt/track&lt;N&gt;</code> — or inside a
+differently-numbered one — is still Track 1; the identity that matters
+is which STREAM the work belongs to, not which directory it happens to
+sit in. Rationale: §11.4.182 labels are how concurrent streams are told
+apart, so an unnumbered <code>T?</code> on trunk work makes it
+indistinguishable from a genuinely-unknown track in every dispatch,
+report and progress line — and the trunk is a well-known, singular
+stream that is never unknown. Reference implementation:
+<code>scripts/multitrack/track_branch_label.sh</code> derives the branch
+BEFORE the track number and maps <code>main|master -&gt; 1</code>.
+Labels MUST be re-derived from that script at dispatch time and kept in
+real-time sync with the live branch/alias/model/effort — a remembered or
+stale label is itself a §11.4.182 violation (§11.4.6: live identity is
+not knowable from memory). <strong>Canonical authority:</strong>
+constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.182.
 Non-compliance is a release blocker. No escape hatch — no
 <code>--skip-track-label</code>, <code>--unlabeled-agent-OK</code>,
 <code>--bare-work-stream-reference</code>,
@@ -6315,6 +6335,43 @@ separate work item (§11.4.6/§11.4.227).</p>
 <code>--skip-source-correctness-review</code>,
 <code>--deploy-without-version-increment</code>,
 <code>--not-default-speed-mode</code>,
-<code>--serialise-build-and-validate</code>.</p>
+<code>--serialise-build-and-validate</code>. <strong>§11.4.236 —
+QA-deploy-readiness gate: no manual-QA hand-off until the mandated
+validation produced a candidate-fingerprinted PASS verdict; a blocker
+MUST bind to a seam, never prose (research-derived,
+2026-07-31).</strong> Compact summary: a release artifact MUST NOT be
+deployed / handed off for manual QA (§11.4.185) until the mandated
+autonomous validation(s) for THAT artifact produced a machine-written
+PASS verdict whose artifact fingerprint == the candidate (§11.4.115(F),
+read from the target at run time); ABSENCE of the verdict BLOCKS the
+deploy exactly as a FAIL does (§11.4.135); the refusal lives in the
+deploy TOOL (the seam), never in prose (§11.4.205/§11.4.226) — a
+source-gate asserting the harness merely EXISTS is
+necessary-not-sufficient; any operator-declared blocker (a §11.4.140
+CRITICAL / &quot;release-blocker&quot;) MUST bind to a mechanical seam at the
+point it gates, never satisfied by prose nor DOWNGRADED to a follow-up,
+and when its instrument bugs the response is §11.4.4/§11.4.120 (fix the
+instrument, never route around it); override only via an explicit,
+recorded operator flag (§11.4.234/§11.4.135), never a silent bypass; the
+gate is self-validated golden-good/golden-bad (§11.4.107(10)/§11.4.201,
+cannot false-allow) and the verdict-emitter reads the fingerprint from
+the target at run time, never a hardcoded per-release value (§11.4.111).
+Honest boundary §11.4.6 — the seam proves a candidate-matching PASS
+verdict EXISTS, it does NOT replace the §11.4.185 manual-QA sufficiency
+gate nor make the underlying validation honest (that stays
+§11.4.5/.69/.107). Classification: universal (§11.4.17). Composes
+§11.4.4/.107(10)/.108/.111/.115(F)/.120/.126/.135/.146(D3)/.185/.201/.205/.226/.234.
+Propagation gate <code>CM-COVENANT-114-236-PROPAGATION</code> (literal
+<code>11.4.236</code>) + recommended gate
+<code>CM-QA-DEPLOY-READINESS-GATE</code> + paired §1.1 mutation
+(gate-code = separate work item, NOT claimed shipped §11.4.6/§11.4.227).
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.236.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--deploy-without-verdict</code>,
+<code>--prose-blocker-suffices</code>,
+<code>--downgrade-blocker-to-followup</code>,
+<code>--skip-readiness-gate</code>,
+<code>--verdict-fingerprint-optional</code>,
+<code>--silent-override</code> flag.</p>
 </body>
 </html>

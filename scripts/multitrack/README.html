@@ -504,10 +504,13 @@ else positional map.</td>
 </tr>
 <tr>
 <td><code>multitrack_cwd_hook.sh</code></td>
-<td>Thin toolkit adapter: prints the alias&#39;s bound worktree AND fires a
-best-effort, non-fatal, fully-detached <code>orchestrator bind</code>
-(bind-on-start, §11.4.177), fallback monitor, AND constitution auto-sync
-for the resolved track (never for the conductor).</td>
+<td>Thin toolkit adapter: resolves WHICH consumer project this
+invocation is for (§11.4.177, see below), prints the alias&#39;s bound
+worktree AND fires a best-effort, non-fatal, fully-detached
+<code>orchestrator bind</code> (bind-on-start, §11.4.177), fallback
+monitor, AND constitution auto-sync for the resolved track (never for
+the conductor). <code>--consumer-root [alias]</code> reports the
+resolved consumer + why.</td>
 </tr>
 <tr>
 <td><code>multitrack_constitution_sync.sh</code></td>
@@ -533,6 +536,82 @@ project strings live): track→mount paths, project directory name, device
 serials + capabilities, the alias↔︎account map, priority/feature list. In
 the reference consumer that file is
 <code>config/multitrack/&lt;hostname&gt;.yaml</code>.</p>
+<h2 id="which-consumer-project--the-cwd-hooks-consumer-root-resolution-114177">Which
+consumer project? — the cwd-hook&#39;s consumer-root resolution
+(§11.4.177)</h2>
+<p>Every engine entry point EXCEPT the cwd-hook runs from INSIDE a
+consumer checkout, so self-location (below) is the right answer for
+them. The cwd-hook is the exception: the toolkit invokes it only when
+cwd is <strong>not</strong> a git repo, and it is customarily installed
+<strong>once</strong> on a shared PATH. Self-location there answers a
+question it cannot know — it returns whichever checkout physically holds
+the engine, shadowing every sibling consumer on the host that ships its
+own <code>config/multitrack/</code>.</p>
+<p><code>multitrack_cwd_hook.sh</code> therefore resolves the consumer
+root itself, first hit wins, and exports it as <code>MT_REPO_ROOT</code>
+so the resolver&#39;s existing pin honours it:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Source</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>MT_REPO_ROOT</code> env</td>
+<td>explicit pin (operator / launcher / test seam)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>invocation context</td>
+<td>nearest ancestor of <code>$PWD</code> carrying
+<code>config/multitrack/</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>operator binding file</td>
+<td><code>MT_CONSUMER_ROOTS</code>, default
+<code>${XDG_CONFIG_HOME:-$HOME/.config}/multitrack/consumer_roots.conf</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><em>(nothing resolved)</em></td>
+<td>export nothing → resolver keeps its unchanged self-location
+behaviour</td>
+</tr>
+</tbody>
+</table>
+<p>Step 4 is the load-bearing back-compat guarantee: a host with no
+binding file and no cwd context behaves <strong>exactly</strong> as
+before this resolution existed.</p>
+<p><strong>Honest boundary (§11.4.6).</strong> When the hook fires there
+is, by construction, no cwd project context — so on a host running more
+than one consumer the alias→consumer mapping is host policy that nothing
+in-tree can derive. Step 3&#39;s operator-owned file is the minimal artifact
+that satisfies §11.4.177 (project-agnostic tooling) and §11.4.187
+(automatic, out-of-the-box) at once.</p>
+<p>Binding-file format — parsed, never sourced, so a typo can never
+execute:</p>
+<pre><code># ${XDG_CONFIG_HOME:-$HOME/.config}/multitrack/consumer_roots.conf
+default  = /mnt/track1/my_project
+claude2  = /mnt/track1/other_project     # alias key beats `default`</code></pre>
+<p>A named path that does not carry <code>config/multitrack/</code> is
+reported on stderr and <strong>ignored</strong> — never silently trusted
+(§11.4.6). Diagnose with:</p>
+<pre><code>multitrack_cwd_hook.sh --consumer-root &lt;alias&gt;</code></pre>
+<blockquote>
+<p><strong>Installation note (§11.4.177).</strong> Resolution being
+project-agnostic is only half the rule. The shared PATH entry itself
+must not live inside a consumer checkout — a symlink from
+<code>~/.local/bin/</code> into one project&#39;s tree couples every
+project&#39;s tooling availability and version to that one checkout. Install
+the engine from a location outside every consumer, or use the toolkit&#39;s
+per-project <code>&lt;dir&gt;/.claude-cwd-hook</code> /
+<code>CMA_CWD_HOOK</code> seams.</p>
+</blockquote>
 <h2 id="config-contract--how-a-generic-script-finds-project-config">Config
 contract — how a generic script finds project config</h2>
 <p>A generic script self-locates BOTH roots with zero hardcoding:</p>
@@ -712,11 +791,11 @@ Empty/absent ⇒ no signatures (the monitor decides its own default).</td>
 </table>
 <p>Reference-consumer seed (both keys are consumer data, so they live in
 the project config, never in this engine):</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">conductor</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;&quot;</span><span class="co">            # empty ⇒ /home session is conductor</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fallback</span><span class="kw">:</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">signatures</span><span class="kw">:</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="st">&#39;&quot;apiErrorStatus&quot;:429&#39;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="st">&#39;&quot;isApiErrorMessage&quot;:true&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">conductor</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;&quot;</span><span class="co">            # empty ⇒ /home session is conductor</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fallback</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">signatures</span><span class="kw">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="st">&#39;&quot;apiErrorStatus&quot;:429&#39;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="st">&#39;&quot;isApiErrorMessage&quot;:true&#39;</span></span></code></pre></div>
 <h3 id="runtime-namespace-derivation">Runtime namespace derivation</h3>
 <p>The tmp runtime dirs (<code>aliasorch</code> /
 <code>devicelock</code> / <code>registry.lock</code>) derive their
@@ -725,11 +804,11 @@ top-level namespace from <code>$(basename &quot;$MT_REPO_ROOT&quot;)</code> (via
 by its own project directory name — no project literal is baked into the
 engine.</p>
 <h2 id="quick-start-consumer">Quick start (consumer)</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># from the project root, with a config/multitrack/&lt;hostname&gt;.yaml present:</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">MT_REPO_ROOT</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$PWD</span><span class="st">&quot;</span> <span class="fu">bash</span> constitution/scripts/multitrack/multitrack_resolve_worktree.sh map</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># or point at an explicit config file:</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="va">MT_CONFIG</span><span class="op">=</span>config/multitrack/<span class="op">&lt;</span>host<span class="op">&gt;</span>.yaml <span class="va">MT_REPO_ROOT</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$PWD</span><span class="st">&quot;</span> <span class="dt">\</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bash</span> constitution/scripts/multitrack/multitrack_resolve_worktree.sh resolve claude1</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># from the project root, with a config/multitrack/&lt;hostname&gt;.yaml present:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">MT_REPO_ROOT</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$PWD</span><span class="st">&quot;</span> <span class="fu">bash</span> constitution/scripts/multitrack/multitrack_resolve_worktree.sh map</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># or point at an explicit config file:</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="va">MT_CONFIG</span><span class="op">=</span>config/multitrack/<span class="op">&lt;</span>host<span class="op">&gt;</span>.yaml <span class="va">MT_REPO_ROOT</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$PWD</span><span class="st">&quot;</span> <span class="dt">\</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bash</span> constitution/scripts/multitrack/multitrack_resolve_worktree.sh resolve claude1</span></code></pre></div>
 <h2 id="genericization-delta-vs-the-reference-consumer">Genericization
 delta vs the reference consumer</h2>
 <p>Lifted from the reference project&#39;s <code>scripts/multitrack/</code>
@@ -756,5 +835,115 @@ named flag existed, so no back-compat alias is needed).</li>
 <p>Consumer-side DATA (<code>config/multitrack/&lt;host&gt;.yaml</code>,
 serials, mount paths) stays in the consuming project and is NEVER copied
 here.</p>
+<h2 id="alias-priority-per-alias-limitsubscription-tracking-auto-rebind-on-recovery-114196">Alias
+priority, per-alias limit/subscription tracking, auto-rebind-on-recovery
+(§11.4.196)</h2>
+<p>The alias↔︎track binding layer
+(<code>multitrack_alias_orchestrator.sh</code>) implements the §11.4.196
+mandate — the alias-binding + rate-limit/subscription-tracking layer of
+the §11.4.187 ruler:</p>
+<p><strong>Native-alias-first priority.</strong>
+<code>_next_available_alias</code> scans the <code>native</code> class
+COMPLETELY before the <code>provider</code> class, so an OPERATIONAL
+native (<code>claudeN</code>) alias is ALWAYS selected before ANY
+provider, regardless of roster file order (§11.4.111
+resolve-by-CLASS-not-by-file-position). Within a class the
+operator-mandated order (native equal-capability; providers
+<code>deepseek → xiaomi → opencode → kimi-for-coding → …</code>) is
+authoritative decision-DATA — the built-in <code>DEFAULT_ROSTER</code>
+encodes it and <code>config/multitrack/alias_priority.yaml</code> is its
+tracked, non-secret record (alias NAMES only, never keys — §11.4.10).
+<code>_alias_rank</code> exposes the same ordering as a comparable
+integer (native base 0 &lt; provider base 100000).</p>
+<p><strong>Per-alias reason-class limit tracking (from REAL signals,
+never faked — §11.4.6).</strong> A cooled alias&#39;s
+<code>cooldowns.snapshot</code> row is
+<code>alias|until|reason|class</code> where
+<code>class ∈ {session | weekly | subscription}</code> and
+<code>until</code> is its operational-again epoch. The three classes
+have DIFFERENT windows:</p>
+<table>
+<thead>
+<tr>
+<th>class</th>
+<th>window (<code>MT_COOLDOWN_*</code>)</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session</code></td>
+<td><code>MT_COOLDOWN_SESSION</code> (=300s)</td>
+<td>a 429 session rate-limit — self-heals at the reset</td>
+</tr>
+<tr>
+<td><code>weekly</code></td>
+<td><code>MT_COOLDOWN_WEEKLY</code> (=604800s)</td>
+<td>weekly-limit-reached — ~until the weekly reset</td>
+</tr>
+<tr>
+<td><code>subscription</code></td>
+<td>far-future sentinel (2100-01-01Z)</td>
+<td>subscription expired — INDEFINITE until a REAL renewal</td>
+</tr>
+</tbody>
+</table>
+<p><code>§11.4.6</code> NEVER guesses a renewal date — a caller MAY pass
+an exact <code>--until &lt;epoch&gt;</code> parsed from a real reset
+marker, which wins over the class default.</p>
+<p><strong>Commands.</strong></p>
+<ul>
+<li><code>mark-limited --alias A [--class session|weekly|subscription] [--until EPOCH] [--reason R]</code>
+— record a per-alias limit from a real signal (the
+<code>multitrack_fallback_monitor.sh</code> 429-signature classifier
+calls this / <code>fallback --class …</code>). A limited alias is never
+auto-selected until <code>until</code> passes (session/weekly) or
+<code>mark-operational</code> clears it (subscription).</li>
+<li><code>mark-operational --alias A</code> — clear an alias&#39;s cooldown
+NOW (a subscription renewal / operator-confirmed recovery). The next
+<code>auto-assign</code>/<code>promote</code> prefers it.</li>
+<li><code>promote [--ttl S]</code> — auto-use-on-recovery: for EVERY
+bound track, if a strictly higher-priority (lower
+<code>_alias_rank</code>) NON-cooled alias exists, rebind the track
+UPWARD to it, PRESERVING the worktree AND device leases (leases key on
+the STABLE track id — §11.4.119). Idempotent. Run it after every
+reap/tick so a track that fell onto a provider returns to a recovered
+native automatically.</li>
+<li><code>fallback --track T [--class …] [--until …]</code> — on a
+limit, cool the current alias (class-aware) and hand the track to the
+next available alias.</li>
+<li><code>status</code> — the cooldown section now shows
+<code>class</code> + <code>operational-again-epoch</code>.</li>
+</ul>
+<p><strong>RB-02 host-budget guard fix
+(<code>multitrack_host_budget.sh</code>, §12.12 /
+§11.4.196(D)).</strong> <code>_mt_host_budget_heavy_build_running</code>
+no longer trusts a bare <code>pgrep -f REGEX</code> substring match
+(which false-matched a live <code>claude</code> worker whose prompt
+QUOTED the pgrep pattern and REFUSED every spawn on a host with zero
+real builds — forensic FACT 2026-07-13). It re-reads each matched PID&#39;s
+REAL <code>/proc/&lt;pid&gt;/cmdline</code> (via the
+<code>_mt_host_budget_pid_cmdline</code> seam) and excludes the
+pattern-CARRIER / multitrack- ENGINE / <code>claude</code>-worker /
+self+parent classes; an UNREADABLE cmdline is conservatively counted as
+a build (REFUSE — the safe, reversible default, §11.4.101/§12.8), so a
+genuine soong/gradle/JVM-daemon build is still caught.</p>
+<p><strong>Tests (anti-bluff, §11.4.115 RED-polarity + §1.1 mutation +
+§11.4.50 determinism):</strong></p>
+<ul>
+<li><code>test_multitrack_host_budget_rb02_pgrep.sh</code> — RB-02 guard
+(hermetic stub + real-<code>/proc</code> E2E).</li>
+<li><code>test_multitrack_alias_priority_limits.sh</code> — native-first
+rank + per-class limit windows + <code>promote</code>.</li>
+<li><code>test_multitrack_native_first_fallback.sh</code> — native-first
+selection (pre-existing). Run each with <code>RED_MODE=1</code>
+(reproduce the defect on the mutated artifact) and
+<code>RED_MODE=0</code> (assert the fixed behaviour + §1.1
+self-check).</li>
+</ul>
+<p>Honest boundary (§11.4.6): these prove the selection / tracking /
+rebind / guard CONTRACT on the mechanism; genuine live per-subscription
+quota-isolation still needs live tokens exercising real rate-limit
+boundaries (an operator acceptance window).</p>
 </body>
 </html>

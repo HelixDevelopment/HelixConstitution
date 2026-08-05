@@ -70,7 +70,44 @@
 # --- Detector 1: keyword-anchored value / known-token-format patterns --------
 # Conservative set covering common API-token / key / secret / password
 # assignment forms. Used with `grep -Ei`.
-HELIX_CRED_VALUE_PATTERN='(AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{36}|github_pat_[0-9A-Za-z_]{22,}|xox[baprs]-[0-9A-Za-z-]{10,}|sk-[0-9A-Za-z]{20,}|AIza[0-9A-Za-z_-]{35}|-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?[^[:space:]"'"'"'$<%{][^[:space:]"'"'"']{7,})'
+#
+# §11.4.201 carrier-strip #9 (sk- LEFT TOKEN BOUNDARY). The OpenAI `sk-` prefix is
+# only TWO letters + a hyphen, so an unanchored `sk-[0-9A-Za-z]{20,}` also matches
+# the TAIL of any identifier ending in "sk" that is followed by '-' and 20+
+# alphanumerics. Forensic FP: an Android `pm path` capture
+# ".../com.example.mediakiosk-<install-token>==/base.apk" — the "sk" is the tail
+# of the package name "mediakio[sk]" and the base64url install-token supplies the
+# run (kiosk / disk / task / desk all trip it). The left boundary
+# `(^|[^0-9A-Za-z])` asserts the REAL condition — a genuine key in the observed
+# leak shapes stands at a token boundary (line start, whitespace, '=', quote, or
+# '_', none of which are [0-9A-Za-z]). Coverage of that boundary CLASS is proven by
+# golden-good (m) + the golden-bad (8)/(8a)/(8b)/(8c) class-spread guard in
+# test_credential_scan_lib.sh, whose fixtures are PROGRAMMATICALLY enumerated over
+# every printable-ASCII non-alphanumeric byte (plus TAB, a control byte and a
+# high-byte form) so a narrowing of the class cannot pass them.
+# HONEST BOUNDARY (§11.4.6 / §11.4.194(2)) — this is a TRADE, not a free win, and
+# the earlier "cannot weaken real-secret detection" claim was FALSE. MEASURED
+# counterexample (2026-08-03): a genuine key immediately preceded by an ANSI-SGR
+# escape (`ESC[32m` + `sk-…`) has 'm' — an ALPHANUMERIC — as its preceding byte, so
+# the unanchored pre-fix pattern CAUGHT it while this boundary MISSES it. The class
+# is LIVE in this tree, not hypothetical: 14 tracked files under docs/ carry ESC
+# bytes (e.g. docs/CONTINUATION_data/phase38*.txt), so an ANSI-coloured capture is a
+# real carrier shape. The trade is still the right one — GNU `\b` MISSES the very
+# same case (measured), and the false positive this removed was a proven
+# §11.4.201(1) FAIL-bluff that refused real commits — but the residual
+# ANSI/control-prefix gap is STATED here and TRACKED as ATM-989 in the
+# workable-items SSoT (§11.4.93 / §11.4.197 — the follow-up carries the RED-first
+# fixture + the both-directions §11.4.201 acceptance criteria), never silently
+# claimed absent.
+# PORTABILITY (§11.4.201(7)(c) — the path is part of the instrument): the boundary
+# is written in POSIX ERE, NOT `\b`. `\b` is a GNU/PCRE extension that BSD/macOS
+# `grep -E` does not honour, where it would silently match nothing and turn a real
+# `sk-` leak into a FALSE NEGATIVE (a §11.4 PASS-bluff). The `(^|[^0-9A-Za-z])`
+# form is portable ERE and behaves identically on every grep. It CONSUMES the
+# preceding character, which is harmless: the extracted match is only tested
+# against the `^`-anchored placeholder carrier (#8a), which an `sk-` token never
+# matches either way.
+HELIX_CRED_VALUE_PATTERN='(AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{36}|github_pat_[0-9A-Za-z_]{22,}|xox[baprs]-[0-9A-Za-z-]{10,}|(^|[^0-9A-Za-z])sk-[0-9A-Za-z]{20,}|AIza[0-9A-Za-z_-]{35}|-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?[^[:space:]"'"'"'$<%{][^[:space:]"'"'"']{7,})'
 
 # --- Detector 1 carrier-strip #8: placeholder-value + base64-image data-URI ---
 # §11.4.201 carrier-strip #8a (placeholder-value allowlist). A recognised secret
@@ -87,7 +124,33 @@ HELIX_CRED_VALUE_PATTERN='(AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{
 # _helix_cred_detector1_real_hit, which drops any detector-1 match whose whole
 # "keyword<sep>value" reads as keyword + placeholder-value. Proven by golden-good
 # scenarios (i)/(j) + every golden-bad in test_credential_scan_lib.sh (§11.4.107(10)).
-HELIX_CRED_PLACEHOLDER_CARRIER='^(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?(change_?me|placeholder|example|dummy|redacted|todo|tbd|fixme|xxx+|your[_-][a-z0-9._-]*|[a-z0-9._-]*must_not_leak[a-z0-9._-]*)["'"'"']?$'
+#
+# §11.4.201 carrier-strip #8a-SUFFIX (placeholder ROOT + descriptive suffix).
+# Forensic FP (2026-08-03): a signing-credentials TEMPLATE whose placeholder values
+# name the field they stand in for —
+#   DEVELOPMENT.storePassword=CHANGE_ME_DEVELOPMENT_STORE_PASSWORD
+# — was REFUSED at the commit seam. The `$`-anchored alternation above matches ONLY
+# a BARE `CHANGE_ME`, so `CHANGE_ME` + `_DEVELOPMENT_STORE_PASSWORD` survived the
+# strip and read as a real secret: a §11.4.201(1) FALSE-POSITIVE REFUSAL, itself a
+# FAIL-bluff. The `<ROOT>_<WHAT_GOES_HERE>` form is the dominant real-world template
+# convention, so the strip was structurally incomplete, not merely unlucky.
+# WHY THIS CANNOT WEAKEN REAL-SECRET DETECTION (by construction, not by heuristic):
+# the value must BEGIN with a recognised not-yet-filled-in marker, and a string that
+# begins with a literal `CHANGE_ME` / `PLACEHOLDER` / `TODO` marker is not a working
+# credential — appending a real secret after `CHANGE_ME_` yields a mangled string
+# that authenticates nowhere. This is prefix-anchoring on an INTENT marker, NOT an
+# entropy guess: entropy is deliberately NOT used as the discriminator because the
+# library's own golden-bad `hunter2hunter2` is LOW-entropy and MUST stay caught.
+# TIGHTENING (both deliberate, both golden-proven):
+#   (a) the `[_-]` separator is MANDATORY (`+`, not `*`), so the documented
+#       golden-bad `xxxsecret1` — root-shaped prefix, NO separator — still SURVIVES
+#       and is still flagged;
+#   (b) `xxx+` is DELIBERATELY EXCLUDED from the suffix-capable root set: three
+#       letters is too generic a prefix to carry the intent-marker argument, and
+#       `xxxsecret1` depends on it staying strict.
+# Roots admitted here are only those that UNAMBIGUOUSLY mean "not filled in".
+# `your[_-]…` and `…must_not_leak…` already carry their own affix forms above.
+HELIX_CRED_PLACEHOLDER_CARRIER='^(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?(change_?me|placeholder|example|dummy|redacted|todo|tbd|fixme|xxx+|your[_-][a-z0-9._-]*|[a-z0-9._-]*must_not_leak[a-z0-9._-]*|(change_?me|placeholder|example|dummy|redacted|todo|tbd|fixme)([_-][a-z0-9]+)+)["'"'"']?$'
 
 # §11.4.201 carrier-strip #8b (base64-image data-URI). A data:image/…;base64,<blob>
 # embeds a long base64 run of image bytes that can RANDOMLY contain a token-shaped
@@ -156,10 +219,10 @@ HELIX_CRED_ADJACENCY_AWK='
     # DISTANT technical tokens (config keys, code identifiers, product names in a
     # bug report) is NOT a credential. Restrict the scan to a compact adjacency
     # window after the email; a genuine leaked password fits well within it
-    # (proven by the golden-bad fixtures), while the docs/Issues.md line 3794
-    # attestation discussion — email at col 169 then RK3588 / Play-Integrity /
-    # verified_boot_state config tokens far beyond it — falls outside. Detector-1
-    # (keyword-value) is
+    # (proven by the golden-bad fixtures), while a real forensic-record line — an
+    # attestation discussion with an email early in the line then unrelated
+    # platform/config tokens (SoC name, integrity-check flag, boot-state
+    # property) far beyond it — falls outside. Detector-1 (keyword-value) is
     # untouched and still catches a widely-separated keyword=value leak.
     rest = substr(rest, 1, 48)
     n = split(rest, toks, "[[:space:]/:|,;()]+")

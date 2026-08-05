@@ -196,6 +196,27 @@ MT_FIXTURE_DRIVES_FOR_TEST='RB13FIXTUREDISK|/dev/rb13fixture0||0'
 HSS="$WORK/hss.sh"
 printf 'host_safe_parallel_jobs() { echo 4; }\nHOST_SAFETY_BUDGET_GB=99\n' > "$HSS"
 
+# ...and the SAME host-independence intent applied to the OTHER half of the
+# RB-02 budget guard. `mt_host_budget_can_spawn` has TWO inputs: the memory/CPU
+# budget (stubbed by $HSS above) AND a build-in-flight detector that reads the
+# REAL host process table via `pgrep -f "$MT_HOST_BUDGET_BUILD_PGREP_PATTERN"`.
+# Leaving that second input un-stubbed makes THIS chain test's verdict depend on
+# whether an unrelated heavy build happens to be running on the host: the guard
+# correctly returns rc=2 ("heavy build in flight"), cmd_spawn refuses before
+# launch, and L3a/L3b/L3c/L4a/L4b/L8 all FAIL — a §11.4.50 determinism and
+# §11.4.98 re-runnability defect in the HARNESS, not a product defect (FACT,
+# measured 2026-08-03: with a real containerised AOSP build live the chain
+# scored PASS=16 FAIL=18; with this detector pinned and NOTHING else changed it
+# scored PASS=34 FAIL=0 — the build was the whole delta).
+# Pinning it to a sentinel that cannot appear in any real command line makes the
+# chain hermetic. NO coverage is lost (§11.4.120 reconcile, never fake-pass):
+# the RB-02 guard's own behaviour keeps its two dedicated suites —
+# test_multitrack_host_budget_rb02_pgrep.sh + test_multitrack_host_budget_jvm_daemons.sh
+# — and the guard is NOT weakened in production; only THIS mock chain, which
+# tests spawn/resume/session-id/supervisor and not the host-safety guard, is
+# isolated from the host's build state (the same reason $HSS exists).
+MT_BUILD_PGREP_SENTINEL_FOR_TEST='__rb13_hermetic_no_such_build_process__'
+
 # --- scratch per-host config writer (schema_version:1; conductor +
 #     worktree_subdir + 3 tracks + the fallback signature pair). Mounts are
 #     deliberately non-existent placeholders -- this test always passes
@@ -268,6 +289,7 @@ WRAP
     export MT_RULER_STATE_DIR="$_rulerdir"
     export MT_ALIAS_ROSTER="claude1:native,claude2:native"
     export HOST_SAFETY_LIB="$HSS"
+    export MT_HOST_BUDGET_BUILD_PGREP_PATTERN="$MT_BUILD_PGREP_SENTINEL_FOR_TEST"
     export CMA_CWD_HOOK="$_hook"
     export MT_ORCHESTRATOR="$ORCH"
     export MT_FIXTURE_DRIVES="$MT_FIXTURE_DRIVES_FOR_TEST"
@@ -468,6 +490,7 @@ run_red_once() {
     export MT_RULER_STATE_DIR="$_rulerdir"
     export MT_ALIAS_ROSTER="claude1:native,claude2:native"
     export HOST_SAFETY_LIB="$HSS"
+    export MT_HOST_BUDGET_BUILD_PGREP_PATTERN="$MT_BUILD_PGREP_SENTINEL_FOR_TEST"
     export CMA_CWD_HOOK="$_hook"
     export MT_ORCHESTRATOR="$ORCH"
     export MT_FIXTURE_DRIVES="$MT_FIXTURE_DRIVES_FOR_TEST"

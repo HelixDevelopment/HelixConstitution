@@ -79,7 +79,7 @@ func isATMCandidateHeading(trimmed string) bool {
 func statusBeforeSubheading(body string) bool {
 	for _, ln := range splitKeepNewlines(body) {
 		t := strings.TrimRight(ln, "\n")
-		if strings.HasPrefix(t, "### ") || strings.HasPrefix(t, "#### ") {
+		if isSubItemHeading(t) {
 			return false
 		}
 		if strings.HasPrefix(t, "**Status:**") {
@@ -87,6 +87,52 @@ func statusBeforeSubheading(body string) bool {
 		}
 	}
 	return false
+}
+
+// isSubItemHeading reports whether a newline-trimmed line opens a NESTED
+// sub-item / sub-section inside an item's H2 block. Both parseIssues and
+// parseFixed cut item blocks at the next `## ` (any H2), so a `### ` / `#### `
+// line inside a block is ALWAYS nested content, never the item's own heading.
+//
+// Single source of truth for the item-own-region boundary (ATM-842): shared by
+// statusBeforeSubheading (the item-vs-section discriminator) and
+// ownMetaRegionLineCount (the metadata-derivation scope), so the two can never
+// drift apart.
+func isSubItemHeading(trimmed string) bool {
+	return strings.HasPrefix(trimmed, "### ") || strings.HasPrefix(trimmed, "#### ")
+}
+
+// ownMetaRegionLineCount returns how many of `lines` belong to the item ITSELF —
+// every line before the first nested sub-item heading (all of them when the
+// block has no sub-items).
+//
+// ATM-842: metadata derivation MUST NOT reach past this boundary. An item block
+// containing `### ` sub-items carries their `**Status:**` / `**Type:**` meta
+// lines too, and whole-block LAST-wins scanning silently adopted the LAST
+// SUB-ITEM's values as the item's own (measured on the live registry: 11 items
+// carried a sub-item Status, 8 carried a sub-item Type — e.g. ATM-415, whose
+// own `Fixed (→ Fixed.md)`/`Bug` was displaced by its last sub-item's
+// `Completed (→ Fixed.md)`/`Task`, breaking §11.4.33 Status↔Type pairing).
+func ownMetaRegionLineCount(lines []string) int {
+	for i, ln := range lines {
+		if isSubItemHeading(strings.TrimRight(ln, "\n")) {
+			return i
+		}
+	}
+	return len(lines)
+}
+
+// itemOwnMetaRegion returns the prefix of an item's block that belongs to the
+// item itself (see ownMetaRegionLineCount). Returns `body` unchanged — the same
+// string, no copy — when the block has no nested sub-items, which is the
+// overwhelmingly common case.
+func itemOwnMetaRegion(body string) string {
+	lines := splitKeepNewlines(body)
+	n := ownMetaRegionLineCount(lines)
+	if n == len(lines) {
+		return body
+	}
+	return strings.Join(lines[:n], "")
 }
 
 // metaLineRe extracts `**Key:** value` metadata lines from an item body.
@@ -313,7 +359,9 @@ func buildItem(id, titleRest, body, location string) item {
 		Type:            "Task", // §11.4.16 lowest-stakes default when absent
 		Status:          "Queued",
 	}
-	for _, mm := range metaLineRe.FindAllStringSubmatch(body, -1) {
+	// ATM-842: scan ONLY the item's own metadata region. A nested `### `
+	// sub-item's meta lines describe the SUB-ITEM, never the item.
+	for _, mm := range metaLineRe.FindAllStringSubmatch(itemOwnMetaRegion(body), -1) {
 		key := strings.ToLower(mm[1])
 		val := strings.TrimSpace(mm[2])
 		switch key {
@@ -468,7 +516,8 @@ func normalizeStatus(v string) string {
 func lastBodyStatus(body string) (string, bool) {
 	status := ""
 	found := false
-	for _, mm := range metaLineRe.FindAllStringSubmatch(body, -1) {
+	// ATM-842: mirrors buildItem EXACTLY — the item's OWN metadata region only.
+	for _, mm := range metaLineRe.FindAllStringSubmatch(itemOwnMetaRegion(body), -1) {
 		if strings.EqualFold(mm[1], "status") {
 			status = normalizeStatus(strings.TrimSpace(mm[2]))
 			found = true
@@ -498,9 +547,13 @@ func canonicalizeBodyStatusLine(body, columnStatus string) string {
 		return body
 	}
 	lines := splitKeepNewlines(body)
+	// ATM-842: the patch target is the item's OWN Status line. Scanning the
+	// whole block rewrote the LAST NESTED SUB-ITEM's Status line instead —
+	// corrupting the sub-item while leaving the item's own line stale.
+	limit := ownMetaRegionLineCount(lines)
 	lastIdx := -1
-	for i, ln := range lines {
-		if strings.HasPrefix(strings.TrimRight(ln, "\n"), "**Status:**") {
+	for i := 0; i < limit; i++ {
+		if strings.HasPrefix(strings.TrimRight(lines[i], "\n"), "**Status:**") {
 			lastIdx = i
 		}
 	}

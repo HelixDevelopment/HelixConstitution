@@ -134,7 +134,7 @@ assert_clean "(e) markdown-emphasized word near email (**BROWSERS**)" "$WORK/goo
 # credential — the password of a real email:pass leak is IMMEDIATELY adjacent.
 # Forensic FP: docs/Issues.md:3794 attestation discussion.
 cat > "$WORK/good_f_distant_tokens.txt" <<'EOF'
-Tester abkmusic64@gmail.com now logs in on all browsers but still fails on D3; RK3588 verified_boot_state=UNVERIFIED device_locked=false Widevine-L3 Pixel-8 persist.atmosphere.attest.device_keybox=true remains the blocker.
+Tester abkmusic64@gmail.com now logs in on all browsers but still fails on D3; MYSOC1 verified_boot_state=UNVERIFIED device_locked=false DRM-L3 Handset-8 persist.myvendor.attest.device_keybox=true remains the blocker.
 EOF
 assert_clean "(f) email + distant technical tokens (proximity window)" "$WORK/good_f_distant_tokens.txt"
 
@@ -190,6 +190,21 @@ assert_clean "(j) keyword=...must_not_leak... (test-fixture sentinel marker)" "$
   printf '\n'
 } > "$WORK/good_k_base64_image.txt"
 assert_clean "(k) data:image/png;base64,<blob with token-shaped substring> (image data)" "$WORK/good_k_base64_image.txt"
+
+# (m) §11.4.201 carrier-strip #9: the `sk-` OpenAI-key sub-pattern is only TWO
+# letters + a hyphen, so WITHOUT a left token boundary it matches the TAIL of any
+# identifier ending in "sk" that is followed by '-' and 20+ alphanumerics. Forensic
+# FP: an Android `pm path` capture line
+# ".../com.example.mediakiosk-<install-token>==/base.apk" — the "sk" is the tail
+# of the package name "mediakio[sk]" and the base64url install-token supplies the
+# 20+ chars. Any package ending in "…sk" (kiosk, disk, task, desk) trips it. The
+# left-boundary `(^|[^0-9A-Za-z])` is what makes this clean, so this fixture proves
+# the boundary is load-bearing (§11.4.201(7)(a) carrier-vs-thing).
+cat > "$WORK/good_m_pkgpath_sk.txt" <<'EOF'
+package:/data/app/~~U4OsJn3zzcMyh-sRkefkGQ==/com.example.mediakiosk-qz5gs3AbCdEfGhIjKlMnOp==/base.apk
+package:/data/app/~~U4OsJn3zzcMyh-sRkefkGQ==/com.example.clouddisk-Zx9WvUt7SrQpOnMlKjIh==/split_config.en.apk
+EOF
+assert_clean "(m) Android pm-path '…mediakiosk-<token>' (sk- left-boundary carrier)" "$WORK/good_m_pkgpath_sk.txt"
 
 echo ""
 # --- GOLDEN-BAD -------------------------------------------------------------
@@ -256,6 +271,106 @@ cat > "$WORK/bad_7_real_plus_placeholder.txt" <<'EOF'
 db: password: hunter2hunter2realleak  note: fill PASSWORD=CHANGE_ME in prod
 EOF
 assert_caught "(7) real secret + placeholder on ONE line (mid-line strip must not leak the real one)" "$WORK/bad_7_real_plus_placeholder.txt"
+
+# (8) FALSE-NEGATIVE GUARD for carrier-strip #9 (§11.4.201(2)): a REAL `sk-` key
+# ALWAYS stands at a token boundary — the character immediately before `sk-` is
+# NON-ALPHANUMERIC (or the key is at line start). The shipped left-boundary is the
+# CLASS `(^|[^0-9A-Za-z])`, so this guard pins the CLASS BY CONSTRUCTION rather
+# than by a hand-picked sample: the fixture set is PROGRAMMATICALLY ENUMERATED
+# over EVERY printable-ASCII non-alphanumeric byte (0x20..0x7E minus [0-9A-Za-z]
+# = space + the 32 punctuation/symbol characters), plus line-start, plus a literal
+# TAB, plus a control character and a high-byte (UTF-8 «) form. A hand-typed list
+# could only ever be a SAMPLE, and a mutation narrowing the shipped class to
+# exactly the sampled characters would survive it — the precise regression this
+# guard exists to catch (§11.4.115(F): the fixtures must catch the boundary's own
+# negation, not merely agree with it). Because the ASCII sweep is generated, ANY
+# narrowing of the printable-ASCII class now fails BY CONSTRUCTION — the reviewer's
+# M-R1 `(^|[ ="_])`, M-F1 `(^|[<TAB> ="'_:/,(.;>-])` (the exact prior fixture list)
+# and M-F2 `(^|[[:punct:][:space:]])` mutations ALL make this suite FAIL.
+# HONEST BOUNDARY (§11.4.6): the sweep is exhaustive over PRINTABLE ASCII only.
+# The non-printable + high-byte domain is NOT exhaustively enumerated (it is
+# unbounded and locale-dependent); it is covered by the two REPRESENTATIVE forms
+# below — a C0 control byte (neither [:punct:] nor [:space:] in ANY locale, so it
+# is the universal M-F2 killer) and a UTF-8 high-byte guillemet (which additionally
+# escapes `[[:punct:]]` under LC_ALL=C). Every form MUST still be CAUGHT. If any
+# MISSES, the left-boundary WEAKENED the gate (a release blocker). This is the
+# paired guard for (m); a fix that makes (m) clean by dropping the `sk-`
+# alternative entirely dies HERE.
+_SK_KEY='sk-qz5gs3AbCdEfGhIjKlMnOp'
+: > "$WORK/bad_8_sk_boundary.txt"
+# form 1 — line start (the `^` branch of the shipped alternation).
+printf '%s\n' "$_SK_KEY" >> "$WORK/bad_8_sk_boundary.txt"
+# forms 2..34 — EVERY printable-ASCII non-alphanumeric byte, generated. The
+# alphanumeric skip-set is spelled out CHARACTER BY CHARACTER (never the ranges
+# `[0-9A-Za-z]`) because a bracket RANGE in a case-glob is collation-dependent in
+# a UTF-8 locale and could silently skip a punctuation byte — a locale-dependent
+# hole in the very sweep that proves the class (§11.4.201(7)(c): the path is part
+# of the instrument).
+_sk_c=32
+while [ "$_sk_c" -le 126 ]; do
+    _sk_ch=$(printf "\\$(printf '%03o' "$_sk_c")")
+    case "$_sk_ch" in
+        [0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz])
+            _sk_c=$((_sk_c + 1)); continue ;;
+    esac
+    printf '%s%s\n' "$_sk_ch" "$_SK_KEY" >> "$WORK/bad_8_sk_boundary.txt"
+    _sk_c=$((_sk_c + 1))
+done
+# form 35 — literal TAB, emitted via printf (NEVER a heredoc) so the separator
+# stays a REAL tab: an editor that re-indents a fixture file silently converts an
+# in-heredoc tab into spaces, degrading this form into the already-covered space
+# form — a silent class-coverage loss the suite could not see (§11.4.201(6)).
+printf '\t%s\n' "$_SK_KEY" >> "$WORK/bad_8_sk_boundary.txt"
+# form 36 — C0 control byte (0x01). Non-printable, so outside the generated sweep;
+# it is neither [:punct:] nor [:space:] in ANY locale, making it the form that
+# kills a `[[:punct:][:space:]]` narrowing everywhere.
+printf '\001%s\n' "$_SK_KEY" >> "$WORK/bad_8_sk_boundary.txt"
+# form 37 — high-byte UTF-8 guillemet « (0xC2 0xAB). Outside the ASCII sweep; under
+# LC_ALL=C its lead byte is not [:punct:] either, so it kills the same narrowing
+# in the C locale even where the UTF-8 locale would classify « as punctuation.
+printf '\302\253%s\n' "$_SK_KEY" >> "$WORK/bad_8_sk_boundary.txt"
+assert_caught "(8) real sk- key at token boundary, non-alphanumeric CLASS spread (boundary must not weaken)" "$WORK/bad_8_sk_boundary.txt"
+# Per-form guard: assert_caught passes if ANY line hits, so pin EACH form
+# individually — a boundary that only catches 1 of N must not read as GREEN.
+# (8b) pins the FILE-level contract (helix_cred_scan_file = detector-1 OR
+# detector-2); (8c) pins the SAME forms at the DETECTOR-1 layer, where the
+# left-boundary actually lives — without (8c) a future broadening of detector-2
+# (email-adjacency) could start catching these lines for an unrelated reason and
+# silently mask a detector-1 boundary regression (§11.4.115(F) unvalidated
+# instrumentation: the assertion must remain load-bearing on the thing it names).
+_sk_form_n=0; _sk_form_miss=0; _sk_d1_miss=0
+while IFS= read -r _sk_line; do
+    _sk_form_n=$((_sk_form_n + 1))
+    printf '%s\n' "$_sk_line" > "$WORK/bad_8_form_$_sk_form_n.txt"
+    helix_cred_scan_file "$WORK/bad_8_form_$_sk_form_n.txt" || _sk_form_miss=$((_sk_form_miss + 1))
+    printf '%s\n' "$_sk_line" | helix_cred_detector1_real_hit_stream || _sk_d1_miss=$((_sk_d1_miss + 1))
+done < "$WORK/bad_8_sk_boundary.txt"
+# (8a) GENERATOR SELF-CHECK (§11.4.201(6) false-null guard). (8b)/(8c) below
+# assert "zero MISSES", which a generator emitting ZERO forms would satisfy
+# VACUOUSLY — a blind instrument returning the same quiet zero as a healthy one.
+# Pin the exact expected form count so a silently-empty or silently-truncated
+# sweep FAILS here instead of passing everything downstream:
+#   1 line-start
+# + 33 printable-ASCII non-alphanumeric (0x20..0x7E is 95 chars, minus the 62
+#      alphanumerics = 33: the space plus the 32 punctuation/symbol characters)
+# + 1 TAB + 1 C0 control byte + 1 high-byte UTF-8 guillemet
+# = 37 forms.
+_sk_form_expected=37
+if [ "$_sk_form_n" -eq "$_sk_form_expected" ]; then
+    ok  "(8a) boundary-form generator emitted all $_sk_form_expected forms (sweep not empty/truncated)"
+else
+    bad "(8a) boundary-form generator emitted $_sk_form_n forms, expected $_sk_form_expected (sweep BROKEN — (8b)/(8c) below would pass vacuously)"
+fi
+if [ "$_sk_form_miss" -eq 0 ]; then
+    ok  "(8b) each of the $_sk_form_n real sk- boundary forms caught individually (file scanner)"
+else
+    bad "(8b) $_sk_form_miss/$_sk_form_n real sk- boundary forms MISSED (gate WEAKENED)"
+fi
+if [ "$_sk_d1_miss" -eq 0 ]; then
+    ok  "(8c) each of the $_sk_form_n real sk- boundary forms caught by DETECTOR-1 (left-boundary class)"
+else
+    bad "(8c) $_sk_d1_miss/$_sk_form_n real sk- boundary forms MISSED by detector-1 (left-boundary WEAKENED)"
+fi
 
 echo ""
 # --- STREAM DETECTOR CONTRACT (the function the hook + commit_all call directly) --
