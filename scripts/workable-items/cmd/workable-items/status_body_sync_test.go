@@ -31,6 +31,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -88,7 +89,17 @@ func TestNoStatusMutationLeavesDesync(t *testing.T) {
 			db := newTestDB(t)
 			mustOK(t, addCmd([]string{"--db", db, "--id", "WIT-004",
 				"--title", "an item", "--description", "a sufficiently long description clearing the floor", "Bug", "High"}))
-			mustOK(t, closeCmd([]string{"WIT-004", "--db", db, "--status", "fixed", "--evidence", "qa/x.log"}))
+			// HXC-217 (§11.4.120 reconciliation): the closure-evidence
+			// RESOLVABILITY guard requires a closed item's evidence_path to
+			// resolve to a real artefact. The fabricated `qa/x.log` this case
+			// used is exactly the class that guard refuses, so the fixture
+			// lands a real artefact and cites it — the assertion under test
+			// (close leaves NO column↔body Status desync) is unchanged.
+			evidence := filepath.Join(t.TempDir(), "close-evidence.log")
+			if err := os.WriteFile(evidence, []byte("captured closure evidence\n"), 0o644); err != nil {
+				t.Fatalf("write close evidence: %v", err)
+			}
+			mustOK(t, closeCmd([]string{"WIT-004", "--db", db, "--status", "fixed", "--evidence", evidence}))
 			return db
 		}},
 		{"subtask-status", func(t *testing.T) string {

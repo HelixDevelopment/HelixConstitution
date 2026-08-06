@@ -293,6 +293,26 @@ func validateCmd(args []string) int {
 	// this: current_location↔status closed-set agreement).
 	violations = append(violations, fixedLocationNonTerminalStatus(items)...)
 
+	// (g) §11.4.5 / §11.4.69 / §11.4.123 / §11.4.226 — closure-evidence
+	// RESOLVABILITY. A closed item's item_history rows carry evidence_path: the
+	// pointer to the captured proof that IS the closure's warrant. Nothing ever
+	// asserted that pointer RESOLVES, so a closure could record a narrative
+	// paragraph, or a well-formed path to a file that was never committed, and
+	// still read as evidence-backed everywhere downstream (HXC-217: 16 such rows
+	// across 14 tickets — 12 narrative, 4 clean-but-never-populated paths whose
+	// real evidence had landed elsewhere). An unresolvable evidence_path is a
+	// §11.4.226(2) "class proven by a LABEL, not by machine fields" bluff: the
+	// closure claims captured proof that cannot be produced on demand.
+	//
+	// Scoped to CLOSED items deliberately (§11.4.201(1) — a guard must assert the
+	// REAL condition and refuse nothing else): the mandate is that a CLOSURE's
+	// evidence resolves. An open item's in-progress note is not a closure claim.
+	if unresolvable, uerr := unresolvableClosureEvidence(db); uerr != nil {
+		violations = append(violations, fmt.Sprintf("closure-evidence integrity query: %v", uerr))
+	} else {
+		violations = append(violations, unresolvable...)
+	}
+
 	if len(violations) > 0 {
 		sort.Strings(violations)
 		fmt.Fprintf(os.Stderr, "validate: %d violation(s):\n", len(violations))
@@ -391,6 +411,80 @@ func fixedLocationNonTerminalStatus(items []item) []string {
 		}
 	}
 	return out
+}
+
+// unresolvableClosureEvidence returns, for the HXC-217 unresolvable-evidence
+// defect CLASS, a human-readable description of every item_history row that
+// (a) belongs to an item whose CURRENT status is one of the four terminal
+// closed-set values, and (b) carries a non-empty evidence_path that does NOT
+// resolve to an existing filesystem entry.
+//
+// Path anchoring reuses resolveInvocationRelative (the HXC-201 mechanism): an
+// absolute path is taken as-is, a relative one is anchored against the INVOKING
+// shell's $PWD rather than this process's cwd — mandatory because `go run -C`
+// relocates the child's cwd into this tool's own source tree, which would make
+// every repo-root-relative evidence path fail and turn this guard into exactly
+// the §11.4.201(1) false-positive refusal it must never become.
+//
+// The message distinguishes the two observed sub-classes so a finding is
+// actionable in one read (§11.4.201(5) — a refusal prints its resolved
+// evidence): a value carrying whitespace/newlines is narrative or a multi-value
+// list pasted into a single-path field; a clean single token is a well-formed
+// path that was never populated.
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with
+// `return nil, nil` removes the guard; validate_evidence_test.go then FAILs —
+// proving the guard is not a tautology.
+func unresolvableClosureEvidence(db *sql.DB) ([]string, error) {
+	rows, err := db.Query(`
+		SELECT h.id, h.atm_id, h.event_type, h.on_date, h.evidence_path
+		FROM item_history h
+		WHERE h.evidence_path IS NOT NULL
+		  AND TRIM(h.evidence_path) <> ''
+		  AND EXISTS (
+		        SELECT 1 FROM items i
+		        WHERE i.atm_id = h.atm_id
+		          AND i.status IN (
+		                'Fixed (→ Fixed.md)', 'Implemented (→ Fixed.md)',
+		                'Completed (→ Fixed.md)', 'Obsolete (→ Fixed.md)'))
+		ORDER BY h.atm_id, h.id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []string
+	for rows.Next() {
+		var id int
+		var atmID, event, onDate, evidence string
+		if err := rows.Scan(&id, &atmID, &event, &onDate, &evidence); err != nil {
+			return nil, err
+		}
+		if _, statErr := os.Stat(resolveInvocationRelative(evidence)); statErr == nil {
+			continue
+		}
+		kind := "well-formed path, but nothing exists there"
+		if strings.ContainsAny(evidence, " \t\r\n") {
+			kind = "narrative or multi-value text in a single-path field"
+		}
+		out = append(out, fmt.Sprintf(
+			"%s: closure evidence_path does not resolve (%s) — history id=%d, event=%s, on=%s: %q (§11.4.5/§11.4.69/§11.4.123/§11.4.226 — a closure's captured proof must be producible on demand)",
+			atmID, kind, id, event, onDate, firstLine(evidence)))
+	}
+	return out, rows.Err()
+}
+
+// firstLine keeps a violation message single-line + bounded when the offending
+// evidence_path holds a multi-line narrative, so one bad row cannot flood the
+// validator's output and hide its siblings.
+func firstLine(s string) string {
+	if i := strings.IndexAny(s, "\r\n"); i >= 0 {
+		s = s[:i] + " …"
+	}
+	if len(s) > 120 {
+		s = s[:120] + " …"
+	}
+	return s
 }
 
 // itemsMissingSegments is the REVERSE of danglingItemSegments: it returns, for
