@@ -70,11 +70,24 @@ func dedup01Ticket(sd SourceData) []Finding {
 
 func dedup02SubjectScope(ds *Dataset, sd SourceData, allow map[string]bool) []Finding {
 	fields := ds.Cfg.Dedup.KeyFields
+	exempt := exemptStatusSet(ds.Cfg.Dedup.ExemptStatuses)
 	groups := map[string][]model.Record{}
 	order := []string{}
 	for _, r := range sd.Records {
 		if strings.TrimSpace(r.SubjectNorm) == "" {
 			continue // no subject to key on
+		}
+		// §11.4.90 / §11.4.214 / §11.4.201(1): a RETIRED record (a duplicate
+		// closed via the sanctioned `Obsolete`/duplicate-of path, or any other
+		// consumer-declared terminal-retired status) keeps the canonical
+		// item's subject BY CONSTRUCTION. Grouping it with its live canonical
+		// sibling reports DEDUP-02 on the CORRECT resolution of a duplicate —
+		// a false-positive refusal. Skip the RECORD, never the group: two
+		// non-exempt (live) records sharing the key still group and still
+		// FAIL, so the check is narrowed, not weakened (golden-bad
+		// bad_dedup_exempt_status_still_dedup02 is the standing proof).
+		if len(exempt) > 0 && exempt[normalizeStatusKey(r.Status)] {
+			continue
 		}
 		key := dedupKey(r, fields)
 		if allow[key] {
@@ -139,6 +152,31 @@ func fieldValue(r model.Record, field string) string {
 	default:
 		return ""
 	}
+}
+
+// normalizeStatusKey folds a status value for the exempt-status compare:
+// trimmed + lowercased + internal whitespace collapsed. Deterministic
+// (§11.4.50) and forgiving of incidental spacing between the checkset's
+// declared vocabulary and the source's stored value, WITHOUT loosening into a
+// substring match (§11.4.201(7)(a) — match the value, never a carrier of it).
+func normalizeStatusKey(s string) string {
+	return strings.ToLower(strings.Join(strings.Fields(s), " "))
+}
+
+// exemptStatusSet builds the normalized lookup for DedupCfg.ExemptStatuses.
+// An empty/blank entry is dropped so a stray list item can never exempt the
+// records whose status is empty (which is most rows in most sources) — that
+// would silently disarm DEDUP-02 for the whole source.
+func exemptStatusSet(list []string) map[string]bool {
+	m := map[string]bool{}
+	for _, e := range list {
+		k := normalizeStatusKey(e)
+		if k == "" {
+			continue
+		}
+		m[k] = true
+	}
+	return m
 }
 
 func allowSet(list []string) map[string]bool {

@@ -1,0 +1,30 @@
+schema_version: 1
+# GOLDEN-BAD (DEDUP narrowness proof) — the anti-over-suppression control for
+# `dedup.exempt_statuses`.
+#
+# `exempt_statuses` IS configured below (identical to the golden-good
+# `golden-good-dedup-exempt-status` fixture), but NEITHER of the two colliding
+# records carries an exempt status — both are LIVE. A real, unresolved
+# duplicate feature therefore still exists, and DEDUP-02 MUST still FAIL.
+#
+# This is the operator-required proof that the exemption is NARROW: it removes
+# only records the consumer declared RETIRED, it never disarms DEDUP-02. If a
+# future change widened the exemption (e.g. skipping the whole group when ANY
+# member is exempt, or short-circuiting DEDUP-02 whenever exempt_statuses is
+# non-empty), this fixture would start PASSing and the selfcheck would FAIL —
+# the §11.4.107(10) golden-bad contract.
+sources:
+  - id: tracker
+    kind: markdown-table
+    path: plan.md
+    columns:
+      item_id: "№"
+      ticket: "Ticket"
+      name_en: "Task"
+      scope: "Scope"
+      status: "Status"
+dedup:
+  key_fields: [subject_norm, scope_norm]
+  ticket_field: ticket
+  exempt_statuses:
+    - "Obsolete (→ Fixed.md)"

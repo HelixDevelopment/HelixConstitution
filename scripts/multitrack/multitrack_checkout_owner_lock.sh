@@ -19,7 +19,7 @@
 # Forensic anchor (FACT, captured 2026-07-22, the-factory):
 #   `fuser qa-results/multitrack/logs/track3.lock` listed ONLY the supervisor
 #   and its descendants; the tmux/cwd-hook worker in the SAME checkout
-#   (/mnt/track3/atmosphere-t3) held NO fd on it. Two live `claude` writers,
+#   (/mnt/track3/<project>-t3) held NO fd on it. Two live `claude` writers,
 #   one checkout, zero shared lock. Same on track4.
 #   Full diagnosis: docs/research/multitrack_duplicate_supervisors_20260722/
 #                   DIAGNOSIS.md
@@ -27,7 +27,7 @@
 # §11.4.111 RESOLVE-BY-STABLE-NAME (load-bearing):
 #   The lock is keyed on the CANONICAL REAL PATH of the checkout, not on the
 #   caller-supplied string and not on a track ORDINAL. On this host
-#   `/mnt/track3/atmosphere` is a SYMLINK to `/mnt/track3/atmosphere-t3`; the
+#   `/mnt/track3/<project>` is a SYMLINK to `/mnt/track3/<project>-t3`; the
 #   supervisor is launched with the former and the cwd-hook resolves to the
 #   latter. A key derived from the raw string would mint TWO locks for ONE
 #   checkout and refuse nothing — which is exactly the bug. `readlink -f`
@@ -114,8 +114,8 @@ _mcol_usage() {
 }
 
 # --- §11.4.111: canonical, alias-collapsing key -------------------------------
-# readlink -f resolves EVERY symlink component, so /mnt/trackN/atmosphere and
-# /mnt/trackN/atmosphere-tN produce the SAME realpath => the SAME lock.
+# readlink -f resolves EVERY symlink component, so /mnt/trackN/<project> and
+# /mnt/trackN/<project>-tN produce the SAME realpath => the SAME lock.
 # MUTATION TARGET (§1.1): dropping the canonicalisation here makes the two
 # aliases mint two locks and the golden-bad selfcheck case FAILS.
 _mcol_realpath() {
@@ -303,7 +303,7 @@ _mcol_cmd_selfcheck() {
 
     # GOLDEN-BAD: a SECOND owner arriving via the SYMLINK ALIAS of the SAME
     # checkout MUST be refused. This is the exact production shape
-    # (/mnt/trackN/atmosphere -> atmosphere-tN) and the reason the key must be
+    # (/mnt/trackN/<project> -> <project>-tN) and the reason the key must be
     # canonicalised (§11.4.111).
     if bash "$MCOL_SELF" run "$tmp/real_a" outer -- bash "$MCOL_SELF" run "$tmp/alias_a" inner -- true >/dev/null 2>&1; then
         echo "selfcheck golden-bad: FAIL (alias-path second owner was ALLOWED — guard is not load-bearing)"; rc=1

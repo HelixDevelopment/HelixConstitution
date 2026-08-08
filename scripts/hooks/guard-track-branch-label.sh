@@ -220,6 +220,40 @@ _live_alias="$(_label_alias "$_expected")"
 _dispatch_alias="$(_label_alias "$LABEL")"
 
 # --------------------------------------------------------------------------
+# EFFORT-BLUFF CHECK (§11.4.201 "assert the real condition" applied to the
+# §11.4.182/§11.4.231-clause-(F) <effort> field). Extract the trailing
+# <effort> field (the 4th ' - '-separated field inside the parens) from BOTH
+# the LIVE expected label and the caller's LABEL. Returns EMPTY when the
+# label is the 3-field or 4-field legacy form (no effort field present at
+# all — that shape is ALWAYS accepted, §11.4.6 honest-boundary: a field that
+# was never asked for cannot be a bluff), and returns the literal field text
+# ('?' or a real ladder value) when a 4th field IS present. Split on the
+# LITERAL ' - ' (space-dash-space) — mirrors _label_alias's rationale: git
+# ref names/aliases/models/efforts never legitimately contain that exact
+# 3-char sequence, so it is an unambiguous field separator.
+# --------------------------------------------------------------------------
+_label_effort_field() {
+  local _pfx="${1%%)*}"
+  local -a _fields=()
+  local _rest="$_pfx"
+  local _piece
+  while [[ "$_rest" == *' - '* ]]; do
+    _piece="${_rest%%' - '*}"
+    _fields+=("$_piece")
+    _rest="${_rest#*' - '}"
+  done
+  _fields+=("$_rest")
+  # _fields[0]="(T<N>/<branch>"  _fields[1]=<alias>  _fields[2]=<model>  _fields[3]=<effort>
+  if (( ${#_fields[@]} >= 4 )); then
+    printf '%s' "${_fields[3]}"
+  else
+    printf '%s' ''
+  fi
+}
+_live_effort="$(_label_effort_field "$_expected")"
+_dispatch_effort="$(_label_effort_field "$LABEL")"
+
+# --------------------------------------------------------------------------
 # Decision.
 #   1. FORMAT must match LABEL_RE (existing check).
 #   2. ALIAS-CORRECTNESS (§11.4.182, new): the label's alias MUST match the LIVE
@@ -233,6 +267,15 @@ if [[ -n "$LABEL" && "$LABEL" =~ $LABEL_RE ]]; then
      && -n "$_dispatch_alias" && "$_dispatch_alias" != '?' \
      && "$_dispatch_alias" != "$_live_alias" ]]; then
     _block_reason="alias"
+  elif [[ "$_dispatch_effort" == '?' && -n "$_live_effort" && "$_live_effort" != '?' ]]; then
+    # §11.4.201: the effort SIGNAL is present + resolvable right now (the
+    # labeler proves it by emitting a real ladder value) yet the dispatch
+    # label honestly-shaped a '?' anyway -- that '?' is no longer honest
+    # (§11.4.6), it is a hand-typed/stale label that never ran the labeler.
+    # A label with NO effort field at all (3-field/4-field legacy form,
+    # _dispatch_effort == '') is NEVER flagged here -- only a PRESENT '?'
+    # is a bluff when the live signal disproves it.
+    _block_reason="effort"
   else
     exit 0
   fi
@@ -248,6 +291,12 @@ fi
     echo "guardrails: BLOCKED — §11.4.182 track+branch+alias label ALIAS MISMATCH"
     echo "The ${TOOL_NAME} dispatch label's alias '${_dispatch_alias}' does NOT match the LIVE alias '${_live_alias}'."
     echo "  (Live alias is derived from CLAUDE_CONFIG_DIR basename '.claude-<alias>'; a stale/remembered alias is the usual cause.)"
+    echo "  Found label:  ${LABEL}"
+  elif [[ "$_block_reason" == "effort" ]]; then
+    echo "guardrails: BLOCKED — §11.4.182/§11.4.201 track+branch+effort label DISHONEST '?'"
+    echo "The ${TOOL_NAME} dispatch label declares effort '?' but the LIVE effort signal is currently RESOLVABLE and reads '${_live_effort}'."
+    echo "  ('?' is honest ONLY when no effort signal (CLAUDE_EFFORT/CLAUDE_CODE_EFFORT/AGENT_EFFORT/CMA_EFFORT) is present in the environment."
+    echo "   A signal IS present here, so '?' is a §11.4.6 bluff — run the labeler instead of hand-typing/remembering the label.)"
     echo "  Found label:  ${LABEL}"
   else
     echo "guardrails: BLOCKED — §11.4.182 track+branch+alias[+model[+effort]] label required"

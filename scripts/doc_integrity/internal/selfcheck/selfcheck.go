@@ -46,6 +46,9 @@ var fixtures = []fixtureExpect{
 	// ATM-687 date-in-deps pair (the V9 E156 "3/6/2001" tokenizer defect).
 	{dir: "golden-good-datetime-dep", verdict: "PASS", note: "a date in the deps column ('3/6/2001', the excelize E156 rendering) is NOT a dependency ref → dropped → no orphan → PASS; revert splitDeps / delete normalize.IsDateLike → '3','6','2001' fragment into orphans → this FAILs (m-ATM687)"},
 	{dir: "golden-bad/bad_datetime_dep_still_orphan", verdict: "FAIL", rules: []string{"INTEG-01"}, note: "deps='3/6/2001, 9.9.9' — date dropped but the genuine orphan '9.9.9' MUST still FAIL INTEG-01 (§11.4.146 extend-to-all-cases: the fix drops ONLY dates, never a real ref)"},
+	// dedup.exempt_statuses pair (§11.4.90 duplicate-of / §11.4.214 / §11.4.201(1)).
+	{dir: "golden-good-dedup-exempt-status", verdict: "PASS", note: "exempt_statuses: a duplicate RETIRED via the sanctioned §11.4.90 `Obsolete`/duplicate-of closure keeps the canonical item's subject BY CONSTRUCTION; flagging that pair is a §11.4.201(1) false-positive refusal; drop exempt_statuses (or the dedup02 skip) → DEDUP-02 fires → this FAILs (m-EXEMPT)"},
+	{dir: "golden-bad/bad_dedup_exempt_status_still_dedup02", verdict: "FAIL", rules: []string{"DEDUP-02"}, note: "exempt_statuses ON but BOTH colliding records are LIVE (non-exempt) → a real unresolved duplicate MUST still FAIL DEDUP-02 (no over-suppression; the narrowness proof)"},
 }
 
 // Run executes every fixture and returns (allPassed, humanReport).
