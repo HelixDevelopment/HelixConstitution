@@ -23,8 +23,13 @@ import (
 
 // addThenObsolete adds an Issues item and closes it Obsolete, returning once the
 // item is in Fixed with status `Obsolete (→ Fixed.md)`.
-func addThenObsolete(t *testing.T, dbPath, id string) {
+//
+// It returns the evidence root it created (HXC-224): the caller materialises
+// its OWN obsolete-details evidence literals under the SAME root, so a single
+// $PWD anchor resolves every artefact this test records.
+func addThenObsolete(t *testing.T, dbPath, id string) string {
 	t.Helper()
+	evRoot := newEvidenceRoot(t)
 	if code := addCmd([]string{
 		"--db", dbPath, "--id", id,
 		"--title", "obsoletable item " + id,
@@ -35,24 +40,25 @@ func addThenObsolete(t *testing.T, dbPath, id string) {
 	}
 	if code := closeCmd([]string{
 		id, "--db", dbPath, "--status", "obsolete",
-		"--evidence", "docs/qa/" + id + "/evidence.md",
+		"--evidence", materialiseEvidence(t, evRoot, "docs/qa/"+id+"/evidence.md"),
 	}); code != exitOK {
 		t.Fatalf("close %s --status obsolete exited %d, want %d", id, code, exitOK)
 	}
+	return evRoot
 }
 
 // TestObsoleteDetails_NotReproducible_Accepted is the headline anti-bluff proof:
 // the CHECK now accepts `not-reproducible` and the row round-trips.
 func TestObsoleteDetails_NotReproducible_Accepted(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "wi.db")
-	addThenObsolete(t, dbPath, "ATM-901")
+	evRoot := addThenObsolete(t, dbPath, "ATM-901")
 
 	if code := obsoleteDetailsCmd([]string{
 		"ATM-901", "--db", dbPath,
 		"--since", "2026-06-09",
 		"--reason", "not-reproducible",
 		"--superseding", "none",
-		"--evidence", "docs/qa/ATM-901/evidence.md",
+		"--evidence", materialiseEvidence(t, evRoot, "docs/qa/ATM-901/evidence.md"),
 	}); code != exitOK {
 		t.Fatalf("obsolete-details exited %d, want %d (CHECK rejected not-reproducible?)", code, exitOK)
 	}
@@ -87,7 +93,7 @@ func TestObsoleteDetails_NotReproducible_Accepted(t *testing.T) {
 	if code := obsoleteDetailsCmd([]string{
 		"ATM-901", "--db", dbPath, "--since", "2026-06-09",
 		"--reason", "not-reproducible", "--superseding", "none",
-		"--evidence", "docs/qa/ATM-901/evidence.md",
+		"--evidence", materialiseEvidence(t, evRoot, "docs/qa/ATM-901/evidence.md"),
 	}); code != exitOK {
 		t.Fatalf("second obsolete-details exited %d", code)
 	}
@@ -103,14 +109,16 @@ func TestObsoleteDetails_NotReproducible_Accepted(t *testing.T) {
 // outside the closed-set is rejected by the Go guard...
 func TestObsoleteDetails_GarbageReason_Rejected(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "wi.db")
-	addThenObsolete(t, dbPath, "ATM-902")
+	evRoot := addThenObsolete(t, dbPath, "ATM-902")
 
 	if code := obsoleteDetailsCmd([]string{
 		"ATM-902", "--db", dbPath,
 		"--since", "2026-06-09",
 		"--reason", "totally-made-up-reason",
 		"--superseding", "none",
-		"--evidence", "docs/qa/ATM-902/evidence.md",
+		// HXC-224: a REAL artefact, so the refusal below is the closed-set reason
+		// guard firing — not the record-time evidence guard masking it.
+		"--evidence", materialiseEvidence(t, evRoot, "docs/qa/ATM-902/evidence.md"),
 	}); code == exitOK {
 		t.Fatalf("obsolete-details accepted a garbage reason (want non-zero exit)")
 	}
@@ -156,7 +164,9 @@ func TestObsoleteDetails_NonObsoleteItem_Rejected(t *testing.T) {
 	if code := obsoleteDetailsCmd([]string{
 		"ATM-905", "--db", dbPath,
 		"--since", "2026-06-09", "--reason", "not-reproducible",
-		"--superseding", "none", "--evidence", "e.md",
+		// HXC-224: a REAL artefact, so the refusal below is the non-Obsolete-item
+		// guard firing — not the record-time evidence guard masking it.
+		"--superseding", "none", "--evidence", materialiseEvidence(t, newEvidenceRoot(t), "e.md"),
 	}); code == exitOK {
 		t.Fatalf("obsolete-details accepted a non-Obsolete item (want non-zero exit)")
 	}

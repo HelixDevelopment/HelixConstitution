@@ -75,6 +75,14 @@ func obsoleteDetailsCmd(args []string) int {
 		fmt.Fprintln(os.Stderr, "obsolete-details: --since, --reason, --superseding and --evidence are all required (§11.4.90 four sub-facts)")
 		return exitUsage
 	}
+	// HXC-224 record-time closure-evidence guard: the §11.4.90 triple-check
+	// evidence is a closure warrant like any other — it lands in
+	// item_history.evidence_path (below) on an item already in a terminal
+	// status, exactly the rows the HXC-217 validator scopes to. Refuse an
+	// unresolvable path here rather than at a later sweep.
+	if !requireEvidencePath("obsolete-details", evidenceVal) {
+		return exitUsage
+	}
 	if !isValidObsoleteReason(reasonVal) {
 		fmt.Fprintf(os.Stderr, "obsolete-details: --reason must be one of the §11.4.90 closed-set: %s\n", strings.Join(obsoleteReasonClosedSet, " | "))
 		return exitUsage

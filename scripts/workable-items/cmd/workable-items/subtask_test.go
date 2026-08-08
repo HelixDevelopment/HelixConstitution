@@ -154,7 +154,8 @@ func TestSubtaskStatusLifecycleAndEvidenceGate(t *testing.T) {
 		t.Fatalf("Completed without evidence must FAIL")
 	}
 	// -> Completed WITH evidence must PASS.
-	if code := subtaskStatusCmd([]string{"ATM-200-001", "--db", dbPath, "--to", "Completed", "--evidence", "qa-results/x.log"}); code != exitOK {
+	if code := subtaskStatusCmd([]string{"ATM-200-001", "--db", dbPath, "--to", "Completed",
+		"--evidence", materialiseEvidence(t, newEvidenceRoot(t), "qa-results/x.log")}); code != exitOK {
 		t.Fatalf("Completed with evidence: %d", code)
 	}
 	db, _ := openDB(dbPath)

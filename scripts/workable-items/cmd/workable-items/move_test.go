@@ -41,7 +41,7 @@ func TestMoveCmd_RelocatesFixedToIssuesWithStatus(t *testing.T) {
 	if code := moveCmd([]string{"--db", dbPath, "--id", "WIT-500", "--to", "Issues",
 		"--status", "Ready for testing",
 		"--why", "fix landed and wired; only the runtime GREEN is owed (§11.4.69 artifact_not_yet_built)",
-		"--evidence", "docs/evidence/WIT-500.md"}); code != exitOK {
+		"--evidence", materialiseEvidence(t, newEvidenceRoot(t), "docs/evidence/WIT-500.md")}); code != exitOK {
 		t.Fatalf("moveCmd: exit %d", code)
 	}
 

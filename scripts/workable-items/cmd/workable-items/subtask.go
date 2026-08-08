@@ -243,6 +243,14 @@ func subtaskStatusCmd(args []string) int {
 		fmt.Fprintln(os.Stderr, "subtask-status: --evidence is required to reach Completed (§11.4.69)")
 		return exitUsage
 	}
+	// HXC-224 record-time closure-evidence guard. Checked whenever a value is
+	// supplied (not only on the Completed transition): a sub-task reaching a
+	// terminal status carries the same falsifiability burden as any other
+	// closure, and an unresolvable path recorded on a non-terminal transition
+	// would simply become a violation the moment that sub-task closes.
+	if !requireEvidencePath("subtask-status", *evidence) {
+		return exitUsage
+	}
 
 	db, err := openDB(*dbPath)
 	if err != nil {

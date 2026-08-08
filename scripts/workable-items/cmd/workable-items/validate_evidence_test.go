@@ -60,10 +60,41 @@ func seedClosedWithEvidence(t *testing.T, id, evidence string) string {
 	}); code != exitOK {
 		t.Fatalf("add %s exited %d, want %d", id, code, exitOK)
 	}
+	// HXC-224 §11.4.120 RECONCILIATION — read this before "simplifying" it.
+	//
+	// close now REFUSES an evidence path that does not resolve (the record-time
+	// half of this same invariant), so the unresolvable values these tests need
+	// can no longer be introduced THROUGH close. That is the guard working, and
+	// the fixture is rebuilt rather than the guard weakened.
+	//
+	// The two-step below is not a workaround, it is the honest model of the rows
+	// this DETECTIVE validator still exists to catch, which the preventive guard
+	// provably cannot: (i) LEGACY rows recorded before the record-time guard
+	// landed, and (ii) rows whose artefact was REAL at closure time and was
+	// later deleted, moved, or never committed. Both are "closed item, evidence
+	// that no longer resolves" — reached here by closing with a real artefact
+	// and then rewriting item_history.evidence_path directly.
+	real := filepath.Join(t.TempDir(), "closure-artefact.log")
+	if err := os.WriteFile(real, []byte("captured runtime evidence\n"), 0o644); err != nil {
+		t.Fatalf("write seed artefact: %v", err)
+	}
 	if code := closeCmd([]string{
-		"--db", dbPath, "--status", "fixed", "--evidence", evidence, id,
+		"--db", dbPath, "--status", "fixed", "--evidence", real, id,
 	}); code != exitOK {
 		t.Fatalf("close %s exited %d, want %d", id, code, exitOK)
+	}
+	if evidence != real {
+		db, err := openDB(dbPath)
+		if err != nil {
+			t.Fatalf("openDB: %v", err)
+		}
+		if _, err := db.Exec(
+			`UPDATE item_history SET evidence_path=? WHERE atm_id=? AND event_type='Fixed'`,
+			evidence, id); err != nil {
+			db.Close()
+			t.Fatalf("rewrite evidence_path: %v", err)
+		}
+		db.Close()
 	}
 	return dbPath
 }
