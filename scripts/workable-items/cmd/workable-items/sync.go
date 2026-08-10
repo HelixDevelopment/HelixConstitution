@@ -671,33 +671,62 @@ func diffCmd(args []string) int {
 		parsed = append(parsed, its...)
 	}
 
+	// Gate the parsed-vs-DB comparison on actually having Markdown to compare
+	// against. When BOTH --issues and --fixed are absent (the desync-only
+	// invocation shape documented at sync.go:618-630) there is no Markdown to
+	// parse; running the two compare loops below still iterated `dbItems` with
+	// an empty `parsedSeen` map and reported EVERY DB row as
+	// "- <id> present in DB, absent in Markdown" — a false-positive equal to
+	// the DB row count (102 in-repo, 2026-08-10; forensic FACT: reproduced on
+	// a state where `sync db-to-md` writes byte-identical output to the
+	// on-disk Issues.md/Fixed.md, so DB and Markdown were provably in-sync).
+	// The desync check above (statusColumnBodyDesyncs) is ORTHOGONAL — it is
+	// a DB-internal integrity gate that does not read Markdown — and runs
+	// unconditionally, exactly as the block comment intended. When at least
+	// one path IS given, we perform the comparison against the subset of
+	// trackers actually provided (issues-only or fixed-only invocation stays
+	// meaningful for its own tracker).
+	haveMarkdown := *issuesPath != "" || *fixedPath != ""
+
 	differences := 0
-	parsedSeen := map[string]bool{}
-	for _, p := range parsed {
-		parsedSeen[itemKey(p)] = true
-		d, ok := dbByID[itemKey(p)]
-		if !ok {
-			fmt.Printf("+ %s present in Markdown, absent in DB\n", p.AtmID)
-			differences++
-			continue
+	if haveMarkdown {
+		parsedSeen := map[string]bool{}
+		for _, p := range parsed {
+			parsedSeen[itemKey(p)] = true
+			d, ok := dbByID[itemKey(p)]
+			if !ok {
+				fmt.Printf("+ %s present in Markdown, absent in DB\n", p.AtmID)
+				differences++
+				continue
+			}
+			if p.Status != d.Status {
+				fmt.Printf("~ %s status: md=%q db=%q\n", p.AtmID, p.Status, d.Status)
+				differences++
+			}
+			if p.Type != d.Type {
+				fmt.Printf("~ %s type: md=%q db=%q\n", p.AtmID, p.Type, d.Type)
+				differences++
+			}
+			if p.BodyMD != d.BodyMD {
+				fmt.Printf("~ %s body differs (md=%d bytes db=%d bytes)\n", p.AtmID, len(p.BodyMD), len(d.BodyMD))
+				differences++
+			}
 		}
-		if p.Status != d.Status {
-			fmt.Printf("~ %s status: md=%q db=%q\n", p.AtmID, p.Status, d.Status)
-			differences++
-		}
-		if p.Type != d.Type {
-			fmt.Printf("~ %s type: md=%q db=%q\n", p.AtmID, p.Type, d.Type)
-			differences++
-		}
-		if p.BodyMD != d.BodyMD {
-			fmt.Printf("~ %s body differs (md=%d bytes db=%d bytes)\n", p.AtmID, len(p.BodyMD), len(d.BodyMD))
-			differences++
-		}
-	}
-	for _, d := range dbItems {
-		if !parsedSeen[itemKey(d)] {
-			fmt.Printf("- %s present in DB, absent in Markdown\n", d.AtmID)
-			differences++
+		// Restrict the "absent in Markdown" pass to trackers the caller actually
+		// supplied. When --issues is given without --fixed we compare Issues rows
+		// only; missing-in-Fixed lines would be their own class of false positive
+		// against Fixed rows the caller never asked about. Same in reverse.
+		for _, d := range dbItems {
+			if d.CurrentLocation == "Issues" && *issuesPath == "" {
+				continue
+			}
+			if d.CurrentLocation == "Fixed" && *fixedPath == "" {
+				continue
+			}
+			if !parsedSeen[itemKey(d)] {
+				fmt.Printf("- %s present in DB, absent in Markdown\n", d.AtmID)
+				differences++
+			}
 		}
 	}
 
