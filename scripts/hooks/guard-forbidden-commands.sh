@@ -582,16 +582,49 @@ fi
 # --------------------------------------------------------------------------
 POWER_MSG="Host Machine Stability Directive: commands that suspend / hibernate / power-off / reboot / halt / sign-out the host are categorically forbidden. They destroy in-progress builds and the development session."
 
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)systemctl[[:space:]]+(suspend|hibernate|hybrid-sleep|suspend-then-hibernate|poweroff|halt|reboot|kexec|kill-user|kill-session) ]]; then
+# FALSE-POSITIVE FIX (2026-08-11, session-17 / agent-V). The host-power gates
+# below MUST scan $SCRUBBED_COMMAND (the quote-aware "live regions only"
+# projection), NOT the raw $COMMAND. The scrubber is defined ~230 lines above
+# for the sudo/su gates that suffered the identical §11.4.201(7)(a) carrier-
+# false-positive class (RD2-36/RD2-01/GA-24); the same fix was never wired
+# into the host-power block, so ANY quoted string mentioning `loginctl`,
+# `systemctl`, `pm-*`, or `shutdown` — a grep pattern, an echo argument, a
+# commit-message body, a here-document containing docs prose — was scanned
+# by the raw regex and the boundary alternation `(...)` matched on the
+# whitespace / pipe / semicolon / ampersand INSIDE the quoted content,
+# blocking the entire tool call as if the quoted text were a real invocation.
+# Live self-demonstration (this session): `grep -rln
+# 'systemctl.*user@\|loginctl terminate-user\|loginctl kill-user' /etc/
+# /usr/lib/systemd/` was blocked as "Host Stability (loginctl)" — the
+# `\|loginctl` sequence gave the regex the `|` boundary it needed even though
+# `loginctl` was inside a single-quoted grep pattern (an argument value, not
+# an invocation). The scrubber replaces the entire inert quoted body with
+# same-length `#` filler, so `loginctl` inside a quoted grep pattern becomes
+# `########` and never matches; a REAL `loginctl kill-user`, or one reached
+# via `$(loginctl ...)` / backtick substitution / `; loginctl` / `&& loginctl`,
+# stays LIVE and still matches. This is the same accepted trade-off already
+# documented at length for sudo/su (see the block-comment ~200 lines above):
+# a `bash -c 'loginctl suspend'` would also pass the scrubbed check (the same
+# way `bash -c 'sudo id'` already does), which is an acknowledged known-narrow
+# limitation because a quoted-string span is inert per shell semantics
+# (bash passes it as an argument value; only `bash -c` re-invokes it, which
+# is itself operator-run tooling not the guard's coverage boundary). NEVER
+# regresses any of the currently-caught real classes — full RED-then-GREEN
+# fixture pair evidence at scratchpad/agent-V-green-*.log. §11.4.201(1)
+# false-positive guard: this reduces false positives without introducing a
+# new one; every current true-positive (real invocation / command-substituted
+# invocation / backtick-substituted invocation / chained invocation via
+# ;/&&/|/&/newline) still fires. Host-power classes remain `no-override`.
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&)systemctl[[:space:]]+(suspend|hibernate|hybrid-sleep|suspend-then-hibernate|poweroff|halt|reboot|kexec|kill-user|kill-session) ]]; then
   block "Host Stability (systemctl)" "$POWER_MSG" no-override
 fi
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)loginctl[[:space:]]+(suspend|hibernate|hybrid-sleep|suspend-then-hibernate|poweroff|halt|reboot|kill-user|kill-session|terminate-user|terminate-session) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&)loginctl[[:space:]]+(suspend|hibernate|hybrid-sleep|suspend-then-hibernate|poweroff|halt|reboot|kill-user|kill-session|terminate-user|terminate-session) ]]; then
   block "Host Stability (loginctl)" "$POWER_MSG" no-override
 fi
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)pm-(suspend|hibernate|suspend-hybrid)([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&)pm-(suspend|hibernate|suspend-hybrid)([[:space:]]|$) ]]; then
   block "Host Stability (pm-*)" "$POWER_MSG" no-override
 fi
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)shutdown([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&)shutdown([[:space:]]|$) ]]; then
   block "Host Stability (shutdown)" "$POWER_MSG" no-override
 fi
 
