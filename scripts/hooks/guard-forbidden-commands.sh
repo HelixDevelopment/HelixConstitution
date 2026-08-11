@@ -507,7 +507,8 @@ _scrub_inert_regions() {
               while [[ "$line_end" -lt "$n" && "${s:line_end:1}" != $'\n' ]]; do
                 line_end=$((line_end + 1))
               done
-              local line="${s:body_i:$((line_end - body_i))}" chk="$line"
+              local line="${s:body_i:$((line_end - body_i))}"
+              local chk="$line"
               if [[ "$strip" -eq 1 ]]; then
                 while [[ "${chk:0:1}" == $'\t' ]]; do chk="${chk:1}"; done
               fi
