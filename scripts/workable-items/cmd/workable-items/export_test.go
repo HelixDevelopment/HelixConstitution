@@ -33,8 +33,8 @@ func TestExportCmd_EmitsDocsAndSummaries(t *testing.T) {
 		"--description", "Refactor the navigation helper to reduce duplicated route code"}); code != exitOK {
 		t.Fatalf("add task: %d", code)
 	}
-	if code := closeCmd([]string{"WIT-003", "--db", dbPath,
-		"--status", "completed", "--evidence", "qa-results/2026-05-31/wit-003.log"}); code != exitOK {
+	if code := closeCmd([]string{"WIT-003", "--db", dbPath, "--status", "completed",
+		"--evidence", materialiseEvidence(t, newEvidenceRoot(t), "qa-results/2026-05-31/wit-003.log")}); code != exitOK {
 		t.Fatalf("close task: %d", code)
 	}
 
@@ -103,8 +103,8 @@ func TestFixedSummary_ColumnAlignedHeader(t *testing.T) {
 		"--description", "Refactor the navigation helper to reduce duplicated route code"}); code != exitOK {
 		t.Fatalf("add task: %d", code)
 	}
-	if code := closeCmd([]string{"WIT-001", "--db", dbPath,
-		"--status", "completed", "--evidence", "qa-results/2026-07-10/wit-001.log"}); code != exitOK {
+	if code := closeCmd([]string{"WIT-001", "--db", dbPath, "--status", "completed",
+		"--evidence", materialiseEvidence(t, newEvidenceRoot(t), "qa-results/2026-07-10/wit-001.log")}); code != exitOK {
 		t.Fatalf("close task: %d", code)
 	}
 

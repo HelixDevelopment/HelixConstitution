@@ -122,7 +122,7 @@ func TestObsoleteDetails_DualRepresentation_NoSiblingClobber(t *testing.T) {
 		"--since", "2026-07-12",
 		"--reason", "not-reproducible",
 		"--superseding", "none",
-		"--evidence", "docs/qa/HXC-044/f_dbtool_evidence.md",
+		"--evidence", materialiseEvidence(t, newEvidenceRoot(t), "docs/qa/HXC-044/f_dbtool_evidence.md"),
 	}); code != exitOK {
 		t.Fatalf("obsolete-details HXC-044 exited %d, want %d", code, exitOK)
 	}

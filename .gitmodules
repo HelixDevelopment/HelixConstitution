@@ -7,3 +7,12 @@
 [submodule "submodules/continuum"]
 	path = submodules/continuum
 	url = git@github.com:vasic-digital/continuum.git
+[submodule "submodules/anti_bluff"]
+	path = submodules/anti_bluff
+	url = git@github.com:vasic-digital/anti_bluff.git
+[submodule "submodules/helix_perf_cache"]
+	path = submodules/helix_perf_cache
+	url = git@github.com:HelixDevelopment/helix_perf_cache.git
+[submodule "design-toolkit"]
+	path = design-toolkit
+	url = git@github.com:vasic-digital/design-toolkit.git

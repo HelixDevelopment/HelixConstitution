@@ -131,6 +131,43 @@ func TestListFilterByEffectiveStatus(t *testing.T) {
 	}
 }
 
+func TestDeleteItem(t *testing.T) {
+	s, _ := Open("")
+	it, _ := s.Create(CreateParams{Title: "delete me"})
+	if err := s.Delete(it.ID); err != nil {
+		t.Fatalf("delete: %v", err)
+	}
+	if _, err := s.Get(it.ID); err != ErrNotFound {
+		t.Fatalf("after delete: want ErrNotFound, got %v", err)
+	}
+}
+
+func TestDeleteNotFound(t *testing.T) {
+	s, _ := Open("")
+	if err := s.Delete("nonexistent"); err != ErrNotFound {
+		t.Fatalf("want ErrNotFound, got %v", err)
+	}
+}
+
+func TestGetNotFound(t *testing.T) {
+	s, _ := Open("")
+	if _, err := s.Get("nonexistent"); err != ErrNotFound {
+		t.Fatalf("want ErrNotFound, got %v", err)
+	}
+}
+
+func TestCount(t *testing.T) {
+	s, _ := Open("")
+	if s.Count() != 0 {
+		t.Fatalf("empty count: %d", s.Count())
+	}
+	s.Create(CreateParams{Title: "a"})
+	s.Create(CreateParams{Title: "b"})
+	if s.Count() != 2 {
+		t.Fatalf("count after 2 creates: %d", s.Count())
+	}
+}
+
 func TestConcurrentCreate(t *testing.T) {
 	dir := t.TempDir()
 	s, _ := Open(filepath.Join(dir, "c.json"))

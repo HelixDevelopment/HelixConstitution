@@ -60,6 +60,13 @@ set -euo pipefail
 self_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 && pwd)"
 const_root="$(cd "$self_dir/.." >/dev/null 2>&1 && pwd)"
 
+# Relocation-proof symlink creation (§11.4.111): every link planted in the
+# consuming project MUST store a target RELATIVE to the link itself. An
+# absolute target bakes in the installing machine's path and resolves nowhere
+# else — the exact defect that shipped a /Volumes/T7/... link into a Linux
+# checkout where it had never once resolved.
+. "$self_dir/portable_symlink_lib.sh"
+
 project_root=""
 skills_only=0
 one_skill=""
@@ -134,8 +141,7 @@ link_skills() {
 
     dst="$skills_dst/$name"
     if [ -L "$dst" ] || [ ! -e "$dst" ]; then
-      rm -f "$dst"
-      ln -s "${src%/}" "$dst"
+      hc_ln_relative "${src%/}" "$dst"
       linked=$((linked + 1))
     elif [ -d "$dst" ]; then
       warn "$dst exists and is NOT a symlink — left untouched (remove it to re-link)"
@@ -182,8 +188,7 @@ link_agent_commands() {
       # Only ever replace our own symlink or a free slot — never clobber a real
       # file the operator wrote by hand.
       if [ -L "$dst_dir/$base" ] || [ ! -e "$dst_dir/$base" ]; then
-        rm -f "$dst_dir/$base"
-        ln -s "$f" "$dst_dir/$base"
+        hc_ln_relative "$f" "$dst_dir/$base"
         n=$((n + 1))
       else
         warn "$dst_dir/$base exists and is NOT a symlink — left untouched"

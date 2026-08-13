@@ -3,7 +3,7 @@ module github.com/HelixDevelopment/HelixConstitution/scripts/doc_integrity
 go 1.25.0
 
 require (
-	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/mattn/go-sqlite3 v1.14.48
 	github.com/xuri/excelize/v2 v2.11.0
 	gopkg.in/yaml.v3 v3.0.1
 )

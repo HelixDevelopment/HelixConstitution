@@ -1,0 +1,34 @@
+=== parse-check (bash -n) ===
+parse-ok: sol01_status_custody/custody_sweep.sh
+parse-ok: sol01_status_custody/test_sol01.sh
+parse-ok: sol02_verdict_coverage/test_sol02.sh
+parse-ok: sol02_verdict_coverage/verdict_gate.sh
+parse-ok: sol03_needled_measurement/needle_lib.sh
+parse-ok: sol03_needled_measurement/test_sol03.sh
+parse-ok: sol04_evidence_class/evidence_class_check.sh
+parse-ok: sol04_evidence_class/test_sol04.sh
+parse-ok: sol05_gate_ledger/gate_ledger.sh
+parse-ok: sol05_gate_ledger/test_sol05.sh
+parse-ok: sol06_anchor_integrity/anchor_integrity.sh
+parse-ok: sol06_anchor_integrity/test_sol06.sh
+parse-ok: sol07_intake_dedup/intake_check.sh
+parse-ok: sol07_intake_dedup/test_sol07.sh
+parse-ok: sol08_scope_coverage/scope_coverage.sh
+parse-ok: sol08_scope_coverage/test_sol08.sh
+parse-ok: sol09_detection_pressure/pressure_queue.sh
+parse-ok: sol09_detection_pressure/test_sol09.sh
+parse-ok: sol10_mu_layer/mu_checks.sh
+parse-ok: sol10_mu_layer/test_sol10.sh
+parse fails: 0
+=== full test re-run (deterministic re-check, §11.4.50 iteration 2) ===
+sol01_status_custody/test_sol01.sh -> exit=0 RESULT: PASS=10 FAIL=0
+sol02_verdict_coverage/test_sol02.sh -> exit=0 RESULT: PASS=5 FAIL=0
+sol03_needled_measurement/test_sol03.sh -> exit=0 RESULT: PASS=8 FAIL=0
+sol04_evidence_class/test_sol04.sh -> exit=0 RESULT: PASS=5 FAIL=0
+sol05_gate_ledger/test_sol05.sh -> exit=0 RESULT: PASS=7 FAIL=0
+sol06_anchor_integrity/test_sol06.sh -> exit=0 RESULT: PASS=5 FAIL=0
+sol07_intake_dedup/test_sol07.sh -> exit=0 RESULT: PASS=5 FAIL=0
+sol08_scope_coverage/test_sol08.sh -> exit=0 RESULT: PASS=5 FAIL=0
+sol09_detection_pressure/test_sol09.sh -> exit=0 RESULT: PASS=8 FAIL=0
+sol10_mu_layer/test_sol10.sh -> exit=0 RESULT: PASS=7 FAIL=0
+TOTAL: PASS=65 FAIL=0 across 10 suites

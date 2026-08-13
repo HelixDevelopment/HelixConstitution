@@ -51,6 +51,17 @@ func exportCmd(args []string) int {
 		return exitUsage
 	}
 
+	// HXC-201: --out-dir / --out-issues / --out-fixed are the OUTPUT-side half
+	// of the same defect openDB's --db handling closes: `go run -C
+	// constitution/scripts/workable-items ./cmd/workable-items export --out-dir
+	// docs` — the exact form every reference site documents — relocates the
+	// process cwd to this tool's own directory, so a relative --out-dir landed
+	// there instead of the caller's real docs/ tree while still printing
+	// success. Anchor against the invoking shell's directory the same way.
+	*outDir = resolveInvocationRelative(*outDir)
+	*outIssues = resolveInvocationRelative(*outIssues)
+	*outFixed = resolveInvocationRelative(*outFixed)
+
 	db, err := openDB(*dbPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "export: %v\n", err)

@@ -178,7 +178,7 @@ func TestClose_AtomicMove(t *testing.T) {
 		t.Fatal("close ACCEPTED a closure with no --evidence — §11.4.5 guard is a bluff")
 	}
 
-	evidence := "docs/qa/WIT-100/transcript.md"
+	evidence := materialiseEvidence(t, newEvidenceRoot(t), "docs/qa/WIT-100/transcript.md")
 	if code := closeCmd([]string{"--db", dbPath, "--status", "fixed", "--evidence", evidence, "WIT-100"}); code != exitOK {
 		t.Fatalf("close exited %d, want OK", code)
 	}
@@ -233,7 +233,8 @@ func TestClose_RoundTripsAndValidates(t *testing.T) {
 		"--description", "a sufficiently long description that clears the §11.4.91 floor for round-trip after close",
 		"Task", "Low",
 	})
-	if code := closeCmd([]string{"--db", dbPath, "--status", "completed", "--evidence", "docs/qa/WIT-200/run.md", "WIT-200"}); code != exitOK {
+	if code := closeCmd([]string{"--db", dbPath, "--status", "completed",
+		"--evidence", materialiseEvidence(t, newEvidenceRoot(t), "docs/qa/WIT-200/run.md"), "WIT-200"}); code != exitOK {
 		t.Fatalf("close exited %d", code)
 	}
 
@@ -295,7 +296,7 @@ func TestClose_PositionalLast(t *testing.T) {
 	})
 	if code := closeCmd([]string{
 		"--db", dbPath, "--status", "implemented",
-		"--evidence", "docs/qa/WIT-888/run.md", "WIT-888",
+		"--evidence", materialiseEvidence(t, newEvidenceRoot(t), "docs/qa/WIT-888/run.md"), "WIT-888",
 	}); code != exitOK {
 		t.Fatalf("close (trailing positional) exited %d", code)
 	}
@@ -310,7 +311,10 @@ func TestClose_PositionalLast(t *testing.T) {
 // TestClose_RejectsUnknownItem proves close fails loudly on a missing id.
 func TestClose_RejectsUnknownItem(t *testing.T) {
 	dbPath := newTestDB(t)
-	if code := closeCmd([]string{"--db", dbPath, "--status", "fixed", "--evidence", "x/y.md", "WIT-NOPE"}); code == exitOK {
+	// HXC-224: a REAL artefact, so the refusal below is the item-not-found
+	// guard firing — not the record-time evidence guard masking it.
+	if code := closeCmd([]string{"--db", dbPath, "--status", "fixed",
+		"--evidence", materialiseEvidence(t, newEvidenceRoot(t), "x/y.md"), "WIT-NOPE"}); code == exitOK {
 		t.Fatal("close PASSED on a non-existent item — missing-item guard is a bluff")
 	}
 }

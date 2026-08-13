@@ -1,0 +1,3 @@
+FAIL: missing artifact scope_coverage.sh
+RESULT: RED
+exit=1

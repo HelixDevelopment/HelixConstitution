@@ -25,7 +25,7 @@ canonical-root) and supplies ONLY its own per-host config data.
 | `multitrack_registry.sh` | flock TSV get/set over `<repo>/.ws_state/streams.tsv`. |
 | `multitrack_claim.sh` | Exactly-once item→track claim + TTL reap (§11.4.176(A)). |
 | `multitrack_device_lock.sh` | Capability-aware deadlock-proof device-lock (§11.4.176(B)). |
-| `multitrack_cwd_hook.sh` | Thin toolkit adapter: prints the alias's bound worktree AND fires a best-effort, non-fatal, fully-detached `orchestrator bind` (bind-on-start, §11.4.177), fallback monitor, AND constitution auto-sync for the resolved track (never for the conductor). |
+| `multitrack_cwd_hook.sh` | Thin toolkit adapter: resolves WHICH consumer project this invocation is for (§11.4.177, see below), prints the alias's bound worktree AND fires a best-effort, non-fatal, fully-detached `orchestrator bind` (bind-on-start, §11.4.177), fallback monitor, AND constitution auto-sync for the resolved track (never for the conductor). `--consumer-root [alias]` reports the resolved consumer + why. |
 | `multitrack_constitution_sync.sh` | §11.4.35 constitution auto-sync: on every track activation, ancestor-guarded **fast-forward-only** advance of the activated worktree's `constitution/` submodule to latest `<remote>/main` (WIP-preserving, never force/reset/rewind; never `git submodule update`). Keeps the constitution "always up to date with main, Everywhere!" |
 | `multitrack_alias_orchestrator.sh` | Alias↔track bind / fallback / cooldown lease. |
 | `multitrack_build.sh` | Single-builder FIFO rebuild queue. |
@@ -34,6 +34,57 @@ The consumer supplies its per-host config file (the ONLY place project strings
 live): track→mount paths, project directory name, device serials + capabilities,
 the alias↔account map, priority/feature list. In the reference consumer that file
 is `config/multitrack/<hostname>.yaml`.
+
+## Which consumer project? — the cwd-hook's consumer-root resolution (§11.4.177)
+
+Every engine entry point EXCEPT the cwd-hook runs from INSIDE a consumer
+checkout, so self-location (below) is the right answer for them. The cwd-hook is
+the exception: the toolkit invokes it only when cwd is **not** a git repo, and it
+is customarily installed **once** on a shared PATH. Self-location there answers a
+question it cannot know — it returns whichever checkout physically holds the
+engine, shadowing every sibling consumer on the host that ships its own
+`config/multitrack/`.
+
+`multitrack_cwd_hook.sh` therefore resolves the consumer root itself, first hit
+wins, and exports it as `MT_REPO_ROOT` so the resolver's existing pin honours it:
+
+| # | Source | Notes |
+|---|---|---|
+| 1 | `MT_REPO_ROOT` env | explicit pin (operator / launcher / test seam) |
+| 2 | invocation context | nearest ancestor of `$PWD` carrying `config/multitrack/` |
+| 3 | operator binding file | `MT_CONSUMER_ROOTS`, default `${XDG_CONFIG_HOME:-$HOME/.config}/multitrack/consumer_roots.conf` |
+| 4 | *(nothing resolved)* | export nothing → resolver keeps its unchanged self-location behaviour |
+
+Step 4 is the load-bearing back-compat guarantee: a host with no binding file and
+no cwd context behaves **exactly** as before this resolution existed.
+
+**Honest boundary (§11.4.6).** When the hook fires there is, by construction, no
+cwd project context — so on a host running more than one consumer the
+alias→consumer mapping is host policy that nothing in-tree can derive. Step 3's
+operator-owned file is the minimal artifact that satisfies §11.4.177
+(project-agnostic tooling) and §11.4.187 (automatic, out-of-the-box) at once.
+
+Binding-file format — parsed, never sourced, so a typo can never execute:
+
+```
+# ${XDG_CONFIG_HOME:-$HOME/.config}/multitrack/consumer_roots.conf
+default  = /mnt/track1/my_project
+claude2  = /mnt/track1/other_project     # alias key beats `default`
+```
+
+A named path that does not carry `config/multitrack/` is reported on stderr and
+**ignored** — never silently trusted (§11.4.6). Diagnose with:
+
+```
+multitrack_cwd_hook.sh --consumer-root <alias>
+```
+
+> **Installation note (§11.4.177).** Resolution being project-agnostic is only
+> half the rule. The shared PATH entry itself must not live inside a consumer
+> checkout — a symlink from `~/.local/bin/` into one project's tree couples every
+> project's tooling availability and version to that one checkout. Install the
+> engine from a location outside every consumer, or use the toolkit's per-project
+> `<dir>/.claude-cwd-hook` / `CMA_CWD_HOOK` seams.
 
 ## Config contract — how a generic script finds project config
 

@@ -108,6 +108,74 @@ run_case "malformed: no trailing space"        2 '{"tool_name":"Agent","tool_inp
 run_case "malformed: label mid-string"         2 '{"tool_name":"Agent","tool_input":{"description":"prefix (T1/main - x) not at start"}}'                                             "$LIVE_CFG"
 run_case "empty description"                   2 '{"tool_name":"Agent","tool_input":{"description":""}}'                                                                              "$LIVE_CFG"
 
+# run_case_effort <name> <expected-exit> <json-payload> <cfg> <effort-setting>
+#   Hermetic control of the EFFORT signal too (the existing run_case only
+#   controls CLAUDE_CONFIG_DIR, and the ambient session may carry a real
+#   CLAUDE_EFFORT value -- these cases must not depend on that).
+#   effort-setting "" (empty)  -> UNSET all 4 candidate effort vars (no signal)
+#   effort-setting <value>     -> set CLAUDE_EFFORT=<value>, unset the other 3
+run_case_effort() {
+  local name="$1" want="$2" payload="$3" cfg="$4" effort="$5" got
+  if [ -z "$effort" ]; then
+    printf '%s' "$payload" | env -u CLAUDE_CONFIG_DIR -u CLAUDE_EFFORT -u CLAUDE_CODE_EFFORT -u AGENT_EFFORT -u CMA_EFFORT \
+      CLAUDE_CONFIG_DIR="$cfg" bash "$HOOK" >/dev/null 2>&1
+  else
+    printf '%s' "$payload" | env -u CLAUDE_CONFIG_DIR -u CLAUDE_EFFORT -u CLAUDE_CODE_EFFORT -u AGENT_EFFORT -u CMA_EFFORT \
+      CLAUDE_CONFIG_DIR="$cfg" CLAUDE_EFFORT="$effort" bash "$HOOK" >/dev/null 2>&1
+  fi
+  got=$?
+  if [ "$got" -eq "$want" ]; then
+    printf '  PASS  %-58s (exit %s)\n' "$name" "$got"
+    PASS=$((PASS+1))
+  else
+    printf '  FAIL  %-58s (got exit %s, want %s)\n' "$name" "$got" "$want"
+    FAIL=$((FAIL+1))
+  fi
+}
+
+echo
+echo "§11.4.182/§11.4.201 EFFORT-BLUFF-CHECK extension (5-field <effort> field honesty)"
+echo
+
+# --- golden-GOOD: 5-field label with a REAL effort value, live signal present
+#     and resolvable (regardless of exact-value match -- the guard only polices
+#     a DISHONEST '?', never enforces the caller picked the identical tier) --
+run_case_effort "5-field real effort ('high') + live signal present -> ALLOW" \
+  0 "{\"tool_name\":\"Agent\",\"tool_input\":{\"description\":\"(T1/main - $LIVE - opus - high) ATM-1 work\",\"prompt\":\"x\"}}" \
+  "$LIVE_CFG" "high"
+run_case_effort "5-field real effort ('low', mismatched vs live 'high') -> ALLOW" \
+  0 "{\"tool_name\":\"Agent\",\"tool_input\":{\"description\":\"(T1/main - $LIVE - sonnet - low) ATM-2 work\"}}" \
+  "$LIVE_CFG" "high"
+
+# --- golden-BAD (the exact bug this fix closes): 5-field label claims '?'
+#     effort while a REAL effort signal is present + resolvable -> BLOCKED ---
+run_case_effort "5-field '?' effort while live signal='high' BLOCKED" \
+  2 "{\"tool_name\":\"Agent\",\"tool_input\":{\"description\":\"(T1/main - $LIVE - sonnet - ?) ATM-3 dishonest\",\"prompt\":\"x\"}}" \
+  "$LIVE_CFG" "high"
+run_case_effort "5-field '?' effort while live signal='xhigh' BLOCKED (Task)" \
+  2 "{\"tool_name\":\"Task\",\"tool_input\":{\"description\":\"(T2/feat/x - $LIVE - opus - ?) ATM-4 dishonest\"}}" \
+  "$LIVE_CFG" "xhigh"
+
+# --- NEGATIVE CONTROL (§11.4.201(1) false-positive guard): '?' effort is
+#     HONEST + MUST NOT be blocked when NO effort signal is present at all --
+run_case_effort "5-field '?' effort + NO live signal -> ALLOW (honest)" \
+  0 "{\"tool_name\":\"Agent\",\"tool_input\":{\"description\":\"(T1/main - $LIVE - opus - ?) ATM-5 honest unknown\",\"prompt\":\"x\"}}" \
+  "$LIVE_CFG" ""
+# NEGATIVE CONTROL variant: an out-of-ladder env value resolves to a live '?'
+# too (the labeler's own closed-ladder validation) -- still must NOT block.
+run_case_effort "5-field '?' effort + out-of-ladder env value -> ALLOW" \
+  0 "{\"tool_name\":\"Agent\",\"tool_input\":{\"description\":\"(T1/main - $LIVE - opus - ?) ATM-6 out-of-ladder\"}}" \
+  "$LIVE_CFG" "banana"
+
+# --- ALLOW: legacy 3-field / 4-field forms (no effort field AT ALL) are NEVER
+#     flagged, regardless of whether a live effort signal is present --------
+run_case_effort "3-field legacy (no effort field) + live signal present -> ALLOW" \
+  0 "{\"tool_name\":\"Agent\",\"tool_input\":{\"description\":\"(T1/main - $LIVE) ATM-7 legacy 3-field\",\"prompt\":\"x\"}}" \
+  "$LIVE_CFG" "high"
+run_case_effort "4-field legacy (model, no effort field) + live signal present -> ALLOW" \
+  0 "{\"tool_name\":\"Task\",\"tool_input\":{\"description\":\"(T1/main - $LIVE - opus) ATM-8 legacy 4-field\"}}" \
+  "$LIVE_CFG" "high"
+
 echo
 echo "  total: PASS=$PASS FAIL=$FAIL"
 if [ "$FAIL" -gt 0 ]; then

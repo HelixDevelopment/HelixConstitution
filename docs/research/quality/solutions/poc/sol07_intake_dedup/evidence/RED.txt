@@ -1,0 +1,3 @@
+FAIL: missing artifact intake_check.sh
+RESULT: RED
+exit=1

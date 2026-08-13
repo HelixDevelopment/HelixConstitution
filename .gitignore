@@ -21,3 +21,19 @@ qa-results/
 scripts/doc_integrity/internal/selfcheck/golden/**/*.docx
 scripts/doc_integrity/internal/selfcheck/golden/**/*.html
 scripts/doc_integrity/internal/selfcheck/golden/**/*.pdf
+
+# Multitrack workspace state (ephemeral, per-host)
+.ws_state/
+
+# Misdirected workable-items export output (§11.4.30 / §11.4.53).
+# The workable-items exporter is a CONSUMER-facing tool: its real output
+# belongs in the CONSUMING project's docs/ tree, never inside this engine's
+# own source directory. When it is invoked with a RELATIVE --db/--out-dir
+# from the tool's own directory, it silently creates this path and writes a
+# schema-only, ZERO-ROW database here while the consumer's real tracker docs
+# go stale untouched. Measured on one consuming project: the stray DB held
+# 0 items; the consumer's authoritative DB held 401.
+# Ignored so the artifact can never be committed as if it were source. This
+# is a containment measure, not the fix — the invoking documentation must
+# pass ABSOLUTE paths.
+scripts/workable-items/docs/

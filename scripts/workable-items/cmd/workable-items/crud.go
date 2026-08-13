@@ -15,8 +15,14 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
+
+// canonicalIDRe matches the canonical HelixCode ticket ID shape: 3+ uppercase
+// letters, a dash, then alphanumeric (e.g. ATM-001, HXC-044, WIT-042).
+// Non-canonical IDs (G01, R01) use dot separator for parser compatibility.
+var canonicalIDRe = regexp.MustCompile(`^[A-Z]{3,}-[0-9A-Za-z]+$`)
 
 // partitionArgs separates positional (non-flag) tokens from flag tokens so the
 // Go flag package — which stops at the first positional — can still parse flags
@@ -215,6 +221,16 @@ func closeCmd(args []string) int {
 		fmt.Fprintln(os.Stderr, "close: --evidence is required (§11.4.5/§11.4.90 captured-evidence mandate)")
 		return exitUsage
 	}
+	// HXC-224 — and that evidence must RESOLVE, refused HERE, at the moment of
+	// recording. A non-empty check alone let a closure citing a path that had
+	// never existed land in the single source of truth, to be flagged only by a
+	// later `validate` sweep if one ever ran (the HXC-217 detective half). The
+	// evidence path is what makes a closure falsifiable; recording a fabricated
+	// one is a §11.4 PASS-bluff written straight into the tracker. Refusing
+	// before openDB/Begin means a refused closure leaves no trace at all.
+	if !requireEvidencePath("close", *evidence) {
+		return exitUsage
+	}
 
 	db, err := openDB(*dbPath)
 	if err != nil {
@@ -322,7 +338,7 @@ func closeCmd(args []string) int {
 // ids of the form <PREFIX>-<NNN> and returning prefix-(max+1), zero-padded to 3
 // digits. Append-only per §11.4.54 — ids are never reused.
 func nextID(db *sql.DB, prefix string) (string, error) {
-	rows, err := db.Query(`SELECT atm_id FROM items`)
+	rows, err := db.Query(`SELECT atm_id FROM items WHERE atm_id LIKE ?`, prefix+"-%")
 	if err != nil {
 		return "", err
 	}
@@ -476,12 +492,19 @@ func recordHistory(tx *sql.Tx, id, event, by, reason, evidence string) error {
 // (renderDocument) would replay the STALE body Status line and `validate`
 // (statusColumnBodyDesyncs) would flag the item.
 //
-// The full-body-regenerating mutators (add / update / reopen / block / close) do
-// NOT use this helper: they already emit a fresh, canonical body via renderItemBody
-// carrying the new status (proven 0-desync by TestNoStatusMutationLeavesDesync), and
-// they legitimately change other fields (title / description / meta blocks) that a
-// bare-status helper would clobber. This helper is for the status-ONLY paths
-// (subtask-status today; any future bare-status write).
+// The other mutators (add / update / reopen / move / block / close) do NOT use this
+// helper: each already emits a body carrying the new status (proven 0-desync by
+// TestNoStatusMutationLeavesDesync) and legitimately changes other slots (title /
+// description / `**…-Details:**` meta blocks) that a bare-status helper would leave
+// stale. This helper is for the status-ONLY paths (subtask-status today; any future
+// bare-status write).
+//
+// NOTE (2026-07-20): "emit a body carrying the new status" no longer means
+// "regenerate from columns". `update` (SPK-481) and `reopen` (ATM-406) were BOTH
+// found to destroy authored body_md by regenerating from renderItemBody, and both now
+// PATCH the existing body through this same canonicalizeBodyStatusLine surgical
+// rewrite. Regeneration survives only where there is nothing to preserve (empty body)
+// or the caller explicitly replaces the freeform content (`update --description`).
 //
 // PROSE PRESERVATION: canonicalizeBodyStatusLine is a SURGICAL single-line rewrite —
 // every other line, including prose + `**Reopened-Details:**` / `**Operator-Block-
@@ -527,7 +550,14 @@ func setStatusAndSyncBody(tx *sql.Tx, atmID, location, newStatus string) error {
 // byte-identical round-trip for fixtures that never carried the fields.
 func renderItemBody(id, title, typ, severity, description, status, createdBy, assignedTo string) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "## %s — %s\n\n", id, title)
+	// Use dot separator for non-canonical IDs (Gxx, Rxx) so the parser's
+	// shape-1 regex (## [A-Z][A-Za-z0-9]*. title) matches on re-import.
+	// Canonical IDs (ABC-123) keep the dash separator.
+	if canonicalIDRe.MatchString(id) {
+		fmt.Fprintf(&b, "## %s — %s\n\n", id, title)
+	} else {
+		fmt.Fprintf(&b, "## %s. %s\n\n", id, title)
+	}
 	fmt.Fprintf(&b, "**Status:** %s\n", status)
 	fmt.Fprintf(&b, "**Type:** %s\n", typ)
 	if strings.TrimSpace(severity) != "" {

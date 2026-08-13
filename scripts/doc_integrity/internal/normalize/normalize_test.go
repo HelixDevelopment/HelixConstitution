@@ -33,6 +33,36 @@ func TestDateParsing(t *testing.T) {
 	}
 }
 
+func TestScopeEmptyAndNonEmpty(t *testing.T) {
+	if Scope("") != "" {
+		t.Fatal("Scope of empty must stay empty (honest empty, §11.4.6)")
+	}
+	if Scope("  NanoKVM: Touch  ") != "nanokvm touch" {
+		t.Fatalf("Scope normalisation wrong: %q", Scope("  NanoKVM: Touch  "))
+	}
+}
+
+func TestIsDateLike(t *testing.T) {
+	// Valid dates
+	for _, s := range []string{"2026-09-17", "2026/09/17", "17.09.2026", "09/17/2026", "2026-9-7"} {
+		if !IsDateLike(s) {
+			t.Fatalf("IsDateLike(%q) should be true", s)
+		}
+	}
+	// Valid datetimes
+	for _, s := range []string{"2026-09-17T12:00:00", "2026-09-17 12:00:00", "3/6/2001"} {
+		if !IsDateLike(s) {
+			t.Fatalf("IsDateLike(%q) should be true (datetime)", s)
+		}
+	}
+	// NOT date-like
+	for _, s := range []string{"", "GATED", "ATM-599", "5.0.1", "not a date"} {
+		if IsDateLike(s) {
+			t.Fatalf("IsDateLike(%q) should be false", s)
+		}
+	}
+}
+
 func TestSimilarity(t *testing.T) {
 	if Similarity("nanokvm integration", "nanokvm integration") != 1.0 {
 		t.Fatal("identical strings similarity must be 1.0")

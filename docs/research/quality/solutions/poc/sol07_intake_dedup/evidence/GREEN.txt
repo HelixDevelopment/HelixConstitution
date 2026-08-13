@@ -1,0 +1,8 @@
+PASS: A genuinely new item -> DISTINCT (mint)
+PASS: B recurrence of a closed defect -> SAME-DEFECT-CANDIDATE naming ATM-100 (link + reopen head, not a new silent id)
+PASS: C same defect CLASS in a DIFFERENT scope -> DISTINCT (the HXC-052/053 negative control — no false merge)
+PASS: D state defect + state-only repair -> refused as mitigation with a recurrence horizon
+PASS: E state defect + writer-repair -> closure legal
+----------------------------------------
+RESULT: PASS=5 FAIL=0
+exit=0

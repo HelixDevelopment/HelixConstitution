@@ -1,0 +1,12 @@
+=== CLAUDE.md ===
+ANCHOR-INTEGRITY: files=1 blocks=139 findings=0
+=== AGENTS.md ===
+ANCHOR-INTEGRITY: files=1 blocks=152 findings=0
+=== QWEN.md ===
+ANCHOR-INTEGRITY: files=1 blocks=146 findings=0
+=== GEMINI.md ===
+ANCHOR-INTEGRITY: files=1 blocks=77 findings=0
+=== Constitution.md ===
+DUPLICATE-BLOCK: §11.4.140 appears as a block-start more than once in /mnt/track1/atmosphere-t1/constitution/Constitution.md
+DUPLICATE-BLOCK: §11.4.141 appears as a block-start more than once in /mnt/track1/atmosphere-t1/constitution/Constitution.md
+ANCHOR-INTEGRITY: files=1 blocks=220 findings=4

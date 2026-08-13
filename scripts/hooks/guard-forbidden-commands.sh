@@ -299,10 +299,273 @@ fi
 
 # --------------------------------------------------------------------------
 # 3. sudo / su gate (§6.U).
+#
+# FALSE-POSITIVE FIX (2026-08-09, RD2-36 / RD2-01 / GA-24 residual class).
+# Forensic reproduction: `echo "need no sudo for list"` -- and the audit's
+# exact live repro, `echo "=== systemd system-level (may need no sudo for
+# list) ==="` -- was wrongly BLOCKED (exit 2) as "§6.U no-sudo". Root cause:
+# the previous check was a plain word-BOUNDARY substring match against the
+# WHOLE raw command line -- it correctly required "sudo"/"su" to be a
+# complete word (not a substring of `subl`/`sudo`/`--summary`), but it had
+# NO notion of shell quoting, so a "sudo" that was merely a word INSIDE a
+# quoted string argument (an echo message, a comment) satisfied the exact
+# same whitespace-bounded-word shape as a REAL command invocation and was
+# indistinguishable from one -- the §11.4.201(7)(a) carrier-false-positive
+# class already found for a different file under GA-24, now fixed at its
+# root here instead of appending another per-file EXCLUDE_PATHS entry.
+#
+# The prior boundary set (start-of-string / whitespace / `;` / `|` / `&`)
+# also never recognised `$(` or a backtick as a valid PRECEDING boundary --
+# so a REAL sudo invocation launched via command substitution (`$(sudo id)`
+# or `` `sudo id` ``) was actually MISSED even in the raw/unquoted case: a
+# false NEGATIVE alongside the false positive, confirmed live in this
+# session's RED run (tests/hooks/test_guard_forbidden_commands.sh).
+#
+# A THIRD carrier class was found live in this SAME session while drafting
+# this very fix's own commit message: prose text embedded in a QUOTED-
+# delimiter here-document (`git commit -m "$(cat <<'EOF' ... EOF)"` -- this
+# project's own documented commit-message idiom) that merely mentions
+# "sudo"/"su" in plain English (e.g. "...even though no sudo invocation was
+# present.") was ALSO wrongly blocked -- the exact same bug class (a word
+# merely present in a NEVER-EXECUTED context), just reached via a different
+# shell quoting construct the original quote-scrubber did not know about.
+# `_scrub_inert_regions` therefore ALSO recognises a QUOTED-delimiter
+# here-document (`<<'EOF'`, `<<"EOF"`, `<<\EOF`, each with an optional
+# `<<-` tab-stripping form) and scrubs its ENTIRE body to filler -- a
+# quoted heredoc delimiter disables ALL shell expansion inside the body
+# per POSIX, so (unlike a double-quoted span) there is no nested-live-
+# region case to track; the terminator line itself is passed through
+# verbatim. An UNQUOTED-delimiter heredoc (`<<EOF`, which CAN contain live
+# `$(...)`/backtick expansion) is intentionally left untouched/live -- the
+# safe, conservative default that can only ever ADD true-positive coverage
+# never remove it, at the honest cost (§11.4.6) of not also closing the
+# false-positive class for that rarer construct.
+#
+# Fix: scrub the raw command into a "live-regions-only" projection BEFORE
+# running the word-boundary regex (`_scrub_inert_regions`, shared by both
+# the sudo and su checks below):
+#   - text strictly inside a SINGLE-quoted span is ALWAYS inert (the shell
+#     never executes/expands single-quoted content) -> scrubbed to filler;
+#   - text inside a DOUBLE-quoted span is inert TOO (the shell passes it
+#     through as a literal argument value, it does not invoke it as a
+#     command) -> scrubbed to filler -- EXCEPT for a nested `$(...)` or
+#     backtick command-substitution span, which the shell DOES execute
+#     even though it is textually inside double quotes -> left LIVE
+#     (unscrubbed), tracked via a small quote/paren state stack so nesting
+#     (quotes-inside-$(...)-inside-quotes, etc.) is handled correctly;
+#   - text inside a QUOTED-delimiter here-document body is ALWAYS inert
+#     (see above) -> scrubbed to filler, line by line, until the exact
+#     terminator line;
+#   - everything else (unquoted text, and backtick-substitution content
+#     wherever it occurs) is LIVE and passes through untouched.
+# The existing word-boundary regex then runs against the SCRUBBED
+# projection instead of the raw command, so:
+#   - `sudo`/`su` appearing ONLY inside a quoted string/comment NEVER
+#     matches -> correctly ALLOWED (closes RD2-36/RD2-01/GA-24's residual,
+#     no EXCLUDE_PATHS-style band-aid, no weakening of the real check);
+#   - a bare/unquoted `sudo ...`/`su ...` invocation, OR one reached via
+#     `$(sudo ...)` / a backtick substitution -- even nested inside double
+#     quotes -- STILL matches and is BLOCKED (§11.4.113/§11.4.201: no
+#     escape hatch, a real invocation is never demoted to allow). The
+#     preceding-boundary character class is extended with `\(` (the `(` of
+#     a consumed `$(`) and a backtick so this newly-caught command-
+#     substitution position is recognised; the trailing-boundary class is
+#     extended with `\)` and a backtick to match a substitution closing
+#     immediately after the token with no argument (`$(sudo)`).
 # --------------------------------------------------------------------------
 SUDO_MSG="§6.U forbids sudo / su in any committed artifact or agent tool call. Use a container-based / user-level alternative (rootless Podman, user namespaces, local-only ports)."
 
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)sudo([[:space:]]|$) ]]; then
+# Quote/command-substitution-aware inert-region scrubber (pure bash, no
+# external deps -- consistent with the rest of this hook). Walks $1
+# character-by-character with a small state stack:
+#   LIVE/PAREN -- executable text (top level, or inside a live $(...));
+#   SQ         -- inside a single-quoted span (always inert);
+#   DQ         -- inside a double-quoted span (inert EXCEPT the nested
+#                 PAREN/BT spans described below);
+#   BT         -- inside a backtick-substitution span (always live).
+# A `$(` seen in ANY live context (LIVE, PAREN, or -- the load-bearing case
+# -- DQ) pushes a new PAREN frame whose content is copied through
+# untouched (live) until its matching `)`; a backtick seen in ANY live
+# context (LIVE, PAREN, or DQ) pushes/pops a BT frame the same way. Inert
+# characters (everything else while the top-of-stack is SQ or DQ) are
+# replaced with `#` filler -- same length, so no accidental new boundary
+# character is introduced and no downstream offset shifts. A QUOTED-
+# delimiter here-document redirect (`<<[-]'DELIM'` / `<<[-]"DELIM"` /
+# `<<[-]\DELIM`) seen while LIVE/PAREN queues the delimiter (+ its `<<-`
+# tab-stripping flag); at the NEXT raw newline reached while still
+# LIVE/PAREN, every queued heredoc's body is consumed line-by-line up to
+# and including its exact terminator line, each non-terminator body line
+# scrubbed to filler in full (a quoted delimiter makes the WHOLE body
+# inert, no nested-live-region case applies). Known, documented, narrow
+# limitation: a `#` comment appearing on the SAME line as (and after) a
+# heredoc-start token, before that line's own newline, is scrubbed by the
+# comment-handler below WITHOUT first running heredoc-body consumption --
+# an extremely rare construct, accepted as an honest gap (§11.4.6) rather
+# than adding further nested-trigger complexity to this guard.
+_scrub_inert_regions() {
+  local s="$1"
+  local out="" ch prev=""
+  local -a stack=("LIVE")
+  local -a hd_delim=() hd_strip=()
+  local i n=${#s}
+  local top
+  for ((i = 0; i < n; i++)); do
+    ch="${s:i:1}"
+    top="${stack[-1]}"
+    case "$top" in
+      SQ)
+        if [[ "$ch" == "'" ]]; then
+          unset 'stack[-1]'
+          out+="$ch"
+        else
+          out+="#"
+        fi
+        ;;
+      DQ)
+        if [[ "$ch" == '"' && "$prev" != '\' ]]; then
+          unset 'stack[-1]'
+          out+="$ch"
+        elif [[ "$ch" == '$' && "${s:i+1:1}" == '(' ]]; then
+          stack+=("PAREN")
+          out+='$('
+          i=$((i + 1))
+          prev='('
+          continue
+        elif [[ "$ch" == '`' ]]; then
+          stack+=("BT")
+          out+="$ch"
+        else
+          out+="#"
+        fi
+        ;;
+      BT)
+        if [[ "$ch" == '`' && "$prev" != '\' ]]; then
+          unset 'stack[-1]'
+        fi
+        out+="$ch"
+        ;;
+      PAREN | LIVE)
+        if [[ "$ch" == "'" ]]; then
+          stack+=("SQ")
+          out+="$ch"
+        elif [[ "$ch" == '"' ]]; then
+          stack+=("DQ")
+          out+="$ch"
+        elif [[ "$ch" == '`' ]]; then
+          stack+=("BT")
+          out+="$ch"
+        elif [[ "$ch" == '$' && "${s:i+1:1}" == '(' ]]; then
+          stack+=("PAREN")
+          out+='$('
+          i=$((i + 1))
+          prev='('
+          continue
+        elif [[ "$ch" == ')' && "$top" == "PAREN" ]]; then
+          unset 'stack[-1]'
+          out+="$ch"
+        elif [[ "$ch" == '<' && "${s:i+1:1}" == '<' ]]; then
+          # Possible here-document redirect -- only a QUOTED delimiter is
+          # special-cased (see the function-level comment above); an
+          # unquoted delimiter falls through untouched (still live).
+          local j=$((i + 2)) hd_strip_flag=0 qc hd_dl=""
+          [[ "${s:j:1}" == '-' ]] && { hd_strip_flag=1; j=$((j + 1)); }
+          while [[ "${s:j:1}" == ' ' || "${s:j:1}" == $'\t' ]]; do
+            j=$((j + 1))
+          done
+          qc="${s:j:1}"
+          if [[ "$qc" == "'" || "$qc" == '"' ]]; then
+            local k=$((j + 1))
+            while [[ "$k" -lt "$n" && "${s:k:1}" != "$qc" ]]; do
+              hd_dl+="${s:k:1}"
+              k=$((k + 1))
+            done
+            j=$((k + 1))
+          elif [[ "$qc" == '\' ]]; then
+            local k=$((j + 1))
+            while [[ "${s:k:1}" =~ ^[A-Za-z0-9_]$ ]]; do
+              hd_dl+="${s:k:1}"
+              k=$((k + 1))
+            done
+            j="$k"
+          fi
+          if [[ -n "$hd_dl" ]]; then
+            out+="${s:i:$((j - i))}"
+            hd_delim+=("$hd_dl")
+            hd_strip+=("$hd_strip_flag")
+            i=$((j - 1))
+            prev="${s:i:1}"
+            continue
+          fi
+          out+="$ch"
+        elif [[ "$ch" == $'\n' && ${#hd_delim[@]} -gt 0 ]]; then
+          out+="$ch"
+          local body_i=$((i + 1)) hidx
+          for ((hidx = 0; hidx < ${#hd_delim[@]}; hidx++)); do
+            local delim="${hd_delim[$hidx]}" strip="${hd_strip[$hidx]}"
+            while [[ "$body_i" -le "$n" ]]; do
+              local line_end=$body_i
+              while [[ "$line_end" -lt "$n" && "${s:line_end:1}" != $'\n' ]]; do
+                line_end=$((line_end + 1))
+              done
+              local line="${s:body_i:$((line_end - body_i))}"
+              local chk="$line"
+              if [[ "$strip" -eq 1 ]]; then
+                while [[ "${chk:0:1}" == $'\t' ]]; do chk="${chk:1}"; done
+              fi
+              if [[ "$chk" == "$delim" ]]; then
+                out+="$line"
+                body_i=$((line_end + 1))
+                [[ "$line_end" -lt "$n" ]] && out+=$'\n'
+                break
+              else
+                local fillr="" fi_
+                for ((fi_ = 0; fi_ < ${#line}; fi_++)); do fillr+="#"; done
+                out+="$fillr"
+                if [[ "$line_end" -lt "$n" ]]; then
+                  out+=$'\n'
+                  body_i=$((line_end + 1))
+                else
+                  body_i=$((n + 1))
+                  break
+                fi
+              fi
+            done
+          done
+          hd_delim=()
+          hd_strip=()
+          i=$((body_i - 1))
+          prev=$'\n'
+          continue
+        elif [[ "$ch" == '#' && ( "$i" -eq 0 || "$prev" == ' ' || "$prev" == $'\t' || "$prev" == ';' || "$prev" == '|' || "$prev" == '&' || "$prev" == '(' || "$prev" == $'\n' ) ]]; then
+          # Real shell comment-start (unquoted `#` at word-start position,
+          # never a comment mid-word like `foo#bar`) -- a comment is NEVER
+          # executed, so everything from here to end-of-line (or end of
+          # string) is inert, same as a quoted string/word mentioning the
+          # forbidden token (`ls -la # this does not need sudo at all`).
+          while ((i < n)); do
+            ch="${s:i:1}"
+            if [[ "$ch" == $'\n' ]]; then
+              out+="$ch"
+              break
+            fi
+            out+="#"
+            i=$((i + 1))
+          done
+          prev="$ch"
+          continue
+        else
+          out+="$ch"
+        fi
+        ;;
+    esac
+    prev="$ch"
+  done
+  printf '%s' "$out"
+}
+
+SCRUBBED_COMMAND="$(_scrub_inert_regions "$COMMAND")"
+
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&|\(|\`)sudo([[:space:]]|$|\)|\`) ]]; then
   block "§6.U no-sudo" "$SUDO_MSG"
 fi
 # `su`, `su -`, `su -l`, `su <user>`, `su <user> -c ...`, `su -c ...` (but NOT
@@ -311,7 +574,7 @@ fi
 # after) is blocked regardless of its arguments — the earlier
 # `su([[:space:]]+-?l?...)` form let `su root -c '<anything>'` bypass the §6.U
 # gate because the char after the space was neither `-`, `l`, nor EOL (F3-B1).
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)su([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&|\(|\`)su([[:space:]]|$|\)|\`) ]]; then
   block "§6.U no-su" "$SUDO_MSG"
 fi
 
@@ -320,16 +583,49 @@ fi
 # --------------------------------------------------------------------------
 POWER_MSG="Host Machine Stability Directive: commands that suspend / hibernate / power-off / reboot / halt / sign-out the host are categorically forbidden. They destroy in-progress builds and the development session."
 
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)systemctl[[:space:]]+(suspend|hibernate|hybrid-sleep|suspend-then-hibernate|poweroff|halt|reboot|kexec|kill-user|kill-session) ]]; then
+# FALSE-POSITIVE FIX (2026-08-11, session-17 / agent-V). The host-power gates
+# below MUST scan $SCRUBBED_COMMAND (the quote-aware "live regions only"
+# projection), NOT the raw $COMMAND. The scrubber is defined ~230 lines above
+# for the sudo/su gates that suffered the identical §11.4.201(7)(a) carrier-
+# false-positive class (RD2-36/RD2-01/GA-24); the same fix was never wired
+# into the host-power block, so ANY quoted string mentioning `loginctl`,
+# `systemctl`, `pm-*`, or `shutdown` — a grep pattern, an echo argument, a
+# commit-message body, a here-document containing docs prose — was scanned
+# by the raw regex and the boundary alternation `(...)` matched on the
+# whitespace / pipe / semicolon / ampersand INSIDE the quoted content,
+# blocking the entire tool call as if the quoted text were a real invocation.
+# Live self-demonstration (this session): `grep -rln
+# 'systemctl.*user@\|loginctl terminate-user\|loginctl kill-user' /etc/
+# /usr/lib/systemd/` was blocked as "Host Stability (loginctl)" — the
+# `\|loginctl` sequence gave the regex the `|` boundary it needed even though
+# `loginctl` was inside a single-quoted grep pattern (an argument value, not
+# an invocation). The scrubber replaces the entire inert quoted body with
+# same-length `#` filler, so `loginctl` inside a quoted grep pattern becomes
+# `########` and never matches; a REAL `loginctl kill-user`, or one reached
+# via `$(loginctl ...)` / backtick substitution / `; loginctl` / `&& loginctl`,
+# stays LIVE and still matches. This is the same accepted trade-off already
+# documented at length for sudo/su (see the block-comment ~200 lines above):
+# a `bash -c 'loginctl suspend'` would also pass the scrubbed check (the same
+# way `bash -c 'sudo id'` already does), which is an acknowledged known-narrow
+# limitation because a quoted-string span is inert per shell semantics
+# (bash passes it as an argument value; only `bash -c` re-invokes it, which
+# is itself operator-run tooling not the guard's coverage boundary). NEVER
+# regresses any of the currently-caught real classes — full RED-then-GREEN
+# fixture pair evidence at scratchpad/agent-V-green-*.log. §11.4.201(1)
+# false-positive guard: this reduces false positives without introducing a
+# new one; every current true-positive (real invocation / command-substituted
+# invocation / backtick-substituted invocation / chained invocation via
+# ;/&&/|/&/newline) still fires. Host-power classes remain `no-override`.
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&)systemctl[[:space:]]+(suspend|hibernate|hybrid-sleep|suspend-then-hibernate|poweroff|halt|reboot|kexec|kill-user|kill-session) ]]; then
   block "Host Stability (systemctl)" "$POWER_MSG" no-override
 fi
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)loginctl[[:space:]]+(suspend|hibernate|hybrid-sleep|suspend-then-hibernate|poweroff|halt|reboot|kill-user|kill-session|terminate-user|terminate-session) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&)loginctl[[:space:]]+(suspend|hibernate|hybrid-sleep|suspend-then-hibernate|poweroff|halt|reboot|kill-user|kill-session|terminate-user|terminate-session) ]]; then
   block "Host Stability (loginctl)" "$POWER_MSG" no-override
 fi
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)pm-(suspend|hibernate|suspend-hybrid)([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&)pm-(suspend|hibernate|suspend-hybrid)([[:space:]]|$) ]]; then
   block "Host Stability (pm-*)" "$POWER_MSG" no-override
 fi
-if [[ "$COMMAND" =~ (^|[[:space:]]|;|\||&)shutdown([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&)shutdown([[:space:]]|$) ]]; then
   block "Host Stability (shutdown)" "$POWER_MSG" no-override
 fi
 

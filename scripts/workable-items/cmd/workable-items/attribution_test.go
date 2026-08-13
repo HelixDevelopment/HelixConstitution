@@ -220,9 +220,10 @@ func TestAttribution_ClosePreservesColumns(t *testing.T) {
 	}); code != exitOK {
 		t.Fatalf("add exited %d", code)
 	}
+	evRoot := newEvidenceRoot(t)
 	if code := closeCmd([]string{
 		"--db", dbPath, "--status", "fixed",
-		"--evidence", "docs/qa/WIT-800/run.md", "WIT-800",
+		"--evidence", materialiseEvidence(t, evRoot, "docs/qa/WIT-800/run.md"), "WIT-800",
 	}); code != exitOK {
 		t.Fatalf("close exited %d", code)
 	}

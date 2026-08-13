@@ -311,6 +311,57 @@ mt_config_conductor() {
     ' "$cfg"
 }
 
+# Print the top-level `excluded_aliases:` set — ONE alias per line (ATM-834).
+#
+# WHY (§11.4.187(4) / §11.4.6): the engine previously read exactly ONE
+# machine-readable alias-policy scalar (`conductor:`). A consumer whose policy
+# excludes FURTHER aliases (a dead/disabled subscription, an operator-excluded
+# alias) could only state that in PROSE COMMENTS, which the engine cannot read —
+# so a documented-as-excluded alias was still positionally mapped onto a track.
+# This accessor makes that set MACHINE-READABLE. It is purely ADDITIVE: an
+# absent key prints NOTHING, so every existing config behaves exactly as before.
+#
+# Accepted YAML shapes (top-level key only):
+#   excluded_aliases: [a, b]        # flow sequence, optionally quoted
+#   excluded_aliases: a, b          # bare comma/space list
+#   excluded_aliases:               # block sequence
+#     - a
+#     - b
+# Trailing `#` comments are stripped. The VALUES are consumer config data;
+# NO project literal lives here (§11.4.28(B) / §11.4.177).
+mt_config_excluded_aliases() {
+    cfg=${1:-}
+    [ -r "$cfg" ] || return 1
+    awk '
+    BEGIN{ sq=sprintf("%c",39); dq=sprintf("%c",34); inblk=0 }
+    function clean(v){
+        sub(/[ \t]*#.*$/,"",v)
+        gsub(/^[ \t]+|[ \t]+$/,"",v)
+        gsub(sq,"",v); gsub(dq,"",v)
+        gsub(/^[ \t]+|[ \t]+$/,"",v)
+        return v
+    }
+    function emit(list,   n,i,a,t){
+        gsub(/^\[/,"",list); gsub(/\]$/,"",list)
+        gsub(/,/," ",list)
+        n=split(list,a," ")
+        for(i=1;i<=n;i++){ t=clean(a[i]); if(t!="") print t }
+    }
+    /^excluded_aliases:/ {
+        v=$0; sub(/^excluded_aliases:[ \t]*/,"",v); v=clean(v)
+        if (v!="") { emit(v); inblk=0 } else { inblk=1 }
+        next
+    }
+    # block-sequence continuation: indented "- item" lines until the next
+    # top-level key (a non-indented, non-blank line).
+    inblk==1 {
+        if ($0 ~ /^[ \t]+-[ \t]*/) { v=$0; sub(/^[ \t]+-[ \t]*/,"",v); v=clean(v); if(v!="") print v; next }
+        if ($0 ~ /^[ \t]*$/) next
+        inblk=0
+    }
+    ' "$cfg"
+}
+
 # Print the top-level `worktree_subdir:` value (§11.4.111 stable-name resolution
 # — the G2b resolver fix). Mirrors mt_config_conductor(): greps the top-level
 # `^worktree_subdir:` key, strips surrounding quotes + trailing comment. Empty

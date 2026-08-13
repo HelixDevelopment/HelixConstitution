@@ -444,9 +444,11 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </header>
 <h1 id="guard-track-branch-labelsh--114182-trackbranchalias-label-guard-hook">guard-track-branch-label.sh
 — §11.4.182 track+branch+alias label guard hook</h1>
-<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
-2026-07-11T00:00:00Z <strong>Authority:</strong> constitution submodule
-§11.4.182 (Track+branch work-stream identity label) · §11.4.177
+<p><strong>Revision:</strong> 2 <strong>Last modified:</strong>
+2026-07-26T12:18:28Z <strong>Authority:</strong> constitution submodule
+§11.4.182 (Track+branch work-stream identity label — extended 2026-07-26
+with the <code>&lt;model&gt;</code> + <code>&lt;effort&gt;</code>
+fields) · §11.4.231 clause (F) (effort-tier) · §11.4.177
 (inherited-by-reference) · §11.4.6 (no-guessing / honest boundary)
 <strong>Classification:</strong> universal (§11.4.17)</p>
 <h2 id="overview">Overview</h2>
@@ -454,12 +456,23 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 Code <strong>PreToolUse guard hook</strong> that enforces §11.4.182:
 every agent-dispatching tool call (<code>Agent</code> /
 <code>Task</code> / <code>TaskCreate</code>) MUST carry a work-stream
-identity label of the form
-<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt;)</code> at the START of
-its <code>description</code> (or, as a fallback, its
-<code>subagent</code> field), so parallel-track work
+identity label at the START of its <code>description</code> (or, as a
+fallback, its <code>subagent</code> field), so parallel-track work
 (<code>/mnt/track1..4</code>, each on its own branch, each driven by a
 distinct claude-toolkit alias) is never ambiguous.</p>
+<p>The label form was extended 2026-07-26 (§11.4.182 EXTENSION /
+§11.4.231 clause (F)) from the original 3-field
+<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt;)</code> to the 5-field
+<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt; - &lt;model&gt; - &lt;effort&gt;)</code>,
+where <code>&lt;model&gt;</code> records the model currently answering
+for that alias and <code>&lt;effort&gt;</code> the reasoning-effort
+setting in force (closed ladder
+<code>{low | medium | high | xhigh | max}</code>). The hook accepts
+<strong>all three forms</strong> — the 3-field legacy, the 4-field
+(<code>+ &lt;model&gt;</code>), and the 5-field
+(<code>+ &lt;model&gt; + &lt;effort&gt;</code>) — so a dispatcher still
+emitting a pre-model/pre-effort label is never blocked during
+migration.</p>
 <p>The hook is inherited <strong>by reference</strong> (§11.4.177) — it
 lives in the constitution submodule and is wired into a consuming
 project&#39;s <code>.claude/settings.json</code> PreToolUse hooks. It is
@@ -467,17 +480,34 @@ NEVER copied per project.</p>
 <h2 id="what-it-enforces">What it enforces</h2>
 <ol type="1">
 <li><strong>FORMAT</strong> — the label matches
-<code>^\(T[0-9]+/[^)]+ - [^)]+\) </code> (numeric track, a branch,
-<code>-</code>, an alias, <code>)</code>, then a space). A
+<code>^\(T([0-9]+|\?)/[^)]+ - [^)]+( - [^)]+){0,2}\) </code> (a
+numeric-or-<code>?</code> track, a branch, <code>-</code>, an alias,
+then 0/1/2 optional <code> - &lt;field&gt;</code> segments for the
+<code>&lt;model&gt;</code> and <code>&lt;effort&gt;</code> fields,
+<code>)</code>, then a space). This admits the 3-, 4-, and 5-field
+forms; because each field atom is <code>[^)]+</code> (which itself can
+contain <code>-</code>), a label with even MORE trailing fields also
+matches — permissive by design, an extra field is never a block-cause.
+The atom is deliberately NOT tightened to a dash-excluding class: branch
+names AND aliases legitimately contain <code>-</code> (e.g.
+<code>feature/mistiq-vader</code>, <code>kimi-for-coding</code>), which
+such a class would wrongly REJECT (a §11.4.201(1) false-positive). A
 missing/malformed label on an agent dispatch is BLOCKED (exit 2).</li>
 <li><strong>ALIAS-CORRECTNESS</strong> (the §11.4.182 alias field) — a
 format-valid label is NOT sufficient. The label&#39;s
-<code>&lt;alias&gt;</code> MUST match the <strong>LIVE</strong> alias
-derived from <code>CLAUDE_CONFIG_DIR</code> (basename
+<code>&lt;alias&gt;</code> (the field immediately after the track/branch
+segment, read positionally regardless of whether
+<code>&lt;model&gt;</code> / <code>&lt;effort&gt;</code> fields follow
+it) MUST match the <strong>LIVE</strong> alias derived from
+<code>CLAUDE_CONFIG_DIR</code> (basename
 <code>.claude-&lt;alias&gt;</code> → <code>&lt;alias&gt;</code>). A
 hand-typed / remembered / <strong>stale</strong> alias (e.g.
 <code>claude4</code> while the live session is <code>claude3</code>) is
-BLOCKED (exit 2) with the CORRECT label printed.</li>
+BLOCKED (exit 2) with the CORRECT label printed. The
+<code>&lt;model&gt;</code> and <code>&lt;effort&gt;</code> fields are
+NEVER cross-checked here (a model / effort can legitimately switch
+mid-turn, §11.4.6) — an honest <code>?</code> model or <code>?</code>
+effort, or an ABSENT model/effort field, is NEVER a block-cause.</li>
 </ol>
 <p>The live alias is derived by <strong>calling the reference
 labeler</strong> <code>scripts/multitrack/track_branch_label.sh</code> —
@@ -528,7 +558,7 @@ so the caller can fix it;</li>
 fallback keeps the hook to 0/2).</li>
 </ul>
 <p>Derive the exact label manually with:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/multitrack/track_branch_label.sh   <span class="co"># e.g. (T1/main - claude3)</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/multitrack/track_branch_label.sh   <span class="co"># e.g. (T1/main - claude3 - opus - high)</span></span></code></pre></div>
 <h2 id="edge-cases">Edge cases</h2>
 <ul>
 <li><strong>Non-agent tools</strong> (<code>Bash</code>,
@@ -536,6 +566,11 @@ fallback keeps the hook to 0/2).</li>
 untouched (exit 0) — the hook never breaks non-agent tools.</li>
 <li><strong>Empty / missing alias</strong> (<code>(T1/main)</code>,
 <code>(T1/main - )</code>) → BLOCKED on FORMAT.</li>
+<li><strong>Extended forms</strong> — the 4-field
+<code>(T1/main - claude3 - opus)</code> and 5-field
+<code>(T1/main - claude3 - opus - high)</code> labels are accepted; a
+<code>?</code> model / <code>?</code> effort, or an absent model/effort
+field, is never a block-cause.</li>
 <li><strong>Branch names with <code>-</code></strong> (e.g.
 <code>feature/mistiq-vader</code>) — a git ref cannot contain a space,
 so the <code>-</code> alias separator is unambiguous.</li>
@@ -551,8 +586,8 @@ an awk fallback).</li>
 <li>Extract the label from <code>description</code> (fallback
 <code>subagent</code>).</li>
 <li>Call the labeler for the canonical
-<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt;)</code> label; extract
-<code>_live_alias</code> from its alias field.</li>
+<code>(T&lt;N&gt;/&lt;branch&gt; - &lt;alias&gt; - &lt;model&gt; - &lt;effort&gt;)</code>
+label; extract <code>_live_alias</code> from its alias field.</li>
 <li>Extract <code>_dispatch_alias</code> from the caller&#39;s label.</li>
 <li>Decide: FORMAT fails ⇒ BLOCK (format); FORMAT ok AND both aliases
 concrete AND they differ ⇒ BLOCK (alias); otherwise ⇒ exit 0.</li>
@@ -581,8 +616,9 @@ reference labeler (single source of truth for the derivation).</li>
 <li><code>scripts/hooks/guard-forbidden-commands.sh</code> — the
 §11.4.109 anti-forgetting guard.</li>
 </ul>
-<p><strong>Last verified:</strong> 2026-07-11 (hermetic suite 30/30
-PASS; gate + §1.1 mutation clean/mutated/restored GREEN on this
-checkout).</p>
+<p><strong>Last verified:</strong> 2026-07-26 (Rev 2 doc-sync for the
+§11.4.182 EXTENSION 5-field label; guard exit-code matrix re-verified on
+this checkout — 3/4/5/6-field format accept → 0, alias-mismatch → 2,
+no-label → 2, non-agent passthrough → 0).</p>
 </body>
 </html>

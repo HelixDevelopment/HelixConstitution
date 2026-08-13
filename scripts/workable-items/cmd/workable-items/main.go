@@ -35,6 +35,7 @@ Subcommands:
   update --id <ID> --db <p> [--title|--severity|--description|--type|--status|--created-by|--assigned-to ...] [--location Issues|Fixed]
                                                         Mutate fields on an existing item (§11.4.34 audit).
   reopen --id <ID> --db <p> --why <reason> --who <AI|User> --when <ISO> --incident <p> [--location Issues|Fixed]
+  move --id <ID> --db <p> --to <Issues|Fixed> --why <text> [--status <S>] [--evidence <p>]
                                                         Set Status=Reopened with §11.4.34 source attribution.
   block --id <ID> --db <p> --details <T> [--why <T>] [--unblock <T>] [--who <T>] [--location Issues|Fixed]
                                                         Set Status=Operator-blocked with §11.4.21 details.
@@ -82,6 +83,12 @@ Subcommands:
   classify --propose --db <p> [--out <path-prefix>]      Propose logic_group/destination per unclassified item from
                                                         STRUCTURED signals + a title-scoped weak hint (NEVER
                                                         description) — writes a review file, never the DB (design §9).
+  correct-history-evidence --db <p> --atm-id <ID> --history-id <N>
+                           --evidence-path <path> [--reason <text>]
+                                                        Rewrite one CLOSED item's item_history.evidence_path to a
+                                                        resolvable file/dir (§11.4.226) — refuses non-terminal items,
+                                                        non-closure history rows, and unresolvable paths; appends an
+                                                        'Updated' audit row citing old→new.
 
 Canonical authority: Constitution.md §11.4.93; docs/tracks/ASSIGNMENT_MECHANISM_DESIGN.md §3 (group subcommands),
 §5 (assigner), §9 (classifier).
@@ -112,6 +119,8 @@ func main() {
 		runUpdate(args[1:])
 	case "reopen":
 		runReopen(args[1:])
+	case "move":
+		runMove(args[1:])
 	case "block":
 		runBlock(args[1:])
 	case "close":
@@ -132,6 +141,8 @@ func main() {
 		runAssign(args[1:])
 	case "classify":
 		runClassify(args[1:])
+	case "correct-history-evidence":
+		runCorrectHistoryEvidence(args[1:])
 	case "-h", "--help", "help":
 		usage()
 		os.Exit(exitOK)

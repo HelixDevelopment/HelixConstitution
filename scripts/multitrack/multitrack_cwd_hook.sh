@@ -21,17 +21,45 @@
 #     * MUST be fast, read-only, and NEVER hang/fail a session.
 #
 # Usage:
-#   multitrack_cwd_hook.sh <alias>        # hook mode: print worktree or nothing
-#   multitrack_cwd_hook.sh --install      # symlink ~/.local/bin/claude-cwd-hook -> here
-#   multitrack_cwd_hook.sh --uninstall    # remove that symlink (only if ours)
-#   multitrack_cwd_hook.sh --status       # show symlink + per-alias resolution
+#   multitrack_cwd_hook.sh <alias>          # hook mode: print worktree or nothing
+#   multitrack_cwd_hook.sh --install        # symlink ~/.local/bin/claude-cwd-hook -> here
+#   multitrack_cwd_hook.sh --uninstall      # remove that symlink (only if ours)
+#   multitrack_cwd_hook.sh --status         # show symlink + per-alias resolution
+#   multitrack_cwd_hook.sh --consumer-root [alias]
+#                                           # diagnostic: print the resolved
+#                                           # consumer project root + WHY
 #   multitrack_cwd_hook.sh -h | --help
 #
 # Inputs (env):
 #   MULTITRACK_DISABLE=1   Escape hatch: print nothing, exit 0 (switch off).
 #   CMA_CWD_HOOK           (read by the toolkit) path the toolkit calls; --install
 #                          points ~/.local/bin/claude-cwd-hook at this script.
+#   MT_REPO_ROOT           Explicit consumer-project-root pin. Highest precedence
+#                          (see the CONSUMER-ROOT RESOLUTION block below).
+#   MT_CONSUMER_ROOTS      Path to the operator-owned alias->consumer-root binding
+#                          file (default
+#                          ${XDG_CONFIG_HOME:-$HOME/.config}/multitrack/consumer_roots.conf).
+#                          Consumer/operator DATA — never a project literal here.
 #   (all resolver env vars are honored, e.g. MT_CONFIG_DIR / MT_ALIAS_DIR)
+#   --- §11.4.119 checkout-owner advisory check (ATM-833) ---
+#   MT_CHECKOUT_OWNER_POLICY   off | warn | enforce. Unset/unrecognised => the
+#                              PERMISSIVE default `warn` (see below). `enforce`
+#                              withholds the worktree on a contended checkout so
+#                              the session stays where it is (it NEVER refuses a
+#                              session — the toolkit simply does not `cd`).
+#   MULTITRACK_AUTOMATED=1     An automated launcher DECLARING itself; selects
+#                              `enforce` when no explicit policy is set. A human
+#                              never sets it, so an interactive session is never
+#                              silently redirected (§11.4.201 real-condition).
+#   MT_CHECKOUT_OWNER_LOCK     Explicit path to the checkout-owner-lock tool
+#                              (consumer DATA / testability). Otherwise resolved
+#                              as a sibling of this script, then as
+#                              <resolved-worktree>/$MT_CHECKOUT_OWNER_LOCK_RELPATH.
+#   MT_CHECKOUT_OWNER_LOCK_RELPATH  default scripts/multitrack/multitrack_checkout_owner_lock.sh
+#   MT_CHECKOUT_OWNER_LOG      Append-only advisory log (default
+#                              ${XDG_RUNTIME_DIR:-/tmp}/multitrack_checkout_owner_guard.log).
+#   EVERY failure path of this check FAILS OPEN (tool absent / unreadable
+#   registry / unwritable lock dir / crash / timeout => pre-existing behaviour).
 #
 # Outputs: stdout = one worktree path (hook mode) or human text (--status).
 # Side-effects: --install/--uninstall create/remove ONE symlink under ~/.local/bin.
@@ -90,16 +118,297 @@ CWH_DIR="$(cd -P "$(dirname "$CWH_SELF")" >/dev/null 2>&1 && pwd)"
 CWH_RESOLVER="$CWH_DIR/multitrack_resolve_worktree.sh"
 CWH_LINK="${CMA_CWD_HOOK:-$HOME/.local/bin/claude-cwd-hook}"
 
+# =============================================================================
+# §11.4.177 CONSUMER-ROOT RESOLUTION — which consumer project is this hook for?
+# -----------------------------------------------------------------------------
+# THE DEFECT THIS CLOSES. Every other engine entry point runs from INSIDE a
+# consumer checkout, so multitrack_config.sh:mt_repo_root's SELF-LOCATION
+# (<engine>/../.. carrying config/multitrack, else the git superproject) is the
+# right answer. This hook is the ONE entry point that runs from OUTSIDE any
+# checkout — the toolkit invokes it only when cwd is NOT a git repo — and it is
+# customarily installed ONCE on a shared PATH. Self-location therefore answers a
+# question it cannot know: it returns whichever checkout physically holds the
+# engine, SHADOWING every sibling consumer on the host that ships its own
+# config/multitrack/ (the §11.4.177 re-coupling: one global entry point wired to
+# one hardcoded project).
+#
+# PRECEDENCE (first hit wins; each step is a REAL, checkable condition —
+# §11.4.201, never a guess):
+#   1. MT_REPO_ROOT              explicit pin (operator / launcher / test seam)
+#   2. invocation context        nearest ancestor of $PWD carrying
+#                                config/multitrack/  (§11.4.177 "take the target
+#                                from the invocation directory")
+#   3. operator binding file     alias key, else `default` key, from a file
+#                                OUTSIDE every checkout. HONEST BOUNDARY
+#                                (§11.4.6): when the hook fires there is by
+#                                construction NO cwd project context, so the
+#                                alias->consumer mapping is host policy that
+#                                nothing in-tree can derive. This minimal
+#                                operator-owned artifact is the only way to
+#                                satisfy §11.4.177 (project-agnostic tooling)
+#                                and §11.4.187 (automatic, out-of-the-box)
+#                                simultaneously.
+#   4. NOTHING RESOLVED          export nothing -> the resolver falls back to its
+#                                unchanged self-location behaviour. This is the
+#                                load-bearing back-compat guarantee: a host with
+#                                no binding file and no cwd context behaves
+#                                EXACTLY as before this block existed, so no
+#                                existing consumer of the engine can break.
+#
+# A candidate is accepted ONLY if it really carries config/multitrack/ — a stale
+# or mistyped binding is REPORTED and IGNORED, never silently trusted (§11.4.6),
+# and never fails the session (§11.4.187: the hook must never break a launch).
+# NOTHING here writes to stdout: fd 1 is the toolkit's `cd` target.
+# =============================================================================
+
+# Operator-owned binding file. Consumer/operator DATA — this engine carries NO
+# project literal (§11.4.28(B) / §11.4.177).
+CWH_CONSUMER_ROOTS="${MT_CONSUMER_ROOTS:-${XDG_CONFIG_HOME:-$HOME/.config}/multitrack/consumer_roots.conf}"
+
+# A directory is a consumer project root IFF it carries config/multitrack/ —
+# the same marker mt_repo_root uses, so "consumer root" means one thing engine-wide.
+_cwh_is_consumer_root() { [ -n "${1:-}" ] && [ -d "$1/config/multitrack" ]; }
+
+# Diagnostic note — stderr + the advisory log ONLY, NEVER stdout.
+_cwh_root_note() {
+    { printf 'multitrack: %s\n' "$1" >&2; } 2>/dev/null || true
+    { printf '%s multitrack-consumer-root: %s\n' \
+        "$(date -u +%FT%TZ 2>/dev/null || echo unknown-time)" "$1" \
+        >>"${MT_CHECKOUT_OWNER_LOG:-${XDG_RUNTIME_DIR:-/tmp}/multitrack_checkout_owner_guard.log}"; } 2>/dev/null || true
+    return 0
+}
+
+# Step 2 — nearest ancestor of $PWD that is a consumer root.
+_cwh_root_from_cwd() {
+    local d
+    d="$(pwd -P 2>/dev/null)" || return 1
+    while [ -n "$d" ] && [ "$d" != "/" ]; do
+        if _cwh_is_consumer_root "$d"; then printf '%s' "$d"; return 0; fi
+        d="$(dirname "$d" 2>/dev/null)" || return 1
+    done
+    if _cwh_is_consumer_root "/"; then printf '%s' "/"; return 0; fi
+    return 1
+}
+
+# Step 3 — operator binding file. Format (project-agnostic, PARSED not sourced,
+# so a typo or a hostile line can never execute):
+#     # comment
+#     default = /abs/path/to/consumer
+#     <alias> = /abs/path/to/other/consumer
+# The alias key wins over `default`; the LAST assignment of a given key wins.
+_cwh_root_from_binding() {
+    local alias="${1:-}" hit
+    [ -r "$CWH_CONSUMER_ROOTS" ] || return 1
+    hit="$(awk -v want="$alias" '
+        { sub(/[ \t]*#.*$/, "") }                       # strip comments
+        {
+            i = index($0, "=");  if (i == 0) next
+            k = substr($0, 1, i-1); v = substr($0, i+1)
+            gsub(/^[ \t]+|[ \t]+$/, "", k)
+            gsub(/^[ \t]+|[ \t]+$/, "", v)
+            if (k == "" || v == "") next
+            if (want != "" && k == want) a = v
+            else if (k == "default")     d = v
+        }
+        END { if (a != "") print a; else if (d != "") print d }
+    ' "$CWH_CONSUMER_ROOTS" 2>/dev/null)"
+    [ -n "$hit" ] || return 1
+    printf '%s' "$hit"
+}
+
+# Resolve the consumer root for <alias>.
+#
+# Emits ONE line, TAB-separated:  <reason><TAB><root>
+# On "no opinion" the root field is EMPTY and the exit code is 1, so the caller
+# leaves the resolver's own self-location behaviour completely intact.
+#
+# WHY a single packed line rather than a variable: every caller reads this via
+# command substitution, which runs a SUBSHELL — a global assigned in here would
+# be silently discarded, and the reason would read "unknown" on every refusal
+# (§11.4.201(5): a guard MUST be able to print the evidence behind its decision).
+_cwh_consumer_root() {
+    local alias="${1:-}" c
+    if [ -n "${MT_REPO_ROOT:-}" ]; then
+        printf 'MT_REPO_ROOT env pin\t%s' "$MT_REPO_ROOT"; return 0
+    fi
+    if c="$(_cwh_root_from_cwd)" && [ -n "$c" ]; then
+        printf 'invocation context (nearest ancestor of $PWD carrying config/multitrack)\t%s' "$c"
+        return 0
+    fi
+    if c="$(_cwh_root_from_binding "$alias")" && [ -n "$c" ]; then
+        if _cwh_is_consumer_root "$c"; then
+            printf 'operator binding %s\t%s' "$CWH_CONSUMER_ROOTS" "$c"; return 0
+        fi
+        _cwh_root_note "binding in $CWH_CONSUMER_ROOTS names '$c', which carries no config/multitrack — IGNORED (§11.4.6)"
+        printf 'binding named a path with no config/multitrack — IGNORED; resolver keeps its self-location default\t'
+        return 1
+    fi
+    printf 'unresolved (no env pin, no cwd context, no operator binding) — resolver keeps its self-location default\t'
+    return 1
+}
+
+# Export the resolved root so the resolver's existing operator-pin clause picks
+# it up. No resolution -> export NOTHING (unchanged legacy behaviour).
+_cwh_bind_consumer_root() {
+    local out root
+    out="$(_cwh_consumer_root "${1:-}")"
+    root="${out#*$'\t'}"
+    if [ -n "$root" ]; then MT_REPO_ROOT="$root"; export MT_REPO_ROOT; fi
+    return 0
+}
+
+# =============================================================================
+# §11.4.119 CHECKOUT-OWNER ADVISORY CHECK (ATM-833) — the cwd-hook half.
+# -----------------------------------------------------------------------------
+# The supervisor launch path takes a canonical, checkout-keyed owner lock; this
+# (the toolkit-alias launch path) previously had NO lock / claim / ownership
+# logic at all, so an alias session could join a checkout a supervisor already
+# owned => two `claude` writers on ONE git index (§9.2 data-safety risk).
+#
+# ABSOLUTE CONSTRAINT — this code MUST NEVER prevent a session from starting.
+#   * The toolkit consumes this hook as `cd "$(hook <alias>)" 2>/dev/null || true`
+#     and only cd's when the printed path is a real directory. Printing NOTHING
+#     therefore leaves the session on its current dir (/home) — the session
+#     ALWAYS starts. There is no code path here that can refuse a shell.
+#   * The only real hazard is HANGING (command substitution waits for us), so
+#     every probe is NON-BLOCKING and, where `timeout` exists, hard-bounded.
+#   * EVERY error path FAILS OPEN — unresolvable tool, unreadable registry,
+#     unwritable lock dir, unexpected exit code, timeout => behave exactly as
+#     before this section existed (print the worktree, no warning).
+#
+# POLICY (three-valued; see _cwh_owner_policy):
+#   warn    (DEFAULT) — print the worktree as always, but emit a loud, evidence-
+#                       bearing WARNING and skip the contended git-WRITE side
+#                       effect (constitution auto-sync). An interactive human is
+#                       NEVER silently redirected.
+#   enforce           — additionally print NOTHING (session stays home) so the
+#                       automated launcher does not become a 2nd writer.
+#                       Selected ONLY by an explicit policy value or by an
+#                       automated launcher DECLARING itself (§11.4.201: a real
+#                       declared condition, never a guessed interactive-vs-
+#                       automated heuristic).
+#   off               — the check is skipped entirely (pre-existing behaviour).
+#
+# §11.4.177: no project literal here. The lock tool is located from the
+# invocation context (env override -> sibling in this engine dir -> a path
+# relative to the RESOLVED worktree), never from a hardcoded project path.
+# =============================================================================
+
+CWH_OWNER_TOOL_BASENAME="multitrack_checkout_owner_lock.sh"
+# Consumer-overridable relative location, used only as the last resort and only
+# relative to the alias's own resolved worktree (invocation context, §11.4.177).
+CWH_OWNER_TOOL_RELPATH="${MT_CHECKOUT_OWNER_LOCK_RELPATH:-scripts/multitrack/$CWH_OWNER_TOOL_BASENAME}"
+
+# Resolve the checkout-owner-lock tool, or print nothing when unavailable.
+# Order: explicit env (testability / consumer DATA) -> sibling of this engine
+# script -> <resolved-worktree>/<relpath>. Absent => the caller fails open.
+_cwh_owner_tool() {
+    local wt="${1:-}" cand
+    cand="${MT_CHECKOUT_OWNER_LOCK:-}"
+    if [ -n "$cand" ] && [ -r "$cand" ]; then printf '%s' "$cand"; return 0; fi
+    cand="$CWH_DIR/$CWH_OWNER_TOOL_BASENAME"
+    if [ -r "$cand" ]; then printf '%s' "$cand"; return 0; fi
+    if [ -n "$wt" ]; then
+        cand="$wt/$CWH_OWNER_TOOL_RELPATH"
+        if [ -r "$cand" ]; then printf '%s' "$cand"; return 0; fi
+    fi
+    return 1
+}
+
+# Three-valued policy. Unrecognised values fall back to the PERMISSIVE default
+# (`warn`) — a typo in an env var must never silently start refusing worktrees.
+_cwh_owner_policy() {
+    case "${MT_CHECKOUT_OWNER_POLICY:-}" in
+        off)     printf 'off' ;    return 0 ;;
+        warn)    printf 'warn' ;   return 0 ;;
+        enforce) printf 'enforce'; return 0 ;;
+    esac
+    # An automated launcher DECLARES itself; a human never sets this (§11.4.201
+    # — a declared condition, not a proxy signal such as tty-ness, which cannot
+    # separate a tmux-launched worker from a human in tmux).
+    [ "${MULTITRACK_AUTOMATED:-0}" = "1" ] && { printf 'enforce'; return 0; }
+    printf 'warn'
+}
+
+# Operator-visible notification. cma_run captures our stdout as the cd target
+# and DISCARDS our stderr (`2>/dev/null`), so a warning written only to stderr
+# would be invisible. /dev/tty bypasses that redirection; every write is
+# best-effort and non-fatal, and NOTHING is ever written to stdout.
+_cwh_owner_notify() {
+    local msg="$1" logf
+    # NOTE the redirection ORDER: `2>/dev/null` FIRST so that if opening
+    # /dev/tty fails (no controlling terminal — nohup/cron/CI), the shell's own
+    # "cannot open" diagnostic is already swallowed. Never touches stdout.
+    { printf '%s\n' "$msg" 2>/dev/null >/dev/tty; } 2>/dev/null || true
+    { printf '%s\n' "$msg" >&2; } 2>/dev/null || true
+    logf="${MT_CHECKOUT_OWNER_LOG:-${XDG_RUNTIME_DIR:-/tmp}/multitrack_checkout_owner_guard.log}"
+    { printf '%s %s\n' "$(date -u +%FT%TZ 2>/dev/null || echo unknown-time)" "$msg" \
+        >>"$logf"; } 2>/dev/null || true
+    return 0
+}
+
+# Probe ownership of <worktree>. Prints the tool's resolved evidence line on
+# stdout when (and only when) the checkout is PROVABLY owned by another live
+# agent; returns 3 in that case, 0 otherwise.
+#
+# FAIL-OPEN by construction: any outcome that is not an unambiguous exit-3
+# "BUSY" (tool absent, non-executable, usage error, crash, timeout, empty
+# checkout) returns 0 = treat as free.
+_cwh_owner_busy() {
+    local wt="${1:-}" tool out rc
+    [ -n "$wt" ] || return 0
+    tool="$(_cwh_owner_tool "$wt" 2>/dev/null)" || return 0
+    [ -n "$tool" ] || return 0
+    # Non-blocking by contract (the tool's `check` uses `flock -n`); `timeout`
+    # is defence-in-depth against a wedged filesystem on the realpath call.
+    if command -v timeout >/dev/null 2>&1; then
+        out="$(timeout 5 bash "$tool" check "$wt" 2>/dev/null)"; rc=$?
+    else
+        out="$(bash "$tool" check "$wt" 2>/dev/null)"; rc=$?
+    fi
+    [ "$rc" -eq 3 ] || return 0          # 0=FREE, 2=usage, 124=timeout, else -> FAIL OPEN
+    printf '%s' "$out"
+    return 3
+}
+
 # Hook mode: print the alias's worktree (or nothing). Never fail a session.
 _cwh_hook() {
-    local alias="$1"
+    local alias="$1" wt policy evidence contended=0
     [ -n "$alias" ] || return 0
     [ "${MULTITRACK_DISABLE:-0}" = "1" ] && return 0
     [ -r "$CWH_RESOLVER" ] || return 0
-    # 1) Resolve + relay the worktree (unchanged, load-bearing: cma_run cd's into
+    # 0) §11.4.177 consumer-root resolution — decide WHICH consumer project this
+    #    invocation is for BEFORE delegating, and export it so the resolver's
+    #    existing MT_REPO_ROOT pin honours it. Without this, a globally-installed
+    #    hook answers every alias with whichever checkout physically holds the
+    #    engine. Resolving to nothing is a clean no-op (unchanged behaviour).
+    #    Exported here so the detached bind / monitor / constitution-sync side
+    #    effects below inherit the SAME consumer — never a split-brain where the
+    #    printed worktree and the bind/sync target disagree.
+    _cwh_bind_consumer_root "$alias"
+    # 1) Resolve the worktree (unchanged, load-bearing: cma_run cd's into
     #    whatever single dir this prints). The resolver guards mount+worktree
     #    validity and prints nothing on failure; errors -> fall back /home.
-    bash "$CWH_RESOLVER" resolve "$alias" 2>/dev/null || true
+    wt="$(bash "$CWH_RESOLVER" resolve "$alias" 2>/dev/null || true)"
+    # 1b) §11.4.119 checkout-owner advisory check (ATM-833). Runs ONLY when a
+    #     real worktree resolved (the conductor resolves to none => no check),
+    #     and CANNOT prevent the session from starting — see the block comment
+    #     above. `enforce` merely withholds the worktree so the session stays
+    #     on /home instead of becoming a 2nd writer in one git index.
+    policy="$(_cwh_owner_policy)"
+    if [ -n "$wt" ] && [ "$policy" != "off" ]; then
+        if evidence="$(_cwh_owner_busy "$wt")"; then
+            : # free (or unresolvable => fail open)
+        else
+            contended=1
+            _cwh_owner_notify "multitrack: checkout already owned by another live agent — ${evidence:-no evidence resolved} (alias=$alias policy=$policy) [§11.4.119]"
+        fi
+    fi
+    if [ "$contended" = "1" ] && [ "$policy" = "enforce" ]; then
+        _cwh_owner_notify "multitrack: staying on the current directory instead of joining a contended checkout (set MT_CHECKOUT_OWNER_POLICY=off to override)"
+        return 0                          # print NOTHING -> session starts where it is
+    fi
+    [ -n "$wt" ] && printf '%s\n' "$wt"
     # 2) §4.1 bind-on-start (PWU-3): engage/refresh the alias<->track lease so the
     #    (existing) fallback machinery tracks the alias<->track binding. BEST-EFFORT,
     #    NON-FATAL, FULLY DETACHED — see _cwh_bind_start for why this can NEVER
@@ -125,7 +434,18 @@ _cwh_hook() {
     #    preserving, and NEVER force/reset/rewind (see multitrack_constitution_sync.sh).
     #    Only a REAL track (a resolved worktree) is synced — the conductor resolves
     #    to no worktree (NOOP), its /home checkout kept current by its own workflow.
-    _cwh_constitution_sync_start "$alias"
+    #    §11.4.119/§11.4.84 (ATM-833): SKIPPED when the checkout is provably owned
+    #    by another live agent. This sync is a git WRITE (fetch + ff-merge) INSIDE
+    #    the contended worktree — running it while another agent commits there is
+    #    a real write-race. Skipping is the reversible-safe choice (§11.4.101): a
+    #    not-yet-synced submodule is the status quo, a raced index is not. Applies
+    #    in `warn` mode too (defence in depth), since `warn` still hands the
+    #    worktree over.
+    if [ "$contended" = "1" ]; then
+        _cwh_owner_notify "multitrack: skipping constitution auto-sync — contended checkout (git write-race guard, §11.4.119)"
+    else
+        _cwh_constitution_sync_start "$alias"
+    fi
     return 0
 }
 
@@ -266,6 +586,26 @@ _cwh_uninstall() {
     echo "no symlink at $CWH_LINK"; return 0
 }
 
+# Operator diagnostic (§11.4.201(5) — a resolution always shows its evidence).
+# Read-only; prints the resolved consumer root + WHY, or an honest "unresolved".
+_cwh_consumer_root_report() {
+    local alias="${1:-}" out why root
+    out="$(_cwh_consumer_root "$alias" 2>/dev/null)"
+    why="${out%%$'\t'*}"
+    root="${out#*$'\t'}"
+    printf 'alias           : %s\n' "${alias:-<none>}"
+    printf 'cwd             : %s\n' "$(pwd -P 2>/dev/null)"
+    printf 'binding file    : %s%s\n' "$CWH_CONSUMER_ROOTS" \
+        "$( [ -r "$CWH_CONSUMER_ROOTS" ] && printf '' || printf '  (absent)' )"
+    if [ -n "$root" ]; then
+        printf 'consumer root   : %s\n' "$root"
+    else
+        printf 'consumer root   : <unresolved>\n'
+    fi
+    printf 'reason          : %s\n' "${why:-unknown}"
+    return 0
+}
+
 _cwh_status() {
     printf 'hook script : %s\n' "$CWH_SELF"
     printf 'resolver    : %s\n' "$CWH_RESOLVER"
@@ -275,13 +615,20 @@ _cwh_status() {
         printf 'installed   : NO (%s absent)\n' "$CWH_LINK"
     fi
     printf 'MULTITRACK_DISABLE=%s\n\n' "${MULTITRACK_DISABLE:-0}"
-    bash "$CWH_RESOLVER" map 2>/dev/null || true
+    # §11.4.177: show which consumer project this hook would answer for, so an
+    # operator can SEE a mis-binding instead of inferring it from a wrong cd.
+    _cwh_consumer_root_report ""
+    printf '\n'
+    # Map through the SAME resolved consumer root the hook path would use, so
+    # --status can never report a different project than a live invocation.
+    ( _cwh_bind_consumer_root ""; bash "$CWH_RESOLVER" map 2>/dev/null ) || true
 }
 
 case "${1:-}" in
     --install)   _cwh_install ;;
     --uninstall) _cwh_uninstall ;;
     --status)    _cwh_status ;;
+    --consumer-root) _cwh_consumer_root_report "${2:-}" ;;
     -h|--help)   grep -E '^#( |$)' "$CWH_SELF" | sed 's/^# \{0,1\}//' | head -40 ;;
     '')          exit 0 ;;                 # no label -> nothing (safe)
     *)           _cwh_hook "$1" ;;         # treat arg as the alias label

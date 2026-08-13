@@ -39,6 +39,11 @@ PROJECT_ROOT="${1:-$(pwd)}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_NAME="session-sync"
 
+# Relocation-proof symlink creation (§11.4.111): the link target MUST be stored
+# RELATIVE to the link, never as this machine's absolute path — an absolute
+# target only resolves on the host that ran the install.
+. "$(cd "${SCRIPT_DIR}/../.." && pwd)/scripts/portable_symlink_lib.sh"
+
 echo "[register.sh] Registering skill: ${SKILL_NAME}"
 
 # 1. Ensure skills directory exists in the consuming project
@@ -47,9 +52,8 @@ mkdir -p "${PROJECT_ROOT}/skills"
 # 2. Create/update symlink so the skill is discoverable
 LINK_TARGET="${PROJECT_ROOT}/skills/${SKILL_NAME}"
 if [ -L "$LINK_TARGET" ] || [ ! -e "$LINK_TARGET" ]; then
-    rm -f "$LINK_TARGET"
-    ln -sf "$SCRIPT_DIR" "$LINK_TARGET"
-    echo "[register.sh]  -> Linked: ${LINK_TARGET} -> ${SCRIPT_DIR}"
+    hc_ln_relative "$SCRIPT_DIR" "$LINK_TARGET"
+    echo "[register.sh]  -> Linked: ${LINK_TARGET} -> $(readlink "$LINK_TARGET")"
 else
     echo "[register.sh]  -> ${LINK_TARGET} already exists and is not a symlink — skipping"
 fi
@@ -61,9 +65,8 @@ chmod +x "${SCRIPT_DIR}/session-sync.sh" 2>/dev/null || true
 if [ -d "${PROJECT_ROOT}/scripts" ]; then
     CONVENIENCE_LINK="${PROJECT_ROOT}/scripts/sync_remote_session.sh"
     if [ -L "$CONVENIENCE_LINK" ] || [ ! -e "$CONVENIENCE_LINK" ]; then
-        rm -f "$CONVENIENCE_LINK"
-        ln -sf "${SCRIPT_DIR}/session-sync.sh" "$CONVENIENCE_LINK"
-        echo "[register.sh]  -> Convenience link: ${CONVENIENCE_LINK}"
+        hc_ln_relative "${SCRIPT_DIR}/session-sync.sh" "$CONVENIENCE_LINK"
+        echo "[register.sh]  -> Convenience link: ${CONVENIENCE_LINK} -> $(readlink "$CONVENIENCE_LINK")"
     fi
 fi
 

@@ -541,7 +541,9 @@ func TestAssignGroupCompleteCmd_SucceedsWhenAllMembersTerminalWithEvidence(t *te
 	if code := groupSetCmd([]string{"--db", dbPath, "--item", "WIT-700", "--group", "grp-e2e-complete"}); code != exitOK {
 		t.Fatalf("group set --item exited %d", code)
 	}
-	if code := closeCmd([]string{"WIT-700", "--db", dbPath, "--status", "fixed", "--evidence", "qa-results/assign-p3/wit-700-evidence.log"}); code != exitOK {
+	evRoot := newEvidenceRoot(t)
+	if code := closeCmd([]string{"WIT-700", "--db", dbPath, "--status", "fixed",
+		"--evidence", materialiseEvidence(t, evRoot, "qa-results/assign-p3/wit-700-evidence.log")}); code != exitOK {
 		t.Fatalf("close exited %d", code)
 	}
 

@@ -1,0 +1,10 @@
+PASS: S1 fresh machine block verifies (re-render byte-matches)
+PASS: S2 stale block (the 22-vs-45 MU-1 case verbatim) -> DRIFT
+PASS: S3 block hashing its own document refused (fixpoint false-FAIL, §11.4.205(5))
+PASS: F1 verdict cited only inside its fence -> clean
+PASS: F2 verdict cited beyond its fence -> violation naming the citing file (MU-2 closed)
+PASS: M1 plan requiring the gate at its declared seam -> clean
+PASS: M2 restatement moved the gate to a different seam -> SEAM-MISMATCH (MU-3 caught mechanically)
+----------------------------------------
+RESULT: PASS=7 FAIL=0
+exit=0
