@@ -250,3 +250,21 @@ The scripts append entries below automatically; manual entries are also acceptab
 - current: `1.4.1`
 - latest:  `1.4.1`
 - action:  **no-op** (already at latest)
+
+## 2026-08-13T07:19:41Z — codegraph version check
+
+- current: `1.5.0`
+- latest:  `1.5.0`
+- action:  **no-op** (already at latest)
+
+## 2026-08-13T07:47:09Z — codegraph version check
+
+- current: `1.5.0`
+- latest:  `1.5.0`
+- action:  **no-op** (already at latest)
+
+## 2026-08-13T08:05:01Z — codegraph version check
+
+- current: `1.5.0`
+- latest:  `1.5.0`
+- action:  **no-op** (already at latest)
