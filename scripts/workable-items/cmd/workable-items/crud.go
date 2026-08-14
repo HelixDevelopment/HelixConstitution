@@ -221,6 +221,16 @@ func closeCmd(args []string) int {
 		fmt.Fprintln(os.Stderr, "close: --evidence is required (§11.4.5/§11.4.90 captured-evidence mandate)")
 		return exitUsage
 	}
+	// HXC-224 — and that evidence must RESOLVE, refused HERE, at the moment of
+	// recording. A non-empty check alone let a closure citing a path that had
+	// never existed land in the single source of truth, to be flagged only by a
+	// later `validate` sweep if one ever ran (the HXC-217 detective half). The
+	// evidence path is what makes a closure falsifiable; recording a fabricated
+	// one is a §11.4 PASS-bluff written straight into the tracker. Refusing
+	// before openDB/Begin means a refused closure leaves no trace at all.
+	if !requireEvidencePath("close", *evidence) {
+		return exitUsage
+	}
 
 	db, err := openDB(*dbPath)
 	if err != nil {

@@ -600,6 +600,14 @@ func moveCmd(args []string) int {
 		fmt.Fprintln(os.Stderr, "move: --why is required (recorded in the item_history audit row)")
 		return exitUsage
 	}
+	// HXC-224 record-time closure-evidence guard. --evidence stays OPTIONAL on
+	// this command (checkEvidencePath is a no-op on an empty value) — but a
+	// SUPPLIED path must resolve, because `move --to Fixed --status <terminal>`
+	// relocates an item INTO the closed set, making its audit row exactly the
+	// kind of closure-evidence row the HXC-217 validator scopes to.
+	if !requireEvidencePath("move", *evidence) {
+		return exitUsage
+	}
 
 	db, err := openDB(*dbPath)
 	if err != nil {

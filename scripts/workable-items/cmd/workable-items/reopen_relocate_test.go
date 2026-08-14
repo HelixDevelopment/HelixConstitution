@@ -26,6 +26,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -43,8 +44,21 @@ func seedFixedItem(t *testing.T, dbPath, id string) {
 	}); code != exitOK {
 		t.Fatalf("seed add %s: exit %d", id, code)
 	}
+	// HXC-217 (§11.4.120 reconciliation): the closure-evidence RESOLVABILITY
+	// guard (unresolvableClosureEvidence, sync.go) now requires a closed item's
+	// item_history.evidence_path to point at an artefact that actually EXISTS —
+	// a closure claiming captured proof that cannot be produced on demand is a
+	// §11.4.226(2) bluff. This seed previously passed a fabricated
+	// `docs/qa/<id>/close.md`, which validate correctly rejects. The fixture is
+	// reconciled to the NEW mechanism (land a real artefact, cite its path), NOT
+	// by weakening the guard — the tests below assert the location↔status and
+	// segment invariants, which are unaffected by which real path is cited.
+	evidence := filepath.Join(t.TempDir(), "close.md")
+	if err := os.WriteFile(evidence, []byte("captured closure evidence for "+id+"\n"), 0o644); err != nil {
+		t.Fatalf("seed evidence for %s: %v", id, err)
+	}
 	if code := closeCmd([]string{"--db", dbPath, "--status", "fixed",
-		"--evidence", "docs/qa/" + id + "/close.md", id}); code != exitOK {
+		"--evidence", evidence, id}); code != exitOK {
 		t.Fatalf("seed close %s: exit %d", id, code)
 	}
 }

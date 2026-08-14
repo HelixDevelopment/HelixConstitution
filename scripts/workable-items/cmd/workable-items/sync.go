@@ -293,6 +293,26 @@ func validateCmd(args []string) int {
 	// this: current_location↔status closed-set agreement).
 	violations = append(violations, fixedLocationNonTerminalStatus(items)...)
 
+	// (g) §11.4.5 / §11.4.69 / §11.4.123 / §11.4.226 — closure-evidence
+	// RESOLVABILITY. A closed item's item_history rows carry evidence_path: the
+	// pointer to the captured proof that IS the closure's warrant. Nothing ever
+	// asserted that pointer RESOLVES, so a closure could record a narrative
+	// paragraph, or a well-formed path to a file that was never committed, and
+	// still read as evidence-backed everywhere downstream (HXC-217: 16 such rows
+	// across 14 tickets — 12 narrative, 4 clean-but-never-populated paths whose
+	// real evidence had landed elsewhere). An unresolvable evidence_path is a
+	// §11.4.226(2) "class proven by a LABEL, not by machine fields" bluff: the
+	// closure claims captured proof that cannot be produced on demand.
+	//
+	// Scoped to CLOSED items deliberately (§11.4.201(1) — a guard must assert the
+	// REAL condition and refuse nothing else): the mandate is that a CLOSURE's
+	// evidence resolves. An open item's in-progress note is not a closure claim.
+	if unresolvable, uerr := unresolvableClosureEvidence(db); uerr != nil {
+		violations = append(violations, fmt.Sprintf("closure-evidence integrity query: %v", uerr))
+	} else {
+		violations = append(violations, unresolvable...)
+	}
+
 	if len(violations) > 0 {
 		sort.Strings(violations)
 		fmt.Fprintf(os.Stderr, "validate: %d violation(s):\n", len(violations))
@@ -391,6 +411,80 @@ func fixedLocationNonTerminalStatus(items []item) []string {
 		}
 	}
 	return out
+}
+
+// unresolvableClosureEvidence returns, for the HXC-217 unresolvable-evidence
+// defect CLASS, a human-readable description of every item_history row that
+// (a) belongs to an item whose CURRENT status is one of the four terminal
+// closed-set values, and (b) carries a non-empty evidence_path that does NOT
+// resolve to an existing filesystem entry.
+//
+// Path anchoring reuses resolveInvocationRelative (the HXC-201 mechanism): an
+// absolute path is taken as-is, a relative one is anchored against the INVOKING
+// shell's $PWD rather than this process's cwd — mandatory because `go run -C`
+// relocates the child's cwd into this tool's own source tree, which would make
+// every repo-root-relative evidence path fail and turn this guard into exactly
+// the §11.4.201(1) false-positive refusal it must never become.
+//
+// The message distinguishes the two observed sub-classes so a finding is
+// actionable in one read (§11.4.201(5) — a refusal prints its resolved
+// evidence): a value carrying whitespace/newlines is narrative or a multi-value
+// list pasted into a single-path field; a clean single token is a well-formed
+// path that was never populated.
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with
+// `return nil, nil` removes the guard; validate_evidence_test.go then FAILs —
+// proving the guard is not a tautology.
+func unresolvableClosureEvidence(db *sql.DB) ([]string, error) {
+	rows, err := db.Query(`
+		SELECT h.id, h.atm_id, h.event_type, h.on_date, h.evidence_path
+		FROM item_history h
+		WHERE h.evidence_path IS NOT NULL
+		  AND TRIM(h.evidence_path) <> ''
+		  AND EXISTS (
+		        SELECT 1 FROM items i
+		        WHERE i.atm_id = h.atm_id
+		          AND i.status IN (
+		                'Fixed (→ Fixed.md)', 'Implemented (→ Fixed.md)',
+		                'Completed (→ Fixed.md)', 'Obsolete (→ Fixed.md)'))
+		ORDER BY h.atm_id, h.id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []string
+	for rows.Next() {
+		var id int
+		var atmID, event, onDate, evidence string
+		if err := rows.Scan(&id, &atmID, &event, &onDate, &evidence); err != nil {
+			return nil, err
+		}
+		if _, statErr := os.Stat(resolveInvocationRelative(evidence)); statErr == nil {
+			continue
+		}
+		kind := "well-formed path, but nothing exists there"
+		if strings.ContainsAny(evidence, " \t\r\n") {
+			kind = "narrative or multi-value text in a single-path field"
+		}
+		out = append(out, fmt.Sprintf(
+			"%s: closure evidence_path does not resolve (%s) — history id=%d, event=%s, on=%s: %q (§11.4.5/§11.4.69/§11.4.123/§11.4.226 — a closure's captured proof must be producible on demand)",
+			atmID, kind, id, event, onDate, firstLine(evidence)))
+	}
+	return out, rows.Err()
+}
+
+// firstLine keeps a violation message single-line + bounded when the offending
+// evidence_path holds a multi-line narrative, so one bad row cannot flood the
+// validator's output and hide its siblings.
+func firstLine(s string) string {
+	if i := strings.IndexAny(s, "\r\n"); i >= 0 {
+		s = s[:i] + " …"
+	}
+	if len(s) > 120 {
+		s = s[:120] + " …"
+	}
+	return s
 }
 
 // itemsMissingSegments is the REVERSE of danglingItemSegments: it returns, for
@@ -577,33 +671,62 @@ func diffCmd(args []string) int {
 		parsed = append(parsed, its...)
 	}
 
+	// Gate the parsed-vs-DB comparison on actually having Markdown to compare
+	// against. When BOTH --issues and --fixed are absent (the desync-only
+	// invocation shape documented at sync.go:618-630) there is no Markdown to
+	// parse; running the two compare loops below still iterated `dbItems` with
+	// an empty `parsedSeen` map and reported EVERY DB row as
+	// "- <id> present in DB, absent in Markdown" — a false-positive equal to
+	// the DB row count (102 in-repo, 2026-08-10; forensic FACT: reproduced on
+	// a state where `sync db-to-md` writes byte-identical output to the
+	// on-disk Issues.md/Fixed.md, so DB and Markdown were provably in-sync).
+	// The desync check above (statusColumnBodyDesyncs) is ORTHOGONAL — it is
+	// a DB-internal integrity gate that does not read Markdown — and runs
+	// unconditionally, exactly as the block comment intended. When at least
+	// one path IS given, we perform the comparison against the subset of
+	// trackers actually provided (issues-only or fixed-only invocation stays
+	// meaningful for its own tracker).
+	haveMarkdown := *issuesPath != "" || *fixedPath != ""
+
 	differences := 0
-	parsedSeen := map[string]bool{}
-	for _, p := range parsed {
-		parsedSeen[itemKey(p)] = true
-		d, ok := dbByID[itemKey(p)]
-		if !ok {
-			fmt.Printf("+ %s present in Markdown, absent in DB\n", p.AtmID)
-			differences++
-			continue
+	if haveMarkdown {
+		parsedSeen := map[string]bool{}
+		for _, p := range parsed {
+			parsedSeen[itemKey(p)] = true
+			d, ok := dbByID[itemKey(p)]
+			if !ok {
+				fmt.Printf("+ %s present in Markdown, absent in DB\n", p.AtmID)
+				differences++
+				continue
+			}
+			if p.Status != d.Status {
+				fmt.Printf("~ %s status: md=%q db=%q\n", p.AtmID, p.Status, d.Status)
+				differences++
+			}
+			if p.Type != d.Type {
+				fmt.Printf("~ %s type: md=%q db=%q\n", p.AtmID, p.Type, d.Type)
+				differences++
+			}
+			if p.BodyMD != d.BodyMD {
+				fmt.Printf("~ %s body differs (md=%d bytes db=%d bytes)\n", p.AtmID, len(p.BodyMD), len(d.BodyMD))
+				differences++
+			}
 		}
-		if p.Status != d.Status {
-			fmt.Printf("~ %s status: md=%q db=%q\n", p.AtmID, p.Status, d.Status)
-			differences++
-		}
-		if p.Type != d.Type {
-			fmt.Printf("~ %s type: md=%q db=%q\n", p.AtmID, p.Type, d.Type)
-			differences++
-		}
-		if p.BodyMD != d.BodyMD {
-			fmt.Printf("~ %s body differs (md=%d bytes db=%d bytes)\n", p.AtmID, len(p.BodyMD), len(d.BodyMD))
-			differences++
-		}
-	}
-	for _, d := range dbItems {
-		if !parsedSeen[itemKey(d)] {
-			fmt.Printf("- %s present in DB, absent in Markdown\n", d.AtmID)
-			differences++
+		// Restrict the "absent in Markdown" pass to trackers the caller actually
+		// supplied. When --issues is given without --fixed we compare Issues rows
+		// only; missing-in-Fixed lines would be their own class of false positive
+		// against Fixed rows the caller never asked about. Same in reverse.
+		for _, d := range dbItems {
+			if d.CurrentLocation == "Issues" && *issuesPath == "" {
+				continue
+			}
+			if d.CurrentLocation == "Fixed" && *fixedPath == "" {
+				continue
+			}
+			if !parsedSeen[itemKey(d)] {
+				fmt.Printf("- %s present in DB, absent in Markdown\n", d.AtmID)
+				differences++
+			}
 		}
 	}
 
