@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>REFERENCE</title>
+  <title>Action-Directive System — Reference Manual</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -439,10 +439,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">REFERENCE</h1>
-</header>
-<h1 id="action-directive-system-reference-manual">Action-Directive
+<h1 id="action-directive-system--reference-manual">Action-Directive
 System — Reference Manual</h1>
 <p><strong>Revision:</strong> 2 <strong>Last modified:</strong>
 2026-07-14T22:05:00Z <strong>Authority:</strong> constitution §11.4.140
@@ -455,11 +452,11 @@ grammar, the plugin, the per-agent commands, the skills, and every
 script that implements them.</p>
 <p>Companion documents: <a href="USER_GUIDE.md">USER_GUIDE.md</a> · <a href="ADMIN_MANUAL.md">ADMIN_MANUAL.md</a> · <a href="QUICKSTART_REPORT.md">QUICKSTART_REPORT.md</a> · <a href="QUICKSTART_INSTALL.md">QUICKSTART_INSTALL.md</a></p>
 <hr />
-<h2 id="what-the-system-is">1. What the system is</h2>
+<h2 id="1-what-the-system-is">1. What the system is</h2>
 <p>A prompt whose <strong>first non-blank line</strong> starts with a
 registered UPPERCASE action token is not an ordinary prompt. The token
-is <strong>replaced</strong> by that action’s registered
-<code>expansion</code> text, the action’s <code>rules</code> apply, and
+is <strong>replaced</strong> by that action&#39;s registered
+<code>expansion</code> text, the action&#39;s <code>rules</code> apply, and
 the remainder of the prompt is the actual task, executed under the
 expanded instruction.</p>
 <p><code>actions/registry.yaml</code> is the <strong>single source of
@@ -468,11 +465,6 @@ registry row — never a code change in any consumer.</p>
 <p>The system has two independent layers. Both read the same
 registry.</p>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Layer</th>
@@ -502,20 +494,15 @@ model recall lapse (the §11.4.109 anti-forgetting pattern).</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Honest boundary (§11.4.6).</strong> LAYER 2’s
+<p><strong>Honest boundary (§11.4.6).</strong> LAYER 2&#39;s
 prompt-expansion hook exists only for Claude Code. Gemini CLI / Qwen
 Code / Codex CLI get LAYER 1 (the carrier block) plus generated slash
 commands — they have <strong>no</strong> pre-submit hook, so a free-form
 <code>BUG: …</code> prompt on those agents is expanded by the model
 reading its carrier block, not by a hook.</p>
 <hr />
-<h2 id="file-layout">2. File layout</h2>
+<h2 id="2-file-layout">2. File layout</h2>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Path</th>
@@ -592,7 +579,7 @@ drift).</td>
 <tr>
 <td><code>scripts/generate_agent_prefix_commands.sh</code></td>
 <td>generator</td>
-<td>Registry → all agents’ command files + both READMEs.</td>
+<td>Registry → all agents&#39; command files + both READMEs.</td>
 </tr>
 <tr>
 <td><code>scripts/install_cli_agent_plugins.sh</code></td>
@@ -664,14 +651,9 @@ Code).</td>
 carries a <code>DO NOT EDIT</code> banner naming its source row. Edit
 <code>actions/registry.yaml</code>, re-run the generator.</p>
 <hr />
-<h2 id="registry-schema">3. Registry schema</h2>
-<h3 id="top-level">3.1 Top level</h3>
+<h2 id="3-registry-schema">3. Registry schema</h2>
+<h3 id="31-top-level">3.1 Top level</h3>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Key</th>
@@ -683,7 +665,7 @@ carries a <code>DO NOT EDIT</code> banner naming its source row. Edit
 <tr>
 <td><code>schema_version</code></td>
 <td>int</td>
-<td>Currently <code>1</code>. Required — the library’s
+<td>Currently <code>1</code>. Required — the library&#39;s
 <code>validate</code> refuses a registry without it.</td>
 </tr>
 <tr>
@@ -706,13 +688,8 @@ entry needs <code>name</code> + <code>expansion</code>.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="grammar-fields">3.2 <code>grammar:</code> fields</h3>
+<h3 id="32-grammar-fields">3.2 <code>grammar:</code> fields</h3>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Field</th>
@@ -723,7 +700,7 @@ entry needs <code>name</code> + <code>expansion</code>.</td>
 <tbody>
 <tr>
 <td><code>prefix_regex</code></td>
-<td><code>^([A-Z][A-Z0-9_]*) ::</code></td>
+<td><code>^([A-Z][A-Z0-9_]*) :: </code></td>
 <td>Legacy bare-<code>::</code> anchor (form 1). Kept for back-compat;
 its <strong>presence is what <code>apx_validate_registry</code>
 checks</strong>.</td>
@@ -809,13 +786,8 @@ colon</strong>.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="actions-fields">3.3 <code>actions[]</code> fields</h3>
+<h3 id="33-actions-fields">3.3 <code>actions[]</code> fields</h3>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Field</th>
@@ -864,7 +836,7 @@ a warning row in the plugin README. <code>BUG</code> declares
 <tr>
 <td><code>summary</code></td>
 <td>no</td>
-<td>One-line description. Becomes the command’s
+<td>One-line description. Becomes the command&#39;s
 <code>description:</code> frontmatter and the README cell. Falls back to
 a generic string if absent.</td>
 </tr>
@@ -882,13 +854,8 @@ in the command files.</strong></td>
 </tr>
 </tbody>
 </table>
-<h3 id="subsystems-fields">3.4 <code>subsystems[]</code> fields</h3>
+<h3 id="34-subsystems-fields">3.4 <code>subsystems[]</code> fields</h3>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Field</th>
@@ -917,20 +884,14 @@ repo.</td>
 <tr>
 <td><code>aliases</code></td>
 <td>no</td>
-<td>Extra UPPERCASE tokens (abbreviations, snake forms) —
-e.g. <code>HXOTA</code>.</td>
+<td>Extra UPPERCASE tokens (abbreviations, snake forms) — e.g.
+<code>HXOTA</code>.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="registered-actions-shipped">3.5 Registered actions
+<h3 id="35-registered-actions-shipped">3.5 Registered actions
 (shipped)</h3>
 <table>
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-</colgroup>
 <thead>
 <tr>
 <th>Action</th>
@@ -980,18 +941,12 @@ then create + sync.</td>
 </tbody>
 </table>
 <hr />
-<h2 id="the-grammar-11.4.140-11.4.202">4. The grammar (§11.4.140 +
+<h2 id="4-the-grammar-114140--114202">4. The grammar (§11.4.140 +
 §11.4.202)</h2>
-<h3 id="six-equivalent-forms">4.1 Six equivalent forms</h3>
+<h3 id="41-six-equivalent-forms">4.1 Six equivalent forms</h3>
 <p>All six resolve to the <strong>same action, the same expansion, the
 same execution</strong>.</p>
 <table>
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-</colgroup>
 <thead>
 <tr>
 <th>#</th>
@@ -1046,29 +1001,24 @@ that <code>bug</code> is a declared collision; see §5).</p>
 <p><strong>Form 6 was added by §11.4.202</strong> and is the shape
 operators actually type. It is <strong>REGISTERED-ACTION-ONLY by
 construction</strong> (see §4.6).</p>
-<h3 id="anchoring">4.2 Anchoring</h3>
+<h3 id="42-anchoring">4.2 Anchoring</h3>
 <p>Every form is anchored to the <strong>first non-blank line</strong>
 of the prompt. A grammar-shaped token in the middle of a paragraph never
 matches. Leading blank lines are skipped; every line after the first
 non-blank line is carried through as part of the task (the
-“residual”).</p>
-<h3 id="uppercase-only">4.3 UPPERCASE only</h3>
+&quot;residual&quot;).</p>
+<h3 id="43-uppercase-only">4.3 UPPERCASE only</h3>
 <p>The action token <strong>and</strong> the namespace are
 <code>[A-Z][A-Z0-9_]*</code>. <code>background :: x</code> never
 matches. This is <code>grammar.case_sensitive: true</code>, and it is
 what keeps the system quiet in ordinary prose.</p>
 <p>File and directory names stay lowercase snake_case (§11.4.29) — only
 the <em>tokens</em> are uppercase.</p>
-<h3 id="separator-spacing-and-why-it-is-exactly-this">4.4 Separator
+<h3 id="44-separator-spacing--and-why-it-is-exactly-this">4.4 Separator
 spacing — and why it is exactly this</h3>
 <p>The spacing rules are not cosmetic; each one exists to avoid a
 specific false-trigger:</p>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Separator</th>
@@ -1092,7 +1042,7 @@ separator.</td>
 never matches.</td>
 </tr>
 <tr>
-<td>Body <code>:</code> (form 6)</td>
+<td>Body <code>: </code> (form 6)</td>
 <td>Colon + one space, <strong>no space before</strong> the colon</td>
 <td>Distinguishes it from <code>::</code>. Still collides in
 <em>shape</em> with YAML <code>key: value</code> and prose
@@ -1111,14 +1061,14 @@ valid leading token does.</td>
 <td><code>/TOKEN</code> + one-or-more spaces</td>
 <td>The leading <code>/</code> makes it unambiguous; a URL
 (<code>https://x/Y z</code>) never starts the line with
-<code>/UPPERCASE</code>.</td>
+<code>/UPPERCASE </code>.</td>
 </tr>
 </tbody>
 </table>
 <p>A URL such as <code>https://example.com/API</code> cannot match: form
 3 requires the line to <strong>start</strong> with <code>/</code>, and
 forms 1/2/5 require their spaced separators.</p>
-<h3 id="escape">4.5 Escape</h3>
+<h3 id="45-escape">4.5 Escape</h3>
 <p>A single leading backslash on the first non-blank line makes the
 prefix literal:</p>
 <pre><code>\BACKGROUND :: this is discussed, not executed
@@ -1128,14 +1078,9 @@ prefix literal:</p>
 <p>The backslash is stripped and <strong>no expansion happens</strong>.
 This is how action names can be talked about (as this document does)
 without triggering them.</p>
-<h3 id="unknown-grammar-shaped-tokens">4.6 Unknown grammar-shaped
+<h3 id="46-unknown-grammar-shaped-tokens">4.6 Unknown grammar-shaped
 tokens</h3>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Form</th>
@@ -1146,9 +1091,9 @@ tokens</h3>
 <tbody>
 <tr>
 <td>1, 2, 3, 4, 5</td>
-<td><strong>ASK</strong> (§11.4.66 / §11.4.105) — “this looks like an
+<td><strong>ASK</strong> (§11.4.66 / §11.4.105) — &quot;this looks like an
 action prefix but is not registered; which registered action did you
-mean?” The closest registered name (longest shared prefix) is offered as
+mean?&quot; The closest registered name (longest shared prefix) is offered as
 a hint. <strong>Never invent an expansion</strong> (§11.4.6).</td>
 <td>These shapes do not occur in ordinary prose, so an unknown one is
 almost certainly a typo or an unregistered directive.</td>
@@ -1166,14 +1111,14 @@ sentence.</td>
 </table>
 <p>In no case is an unknown token silently expanded or silently
 dropped.</p>
-<h3 id="stacking">4.7 Stacking</h3>
+<h3 id="47-stacking">4.7 Stacking</h3>
 <p><code>A :: B :: rest</code> applies outer-to-inner, left-to-right:
 expand <code>A</code>, re-scan the residual, expand <code>B</code>, and
 the remaining text is the task. The expander recurses on the residual
 and nests <code>outer-expansion</code> + blank line +
 <code>inner-emitted</code>.</p>
 <hr />
-<h2 id="the-conflict-rule-bare-name-collisions">5. The conflict rule
+<h2 id="5-the-conflict-rule-bare-name-collisions">5. The conflict rule
 (bare <code>/name</code> collisions)</h2>
 <p><strong>A bare <code>/&lt;name&gt;</code> is honored ONLY when it
 does not collide with a host built-in slash command.</strong> Collisions
@@ -1184,10 +1129,6 @@ guessed:</p>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">slash_conflicts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">bug</span><span class="kw">]</span><span class="co">    # Claude Code ships a built-in /bug</span></span></code></pre></div>
 <p>What follows from that single data row:</p>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Invocation</th>
@@ -1203,7 +1144,7 @@ plugin does <strong>not</strong> shadow it.</td>
 </tr>
 <tr>
 <td><code>/helix:bug …</code></td>
-<td><strong>The action.</strong> Claude Code’s plugin namespacing
+<td><strong>The action.</strong> Claude Code&#39;s plugin namespacing
 (<code>/&lt;plugin&gt;:&lt;command&gt;</code>) <em>is</em> the §11.4.140
 form-4 <code>PREFIX::ACTION</code> escape — always unambiguous.</td>
 </tr>
@@ -1234,17 +1175,10 @@ Non-colliding actions (<code>BACKGROUND</code>, <code>REMINDER</code>,
 <code>TASK</code>, <code>ISSUE</code>) get the plain row
 <code>| `/task` | `/helix:task` · `/default-task` | … |</code>.</p>
 <hr />
-<h2 id="per-agent-command-mapping">6. Per-agent command mapping</h2>
+<h2 id="6-per-agent-command-mapping">6. Per-agent command mapping</h2>
 <p>Two command files are generated <strong>per action</strong>: the bare
 form and a <code>default-&lt;name&gt;</code> alias.</p>
 <table>
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 20%" />
-<col style="width: 20%" />
-<col style="width: 20%" />
-<col style="width: 20%" />
-</colgroup>
 <thead>
 <tr>
 <th>Agent</th>
@@ -1301,7 +1235,7 @@ clobbering a hand-written file).</p>
 inside a command name — and it does so through plugin namespacing
 (<code>/helix:bug</code>), not literally. Gemini / Qwen / Codex
 <strong>cannot</strong> express <code>::</code> in a command name at
-all: a command’s name <em>is</em> its filename/token.
+all: a command&#39;s name <em>is</em> its filename/token.
 <code>default-&lt;name&gt;</code> is their form-4 equivalent, and it
 maps to the identical expansion, so <code>/&lt;name&gt;</code> ≡
 <code>/default-&lt;name&gt;</code> on every agent.</li>
@@ -1311,14 +1245,14 @@ LAYER 1 — the model reading its carrier block — not by a hook.</li>
 <li>Argument forwarding differs per agent and is handled by the
 generator: Claude Code and Codex use <code>$ARGUMENTS</code>; Gemini and
 Qwen use <code>{{args}}</code>.</li>
-<li>The generator writes Claude Code’s commands <strong>straight into
+<li>The generator writes Claude Code&#39;s commands <strong>straight into
 the plugin tree</strong> (single source of truth, no copy). The other
-three agents’ files land under
+three agents&#39; files land under
 <code>actions/generated/&lt;agent&gt;/</code> and the installer symlinks
-them into each agent’s project-level command directory.</li>
+them into each agent&#39;s project-level command directory.</li>
 </ul>
 <hr />
-<h2 id="sub-system-shortcuts-11.4.140-extension">7. Sub-system shortcuts
+<h2 id="7-sub-system-shortcuts-114140-extension">7. Sub-system shortcuts
 (§11.4.140 extension)</h2>
 <p>A grammar-shaped UPPERCASE token that is <strong>not</strong> a
 registered action may name an incorporated <strong>sub-system /
@@ -1331,10 +1265,6 @@ the rest of the prompt is the task on that sub-system.</p>
 <p>Two data sources feed one resolver
 (<code>apx_lookup_subsystem</code>):</p>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Source</th>
@@ -1347,12 +1277,12 @@ the rest of the prompt is the task on that sub-system.</p>
 <td>Curated Helix-ecosystem sub-systems + human abbreviations
 (<code>HXOTA</code> → HelixOTA, <code>HXQA</code> → HelixQA,
 <code>CTOOLKIT</code> → ClaudeToolkit, …). These are Helix-org products,
-so they carry no project coupling — a consuming project’s own submodules
+so they carry no project coupling — a consuming project&#39;s own submodules
 are <strong>never</strong> listed here.</td>
 </tr>
 <tr>
 <td>(b) recursive <code>.gitmodules</code> discovery</td>
-<td>Walks the <strong>invoking project’s</strong> submodule graph (depth
+<td>Walks the <strong>invoking project&#39;s</strong> submodule graph (depth
 ≤ 6) from <code>$HELIX_PROJECT_ROOT</code>, else the nearest ancestor of
 <code>$PWD</code> containing a <code>.gitmodules</code>. Every submodule
 auto-derives alias tokens: uppercased name, camelCase-split snake form,
@@ -1379,16 +1309,12 @@ Without them it returns no match and the token falls to ASK exactly as
 before. Behavioural actions are unaffected — they have an awk
 fallback.</p>
 <hr />
-<h2 id="the-engine-scriptsaction_prefix_lib.sh">8. The engine —
+<h2 id="8-the-engine--scriptsaction_prefix_libsh">8. The engine —
 <code>scripts/action_prefix_lib.sh</code></h2>
 <p>The pure, agent-agnostic library reused by the hook, the generator,
 and the tests. It writes no files and mutates no global state.</p>
-<h3 id="public-api">8.1 Public API</h3>
+<h3 id="81-public-api">8.1 Public API</h3>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Function</th>
@@ -1413,7 +1339,7 @@ action with <code>name</code> + <code>expansion</code>.</td>
 </tr>
 <tr>
 <td><code>apx_lookup_expansion &lt;NAME&gt;</code></td>
-<td>The action’s expansion text; exit 1 if not registered.</td>
+<td>The action&#39;s expansion text; exit 1 if not registered.</td>
 </tr>
 <tr>
 <td><code>apx_lookup_subsystem &lt;TOKEN&gt;</code></td>
@@ -1433,13 +1359,9 @@ membership.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="apx_expand_prompt-result-json">8.2
+<h3 id="82-apx_expand_prompt-result-json">8.2
 <code>apx_expand_prompt</code> result JSON</h3>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Field</th>
@@ -1499,8 +1421,8 @@ first nine fields are byte-stable for existing readers.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="resolution-order-first-match-wins">8.3 Resolution order (first
-match wins)</h3>
+<h3 id="83-resolution-order-first-match-wins">8.3 Resolution order
+(first match wins)</h3>
 <ol type="1">
 <li><strong>Registered behavioural ACTION</strong>
 (<code>apx_lookup_expansion</code>) → <code>expand</code>,
@@ -1515,23 +1437,19 @@ resolved from a single-colon token.</li>
 <li><strong>ASK</strong> — grammar-shaped but unknown → <code>ask</code>
 + <code>closest</code>.</li>
 </ol>
-<h3 id="dependencies-and-the-fallback">8.4 Dependencies and the
+<h3 id="84-dependencies-and-the-fallback">8.4 Dependencies and the
 fallback</h3>
 <p>The library prefers <code>python3</code> (+ <code>PyYAML</code>) for
 YAML parsing and for the anchored capture-group parse. When python is
 absent it falls back to an <strong>awk</strong> reader that targets
-exactly this registry’s shape (folded <code>expansion:</code> scalars +
+exactly this registry&#39;s shape (folded <code>expansion:</code> scalars +
 simple <code>name:</code> keys) — honestly narrower than a general YAML
 parser. Both paths implement byte-identical anchored regexes and emit
 the identical 4-tuple, so they cannot drift (§11.4.50 determinism). The
 sub-system tier has <strong>no</strong> awk fallback (§7).</p>
 <hr />
-<h2 id="scripts">9. Scripts</h2>
+<h2 id="9-scripts">9. Scripts</h2>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Script</th>
@@ -1565,7 +1483,7 @@ into <code>&lt;project&gt;/.claude/skills/&lt;name&gt;</code>; (5)
 <code>claude plugin marketplace add &lt;const_root&gt;</code> +
 <code>claude plugin install helix@helix-constitution</code>, then
 <strong>verifies via <code>claude plugin list</code></strong> — it never
-trusts the tool’s own success message (§11.4.6 / §11.4.200). Flags:
+trusts the tool&#39;s own success message (§11.4.6 / §11.4.200). Flags:
 <code>--check</code> (constitution <strong>and</strong> project side),
 <code>--skills-only</code>, <code>--skill NAME</code>,
 <code>--no-plugin</code>. Companion doc: <a href="../scripts/install_cli_agent_plugins.md"><code>docs/scripts/install_cli_agent_plugins.md</code></a>.</td>
@@ -1610,7 +1528,7 @@ every project-specific value comes from a consumer-owned config.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="the-plugin-ships-no-hook-deliberately">9.1 The plugin ships
+<h3 id="91-the-plugin-ships-no-hook--deliberately">9.1 The plugin ships
 <strong>no</strong> hook — deliberately</h3>
 <p><code>plugins/helix/</code> contains <strong>only</strong>
 <code>.claude-plugin/plugin.json</code>, <code>commands/*.md</code> and
@@ -1627,17 +1545,13 @@ must be preserved: exactly one component may register that hook.
 <code>grep -c action_prefix_expand .claude/settings.json</code> →
 <code>1</code>.)</p>
 <hr />
-<h2 id="skills">10. Skills</h2>
+<h2 id="10-skills">10. Skills</h2>
 <p>Three canonical Agent Skills (each a directory with a
 <code>SKILL.md</code> + a <code>register.sh</code>), wired into a
 project by <strong>symlink</strong> into
 <code>&lt;project&gt;/.claude/skills/&lt;name&gt;</code> — BY REFERENCE,
 never copied (§11.4.28 / §11.4.80: a copy diverges silently).</p>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Skill</th>
@@ -1656,7 +1570,7 @@ expansion for an unknown token.</strong></td>
 <tr>
 <td><code>reporting-workable-items</code></td>
 <td>Anything trackable is reported or discovered — a bug, a regression,
-a feature request, an internal task, “this is broken”, “we should add X”
+a feature request, an internal task, &quot;this is broken&quot;, &quot;we should add X&quot;
 — or <code>/issue</code> / <code>/bug</code> / <code>/task</code> is
 invoked. Use it <strong>before</strong> answering a report in
 prose.</td>
@@ -1680,12 +1594,8 @@ are <strong>not discoverable as Agent Skills</strong> and the installer
 deliberately <strong>skips</strong> them, reporting the count. They are
 not part of this system.</p>
 <hr />
-<h2 id="gates-and-tests">11. Gates and tests</h2>
+<h2 id="11-gates-and-tests">11. Gates and tests</h2>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Artifact</th>
@@ -1706,7 +1616,7 @@ context carrier (<code>CLAUDE.md</code> / <code>AGENTS.md</code> /
 <code>QWEN.md</code> / <code>GEMINI.md</code>) across the consumer
 fleet. Exits non-zero on any carrier missing it.
 <code>Constitution.md</code> is intentionally not re-scanned (it is the
-anchor’s own source of truth).</td>
+anchor&#39;s own source of truth).</td>
 </tr>
 <tr>
 <td><code>tests/action_prefix/test_action_prefix_grammar.sh</code></td>
@@ -1729,11 +1639,11 @@ test FAIL.</td>
 </tbody>
 </table>
 <hr />
-<h2 id="honest-boundaries-11.4.6">12. Honest boundaries (§11.4.6)</h2>
+<h2 id="12-honest-boundaries-1146">12. Honest boundaries (§11.4.6)</h2>
 <p>Documented because they are true today, not because they are
 desirable:</p>
 <ol type="1">
-<li><strong>Six forms, not five.</strong> §11.4.140’s own anchor text
+<li><strong>Six forms, not five.</strong> §11.4.140&#39;s own anchor text
 and <code>actions/recognition_instruction.md</code> (rev 3) still
 describe <strong>five</strong> forms. §11.4.202 added the sixth
 (single-colon <code>NAME: &lt;text&gt;</code>), and the sixth
@@ -1757,7 +1667,7 @@ separate MCP-backed plugin that requires building a Go binary via
 <strong>only</strong> <code>helix</code>.</li>
 <li><strong><code>--check</code> cannot resolve the plugin state without
 the <code>claude</code> CLI.</strong> In that case it reports
-<strong>UNKNOWN</strong> — never “installed”, never “missing”
+<strong>UNKNOWN</strong> — never &quot;installed&quot;, never &quot;missing&quot;
 (§11.4.201: a guard must assert the real condition or say honestly that
 it could not).</li>
 </ol>

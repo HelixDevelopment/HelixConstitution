@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>ADMIN_MANUAL</title>
+  <title>Action Directives — Administrator Manual</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -439,10 +439,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">ADMIN_MANUAL</h1>
-</header>
-<h1 id="action-directives-administrator-manual">Action Directives —
+<h1 id="action-directives--administrator-manual">Action Directives —
 Administrator Manual</h1>
 <p><strong>Revision:</strong> 2 <strong>Last modified:</strong>
 2026-07-14T22:05:00Z <strong>Authority:</strong> constitution §11.4.140
@@ -454,8 +451,8 @@ whoever wires the directive system into a consuming project — install,
 verify, auto-load, extend, troubleshoot, uninstall.</p>
 <p>Companion documents: <a href="REFERENCE.md">REFERENCE.md</a> · <a href="USER_GUIDE.md">USER_GUIDE.md</a> · <a href="QUICKSTART_INSTALL.md">QUICKSTART_INSTALL.md</a></p>
 <hr />
-<h2 id="install">1. Install</h2>
-<p>From the <strong>consuming project’s root</strong>, with the
+<h2 id="1-install">1. Install</h2>
+<p>From the <strong>consuming project&#39;s root</strong>, with the
 constitution submodule present — <strong>one command wires
 everything</strong>:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/install_cli_agent_plugins.sh</span></code></pre></div>
@@ -470,10 +467,10 @@ everything</strong>:</p>
 [install-plugins] done — action directives + skills are wired for this project</code></pre>
 <p>It does five things:</p>
 <ol type="1">
-<li><strong>Regenerates</strong> every registered action’s slash command
+<li><strong>Regenerates</strong> every registered action&#39;s slash command
 for every supported agent, from <code>actions/registry.yaml</code>
 (<code>scripts/generate_agent_prefix_commands.sh</code>).</li>
-<li><strong>Symlinks the other agents’ commands</strong> into their
+<li><strong>Symlinks the other agents&#39; commands</strong> into their
 project-level command directories — <code>.gemini/commands/</code>,
 <code>.qwen/commands/</code>, <code>prompts/</code> (Codex). BY
 REFERENCE (symlink, never a copy); it <strong>never clobbers a real
@@ -495,18 +492,14 @@ REFERENCE (§11.4.28 / §11.4.80).</li>
 <li><strong>Registers the local marketplace and installs the
 <code>helix</code> plugin</strong> via the <code>claude plugin</code>
 CLI, then <strong>verifies</strong> the result with
-<code>claude plugin list</code>. It never trusts the tool’s own success
+<code>claude plugin list</code>. It never trusts the tool&#39;s own success
 message (§11.4.6 / §11.4.200).</li>
 </ol>
 <p>You do <strong>not</strong> need to run
 <code>install_action_prefix.sh</code> separately — step 3 chains it. (It
 remains the single <em>owner</em> of that hook; see §3.)</p>
-<h3 id="flags">1.1 Flags</h3>
+<h3 id="11-flags">1.1 Flags</h3>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Flag</th>
@@ -521,13 +514,13 @@ change nothing. Exit 0 = fully wired.</td>
 </tr>
 <tr>
 <td><code>--skills-only</code></td>
-<td>Link skills only; skip generation, the other agents’ commands, the
+<td>Link skills only; skip generation, the other agents&#39; commands, the
 prompt hook, and the plugin install.</td>
 </tr>
 <tr>
 <td><code>--skill NAME</code></td>
 <td>Link exactly one skill (implies <code>--skills-only</code>). This is
-what each skill’s own <code>register.sh</code> calls.</td>
+what each skill&#39;s own <code>register.sh</code> calls.</td>
 </tr>
 <tr>
 <td><code>--no-plugin</code></td>
@@ -541,7 +534,7 @@ what each skill’s own <code>register.sh</code> calls.</td>
 </tbody>
 </table>
 <hr />
-<h2 id="verify">2. Verify</h2>
+<h2 id="2-verify">2. Verify</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/install_cli_agent_plugins.sh <span class="at">--check</span></span></code></pre></div>
 <p>Real output on a fully-wired tree:</p>
 <pre><code>[install-plugins] constitution side: marketplace + plugin manifests present; 10 command(s); 3 skill(s)
@@ -555,10 +548,6 @@ what each skill’s own <code>register.sh</code> calls.</td>
 <p><code>--check</code> verifies <strong>both sides</strong> and exits
 non-zero on any gap:</p>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Side</th>
@@ -584,16 +573,11 @@ generated command, ≥1 <code>SKILL.md</code></td>
 reported as <strong>UNKNOWN</strong> — not as installed, not as missing.
 The check never claims either way about a state it cannot resolve.</p>
 <hr />
-<h2 id="the-two-installers-one-entry-point-two-owners">3. The two
+<h2 id="3-the-two-installers--one-entry-point-two-owners">3. The two
 installers — one entry point, two owners</h2>
 <p>You only ever run <strong>one</strong> command (§1). But the split
 underneath is real and load-bearing — keep it.</p>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Installer</th>
@@ -630,19 +614,14 @@ the plugin.</strong></td>
 </tbody>
 </table>
 <p>You <em>may</em> still run <code>install_action_prefix.sh</code>
-directly (e.g. to re-wire only the hook); it is safe and idempotent. It
+directly (e.g. to re-wire only the hook); it is safe and idempotent. It
 is simply no longer a required second step.</p>
 <hr />
-<h2 id="how-each-agent-discovers-the-commands">4. How each agent
+<h2 id="4-how-each-agent-discovers-the-commands">4. How each agent
 discovers the commands</h2>
 <p>All four are wired <strong>automatically</strong> by the one install
 command (§1).</p>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Agent</th>
@@ -686,7 +665,7 @@ links point at the generated files, an <strong>edited expansion</strong>
 is picked up with no re-link; re-running the installer is only needed
 when an action is <strong>added or removed</strong>.</p>
 <p>The Codex destination is <code>prompts/</code> — the convention
-declared by the repo’s own <code>actions/generated/README.md</code>.</p>
+declared by the repo&#39;s own <code>actions/generated/README.md</code>.</p>
 <p><strong>Honest boundary (§11.4.6).</strong> Those three agents have
 <strong>no pre-submit hook</strong>, so the free-form forms
 (<code>BUG: …</code>, <code>BUG :: …</code>, <code>BUG ---&gt; …</code>)
@@ -695,11 +674,11 @@ its context carrier (<code>GEMINI.md</code> / <code>QWEN.md</code> /
 <code>AGENTS.md</code>) — not by a hook. Only Claude Code gets the
 deterministic <code>UserPromptSubmit</code> expansion.</p>
 <hr />
-<h2 id="auto-load-on-constitution-pull-11.4.164">5. Auto-load on
+<h2 id="5-auto-load-on-constitution-pull-114164">5. Auto-load on
 constitution pull (§11.4.164)</h2>
 <p><code>scripts/post_update_hook.sh</code> is the auto-propagation
 seam. After a <code>git pull</code> / <code>git submodule update</code>
-inside the constitution, run it (or wire it into the project’s
+inside the constitution, run it (or wire it into the project&#39;s
 post-merge hook):</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/post_update_hook.sh</span></code></pre></div>
 <p>It diffs <code>ORIG_HEAD..HEAD</code> (falling back to
@@ -712,7 +691,7 @@ with no manual step. It also installs skills, merges MCP configs,
 installs git hooks, and <code>bash -n</code>-validates every touched
 script.</p>
 <hr />
-<h2 id="adding-a-new-directive-a-registry-row-never-code">6. Adding a
+<h2 id="6-adding-a-new-directive--a-registry-row-never-code">6. Adding a
 NEW directive — a registry row, never code</h2>
 <p>This is the whole point of the design: <strong>no code changes
 anywhere.</strong></p>
@@ -754,7 +733,7 @@ Claude Code — <code>TRIAGE: …</code>, <code>TRIAGE :: …</code>,
 <code>DEFAULT::TRIAGE :: …</code>, <code>TRIAGE ---&gt; …</code>,
 <code>/triage …</code>, <code>/helix:triage …</code>,
 <code>/default-triage …</code> — with no code touched anywhere.</p>
-<h3 id="if-the-new-name-collides-with-a-host-command">6.1 If the new
+<h3 id="61-if-the-new-name-collides-with-a-host-command">6.1 If the new
 name collides with a host command</h3>
 <p>Declare it as <strong>data</strong>, do not work around it:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">slash_conflicts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">triage</span><span class="kw">]</span></span></code></pre></div>
@@ -765,7 +744,7 @@ host. Users invoke <code>/helix:triage</code> or
 <code>/default-triage</code>. The plugin must <strong>never</strong>
 silently shadow a host command.</p>
 <hr />
-<h2 id="troubleshooting">7. Troubleshooting</h2>
+<h2 id="7-troubleshooting">7. Troubleshooting</h2>
 <h3 id="a-command-does-not-appear-in-claude-code">A command does not
 appear in Claude Code</h3>
 <div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/scripts/generate_agent_prefix_commands.sh   <span class="co"># regenerate</span></span>
@@ -807,7 +786,7 @@ absent</h3>
 exact one-time commands:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> plugin marketplace add ./constitution</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> plugin install helix@helix-constitution</span></code></pre></div>
-<p>Everything else still completes — generation, the other agents’
+<p>Everything else still completes — generation, the other agents&#39;
 command links, the prompt hook, and the skills. Gemini / Qwen / Codex do
 not need the <code>claude</code> CLI at all, and <code>--check</code>
 reports the plugin state as <strong>UNKNOWN</strong> rather than
@@ -836,12 +815,12 @@ Behavioural actions are unaffected (they have an awk fallback). An
 <strong>ambiguous</strong> token (two sub-systems) is deliberately
 dropped rather than guessed.</p>
 <hr />
-<h2 id="fixed-defects-changelog">8. Fixed defects (changelog)</h2>
-<h3 id="post_update_hook.sh-detect_changes-lost-every-change-fixed"><code>post_update_hook.sh</code>
+<h2 id="8-fixed-defects-changelog">8. Fixed defects (changelog)</h2>
+<h3 id="post_update_hooksh--detect_changes-lost-every-change-fixed"><code>post_update_hook.sh</code>
 — <code>detect_changes()</code> lost every change (FIXED)</h3>
 <p><strong>Symptom.</strong> A constitution pull that changed skills /
 actions / plugins installed <strong>nothing</strong>, silently. The hook
-reported “no changes” and exited 0.</p>
+reported &quot;no changes&quot; and exited 0.</p>
 <p><strong>Root cause.</strong> <code>detect_changes()</code> fed its
 classification loop from a <strong>pipe</strong>:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">&#39;%s\n&#39;</span> <span class="st">&quot;</span><span class="va">$changed_files</span><span class="st">&quot;</span> <span class="kw">|</span> <span class="cf">while</span> <span class="va">IFS</span><span class="op">=</span> <span class="bu">read</span> <span class="at">-r</span> <span class="va">f</span><span class="kw">;</span> <span class="cf">do</span> <span class="va">CHANGED_SKILLS</span><span class="op">+=</span><span class="va">(</span><span class="st">&quot;</span><span class="va">$f</span><span class="st">&quot;</span><span class="va">)</span><span class="kw">;</span> <span class="cf">done</span></span></code></pre></div>
@@ -861,7 +840,7 @@ registry row, committing inside the constitution, and running
 <code>bash constitution/scripts/post_update_hook.sh</code> — it must
 report <code>1 action/plugin file(s) changed</code> and run STEP 4b.</p>
 <hr />
-<h2 id="uninstall">9. Uninstall</h2>
+<h2 id="9-uninstall">9. Uninstall</h2>
 <p>Nothing is copied into the project, so removal is just unlinking:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. the plugin</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> plugin uninstall helix@helix-constitution</span>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>QUICKSTART_INSTALL</title>
+  <title>Quick Start — How do I install this in a new project?</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -439,10 +439,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">QUICKSTART_INSTALL</h1>
-</header>
-<h1 id="quick-start-how-do-i-install-this-in-a-new-project">Quick Start
+<h1 id="quick-start--how-do-i-install-this-in-a-new-project">Quick Start
 — How do I install this in a new project?</h1>
 <p><strong>Revision:</strong> 2 <strong>Last modified:</strong>
 2026-07-14T22:05:00Z <strong>Authority:</strong> constitution §11.4.140
@@ -467,10 +464,10 @@ everything is wired <strong>by reference</strong>.</p>
 [install-plugins] plugin &#39;helix@helix-constitution&#39; is INSTALLED (verified via `claude plugin list`)
 [install-plugins] done — action directives + skills are wired for this project</code></pre>
 <p>That is <strong>everything</strong>: the commands are regenerated
-from <code>actions/registry.yaml</code> and symlinked into every agent’s
+from <code>actions/registry.yaml</code> and symlinked into every agent&#39;s
 command directory, the free-form prompt hook is wired, the three Agent
 Skills are linked, and the <code>helix</code> plugin is installed and
-<strong>verified</strong> with <code>claude plugin list</code> (a tool’s
+<strong>verified</strong> with <code>claude plugin list</code> (a tool&#39;s
 own success message is never trusted). <strong>Idempotent</strong> —
 re-running is always safe, and the prompt hook is registered exactly
 once no matter how often you run it.</p>
@@ -498,7 +495,7 @@ success. Run, from the project root:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> plugin marketplace add ./constitution</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> plugin install helix@helix-constitution</span></code></pre></div>
 <p>Everything else still completes — the commands are generated, the
-other agents’ command directories are wired, the prompt hook is
+other agents&#39; command directories are wired, the prompt hook is
 registered, and the skills are linked. Gemini CLI, Qwen Code and Codex
 CLI do not need the <code>claude</code> CLI at all. With the CLI absent,
 <code>--check</code> honestly reports the plugin state as

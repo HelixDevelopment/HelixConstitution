@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>USER_GUIDE</title>
+  <title>Action Directives — User Guide</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -439,10 +439,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">USER_GUIDE</h1>
-</header>
-<h1 id="action-directives-user-guide">Action Directives — User
+<h1 id="action-directives--user-guide">Action Directives — User
 Guide</h1>
 <p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
 2026-07-14T21:50:00Z <strong>Authority:</strong> constitution §11.4.140
@@ -452,24 +449,19 @@ Guide</h1>
 are wiring them into a project, read <a href="ADMIN_MANUAL.md">ADMIN_MANUAL.md</a> instead.</p>
 <p>Companion documents: <a href="REFERENCE.md">REFERENCE.md</a> · <a href="QUICKSTART_REPORT.md">QUICKSTART_REPORT.md</a> · <a href="QUICKSTART_INSTALL.md">QUICKSTART_INSTALL.md</a></p>
 <hr />
-<h2 id="the-idea-in-one-sentence">1. The idea in one sentence</h2>
+<h2 id="1-the-idea-in-one-sentence">1. The idea in one sentence</h2>
 <p>Start a prompt with a registered UPPERCASE token and that token is
 replaced by a full, pre-agreed instruction — so you type five characters
 instead of a paragraph, and the agent behaves the same way every
 time.</p>
 <pre><code>BUG: subtitles render one frame late on the secondary display</code></pre>
-<p>…is executed as <em>“REPORT DIRECTIVE — BUG (§11.4.202). The
+<p>…is executed as <em>&quot;REPORT DIRECTIVE — BUG (§11.4.202). The
 remainder of this prompt is a REPORT of a product DEFECT… create it
-through the project’s reporting engine… never merely acknowledged, never
-silently dropped…”</em> followed by your actual text.</p>
+through the project&#39;s reporting engine… never merely acknowledged, never
+silently dropped…&quot;</em> followed by your actual text.</p>
 <hr />
-<h2 id="the-five-directives">2. The five directives</h2>
+<h2 id="2-the-five-directives">2. The five directives</h2>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Directive</th>
@@ -500,7 +492,7 @@ gate, an audit, a chore.</td>
 <td><strong>Anything trackable</strong> and you have not decided what it
 is.</td>
 <td>Classifies it into the closed set <code>{Bug｜Feature｜Task}</code>
-from the report’s own content. If the content does not determine the
+from the report&#39;s own content. If the content does not determine the
 type it <strong>asks you</strong> before creating anything. Then the
 same create + sync + push pipeline.</td>
 </tr>
@@ -529,10 +521,10 @@ block. It always produces a status verdict.</td>
 </tbody>
 </table>
 <p><strong><code>ISSUE</code> is a channel, not a type.</strong> There
-is no “Issue” type — every item is a <code>Bug</code>, a
+is no &quot;Issue&quot; type — every item is a <code>Bug</code>, a
 <code>Feature</code>, or a <code>Task</code>.</p>
 <hr />
-<h2 id="how-to-invoke-six-equivalent-forms">3. How to invoke — six
+<h2 id="3-how-to-invoke--six-equivalent-forms">3. How to invoke — six
 equivalent forms</h2>
 <p>All six do exactly the same thing. Use whichever you like.</p>
 <pre><code>BUG: subtitles are one frame late              ← 6. single-colon (what most people type)
@@ -565,25 +557,21 @@ BACKGROUND ---&gt; audit every gate for a paired mutation and file what is missi
 
 REMINDER: the OTA signing-key rotation we scheduled last week</code></pre>
 <hr />
-<h2 id="escaping-talking-about-a-directive-without-firing-it">4.
+<h2 id="4-escaping--talking-about-a-directive-without-firing-it">4.
 Escaping — talking about a directive without firing it</h2>
 <p>Put a single backslash in front. The backslash is stripped and
 nothing expands:</p>
 <pre><code>\BUG: this is an example of the syntax, do not open a ticket
 \/BACKGROUND likewise</code></pre>
 <hr />
-<h2 id="the-collision-bug-vs-helixbug-vs-default-bug">5. The collision:
-<code>/bug</code> vs <code>/helix:bug</code> vs
+<h2 id="5-the-collision-bug-vs-helixbug-vs-default-bug">5. The
+collision: <code>/bug</code> vs <code>/helix:bug</code> vs
 <code>/default-bug</code></h2>
 <p>Claude Code ships its <strong>own built-in <code>/bug</code></strong>
 (report a bug to Anthropic). The registry declares that collision as
 data (<code>slash_conflicts: [bug]</code>), and the system respects it —
 <strong>the plugin never silently shadows a host command.</strong></p>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>You type</th>
@@ -593,7 +581,7 @@ data (<code>slash_conflicts: [bug]</code>), and the system respects it —
 <tbody>
 <tr>
 <td><code>/bug audio is silent</code></td>
-<td><strong>Claude Code’s built-in.</strong> Not the directive.</td>
+<td><strong>Claude Code&#39;s built-in.</strong> Not the directive.</td>
 </tr>
 <tr>
 <td><code>/helix:bug audio is silent</code></td>
@@ -626,15 +614,11 @@ collision, so their bare slash forms work directly:
 <code>/default-task</code> remain available if your host ever adds a
 colliding command.</p>
 <hr />
-<h2 id="what-happens-if-you-type-a-token-that-is-not-registered">6. What
-happens if you type a token that is not registered</h2>
+<h2 id="6-what-happens-if-you-type-a-token-that-is-not-registered">6.
+What happens if you type a token that is not registered</h2>
 <p>The system <strong>never invents an expansion</strong> and
 <strong>never silently drops your prompt</strong>.</p>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>You type</th>
@@ -663,9 +647,9 @@ questioning every one of them would be intolerable.</td>
 </tbody>
 </table>
 <hr />
-<h2 id="sub-system-shortcuts">7. Sub-system shortcuts</h2>
+<h2 id="7-sub-system-shortcuts">7. Sub-system shortcuts</h2>
 <p>An UPPERCASE token that is not a directive but <em>is</em> an
-incorporated sub-system or submodule expands to that sub-system’s
+incorporated sub-system or submodule expands to that sub-system&#39;s
 working context (repository, org, where it is checked out, plus the
 rules for working on it — treat it as an equal part of the codebase,
 keep it decoupled, fetch first, never force-push):</p>
@@ -675,14 +659,14 @@ HELIXOTA ---&gt; investigate the delta-update failure on the 1.2.1 image</code><
 <code>HXQA</code>, <code>HXCODE</code>, <code>HXAGENT</code>,
 <code>HXLLM</code>, <code>HXMEM</code>, <code>HXSPEC</code>,
 <code>HXTRACK</code>, <code>LLMSVERIFIER</code>, <code>CTOOLKIT</code>,
-…) <strong>and</strong> from your own project’s submodules, discovered
+…) <strong>and</strong> from your own project&#39;s submodules, discovered
 automatically from <code>.gitmodules</code> — a newly-added submodule
 works with no configuration.</p>
 <p>If a token is ambiguous (two sub-systems), it is
 <strong>dropped</strong> and you are asked. A registered directive
 always wins over a sub-system of the same name.</p>
 <hr />
-<h2 id="how-to-see-what-is-registered">8. How to see what is
+<h2 id="8-how-to-see-what-is-registered">8. How to see what is
 registered</h2>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># every registered action, one per line</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> <span class="at">-c</span> <span class="st">&#39;. constitution/scripts/action_prefix_lib.sh &amp;&amp; apx_list_actions&#39;</span></span>
@@ -699,8 +683,8 @@ command inventory,
 <p>In Claude Code, <code>/helix:</code> then Tab lists every command the
 plugin exposes.</p>
 <hr />
-<h2 id="if-a-directive-does-not-seem-to-fire">9. If a directive does not
-seem to fire</h2>
+<h2 id="9-if-a-directive-does-not-seem-to-fire">9. If a directive does
+not seem to fire</h2>
 <ol type="1">
 <li>Is it on the <strong>first non-blank line</strong>? A directive in
 the middle of a prompt never fires.</li>

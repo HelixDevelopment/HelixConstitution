@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>generate_agent_prefix_commands</title>
+  <title>generate_agent_prefix_commands.sh</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -439,10 +439,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">generate_agent_prefix_commands</h1>
-</header>
-<h1 id="generate_agent_prefix_commands.sh">generate_agent_prefix_commands.sh</h1>
+<h1 id="generate_agent_prefix_commandssh">generate_agent_prefix_commands.sh</h1>
 <p><strong>Revision:</strong> 2 <strong>Last modified:</strong>
 2026-07-14T22:05:00Z <strong>Authority:</strong> constitution §11.4.140
 (universal action-prefix system) + §11.4.202 (reporting directives) +
@@ -455,17 +452,12 @@ companion doc for
 <p><code>generate_agent_prefix_commands.sh</code> turns
 <code>actions/registry.yaml</code> — the single source of truth — into
 the <strong>LAYER-2 slash commands</strong> for every supported CLI
-agent. It is the mechanism that makes “adding a directive is a registry
-row, never a code change” literally true: add the row, re-run this
+agent. It is the mechanism that makes &quot;adding a directive is a registry
+row, never a code change&quot; literally true: add the row, re-run this
 generator, and the directive appears on every agent.</p>
 <p>For each registered action it emits <strong>two</strong> command
 files per agent — the bare form and a <code>default-</code> alias:</p>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr>
 <th>Agent</th>
@@ -505,7 +497,7 @@ inventory can never drift from the registry:
 <code>plugins/helix/README.md</code> (the Claude Code command table +
 the conflict rule) and <code>actions/generated/README.md</code>
 (per-agent install targets + the action count).</p>
-<p>Claude Code’s commands are written <strong>straight into the plugin
+<p>Claude Code&#39;s commands are written <strong>straight into the plugin
 tree</strong> — the plugin <em>is</em> the delivery mechanism, so there
 is no copy step and no second source of truth.</p>
 <p>Why a <code>default-&lt;name&gt;</code> alias exists: <code>::</code>
@@ -524,7 +516,7 @@ Claude Code the native plugin namespacing
 <code>scripts/action_prefix_lib.sh</code> (sourced).</li>
 <li><code>python3</code> <strong>preferred</strong> for reading
 per-action metadata (<code>summary</code>, <code>slash_conflicts</code>)
-and for the library’s YAML parse. Without
+and for the library&#39;s YAML parse. Without
 <code>python3</code>/<code>PyYAML</code> the library falls back to its
 awk reader for names and expansions; the <code>apx_gen_field</code>
 metadata helper then yields empty values and the generator substitutes a
@@ -552,10 +544,6 @@ emitting half-correct commands.</li>
 <pre><code>generate_agent_prefix_commands: generated 5 action(s) under .../actions/generated</code></pre>
 <h2 id="edge-cases">Edge cases</h2>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Case</th>
@@ -588,8 +576,8 @@ and the plugin README row is rendered as a <strong>COLLIDES</strong>
 warning. The plugin never silently shadows a host command.</td>
 </tr>
 <tr>
-<td>A <code>summary</code> containing <code>\|</code>
-(e.g. <code>{Bug \| Feature \| Task}</code>)</td>
+<td>A <code>summary</code> containing <code>|</code> (e.g.
+<code>{Bug | Feature | Task}</code>)</td>
 <td>Escaped before it is placed in the markdown table cell, so the
 README table cannot break.</td>
 </tr>
@@ -597,7 +585,7 @@ README table cannot break.</td>
 <td>A <code>description</code> containing <code>&quot;</code> or
 <code>\</code></td>
 <td>Escaped in the YAML frontmatter, so a stray quote cannot break the
-command file’s frontmatter.</td>
+command file&#39;s frontmatter.</td>
 </tr>
 <tr>
 <td>Re-run with no registry change</td>
@@ -613,18 +601,18 @@ only writes). Remove the stale <code>&lt;name&gt;.md</code> /
 </tbody>
 </table>
 <p><strong>Honest boundary (§11.4.6):</strong> the generator only
-<strong>writes</strong> files. It writes Claude Code’s commands straight
+<strong>writes</strong> files. It writes Claude Code&#39;s commands straight
 into the plugin tree, and the Gemini / Qwen / Codex files into
 <code>actions/generated/&lt;agent&gt;/</code> — it does not install
 anything into <code>.gemini/commands/</code>,
 <code>.qwen/commands/</code> or <code>prompts/</code>. That wiring is
-<code>install_cli_agent_plugins.sh</code>’s
+<code>install_cli_agent_plugins.sh</code>&#39;s
 <code>link_agent_commands()</code> step, which symlinks them (never
 copies, never clobbers a hand-written file). Run the generator alone and
 the new command exists but is not yet linked into a newly-added agent
 directory; run the installer (which calls the generator first) and it
 is.</p>
-<p>The generator also does not embed each action’s <code>rules:</code>
+<p>The generator also does not embed each action&#39;s <code>rules:</code>
 into the command files — <code>rules</code> are LAYER-1 material, read
 by the agent from the registry/carrier block. Only
 <code>expansion</code> (plus <code>summary</code> and
@@ -665,10 +653,6 @@ rewrite actions/generated/README.md    (per-agent install-target table + action 
 <code>plugins/helix/</code> and <code>actions/generated/</code>.</p>
 <h2 id="related-scripts">Related scripts</h2>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Script</th>

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>skill</title>
+  <title>Session Sync Skill — Bidirectional Claude Code Session
+Import/Export via SSH</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -439,7 +440,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </style>
 </head>
 <body>
-<h1 id="session-sync-skill-bidirectional-claude-code-session-importexport-via-ssh">Session
+<h1 id="session-sync-skill--bidirectional-claude-code-session-importexport-via-ssh">Session
 Sync Skill — Bidirectional Claude Code Session Import/Export via
 SSH</h1>
 <p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
@@ -486,10 +487,6 @@ to keep all tracks aligned.</li>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> constitution/skills/session-sync/session-sync.sh <span class="at">--dry-run</span> user@host /path/to/project</span></code></pre></div>
 <h2 id="what-it-syncs">What it syncs</h2>
 <table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 66%" />
-</colgroup>
 <thead>
 <tr>
 <th>Data</th>
@@ -619,7 +616,7 @@ is found regardless of mount point differences between hosts.</p>
 <p>This skill is auto-registered by
 <code>constitution/scripts/post_update_hook.sh</code> (§11.4.164). On
 every constitution pull, the hook detects new/changed skills and
-symlinks them into the consuming project’s <code>skills/</code>
+symlinks them into the consuming project&#39;s <code>skills/</code>
 directory.</p>
 </body>
 </html>

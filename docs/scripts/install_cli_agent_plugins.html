@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>install_cli_agent_plugins</title>
+  <title>install_cli_agent_plugins.sh</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -439,10 +439,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">install_cli_agent_plugins</h1>
-</header>
-<h1 id="install_cli_agent_plugins.sh">install_cli_agent_plugins.sh</h1>
+<h1 id="install_cli_agent_pluginssh">install_cli_agent_plugins.sh</h1>
 <p><strong>Revision:</strong> 2 <strong>Last modified:</strong>
 2026-07-14T22:05:00Z <strong>Authority:</strong> constitution §11.4.140
 (action-prefix system) + §11.4.164 (post-update auto-propagation) +
@@ -453,10 +450,10 @@ real condition) <strong>Maintainer:</strong> constitution submodule
 <code>constitution/scripts/install_cli_agent_plugins.sh</code></p>
 <h2 id="overview">Overview</h2>
 <p><code>install_cli_agent_plugins.sh</code> is the <strong>one
-idempotent command</strong> that makes the constitution’s CLI-agent
+idempotent command</strong> that makes the constitution&#39;s CLI-agent
 action directives and Agent Skills load out of the box in a consuming
 project. It is the script the §11.4.164 post-update hook calls on every
-constitution pull (STEP 4b), and the script each skill’s own
+constitution pull (STEP 4b), and the script each skill&#39;s own
 <code>register.sh</code> delegates to.</p>
 <p>It does five things, in order:</p>
 <ol type="1">
@@ -465,11 +462,11 @@ constitution pull (STEP 4b), and the script each skill’s own
 <code>actions/registry.yaml</code> has a current slash command for every
 supported agent (Claude Code plugin <code>helix</code>, Gemini CLI, Qwen
 Code, Codex CLI).</li>
-<li><strong>Wire the other agents’ commands</strong>
+<li><strong>Wire the other agents&#39; commands</strong>
 (<code>link_agent_commands()</code>) — symlinks the generated files into
-each agent’s project-level command directory:
+each agent&#39;s project-level command directory:
 <code>.gemini/commands/</code>, <code>.qwen/commands/</code>,
-<code>prompts/</code> (Codex — the destination declared by the repo’s
+<code>prompts/</code> (Codex — the destination declared by the repo&#39;s
 own <code>actions/generated/README.md</code>). BY REFERENCE, never a
 copy (§11.4.28 / §11.4.80). It <strong>never clobbers a real
 file</strong> — it replaces only its own symlink or fills a free slot,
@@ -478,7 +475,7 @@ and WARNs otherwise.</li>
 (<code>wire_prompt_hook()</code>) — chains
 <code>install_action_prefix.sh</code>, which registers the
 <code>UserPromptSubmit</code> expansion hook in
-<code>.claude/settings.json</code>. That installer stays the hook’s
+<code>.claude/settings.json</code>. That installer stays the hook&#39;s
 <strong>single owner</strong> (the <code>helix</code> plugin ships no
 hook — two would double-expand every prompt), and it is genuinely
 idempotent, so chaining it is safe.</li>
@@ -492,7 +489,7 @@ copy.</li>
 <code>claude plugin install helix@helix-constitution</code>, then
 <strong>verifies the end state with
 <code>claude plugin list</code></strong>. It does not trust either
-command’s exit code or success message (§11.4.6 / §11.4.200).</li>
+command&#39;s exit code or success message (§11.4.6 / §11.4.200).</li>
 </ol>
 <p>System-level narrative: <a href="../actions/REFERENCE.md"><code>docs/actions/REFERENCE.md</code></a>
 and <a href="../actions/ADMIN_MANUAL.md"><code>docs/actions/ADMIN_MANUAL.md</code></a>.</p>
@@ -546,10 +543,6 @@ shape this project emits.</li>
 [install-plugins] VERDICT: WIRED</code></pre>
 <h2 id="edge-cases">Edge cases</h2>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Case</th>
@@ -560,7 +553,7 @@ shape this project emits.</li>
 <tr>
 <td><code>claude</code> CLI not on <code>PATH</code> (install)</td>
 <td>WARNs, prints the two one-time commands, <strong>does not</strong>
-fail the whole install (<code>install_plugin \|\| true</code>). Honest,
+fail the whole install (<code>install_plugin || true</code>). Honest,
 never faked.</td>
 </tr>
 <tr>
@@ -573,14 +566,14 @@ it could not (§11.4.201).</td>
 <tr>
 <td><code>claude plugin list</code> does not show <code>helix</code>
 after install</td>
-<td>WARNs explicitly (“NOT claiming success”) and prints the commands to
+<td>WARNs explicitly (&quot;NOT claiming success&quot;) and prints the commands to
 run manually and read the error.</td>
 </tr>
 <tr>
 <td>A <strong>real file</strong> (not a symlink) already sits at
 <code>.gemini/commands/&lt;name&gt;.toml</code> (or the qwen/codex
 equivalent)</td>
-<td>Left untouched, with a WARN. The operator’s hand-written command
+<td>Left untouched, with a WARN. The operator&#39;s hand-written command
 wins; the installer never clobbers it.</td>
 </tr>
 <tr>
@@ -590,7 +583,7 @@ is idempotent.</td>
 </tr>
 <tr>
 <td><code>actions/generated/</code> missing</td>
-<td>WARN “other agents NOT wired”; <code>rc=1</code>; the rest
+<td>WARN &quot;other agents NOT wired&quot;; <code>rc=1</code>; the rest
 continues.</td>
 </tr>
 <tr>
@@ -618,7 +611,7 @@ double-expand every prompt).</td>
 <td>Generator or <code>install_action_prefix.sh</code> missing /
 failing</td>
 <td>WARN; <code>rc=1</code>; the script continues with the remaining
-steps and reports “completed WITH problems”.</td>
+steps and reports &quot;completed WITH problems&quot;.</td>
 </tr>
 <tr>
 <td><code>--skill NAME</code> where <code>NAME</code> does not
@@ -638,7 +631,7 @@ double-expanded.</li>
 <li><code>--skills-only</code> / <code>--skill NAME</code> skip
 generation, the per-agent command links, the prompt hook, and the plugin
 install — they only link skills.</li>
-<li>The script’s own in-source header block still describes the earlier
+<li>The script&#39;s own in-source header block still describes the earlier
 three-step behaviour (its Purpose / Outputs / Side-effects sections
 predate <code>link_agent_commands()</code>,
 <code>wire_prompt_hook()</code>, and the project-side
@@ -676,15 +669,11 @@ predate <code>link_agent_commands()</code>,
         claude plugin list | grep -q helix                        ← the END-STATE assertion</code></pre>
 <p>Constants: <code>MARKETPLACE_NAME=helix-constitution</code>,
 <code>PLUGIN_NAME=helix</code>. <code>const_root</code> is resolved from
-the script’s own location, so it works from any cwd. Exit code
+the script&#39;s own location, so it works from any cwd. Exit code
 <code>0</code> when generation, linking and skill-wiring succeeded; a
 missing <code>claude</code> CLI alone does not fail the run.</p>
 <h2 id="related-scripts">Related scripts</h2>
 <table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr>
 <th>Script</th>

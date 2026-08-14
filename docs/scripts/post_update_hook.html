@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>post_update_hook</title>
+  <title>`scripts/post_update_hook.sh`</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -439,10 +439,7 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">post_update_hook</h1>
-</header>
-<h1 id="scriptspost_update_hook.sh"><code>scripts/post_update_hook.sh</code></h1>
+<h1 id="scriptspost_update_hooksh"><code>scripts/post_update_hook.sh</code></h1>
 <p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
 2026-07-15T03:20:00Z <strong>Authority:</strong> §11.4.164 (post-update
 auto-propagation) · §11.4.140 (action directives) · §11.4.28 / §11.4.80
@@ -454,7 +451,7 @@ consuming project, this script detects what changed and installs it —
 skills, MCP configs, git hooks, and (new) the CLI-agent <strong>action
 directives</strong>: the Claude Code <code>helix</code> plugin, the
 per-agent slash commands, and the Agent Skills.</p>
-<p>It is what makes “a new directive is live out of the box” true rather
+<p>It is what makes &quot;a new directive is live out of the box&quot; true rather
 than aspirational.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
@@ -491,7 +488,7 @@ the project.</li>
 under <code>actions/</code>, <code>plugins/</code>,
 <code>.claude-plugin/</code>, or <code>skills/</code> changed, runs
 <code>scripts/install_cli_agent_plugins.sh</code>, which regenerates
-every agent’s slash commands from the registry, links the skills into
+every agent&#39;s slash commands from the registry, links the skills into
 <code>.claude/skills/</code>, wires the <code>UserPromptSubmit</code>
 prefix hook, and installs the <code>helix</code> plugin.</li>
 <li><strong>Validate</strong> — <code>chmod +x</code> +
@@ -524,8 +521,8 @@ defects fixed on 2026-07-15 (both silently disabled this seam)</h2>
 fed its classification loop with
 <code>echo &quot;$x&quot; | while read ...</code>, so every
 <code>ARR+=(...)</code> ran in a <strong>subshell</strong> and was
-discarded. The caller always saw empty arrays → <em>“No relevant changes
-detected”</em> → <strong>nothing was ever installed</strong>. Fixed with
+discarded. The caller always saw empty arrays → <em>&quot;No relevant changes
+detected&quot;</em> → <strong>nothing was ever installed</strong>. Fixed with
 process substitution
 (<code>done &lt; &lt;(printf &#39;%s\n&#39; &quot;$changed_files&quot;)</code>).</li>
 <li><strong><code>CONST_DIR</code> off-by-one.</strong> The default was
