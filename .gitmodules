@@ -14,5 +14,5 @@
 	path = submodules/helix_perf_cache
 	url = git@github.com:HelixDevelopment/helix_perf_cache.git
 [submodule "design-toolkit"]
-	path = design-toolkit
+	path = submodules/design-toolkit
 	url = git@github.com:vasic-digital/design-toolkit.git
