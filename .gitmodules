@@ -16,3 +16,6 @@
 [submodule "design-toolkit"]
 	path = submodules/design-toolkit
 	url = git@github.com:vasic-digital/design-toolkit.git
+[submodule "submodules/docs_chain"]
+	path = submodules/docs_chain
+	url = git@github.com:vasic-digital/docs_chain.git
