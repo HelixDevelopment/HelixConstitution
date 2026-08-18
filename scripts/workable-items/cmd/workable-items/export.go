@@ -91,6 +91,13 @@ func exportCmd(args []string) int {
 		fmt.Fprintf(os.Stderr, "export: render issues: %v\n", err)
 		return exitUsage
 	}
+	// §11.4.44 (task #68 / BOB-108): never let the DB's own stale header
+	// segment regress the Revision counter already committed on disk.
+	issuesText, err = reconcileRevisionHeader(issuesText, issuesPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "export: reconcile issues revision: %v\n", err)
+		return exitUsage
+	}
 	if err := os.WriteFile(issuesPath, []byte(issuesText), 0o644); err != nil {
 		fmt.Fprintf(os.Stderr, "export: write issues: %v\n", err)
 		return exitUsage
@@ -98,6 +105,11 @@ func exportCmd(args []string) int {
 	fixedText, err := renderDocument(db, "Fixed")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "export: render fixed: %v\n", err)
+		return exitUsage
+	}
+	fixedText, err = reconcileRevisionHeader(fixedText, fixedPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "export: reconcile fixed revision: %v\n", err)
 		return exitUsage
 	}
 	if err := os.WriteFile(fixedPath, []byte(fixedText), 0o644); err != nil {
