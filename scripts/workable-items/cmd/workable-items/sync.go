@@ -98,6 +98,17 @@ func syncDBToMD(args []string) int {
 			fmt.Fprintf(os.Stderr, "sync db-to-md: render issues: %v\n", err)
 			return exitUsage
 		}
+		// §11.4.44 (task #86 / BOB-108 sibling-defect): `sync db-to-md`
+		// shares export's renderDocument-replays-the-DB's-stale-header
+		// mechanism, so it MUST go through the SAME reconciliation
+		// (export_revision.go) that BOB-108 wired into `export` — never let
+		// the DB's own stale header segment regress the Revision counter
+		// already committed on disk.
+		text, err = reconcileRevisionHeader(text, *outIssues)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "sync db-to-md: reconcile issues revision: %v\n", err)
+			return exitUsage
+		}
 		if err := os.WriteFile(*outIssues, []byte(text), 0o644); err != nil {
 			fmt.Fprintf(os.Stderr, "sync db-to-md: write issues: %v\n", err)
 			return exitUsage
@@ -108,6 +119,13 @@ func syncDBToMD(args []string) int {
 		text, err := renderDocument(db, "Fixed")
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "sync db-to-md: render fixed: %v\n", err)
+			return exitUsage
+		}
+		// §11.4.44 (task #86 / BOB-108 sibling-defect): see the --out-issues
+		// branch above — the identical reconciliation applies to Fixed.md.
+		text, err = reconcileRevisionHeader(text, *outFixed)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "sync db-to-md: reconcile fixed revision: %v\n", err)
 			return exitUsage
 		}
 		if err := os.WriteFile(*outFixed, []byte(text), 0o644); err != nil {
