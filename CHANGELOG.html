@@ -376,14 +376,371 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 <body>
 <h1 id="changelog--helixdevelopmenthelixconstitution">Changelog —
 HelixDevelopment/HelixConstitution</h1>
-<h2 id="v100--2026-07-24--first-constitution-version-tag">v1.0.0 —
-2026-07-24 — first constitution version tag</h2>
+<h2 id="helixconstitution-v68--2026-08-18--monolithic-amendment-round-22-anchors--5-targeted-extensions--114140141-collision-resolution">helixconstitution-v68
+— 2026-08-18 — MONOLITHIC amendment round (22 anchors + 5 targeted
+extensions + §11.4.140/141 collision resolution)</h2>
+<p><strong>HEAD:</strong>
+<code>1389ebe5a78f25d0b369a7860e6f8ccfbc4c7942</code> <strong>Round
+scope:</strong> AI-curriculum-modules-27-35 harvest (18 anchors) +
+operator&#39;s 9-point enterprise-quality mandate (6 anchors) + 5 targeted
+extensions to existing anchors + collision remediation for the
+long-standing §11.4.140 / §11.4.141 double-mandate (§11.4.54
+anchor-number reuse).</p>
+<p>This is the largest amendment round in the project&#39;s history:
+<strong>22 net-new universal anchors + 33 targeted extensions (5 in this
+round, 28 in prior 2026-07 through 2026-08 rounds now
+consolidated)</strong>, landed as a single monolithic commit followed by
+4 lockstep-mirror commits and a 1 extensions commit.</p>
+<p>Per §11.4.126 release-scope terminal condition + §11.4.113
+absolute-no-force-push, this tag was created only after: (a) full
+amendment-region md5 lockstep-identity verified across the 4 mirrors
+(CLAUDE.md / AGENTS.md / QWEN.md / GEMINI.md); (b) exactly-once
+block-start integrity per §11.4.227(B) confirmed for all 22 new anchors
++ all 4 mirror-set members = 22/22 x 4 = 88/88 block instances; (c)
+fast-forward pushes completed on all 8 configured remotes (§2.1); (d)
+consumer-project pointer bump verified on boba HEAD <code>f8aa956</code>
+across all 3 boba remotes.</p>
+<h3 id="new-universal-anchors-22">New universal anchors (22)</h3>
+<p><strong>AI-curriculum modules 27-35 harvest (§11.4.239-§11.4.254 → 16
+anchors, condensed):</strong></p>
+<ul>
+<li><strong>§11.4.239 — Critical-invariant work-class Definition of Done
+mandate.</strong> Every DoD MUST identify a closed CRITICAL-INVARIANT
+WORK CLASS (money movement, safety-of-life/property outputs,
+availability of the primary user-facing capability, integrity of the
+persistent record) and MUST require that every change touching this
+class carry EXPLICIT FAILURE-PATH SCENARIOS as passing tests BEFORE
+closure. Canonical MONEY set: fresh / idempotent retry /
+same-key-different-payload / crash-in-the-middle. Composes §11.4.146(D3)
+status-custody chain.</li>
+<li><strong>§11.4.240 — Producer ≠ Verifier scope separation.</strong>
+STRUCTURAL SEPARATION between the actor that PRODUCES a
+change/artifact/verdict and the actor that GATES it — the producer
+cannot write, weaken, delete, or edit the acceptance tests, oracle, gate
+configuration, verdict store, paired §1.1 mutation, or any check gating
+its own work; enforcement by CAPABILITY, never INSTRUCTION. Mutual
+composes with §11.4.249 four-role architecture.</li>
+<li><strong>§11.4.241 — Illegal-state-unrepresentability preference
+ladder.</strong> Every load-bearing invariant lands at the STRONGEST
+enforcement rung the target language/toolchain supports: type-system
+&gt; API-shape &gt; lint &gt; property-test &gt; runtime-assert. Defect
+PREVENTABLE at rung N caught only at rung &gt; N is a finding.</li>
+<li><strong>§11.4.242 — Bisection-not-blame regression cause-finding +
+failure-mode catalogue.</strong> First-choice mechanism is
+<code>git bisect</code> (O(log N)) over range from last known-good tag
+to HEAD, NOT blame-log walking (O(N)) NOR speculative hunting. Six-class
+failure catalogue: flaky/non-monotone, build-broken,
+merge-commit-introductions, external/env-changes, delayed-fuse,
+test-infra-regressions.</li>
+<li><strong>§11.4.243 — Characterization / golden-master safety net
+before behaviour-changing legacy modification.</strong> Before ANY
+behaviour-changing modification to legacy code, author CHARACTERIZATION
+TESTS asserting CURRENT observable behaviour as GROUND TRUTH. Feathers&#39;s
+WORKING EFFECTIVELY WITH LEGACY CODE + generalised GOLDEN-MASTER
+pattern.</li>
+<li><strong>§11.4.244 — Cross-boundary contract tests + can-i-deploy
+gate.</strong> Changes modifying independently-deployable boundaries
+MUST be covered by CONSUMER-DRIVEN CONTRACT TESTS on both sides AND a
+<code>can-i-deploy</code> gate MUST verify proposed provider version
+compatibility against every currently-deployed consumer version BEFORE
+the change ships. Merges the two mechanisms as they are useless in
+isolation.</li>
+<li><strong>§11.4.245 — Oracle-problem-first test authoring.</strong>
+Every test MUST FIRST identify its ORACLE — mechanism deciding PASS vs
+FAIL — DIFFERENT from code under test AND from test&#39;s own assertion
+mechanism. Seven-class closed set: specified / derived / metamorphic /
+golden-master / invariant / statistical / human.</li>
+<li><strong>§11.4.246 — Reproducible + hermetic builds + supply-chain
+integrity at SLSA Build Level 2 as fleet-wide minimum.</strong> Operator
+decision 2026-08-15: SLSA L2 is fleet-wide minimum, L3+ tracked as
+backlog per §11.4.197. Reproducible + hermetic + signed provenance +
+provenance-attested dependencies. Boba already satisfies ancillary
+requirements (SSH-only §2.1, rootless podman §11.4.161, fixed-tag pins
+§11.4.30/§11.4.77).</li>
+<li><strong>§11.4.247 — Composite-output layer-move must move every
+layer.</strong> When a change moves a system-boundary layer, MUST move
+EVERY LAYER of the composite output atomically or via explicit
+compatibility window. Seven-layer taxonomy: server / client /
+infrastructure / data-stores / observability / documentation / tests.
+Zero-residuals check.</li>
+<li><strong>§11.4.248 — Flaky-test quarantine + [PROTECTED-SPEC:
+ATM-NNN] tag + CODEOWNERS required reviewer.</strong> Operator decision
+2026-08-15 for the tag+CODEOWNERS mechanism. Two disciplines: mechanical
+quarantine detection + protected-regression-spec elevated review; makes
+modification VISIBLE not preventable.</li>
+<li><strong>§11.4.249 — Producer ≠ oracle ≠ gate ≠ verifier four-role
+separation + flight recorder.</strong> Four distinct roles that MUST be
+structurally separate: PRODUCER / ORACLE / GATE / VERIFIER. Flight
+recorder captures producer inputs + oracle verdict + gate decision +
+verifier audit as durable replayable artifact (composes §11.4.116 event
+stream + §11.4.207 content-addressed). Four detectable-collapse
+taxonomy.</li>
+<li><strong>§11.4.250 — Heuristic-tower signals a primitive
+defect.</strong> Codebase accumulating TOWER of heuristics compensating
+for same underlying issue IS the diagnostic: primitive is defective.
+Systematic-debugging response on tower depth ≥ 2: stop, invoke
+§11.4.102, fix primitive, remove layers one at a time.</li>
+<li><strong>§11.4.251 — Byte-identical-fork prohibition +
+role-as-data-pack extraction.</strong> Copies differing only in
+configuration/data/role-specific parameters MUST NOT be maintained as
+parallel forks. Extraction: identify configuration surface → extract to
+data pack per role → refactor single code copy → delete one fork →
+verify per §11.4.5 → commit extraction per §11.4.124.</li>
+<li><strong>§11.4.252 — Fail-closed-on-dangerous-combination.</strong>
+Every code path COMBINING ≥ 2 dangerous capabilities (mutation /
+untrusted-input / credential-access / external-side-effect / shell-exec
+/ irreversible) MUST FAIL CLOSED. Security-engineering generalisation of
+§11.4.201 guard-honesty. Six-class dangerous-combination taxonomy.</li>
+<li><strong>§11.4.253 — Idempotency under retry + DB-level durable
+uniqueness guard.</strong> Every retryable operation MUST BE IDEMPOTENT:
+N executions = same observable end state as one. Enforced at LOWEST
+layer where &quot;same end state&quot; is durably provable — typically DATABASE
+UNIQUENESS CONSTRAINT on caller-supplied idempotency key, NEVER only
+application-layer check-then-insert. Prevents DOUBLE-CHARGE /
+DOUBLE-EMAIL / DOUBLE-DELETE / DOUBLE-EFFECT bugs.</li>
+<li><strong>§11.4.254 — Boot-time invariant assertion + capability
+matrix.</strong> Every service MUST assert BOOT-TIME INVARIANTS at
+startup and FAIL FAST + LOUD if violated. Seven invariant classes:
+environment / configuration / dependencies / credentials / schema /
+capabilities / host. Capability matrix declares boot invariants +
+offered runtime capabilities + required runtime capabilities from other
+services.</li>
+</ul>
+<p><strong>Operator 9-point enterprise-quality mandate
+(§11.4.257-§11.4.262 → 6 anchors):</strong></p>
+<ul>
+<li><strong>§11.4.257 — Comprehensive user-manual + guide + FAQ
+coverage.</strong> Every consuming project MUST cover the whole project
+with three cooperating documentation classes: complete USER MANUAL per
+component/service/product, task-oriented GUIDES for every user-facing
+workflow, properly-created FAQs derived from real operator/QA/end-user
+questions. Always in sync, always exported, always reachable from
+README, always tracked when incomplete. Generalises §11.4.18 + §11.4.153
+to whole-project doc coverage.</li>
+<li><strong>§11.4.258 — Architectural + data-flow + state-machine +
+sequence-diagram coverage.</strong> Every consuming project MUST cover
+the whole project with properly created graphs/diagrams/schemes across
+FOUR canonical classes: system architecture / data flow / state machine
+/ sequence. INCORPORATED at the point of use, NEVER an orphan gallery.
+Open-format-diffable (Mermaid/PlantUML/D2/diffable SVG). Strengthens
+§11.4.218/§11.4.219 (design-side) to whole-project.</li>
+<li><strong>§11.4.259 — README quality-status badge row.</strong> Every
+consuming project&#39;s README MUST carry, at the TOP (immediately below the
+H1), a comprehensive BADGE ROW with closed color vocabulary
+GREEN/AMBER/RED/GRAY, minimum floor covering build / test-breadth /
+coverage / security / documentation completeness / diagram completeness
+/ live health / open defects / supply-chain integrity /
+zero-shortcomings verdict / machine-evidence coverage /
+PRODUCTION-READINESS GAUGE. Every badge machine-derived, self-validated.
+Extends §11.4.57.</li>
+<li><strong>§11.4.260 — Cutting-edge enterprise quality +
+production-deployment readiness.</strong> Every work product MUST be
+built for cutting-edge enterprise quality targeted at production
+deployment + maximal stability + zero nasty surprises — standing default
+from first prompt. Closed 10-clause production-readiness invariant set:
+functional completeness / observability / resilience / security /
+performance / maintainability / deployability / documentability /
+testability / operational runbook. Strengthens §11.4.190 (web-only) to
+universal.</li>
+<li><strong>§11.4.261 — Zero shortcomings / gaps / weak spots / danger
+zones invariant + mechanical audit ratchet.</strong> Every consuming
+project MUST hold at ALL TIMES exactly ZERO findings across code /
+services / components / gates / docs / config — enforced by mechanical
+audit sweep from a CLOSED 10-class vocabulary. Monotone-decreasing
+ratchet (§11.4.135 pattern). Every finding either CLOSED (evidence at
+defect layer per §11.4.226) OR TRACKED (§11.4.197 + §11.4.148 +
+§11.4.223 + §11.4.101 + §11.4.135). Generalises §11.4.124 + §11.4.118 +
+§11.4.238.</li>
+<li><strong>§11.4.262 — Machine-created + machine-verifiable evidence at
+every gate.</strong> Every claim of works/passes/verified MUST cite
+MACHINE-CREATED + MACHINE-VERIFIABLE evidence — no operator eyeballing,
+no narrative-only PASS, no prediction, no assumption. Strengthens §11.4
+covenant preamble from CAPTURED to CAPTURED-AND-MACHINE-VERIFIABLE.
+Applies §11.4.107(10) self-validating analyzers universally. Three-gate
+coverage: confirmation / validation / verification.</li>
+</ul>
+<h3 id="targeted-extensions-5">Targeted extensions (5)</h3>
+<p>Applied this round in commit <code>1389ebe</code>:</p>
+<ul>
+<li><strong>§11.4.212 EXTENSION clauses (E) + (F)</strong> — README
+introduction + illustration coverage + linkage-completeness ratchet.
+Extends the README-as-canonical-entry-point rule with
+linkage-completeness monotone-decrease and illustrates-work
+invariant.</li>
+<li><strong>§11.4 covenant preamble EXTENSION</strong> — machine-created
+evidence at every gate binding. Anchors the §11.4.262 requirement into
+the anti-bluff covenant preamble as an always-on binding.</li>
+<li><strong>§11.4.108 EXTENSION clause (7)</strong> — each of the 4
+four-layer verification layers MUST cite machine-created +
+machine-verifiable evidence produced at THAT layer; higher layer citing
+lower-layer-only = §11.4.226 wrong-layer violation.</li>
+<li><strong>§11.4.224 EXTENSION (B)</strong> — 7-canonical-test-type
+coverage floor with 100% aim, cross-referenced to §11.4.27 seven test
+types.</li>
+<li><strong>§11.4.27 EXTENSION (B)</strong> — 7-canonical-type breadth
+enumeration explicit, cross-referenced from §11.4.224.</li>
+</ul>
+<h3 id="114140--114141-collision-resolution-114255--114256-re-mint">§11.4.140
+/ §11.4.141 collision resolution (§11.4.255 + §11.4.256 re-mint)</h3>
+<p>Long-standing operator-owned anchor-number collision resolved this
+round in commits <code>5ed8c80</code> (Constitution.md re-mint) +
+<code>6dff307</code> (CLAUDE.md mirror) + <code>f497412</code>
+(AGENTS.md mirror) + <code>9e45dec</code> (QWEN.md mirror) +
+<code>e5f2891</code> (GEMINI.md mirror):</p>
+<ul>
+<li><strong>§11.4.140 (translation pipeline sense)</strong> re-minted to
+<strong>§11.4.255</strong> — HelixTranslate canonical translation
+pipeline (2026-06-25 mandate). §11.4.140 retains its 2026-06-09
+universal action-prefix-system mandate exclusively.</li>
+<li><strong>§11.4.141 (per-language review sense)</strong> re-minted to
+<strong>§11.4.256</strong> — independent per-language translation review
+(2026-06-25 mandate). §11.4.141 retains its 2026-06-09 token-efficiency
+mandate exclusively.</li>
+<li>All cross-references in the 4 mirrors updated to the new anchor
+numbers; §11.4.237 (context-and-spirit translation review) now cites
+§11.4.255/§11.4.256 rather than the ambiguous §11.4.140/§11.4.141. No
+new collision introduced.</li>
+</ul>
+<h3 id="provenance">Provenance</h3>
+<ul>
+<li><strong>AI curriculum extraction</strong>: 9 modules (27-35), 7,096
+lines, sourced from local instructor mirror
+<code>http://mistborn.local:8099/</code> under §11.4.99
+latest-source-verification cadence + §11.4.150 deep multi-angle web
+research.</li>
+<li><strong>Operator-answered decisions on 2026-08-15</strong>:
+<ul>
+<li>SLSA Build Level 2 as fleet-wide minimum (rather than L3+
+immediately, tracked per §11.4.197).</li>
+<li>[PROTECTED-SPEC: ATM-NNN] tag + CODEOWNERS required-reviewer
+mechanism (rather than harder mechanical block or lighter warning).</li>
+<li>5-atomic-commit strategy for landing the 22 anchors (Constitution.md
+monolithic + 4 mirror commits, rather than 22 separate anchor
+commits).</li>
+<li>Resolve §11.4.140/§11.4.141 collision FIRST (5 commits
+<code>5ed8c80..e5f2891</code>), then land the 22 anchors, then land the
+5 extensions.</li>
+</ul></li>
+<li><strong>§11.4.209 substrate honest disclosure per §11.4.231(F)(b)
+harness gap</strong>: this round&#39;s independent code-review ran on the
+Opus best-effort parent-inherited fork substrate. The Claude Code Agent
+tool exposes a <code>model</code> parameter but NO <code>effort</code>
+parameter, so subagent effort is not presently settable via that path —
+the §11.4.182 <code>&lt;effort&gt;</code> label field degrades honestly
+to <code>?</code> per §11.4.6. This is not a Fable-<code>xhigh</code>
+review as §11.4.209 mandates by default; a re-review at the true
+§11.4.209 Fable-<code>xhigh</code> substrate via the Workflow-tool
+<code>agent()</code> path REMAINS RECOMMENDED (not blocking) before the
+22 anchors are considered fully substrate-verified, tracked as an owed
+§11.4.197 upgrade item.</li>
+<li><strong>Round 2 iterate-to-GO per §11.4.134</strong>: subagent
+<code>a6b89ff0</code> returned all IMPORTANT-1/2/3 + MINOR-1/2/3/4
+findings resolved, zero new BLOCKING or IMPORTANT introduced. Structural
+layer (§11.4.227(B) block-integrity + §11.4.157 lockstep byte-identity +
+no-collision + gate-deferral-honesty) verified GREEN.</li>
+<li><strong>Fable-substrate review of the 2026-07-26 round
+precedent</strong>: substantive-on-structural verified GREEN on round 2,
+per the §11.4.134 iterate-to-GO discipline.</li>
+</ul>
+<h3 id="honest-boundaries-per-1146">Honest boundaries per §11.4.6</h3>
+<ul>
+<li><strong>§11.4.241-254 shipped in condensed form</strong> in commit
+<code>697c750</code> (the monolithic anchor commit), grouped into 16
+anchors covering the 9 AI-curriculum modules (27-35). Full canonical
+text expansion for each of §11.4.241-254 as separate top-level
+<code>### §11.4.NNN</code> blocks in Constitution.md is tracked as an
+owed §11.4.197 follow-up item, per operator&#39;s 5-atomic-commit strategy
+decision (2026-08-15). The mirror files (CLAUDE.md / AGENTS.md / QWEN.md
+/ GEMINI.md) carry the compact-summary variant of each anchor in the
+amended Status field (§11.4.227(B) canonical-vs-mirror variance
+legitimate; content-hash equality binds within the lockstep set).</li>
+<li><strong>§11.4.209 substrate</strong>: as disclosed above, this
+round&#39;s review substrate is opus-class best-effort, not
+Fable-<code>xhigh</code>. A future round SHOULD re-review the 22 new
+anchors on Fable-<code>xhigh</code> when the Workflow tool path becomes
+available; that upgrade is a tracked §11.4.197 item, not a claim of
+shipped Fable-xhigh review.</li>
+<li><strong>Recommended per-anchor mechanism gates</strong>
+(<code>CM-*</code> tokens introduced in the 22 anchors&#39; anti-bluff
+paragraphs) are
+<code>gate-code = separate work item, NOT claimed shipped</code> per
+§11.4.6/§11.4.227. This round lands the ANCHOR TEXT + PROPAGATION GATE
+literals (<code>CM-COVENANT-114-239-PROPAGATION</code> through
+<code>CM-COVENANT-114-254-PROPAGATION</code> +
+<code>CM-COVENANT-114-257-PROPAGATION</code> through
+<code>CM-COVENANT-114-262-PROPAGATION</code> = 22 new anchor-block-start
+propagation gates); the 40+ recommended mechanism gates each anchor
+names are separate follow-up items per §11.4.227.</li>
+<li><strong>Generated <code>.html</code> / <code>.pdf</code> /
+<code>.docx</code> twins NOT regenerated this round</strong> — the
+governance-twin exporter is still not a documented runnable in-repo
+script (§11.4.106(E)); twins remain honestly STALE pending the exporter
+commit. No silent divergence claimed otherwise.</li>
+</ul>
+<h3 id="commit-provenance-this-round-on-the-constitution-submodule">Commit
+provenance (this round on the constitution submodule)</h3>
+<ul>
+<li><strong>Phase 0 (§11.4.140/141 collision resolution,
+2026-08-15)</strong>: <code>5ed8c80</code> (Constitution.md re-mint to
+§11.4.255/§11.4.256) → <code>6dff307</code> (CLAUDE.md mirror) →
+<code>f497412</code> (AGENTS.md mirror) → <code>9e45dec</code> (QWEN.md
+mirror) → <code>e5f2891</code> (GEMINI.md mirror).</li>
+<li><strong>Prior amendments to prior amendment round
+(2026-08-05..07)</strong>: <code>47d41f8</code> (docs_chain
+incorporation per §11.4.106/§11.4.28(C) carve-out) →
+<code>c6f8da8</code> (missing <code>helix-deps.yaml</code> per
+§11.4.31).</li>
+<li><strong>Phase 3 landing (2026-08-15)</strong>: <code>697c750</code>
+— MONOLITHIC amendment round, 22 new anchors §11.4.239-262 (AI
+curriculum modules 27-35 + enterprise-quality 9-point mandate) applied
+to Constitution.md.</li>
+<li><strong>Phase 3 mirror fix-forward (2026-08-15..16)</strong>:
+<code>4c5bcaa</code> (CLAUDE.md mirror lockstep) → <code>277ca6f</code>
+(AGENTS.md mirror lockstep) → <code>d00bc2a</code> (QWEN.md mirror
+lockstep) → <code>00bbd49</code> (GEMINI.md mirror lockstep).</li>
+<li><strong>Phase 3 extensions (2026-08-17)</strong>:
+<code>1389ebe</code> — 5 targeted extensions per unified amendment round
+§11.4.212 / §11.4 preamble / §11.4.108 / §11.4.224 / §11.4.27.</li>
+</ul>
+<h3 id="verification-per-114227b--114157">Verification (per §11.4.227(B)
++ §11.4.157)</h3>
+<ul>
+<li><strong>Block-integrity per §11.4.227(B)</strong>: 22/22 new anchors
+present as exactly-once block-starts in each of Constitution.md + 4
+mirrors = 22 × 5 = 110/110 block instances verified.</li>
+<li><strong>Lockstep byte-identity per §11.4.157</strong>: md5
+<code>90c0607d0b34fb020040772007911d65</code> byte-identical across the
+4 mirrors CLAUDE.md + AGENTS.md + QWEN.md + GEMINI.md for the amendment
+region; Constitution.md carries the canonical <code>### §11.4.NNN</code>
+heading variant per §11.4.227(B) canonical-vs-mirror layer variance
+legitimate.</li>
+<li><strong>Fast-forward push completion (§2.1 + §11.4.113)</strong>:
+43/43 pushes complete across the 8 configured remotes for the
+constitution submodule (github HelixDevelopment, gitlab
+HelixDevelopment1, gitflic HelixDevelopment, gitverse HelixDevelopment,
+github vasic-digital, gitlab vasic-digital, and the origin+upstream
+multi-push wrappers).</li>
+<li><strong>Consumer pointer bump (§11.4.26 step 7)</strong>: boba HEAD
+<code>f8aa956</code> on all 3 boba remotes verified 0/0 in-sync.</li>
+</ul>
+<h3 id="anchor-propagation-gates-landed-this-round">Anchor propagation
+gates landed this round</h3>
+<p><code>CM-COVENANT-114-239-PROPAGATION</code> through
+<code>CM-COVENANT-114-254-PROPAGATION</code> (16 gates) +
+<code>CM-COVENANT-114-257-PROPAGATION</code> through
+<code>CM-COVENANT-114-262-PROPAGATION</code> (6 gates) = 22 new
+anchor-block-start propagation gate literals present in this round&#39;s
+Status summary text across the mirror set.</p>
+<hr />
+<h2 id="prior-tags">Prior tags</h2>
+<h3 id="v100--2026-07-24--first-constitution-version-tag">v1.0.0 —
+2026-07-24 — first constitution version tag</h3>
 <p>This tag captures the constitution state at the end of the
 2026-07-22→24 work round, bracketed by <code>helixcode-v1.1.0</code>
 (2026-07-12) and current HEAD. <strong>182 commits</strong> of
 systematic governance codification, measurement-semantics harvest,
 design-methodology round, and tooling hardening.</p>
-<h3 id="added">Added</h3>
+<h4 id="added">Added</h4>
 <ul>
 <li><strong>§11.4.216–223 — Design-methodology codification round
 (2026-07-22).</strong> Eight new anchors codifying the
@@ -418,7 +775,7 @@ single project.</li>
 comprehensive implementation guide for the constitution-powered
 bridge.</li>
 </ul>
-<h3 id="fixed">Fixed</h3>
+<h4 id="fixed">Fixed</h4>
 <ul>
 <li><strong>Credential scan (cred-scan) carrier strips #5, #6,
 #7.</strong> Multiple false-positive carrier-identification bugs in
@@ -438,7 +795,7 @@ fix, config alias-exclusion, conductor-slot exclusion,
 <li><strong>Curl timeouts</strong> added across the tooling
 surface.</li>
 </ul>
-<h3 id="docs">Docs</h3>
+<h4 id="docs">Docs</h4>
 <ul>
 <li>Companion docs for §11.4.141 (<code>scoped_read.sh</code>,
 <code>token_efficiency_lib</code>, <code>context_compactor</code>) per
