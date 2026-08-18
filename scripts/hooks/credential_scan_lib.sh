@@ -150,7 +150,32 @@ HELIX_CRED_VALUE_PATTERN='(AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{
 #       `xxxsecret1` depends on it staying strict.
 # Roots admitted here are only those that UNAMBIGUOUSLY mean "not filled in".
 # `your[_-]…` and `…must_not_leak…` already carry their own affix forms above.
-HELIX_CRED_PLACEHOLDER_CARRIER='^(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?(change_?me|placeholder|example|dummy|redacted|todo|tbd|fixme|xxx+|your[_-][a-z0-9._-]*|[a-z0-9._-]*must_not_leak[a-z0-9._-]*|(change_?me|placeholder|example|dummy|redacted|todo|tbd|fixme)([_-][a-z0-9]+)+)["'"'"']?$'
+#
+# §11.4.201 carrier-strip #8a-ELLIPSIS (documentation ELIDED-value placeholder).
+# Forensic FP (2026-08-19): a `# Usage` comment documenting how to invoke a script —
+#   ANTHROPIC_API_KEY=sk-ant-... bash scripts/e2e-agent-claude.sh
+# — was REFUSED at the commit seam. The keyword branch of detector-1 sees
+# `API_KEY=sk-ant-...` (keyword + `=` + a 10-char non-space value) and none of the
+# alternations above matches a value whose secret characters have been ELIDED with a
+# trailing ellipsis, so the doc placeholder read as a real secret: a §11.4.201(1)
+# FALSE-POSITIVE REFUSAL, itself a FAIL-bluff. `<PREFIX->...` is the dominant
+# real-world convention for documenting a token in a usage line (sk-ant-... /
+# sk-... / ghp_...), so the strip was structurally incomplete, not merely unlucky.
+# WHY THIS CANNOT WEAKEN REAL-SECRET DETECTION (by construction, not by heuristic):
+# the value must END in a literal ellipsis, i.e. the secret characters are LITERALLY
+# ABSENT — replaced by dots. A string ending in `...` is not a working credential; it
+# authenticates nowhere. This is the same INTENT-marker argument as #8a-SUFFIX
+# (elision marker, NOT an entropy guess: entropy is deliberately NOT the
+# discriminator because the library's own golden-bad `hunter2hunter2` is LOW-entropy
+# and MUST stay caught).
+# TIGHTENING (deliberate, golden-proven): the `[_-]` separator immediately before the
+# dots is MANDATORY, so only the truncated-PREFIX idiom is stripped. A value with no
+# separator before the ellipsis (`AKIA...`, `abc123...`) still SURVIVES and is still
+# flagged — fail-closed on the ambiguous shape (§11.4.201 conservative-safe default).
+# Covers the ASCII `...` and the UTF-8 `…` forms. Proven by the golden-good /
+# golden-bad / negative-control fixtures (n) below and in
+# <project>/scripts/git_hooks/fixtures/credscan_ellipsis_fp_proof.sh (§11.4.107(10)).
+HELIX_CRED_PLACEHOLDER_CARRIER='^(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?(change_?me|placeholder|example|dummy|redacted|todo|tbd|fixme|xxx+|your[_-][a-z0-9._-]*|[a-z0-9._-]*must_not_leak[a-z0-9._-]*|(change_?me|placeholder|example|dummy|redacted|todo|tbd|fixme)([_-][a-z0-9]+)+|[a-z0-9_-]*[_-](\.{3,}|…))["'"'"']?$'
 
 # §11.4.201 carrier-strip #8b (base64-image data-URI). A data:image/…;base64,<blob>
 # embeds a long base64 run of image bytes that can RANDOMLY contain a token-shaped

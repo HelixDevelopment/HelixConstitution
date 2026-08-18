@@ -206,6 +206,30 @@ package:/data/app/~~U4OsJn3zzcMyh-sRkefkGQ==/com.example.clouddisk-Zx9WvUt7SrQpO
 EOF
 assert_clean "(m) Android pm-path '…mediakiosk-<token>' (sk- left-boundary carrier)" "$WORK/good_m_pkgpath_sk.txt"
 
+# §11.4.201 carrier-strip #8a-ELLIPSIS. A `# Usage` comment documenting how to
+# invoke a script with a token — `ANTHROPIC_API_KEY=sk-ant-... <cmd>` — is a
+# DOC PLACEHOLDER whose secret characters are LITERALLY ABSENT (replaced by an
+# ellipsis), never a real secret. Forensic FP (2026-08-19): this exact line in a
+# tracked extension script REFUSED every commit repo-wide. The strip requires a
+# `[_-]` separator immediately before the dots, so the no-separator forms in
+# golden-bad (9)/(9a) below still SURVIVE and are still flagged — the fixture
+# pair proves the strip is TIGHT, not a blanket ellipsis exemption.
+cat > "$WORK/good_n_doc_ellipsis.sh" <<'EOF'
+#!/usr/bin/env bash
+# Environment
+#   ANTHROPIC_API_KEY     required (unless E2E_DRY_RUN=1)
+#
+# Usage
+#   ANTHROPIC_API_KEY=sk-ant-... bash scripts/e2e-agent-claude.sh
+#
+  if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -n "${CI:-}" ]; then
+    printf 'ANTHROPIC_API_KEY not set in CI environment.\n'; exit 1
+  fi
+api_key=sk-...
+access_token=ghp_...
+EOF
+assert_clean "(n) doc-ellipsis placeholder 'API_KEY=sk-ant-...' (truncated-prefix carrier)" "$WORK/good_n_doc_ellipsis.sh"
+
 echo ""
 # --- GOLDEN-BAD -------------------------------------------------------------
 cat > "$WORK/bad_1_email_pw.txt" <<'EOF'
@@ -373,6 +397,21 @@ else
 fi
 
 echo ""
+# §11.4.201(2) TIGHTENING GUARD for carrier-strip #8a-ELLIPSIS. The strip admits
+# ONLY the truncated-PREFIX idiom (`<stub><_->...`). A value whose ellipsis is NOT
+# preceded by a `_`/`-` separator is an AMBIGUOUS shape and MUST stay flagged
+# (fail-closed). These two fixtures prove the ellipsis strip cannot be widened
+# into a blanket "anything ending in dots is a placeholder" exemption.
+cat > "$WORK/bad_9_ellipsis_no_sep.txt" <<'EOF'
+password=hunter2hunter2...
+EOF
+assert_caught "(9) real-looking secret with trailing dots, NO separator (ellipsis strip must not fire)" "$WORK/bad_9_ellipsis_no_sep.txt"
+
+cat > "$WORK/bad_9a_ellipsis_alnum_sep.txt" <<'EOF'
+api_key=abc123def456...
+EOF
+assert_caught "(9a) alnum value with trailing dots, NO separator (ellipsis strip must not fire)" "$WORK/bad_9a_ellipsis_alnum_sep.txt"
+
 # --- STREAM DETECTOR CONTRACT (the function the hook + commit_all call directly) --
 # helix_cred_detector1_real_hit_stream reads STDIN. Exit 1 = clean, 0 = hit. The
 # file scanner delegates to it, but the hook/commit_all call it on a `git show`
