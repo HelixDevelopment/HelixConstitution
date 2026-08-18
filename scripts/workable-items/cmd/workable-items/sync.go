@@ -415,9 +415,29 @@ func fixedLocationNonTerminalStatus(items []item) []string {
 
 // unresolvableClosureEvidence returns, for the HXC-217 unresolvable-evidence
 // defect CLASS, a human-readable description of every item_history row that
-// (a) belongs to an item whose CURRENT status is one of the four terminal
-// closed-set values, and (b) carries a non-empty evidence_path that does NOT
-// resolve to an existing filesystem entry.
+// (a) IS ITSELF a closure event (event_type one of Fixed/Implemented/
+// Completed/Obsolete — the SAME closed set correct_evidence.go's
+// closureEvents recognises, §11.4.33), (b) belongs to an item whose CURRENT
+// status is one of the four terminal closed-set values, and (c) carries a
+// non-empty evidence_path that does NOT resolve to an existing filesystem
+// entry.
+//
+// TASK-54 / BOB-010 id=64 FIX (2026-08-18): clause (a) — the event_type
+// filter — was MISSING. The query previously checked ONLY the item's current
+// status, so a non-closure history row (Updated/Reopened/Opened) belonging to
+// an item that HAPPENS to be closed today was wrongly treated as a closure's
+// captured-proof claim. FACT: BOB-010's real closure (history id=4,
+// event=Completed) recorded a resolvable evidence_path; a LATER `Updated`
+// row (history id=64) recorded evidence_path="scripts/docs_chain.sh" — a
+// path that stopped resolving after that script was git-mv'd to
+// scripts/workable-items-export.sh (commits 0558399/d9d512d). An `Updated`
+// row is ordinary history-trail narrative, never a re-assertion of the
+// closure's evidence (§11.4.5/§11.4.69/§11.4.123/§11.4.226 bind the CLOSURE
+// event's pointer, not every subsequent note on an already-closed item), so
+// checking it was over-scoping that mechanically BLOCKED `workable-items
+// validate` on a healthy tracker the moment any closure-adjacent path was
+// renamed. See TestClosureEvidence_UpdatedEventOnClosedItem_UnresolvablePath_NoViolation
+// for the RED→GREEN regression guard.
 //
 // Path anchoring reuses resolveInvocationRelative (the HXC-201 mechanism): an
 // absolute path is taken as-is, a relative one is anchored against the INVOKING
@@ -441,6 +461,7 @@ func unresolvableClosureEvidence(db *sql.DB) ([]string, error) {
 		FROM item_history h
 		WHERE h.evidence_path IS NOT NULL
 		  AND TRIM(h.evidence_path) <> ''
+		  AND h.event_type IN ('Fixed', 'Implemented', 'Completed', 'Obsolete')
 		  AND EXISTS (
 		        SELECT 1 FROM items i
 		        WHERE i.atm_id = h.atm_id

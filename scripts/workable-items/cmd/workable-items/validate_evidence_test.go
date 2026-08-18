@@ -268,6 +268,69 @@ func TestValidate_UnresolvableClosureEvidence_FailsThenPassesWhenEvidenceLands(t
 	}
 }
 
+// (f) TASK-54 / BOB-010 id=64 — the OVER-SCOPING regression: a CLOSED item's
+// NON-closure history rows (Updated/Reopened/Opened) MUST NOT be checked for
+// evidence-path resolvability, even though the item's CURRENT status is
+// terminal. Only a CLOSURE event (Fixed/Implemented/Completed/Obsolete) is a
+// closure's captured-proof claim (§11.4.5/§11.4.69/§11.4.123/§11.4.226); an
+// `Updated` row is ordinary history-trail narrative, not a re-assertion of the
+// closure's evidence.
+//
+// ROOT CAUSE (FACT, live DB, 2026-08-18): BOB-010's real closure (history
+// id=4, event=Completed) recorded evidence_path="scripts/workable-items-export.sh",
+// which resolves. A LATER `Updated` row (history id=64, on=2026-08-10) recorded
+// evidence_path="scripts/docs_chain.sh" — the file's PRE-rename name, git-mv'd
+// away by commit 0558399/d9d512d before this fixture's date. The query in
+// unresolvableClosureEvidence (sync.go) filtered ONLY on
+// `items.status IN (terminal set)`, never on `item_history.event_type`, so it
+// flagged the Updated row as an "unresolvable closure evidence_path" even
+// though it is not a closure claim at all — blocking every commit with
+// `workable-items validate` exit 1 on a healthy tracker.
+//
+// This test reproduces the EXACT shape: seed a closure with a RESOLVABLE
+// evidence path (so the real closure claim is provably clean), then append an
+// Updated event on the SAME now-closed item with an UNRESOLVABLE evidence_path
+// — the guard MUST report zero violations and `validate` MUST exit OK.
+//
+// §1.1 PAIRED MUTATION: reverting the `h.event_type IN (...)` clause this test
+// drove into unresolvableClosureEvidence's SQL (sync.go) makes this test FAIL
+// again with exactly the BOB-010 message shape — proving the scope-narrowing
+// fix is load-bearing, not decorative.
+func TestClosureEvidence_UpdatedEventOnClosedItem_UnresolvablePath_NoViolation(t *testing.T) {
+	dir := t.TempDir()
+	closureEvidence := filepath.Join(dir, "closure-capture.log")
+	if err := os.WriteFile(closureEvidence, []byte("captured runtime evidence\n"), 0o644); err != nil {
+		t.Fatalf("write closure evidence: %v", err)
+	}
+
+	dbPath := seedClosedWithEvidence(t, "WIT-707", closureEvidence)
+
+	db, err := openDB(dbPath)
+	if err != nil {
+		t.Fatalf("openDB: %v", err)
+	}
+	// The BOB-010 shape: an `Updated` event landed AFTER closure, on the SAME
+	// closed item, whose evidence_path names a file that was since renamed away
+	// (a well-formed path to nothing) — never a closure re-assertion.
+	if _, err := db.Exec(
+		`INSERT INTO item_history (atm_id, event_type, by, on_date, reason, evidence_path)
+		 VALUES (?,?,?,?,?,?)`,
+		"WIT-707", "Updated", "AI", "2026-08-10", "rename cross-reference note",
+		filepath.Join(dir, "renamed-away-before-this-fixture.sh")); err != nil {
+		db.Close()
+		t.Fatalf("insert post-closure Updated history: %v", err)
+	}
+	db.Close()
+
+	got := findingsFor(t, dbPath)
+	if len(got) != 0 {
+		t.Fatalf("guard flagged %d violation(s) for an Updated-event evidence_path on a closed item (§11.4.201(1) over-scoping — Updated is not a closure event): %v", len(got), got)
+	}
+	if code := validateCmd([]string{"--db", dbPath}); code != exitOK {
+		t.Fatalf("validate exited %d on a closed item whose ONLY unresolvable evidence_path belongs to a non-closure Updated event (expected OK — the BOB-010 id=64 over-scoping bug)", code)
+	}
+}
+
 // TestFirstLine keeps the message-bounding helper honest: one multi-line or
 // over-long evidence value must never flood the validator's output and hide its
 // siblings.
