@@ -1,7 +1,27 @@
 # guard-forbidden-commands.sh
 
-**Revision:** 1
-**Last modified:** 2026-07-10T22:15:00Z
+**Revision:** 2
+**Last modified:** 2026-08-19T00:00:00Z
+
+**Rev 2 change (BOB-099 / 2026-08-19)** — closed the CARRIER-vs-INVOCATION
+false-positive class (§11.4.196(D) / §11.4.201(7)(a)) for the emulator,
+force-push, `--no-verify`, and `--no-gpg-sign` gates. Prior to this fix,
+those four gates scanned raw `$COMMAND` with word-boundary regexes, so a
+harmless carrier like `echo 'emulator -avd is dev-only'`, `ls -la # git push
+--force is banned`, or a subagent prompt string that merely quoted the
+trigger tokens was BLOCKED as if the shell were actually going to run them.
+The sudo/su + host-power gates already routed through the quote-/comment-/
+heredoc-aware `SCRUBBED_COMMAND` projection; the fix HOISTS that projection
+above the emulator gate so every structural-match gate consumes the same
+scrubbed view, then switches the five affected regex sites from `$COMMAND`
+to `$SCRUBBED_COMMAND`. The escape-hatch marker check (`# guardrails:allow
+<reason>`) deliberately stays on raw `$COMMAND` — after scrubbing, the
+marker's own comment would be replaced by filler and vanish. Hermetic
+coverage added at `scripts/hooks/test_guard_forbidden_commands.sh` (32
+cases: 11 golden-TRUE real invocations, 16 golden-FALSE carrier fixtures
+across every gate class, 1 non-Bash tool passthrough, 2 escape-hatch
+downgrade cases, 2 host-power no-override cases — the whole set exits 0).
+No true-positive class was weakened.
 **Authority:** constitution §11.4.109 (Mandatory Anti-Forgetting Enforcement: PreToolUse Guard Hook + Subagent Constitutional Preamble + Orchestrator Pre-Action Checklist)
 **Maintainer:** constitution submodule (inherited by reference per §11.4.177 / §11.4.28(B))
 **Scope:** §11.4.18 companion doc for `constitution/scripts/hooks/guard-forbidden-commands.sh`
