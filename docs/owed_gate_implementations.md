@@ -408,3 +408,35 @@ unreviewed-change class §11.4.142 forbids.
 
 **Acceptance for F7:** wire the suite into a runner/pre-build stage, at which point the
 420 ledger figure stops being a proxy and starts being enforcement.
+
+---
+
+## C. Merge-introduced deferrals (§11.4.263, arrived 2026-08-20 via upstream 502586c)
+
+Upstream commit `502586c` ("anchor(§11.4.263): process-group signal-safety mandate")
+named three CM-* gates with neither an implementation nor a registered deferral. The
+§11.4.227(A) ratchet caught it correctly on the post-merge re-run — `unimplemented=423
+baseline=420 fails=1` — which is the mechanism working, not a false positive.
+
+Remediation taken: register the three against tracked items (the sanctioned §11.4.227(A)
+path). The baseline was NOT raised: raising it is the ratchet-gaming channel the anchor
+explicitly closes, and these gates remain OWED, not satisfied. Post-registration the
+canonical wrapper returns `unimplemented=420 baseline=420 fails=0`.
+
+- **OWED-GATE-059** — `CM-COVENANT-114-263-PROPAGATION`. Asserts the §11.4.263 anchor
+  block-start is present exactly once per governance file and lockstep-identical across
+  the mirror set. **Blocked on:** the shared propagation engine carries
+  OWED-GATE-ADV-F1..F3 (Section B); landing a 30th gate on a holed engine widens the
+  surface again. Reconcile the engine first per §11.4.120, then land this gate.
+- **OWED-GATE-060** — `CM-KILLPG-PGID-GUARD`. Asserts every `killpg` / `kill(-pid)` call
+  site in production code carries the `pid > 1 && pgid > 1` guard. **Blocked on:** needs a
+  per-language call-site scanner plus its paired §1.1 mutation (remove the guard → the
+  regression test must FAIL, per §11.4.115 observation-before-trust).
+- **OWED-GATE-061** — `CM-TEST-MOCK-PID-EXPLICIT-INT`. Asserts every subprocess mock in
+  test code sets `mock.pid` explicitly as `int` with `killpg` patched. **Blocked on:**
+  needs a test-corpus scanner plus its paired §1.1 mutation (unset `mock.pid` → the
+  assertion must catch the `pgid <= 1` attempt).
+
+Honest boundary (§11.4.6): a DEFERRED gate is owed work that is tracked and visible — it
+is NOT a gate that runs. §11.4.263's signal-safety mandate is therefore **unenforced
+mechanically** in this repository today; only its anchor text binds.
