@@ -117,6 +117,18 @@ victim="$(awk -F'\t' '$2=="UNIMPLEMENTED"{print $1; exit}' \
     <("${here}/gate_ledger.sh" generate "${scratch}/scripts" \
         "${scratch}/scripts/gates/gate_ledger_deferrals.tsv" "${scratch}/Constitution.md"))"
 
+  # RESTORE the real deferrals now that the victim is chosen.
+  # The truncation above is a SELECTION device: emptying deferrals makes every
+  # gate read UNIMPLEMENTED so a victim can be picked. Leaving it emptied
+  # pollutes T4/T5 with one phantom UNIMPLEMENTED per deferred gate, pushing
+  # the count over baseline for a reason that has nothing to do with the
+  # vanished-name mutation under test — T5 then fails on the COUNT check while
+  # its actual subject (restore-by-removal-citation) is never exercised.
+  # That is a §11.4.201(1) false-negative in the test harness: the mutation
+  # test reports a failure the gate is not committing.
+  cp -p "${real_root}/scripts/gates/gate_ledger_deferrals.tsv" \
+        "${scratch}/scripts/gates/gate_ledger_deferrals.tsv"
+
 if [ -z "$victim" ]; then
     fail "T4 setup: could not find any UNIMPLEMENTED gate in the real corpus to use as the vanished-name victim (unexpected — the real corpus should have hundreds)"
 else

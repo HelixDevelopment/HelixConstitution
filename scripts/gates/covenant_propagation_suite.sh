@@ -43,6 +43,46 @@ case "$MODE" in gates|mutations) ;; *) sed -n '1,32p' "$0" | sed 's/^# \{0,1\}//
 rows="$(awk -F'\t' '/^#/{next} NF>=2 && $1!="" {print $1"\t"$2}' "$PACK")"
 [ -n "$rows" ] || { echo "suite: zero rows in $PACK" >&2; exit 2; }
 
+# ── Carrier-set reuse (§11.4.201-safe optimization) ─────────────────────────
+# Carrier discovery is ANCHOR-INDEPENDENT: every gate audits the identical file
+# set. Walking the tree once here and handing the result to all N gates removes
+# N-1 redundant traversals (measured on a 1.13M-directory consumer: 9.3 s each,
+# 30 gates -> 279 s of pure duplication). The engine re-validates every listed
+# path and FAILS CLOSED on a stale entry, so this can never silently narrow the
+# audited set.
+if [ -z "${COVENANT_PROPAGATION_CARRIERS:-}" ]; then
+    _suite_root=""; _prev=""
+    for _a in "$@"; do
+        [ "$_prev" = "--root" ] && _suite_root="$_a"
+        _prev="$_a"
+    done
+    _suite_root="${_suite_root:-${CONSUMER_ROOT:-..}}"
+    if [ -d "$_suite_root" ]; then
+        _suite_cl="$(mktemp -t covenant_carriers.XXXXXX)"
+        trap 'rm -f "$_suite_cl"' EXIT INT TERM
+        # Mirror the engine's own prune set + the consumer exclusion file.
+        _suite_excl=()
+        _suite_ef="${COVENANT_PROPAGATION_EXCLUSIONS:-${_suite_root}/config/covenant_propagation_exclusions.tsv}"
+        if [ -r "$_suite_ef" ]; then
+            while IFS=$'\t' read -r _g _c _j; do
+                case "${_g:-}" in ''|'#'*) continue ;; esac
+                _suite_excl+=( -o -path "$_g" )
+            done < "$_suite_ef"
+        fi
+        find "$_suite_root" \
+            \( -path '*/node_modules' -o -path '*/.git' -o -path '*/out' \
+               -o -path '*/build' -o -path '*/dist' -o -path '*/prebuilts' \
+               -o -path '*/external' -o -path '*/vendor' -o -path '*/target' \
+               ${_suite_excl[@]+"${_suite_excl[@]}"} \) -prune \
+            -o \( -type f \( -name 'CLAUDE.md' -o -name 'AGENTS.md' \
+               -o -name 'QWEN.md' -o -name 'GEMINI.md' \) -print \) 2>/dev/null | sort > "$_suite_cl"
+        if [ -s "$_suite_cl" ]; then
+            export COVENANT_PROPAGATION_CARRIERS="$_suite_cl"
+            echo "suite: carrier set computed once ($(wc -l < "$_suite_cl") carriers) — reused across all gates"
+        fi
+    fi
+fi
+
 total=0; bad=0
 printf '%-36s %-5s %s\n' "GATE" "EXIT" "VERDICT"
 printf '%-36s %-5s %s\n' "------------------------------------" "-----" "----------------------------------"

@@ -85,6 +85,18 @@
 #   target). Project-agnostic per §11.4.28 — no consuming project's paths are
 #   hardcoded.
 #
+#   A consuming project MAY declare additional excluded trees in a CHECKED-IN,
+#   per-entry-justified TSV (default `<root>/config/covenant_propagation_exclusions.tsv`,
+#   override with COVENANT_PROPAGATION_EXCLUSIONS). This follows the
+#   §11.4.224(E) exclusion fence + the §11.4.135 checked-in-exemption-map
+#   pattern: each row is `<path-glob>\t<class>\t<justification>`, the class
+#   MUST come from the closed set {vendored-third-party | generated-code |
+#   non-shipping-fixtures | filename-collision}, a justification is REQUIRED,
+#   and every applied
+#   exclusion is PRINTED at run time — honest enumerated gaps, never a silent
+#   narrowing. A malformed row FAILS CLOSED (return 2), because a silently
+#   ignored exclusion file would let the gate quietly audit the wrong set.
+#
 # ── Outputs ──────────────────────────────────────────────────────────────────
 #   Per-carrier PASS/FAIL/SKIP lines on stdout + a final summary; nonzero
 #   return on any MISSING / DUPLICATED / DIVERGENT owned carrier.
@@ -203,17 +215,107 @@ covenant_propagation_main() {
         return 2
     fi
 
+    # ── Consumer-owned carrier exclusions (§11.4.35 DATA / §11.4.224(E) fence) ──
+    # The engine hardcodes NO project path (§11.4.28 / §11.4.177). A consuming
+    # project declares its vendored / generated / fixture trees here. Malformed
+    # rows FAIL CLOSED; applied rows are PRINTED (§11.4.135 honest gaps).
+    local excl_file="${COVENANT_PROPAGATION_EXCLUSIONS:-${root}/config/covenant_propagation_exclusions.tsv}"
+    local -a excl_prune=() excl_report=()
+    if [ -r "$excl_file" ]; then
+        local _eglob _eclass _ejust _eline=0
+        while IFS=$'\t' read -r _eglob _eclass _ejust || [ -n "${_eglob:-}" ]; do
+            _eline=$((_eline + 1))
+            case "${_eglob:-}" in ''|'#'*) continue ;; esac
+            case "${_eclass:-}" in
+                vendored-third-party|generated-code|non-shipping-fixtures|filename-collision) ;;
+                *)  echo "${GATE}: BLIND — ${excl_file}:${_eline}: class '${_eclass:-<empty>}' is outside the closed set {vendored-third-party|generated-code|non-shipping-fixtures|filename-collision} (§11.4.224(E) + the filename-collision extension)" >&2
+                    return 2 ;;
+            esac
+            if [ -z "${_ejust:-}" ]; then
+                echo "${GATE}: BLIND — ${excl_file}:${_eline}: exclusion '${_eglob}' carries no justification (§11.4.224(E) requires one)" >&2
+                return 2
+            fi
+            excl_prune+=( -o -path "$_eglob" )
+            excl_report+=( "${_eglob}  [${_eclass}]" )
+        done < "$excl_file"
+    fi
+
+    # ── Optional pre-computed carrier list (batch-run optimization) ─────────
+    # Carrier discovery is ANCHOR-INDEPENDENT: every anchor audits the exact
+    # same file set. A batch runner may therefore walk the tree ONCE and hand
+    # the result to every gate via COVENANT_PROPAGATION_CARRIERS, avoiding N-1
+    # redundant traversals (measured: 6.2 s per traversal over 1.13M dirs).
+    #
+    # This is an OPTIMIZATION, never a correctness escape. It FAILS CLOSED:
+    # an unreadable list, an empty list, or a list naming any path that no
+    # longer exists returns 2 (BLIND) rather than auditing a stale set — a
+    # silently-wrong carrier set would be exactly the §11.4.201 false-null
+    # this engine exists to prevent.
+    local carriers=""
+    if [ -n "${COVENANT_PROPAGATION_CARRIERS:-}" ]; then
+        if [ ! -r "$COVENANT_PROPAGATION_CARRIERS" ]; then
+            echo "${GATE}: BLIND — COVENANT_PROPAGATION_CARRIERS set but unreadable: ${COVENANT_PROPAGATION_CARRIERS}" >&2
+            return 2
+        fi
+        carriers="$(cat "$COVENANT_PROPAGATION_CARRIERS")"
+        local _cf _cmiss=0
+        while IFS= read -r _cf; do
+            [ -n "$_cf" ] || continue
+            [ -f "$_cf" ] || _cmiss=$((_cmiss + 1))
+        done <<< "$carriers"
+        if [ "$_cmiss" -gt 0 ]; then
+            echo "${GATE}: BLIND — pre-computed carrier list is STALE (${_cmiss} listed path(s) no longer exist); refusing to audit a stale set" >&2
+            return 2
+        fi
+    fi
+
     # Discover owned governance carriers, excluding non-authored trees.
-    local carriers
+    if [ -z "$carriers" ]; then
     carriers="$(find "$root" \
         \( -path '*/node_modules' -o -path '*/.git' -o -path '*/out' \
            -o -path '*/build' -o -path '*/dist' -o -path '*/prebuilts' \
-           -o -path '*/external' -o -path '*/vendor' -o -path '*/target' \) -prune \
+           -o -path '*/external' -o -path '*/vendor' -o -path '*/target' \
+           ${excl_prune[@]+"${excl_prune[@]}"} \) -prune \
         -o \( -type f \( -name 'CLAUDE.md' -o -name 'AGENTS.md' \
            -o -name 'QWEN.md' -o -name 'GEMINI.md' \) -print \) 2>/dev/null | sort)"
+    fi
+
+    # Honest gap enumeration — never a silent narrowing (§11.4.135 / §11.4.6).
+    if [ "${#excl_report[@]}" -gt 0 ] && [ "${QUIET:-0}" != "1" ]; then
+        echo "${GATE}: consumer exclusions applied (${#excl_report[@]}) from ${excl_file}:"
+        local _r
+        for _r in "${excl_report[@]}"; do echo "    ⊘ EXCLUDED  ${_r}"; done
+    fi
 
     if [ -z "${carriers//[$' \t\r\n']/}" ]; then
         echo "${GATE}: no governance carriers (CLAUDE/AGENTS/QWEN/GEMINI.md) found under $root" >&2
+        return 2
+    fi
+
+    # ── CONTROL NEEDLE on carrier discovery (§11.4.201(7)(b)) ───────────────
+    # Discovery runs `find ... 2>/dev/null`, so a partial traversal, a mount
+    # that vanished, a permission failure, or an over-broad exclusion returns a
+    # QUIET SHORT LIST that is indistinguishable from a genuinely small fleet.
+    # Every carrier in a short list still "exists", so an existence check
+    # cannot catch it — the gate would audit 5 files, find them all PRESENT,
+    # and PASS. That is the §11.4.201(6) FALSE-NULL this engine exists to
+    # forbid, occurring inside the engine itself.
+    #
+    # The needle: any governance file sitting DIRECTLY at $root is known to
+    # exist on disk, so it MUST appear in the discovered set. If it does not,
+    # the instrument is blind and we say so rather than reporting an absence.
+    local _needle _needle_found=0 _needle_total=0 _needle_missing=""
+    for _needle in CLAUDE.md AGENTS.md QWEN.md GEMINI.md; do
+        [ -f "${root}/${_needle}" ] || continue
+        _needle_total=$((_needle_total + 1))
+        if printf '%s\n' "$carriers" | grep -qF "${root}/${_needle}"; then
+            _needle_found=$((_needle_found + 1))
+        else
+            _needle_missing="${_needle_missing} ${_needle}"
+        fi
+    done
+    if [ "$_needle_total" -gt 0 ] && [ "$_needle_found" -lt "$_needle_total" ]; then
+        echo "${GATE}: BLIND — carrier-discovery control needle FAILED: ${_needle_found}/${_needle_total} root governance files present on disk were not returned by discovery (missing:${_needle_missing}). The carrier set is incomplete; refusing to report an absence from a blind instrument (§11.4.201(7)(b))." >&2
         return 2
     fi
 
