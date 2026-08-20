@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Revision | 3 |
+| Revision | 4 |
 | Created | 2026-07-22 |
-| Last modified | 2026-07-22T21:02:04Z |
+| Last modified | 2026-08-20T12:21:44Z |
 | Status | active |
 | Authority | Constitution §11.4.201(7)(12) + §11.4.67(6). Consulted by EVERY §11.4.142/§11.4.209 code review that touches a shell-based test, gate, guard, or measurement. |
 | Scope | Universal (§11.4.17) — inherited by reference (§11.4.28/§11.4.177), never copied per project. |
@@ -73,6 +73,14 @@ Every entry below is a shell construct that returns a **clean, confident, WRONG 
 - **Countermeasure:** redirect the watchdog subshell's fds away from the cmd-subst pipe at spawn — `( sleep "$budget"; kill ... ) >/dev/null 2>&1 &` — or have the probe write its output to a FILE the caller reads instead of being captured via `$(...)`. Both preserve the watchdog's bound PROVIDED the watchdog kills the WORK process (or its process group), never merely the enclosing probe shell: a watchdog that kills only the shell leaves a wedged external child holding the write-end, and the stall becomes the CHILD's lifetime — unbounded by the budget. With the work as the kill target, genuinely-wedged work is still killed at budget with rc=124.
 - **Control needle:** time a KNOWN-instant probe through the SAME `$(...)` capture path; elapsed ≈ the watchdog budget ⇒ the stall is the instrument's own pipe topology, NOT the probed work — the timing measurement says nothing about the work until the needle reads ~0.
 
+### I8. A path-exclusion filter that also excludes the CONTROL NEEDLE's own path — the needle reports FALSE BLINDNESS
+
+- **Construct:** `grep -rl … "$TOKEN" DIR | grep -v '<path-substring>'` where the exclusion pattern ALSO matches the path(s) of the file(s) carrying the control needle. Canonical shape: excluding registry/carrier files by a path substring (`gate_ledger_`) while the chosen needle token (`CM-GATE-LEDGER-RATCHET`) is implemented in files literally named `cm_gate_ledger_ratchet.sh` / `cm_gate_ledger_ratchet_mutation_test.sh`.
+- **Wrong confident answer:** the §11.4.201(7)(b) control needle returns EMPTY, so the agent concludes "INSTRUMENT BLIND — the counts say nothing" and DISCARDS a measurement that was in fact CORRECT. This is the exact inverse of the failure the needle exists to catch: not a false null in the measurement, but a **false blindness verdict about the instrument**. It is dangerous in a specific way — it destroys good evidence, and it invites re-measuring with progressively weaker filters until the numbers "look explainable", which is how a true result gets replaced by a convenient one.
+- **Demonstrated:** 2026-08-20, curriculum gate-inventory measurement. A hermetic control demo first REFUTED the initially-suspected cause (`--include` option-order): 3/3 deterministic iterations, include-AFTER-pattern=1, include-BEFORE-pattern=1, no-include=2, rc=0, empty stderr — both option orders correct under ugrep 7.8.4, so the suspected mechanism was not real and the hypothesis was withdrawn rather than shipped (§11.4.6). Direct probe then resolved the needle's REAL files (`scripts/gates/cm_gate_ledger_ratchet.sh`, `…_mutation_test.sh`) and showed `| grep -v 'gate_ledger_'` removing BOTH — the instrument had been seeing all along. The disputed counts were then re-confirmed by a THIRD instrument carrying no path-exclusion filter at all: identical `IMPLEMENTED=0 / DEFERRED=50 / ORPHAN=2`.
+- **Countermeasure:** run the needle against the RAW query, BEFORE the exclusion stage — never through the filtered pipeline; OR choose a needle whose resolved path provably cannot match the exclusion pattern; OR re-run the whole measurement once with NO exclusion filter and require the two runs to AGREE (agreement of two independently-shaped instruments is the stronger proof, and is what settled this case). Prefer filtering on a STRUCTURED field (file extension, a parsed column, a path prefix anchored at a directory boundary) over a bare path substring — a substring filter over filenames is itself a carrier match (I2 / §11.4.201(7)(a)) relocated from file CONTENT to file PATH.
+- **Control needle for the needle:** print the needle's own resolved paths and assert none of them matches the exclusion pattern, BEFORE trusting any "instrument blind" verdict. An unvalidated blindness claim is as unearned as an unvalidated absence claim.
+
 ## Part B — Code-side footguns (the shipped shell code lies to its host)
 
 ### C1. Bare `exec` with side redirections in a SOURCED function mutates the caller's shell permanently
@@ -86,5 +94,6 @@ Every entry below is a shell construct that returns a **clean, confident, WRONG 
 
 - Control-experiment demonstrations (I1, I2, I3, I4): 2026-07-23, HEL-010 constitution-promotion session — transcript-captured runs (`timeout` on a function → rc=127; `pgrep -fa` unique-needle self-match; column-0-`}` heredoc truncation dropping the tail sentinel; one-line xtrace then blindness after `exec 2>/dev/null`).
 - Control-experiment demonstration (I7): run 2026-07-22T20:36Z UTC, transcript-captured 20:41Z (2026-07-23 local), HEL-010 harvest delta — hermetic repro, 3/3 deterministic iterations, four scenarios (naive `$(...)` stall == full budget; same probe to file ~0; fd-redirected watchdog ~0 with output intact; wedged probe still bounded rc=124), field incident first measured 2026-07-23 by a consuming toolchain's install re-review (cmd-subst read 15s == budget vs file-write 0s).
+- Control-experiment demonstration (I8): 2026-08-20 — hermetic 3/3 deterministic refutation of the suspected `--include` option-order cause (both orders correct, ugrep 7.8.4), direct resolution of the needle's own paths proving the exclusion filter ate them, and third-instrument agreement (no path filter) re-confirming the disputed counts 0/50/2.
 - Forensic incidents: 2026-07-22 sourced-`exec` stderr silencing + its xtrace-blinded investigation (§11.4.67(6) FACT); 2026-07-13 `pgrep -f` build-guard false-refusal (§11.4.201 forensic anchor); 2026-07-17 carrier/measurement harvest (I5, I6 — §11.4.201(6)(7) FACTs).
 - Export note (§11.4.65, honest): `.html`/`.pdf` twins for this document are NOT generated in this commit — the governance-twin exporter is not yet a documented runnable in-repo script (the Rev-60 probed finding); twins are owed to the exporter commit, no silent divergence claimed (§11.4.106(E)).

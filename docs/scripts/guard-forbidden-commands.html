@@ -440,13 +440,36 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 </head>
 <body>
 <h1 id="guard-forbidden-commandssh">guard-forbidden-commands.sh</h1>
-<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
-2026-07-10T22:15:00Z <strong>Authority:</strong> constitution §11.4.109
-(Mandatory Anti-Forgetting Enforcement: PreToolUse Guard Hook + Subagent
-Constitutional Preamble + Orchestrator Pre-Action Checklist)
-<strong>Maintainer:</strong> constitution submodule (inherited by
-reference per §11.4.177 / §11.4.28(B)) <strong>Scope:</strong> §11.4.18
-companion doc for
+<p><strong>Revision:</strong> 2 <strong>Last modified:</strong>
+2026-08-19T00:00:00Z</p>
+<p><strong>Rev 2 change (BOB-099 / 2026-08-19)</strong> — closed the
+CARRIER-vs-INVOCATION false-positive class (§11.4.196(D) /
+§11.4.201(7)(a)) for the emulator, force-push, <code>--no-verify</code>,
+and <code>--no-gpg-sign</code> gates. Prior to this fix, those four
+gates scanned raw <code>$COMMAND</code> with word-boundary regexes, so a
+harmless carrier like <code>echo &#39;emulator -avd is dev-only&#39;</code>,
+<code>ls -la # git push --force is banned</code>, or a subagent prompt
+string that merely quoted the trigger tokens was BLOCKED as if the shell
+were actually going to run them. The sudo/su + host-power gates already
+routed through the quote-/comment-/ heredoc-aware
+<code>SCRUBBED_COMMAND</code> projection; the fix HOISTS that projection
+above the emulator gate so every structural-match gate consumes the same
+scrubbed view, then switches the five affected regex sites from
+<code>$COMMAND</code> to <code>$SCRUBBED_COMMAND</code>. The
+escape-hatch marker check
+(<code># guardrails:allow &lt;reason&gt;</code>) deliberately stays on
+raw <code>$COMMAND</code> — after scrubbing, the marker&#39;s own comment
+would be replaced by filler and vanish. Hermetic coverage added at
+<code>scripts/hooks/test_guard_forbidden_commands.sh</code> (32 cases:
+11 golden-TRUE real invocations, 16 golden-FALSE carrier fixtures across
+every gate class, 1 non-Bash tool passthrough, 2 escape-hatch downgrade
+cases, 2 host-power no-override cases — the whole set exits 0). No
+true-positive class was weakened. <strong>Authority:</strong>
+constitution §11.4.109 (Mandatory Anti-Forgetting Enforcement:
+PreToolUse Guard Hook + Subagent Constitutional Preamble + Orchestrator
+Pre-Action Checklist) <strong>Maintainer:</strong> constitution
+submodule (inherited by reference per §11.4.177 / §11.4.28(B))
+<strong>Scope:</strong> §11.4.18 companion doc for
 <code>constitution/scripts/hooks/guard-forbidden-commands.sh</code></p>
 <h2 id="overview">Overview</h2>
 <p><code>guard-forbidden-commands.sh</code> is a Claude Code

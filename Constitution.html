@@ -28140,5 +28140,166 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--evidence-optional</code>,
 <code>--pass-without-machine-artifact</code>,
 <code>--predict-success</code> flag.</p>
+<h3 id="114263--process-group-signal-safety-mandate-never-signal-pgid--1-never-trust-a-mock-derived-pidpgid--validate-as-int--1-before-every-killpg--kill-pid-sig--pkill--killall-call-bob-126-forensic-anchor-2026-08-19">§11.4.263
+— Process-group signal-safety mandate: NEVER signal pgid ≤ 1, NEVER
+trust a mock-derived pid/pgid — validate as int &gt; 1 before every
+<code>killpg</code> / <code>kill(-pid, sig)</code> / <code>pkill</code>
+/ <code>killall</code> call (BOB-126 forensic anchor, 2026-08-19)</h3>
+<p><strong>Forensic anchor — verbatim operator mandate
+(2026-08-19):</strong></p>
+<blockquote>
+<p>&quot;CRITICAL: Fix MUST BE systhematic so any other projects do not have
+same issue!&quot;</p>
+</blockquote>
+<p><strong>Forensic case study (BOB-126, boba project,
+2026-08-19).</strong> SEVEN forced-logout incidents on the operator&#39;s
+workstation over ~48 hours (BOB-116/120/123/124/125/126) — the
+operator&#39;s entire graphical session, tmux, SSH, browsers, and Claude
+Code process were repeatedly SIGKILLed. Kernel audit rules installed
+2026-08-19 15:56 finally captured the initiator on incident #7:</p>
+<pre><code>audit[399861]: SYSCALL syscall=62 a0=ffffffff a1=9
+  pid=399861 auid=1000 comm=&quot;pytest&quot; exe=&quot;/usr/bin/python3.14&quot;
+  key=&quot;sigkill_investigation&quot;</code></pre>
+<p>A <code>pytest</code> process called <code>kill(-1, SIGKILL)</code>.
+Root cause: a Python test created an <code>AsyncMock()</code> subprocess
+object without explicitly setting <code>mock.pid</code> as an int. The
+production code path called
+<code>os.killpg(os.getpgid(proc.pid), signal.SIGKILL)</code>. Python&#39;s
+<code>MagicMock.__int__</code> defaults to <strong>1</strong>, so:</p>
+<ol type="1">
+<li><code>proc.pid</code> → <code>MagicMock</code></li>
+<li>Python coerces to <code>int</code> for <code>os.getpgid</code> →
+<strong><code>int(MagicMock()) == 1</code></strong> (documented
+default)</li>
+<li><code>os.getpgid(1)</code> returns <strong>1</strong> (init&#39;s
+process group)</li>
+<li><code>os.killpg(1, SIGKILL)</code> → glibc →
+<strong><code>kill(-1, SIGKILL)</code></strong></li>
+<li><code>kill(-1, sig)</code> semantics = &quot;signal every process the
+caller may signal, except pid 1 and self&quot; → under UID 1000 that means
+the entire user session (systemd <code>user@1000</code> manager,
+gnome-shell, tmux, ssh, browsers, Claude Code)</li>
+</ol>
+<p>The <code>contextlib.suppress(Exception)</code> around the call
+swallowed nothing because the syscall SUCCEEDED before any exception
+path. The defect existed for ~4 months (since 2026-04-24) before audit
+rules exposed it.</p>
+<p><strong>The mandate (ALL hold):</strong></p>
+<p><strong>(A) NEVER signal pgid ≤ 1.</strong> No project, no language
+binding, no code path may call <code>os.killpg(pgid, sig)</code> /
+<code>kill(-pid, sig)</code> / <code>killpg(2)</code> (POSIX) /
+<code>pkill -&lt;pgid&gt;</code> / <code>subprocess.killpg</code> /
+<code>Process.killpg</code> where <code>pgid</code> (or <code>pid</code>
+in the negative-pid form of <code>kill(2)</code>) is <code>≤ 1</code>.
+On Linux, <code>killpg(1, sig)</code> and <code>kill(-1, sig)</code> are
+equivalent and BOTH signal every process the caller has permission to
+signal — under a non-root UID, that includes the user&#39;s session manager,
+GUI, shell, and every daemon in the same UID scope. This is the disaster
+syscall. Guarding with a positive integer test is trivial; failing to
+guard is catastrophic. On other Unixes (BSD family, macOS) the semantics
+of <code>kill(-1, sig)</code> is broadly the same &quot;signal all processes
+the caller may signal&quot;; the mandate is portable.</p>
+<p><strong>(B) VALIDATE pid + pgid as <code>int &gt; 1</code> BEFORE
+every process-group signal call.</strong> The universal invariant:</p>
+<pre><code>IF calling killpg(pgid, sig) OR kill(-pid, sig) OR any process-group signal:
+  ASSERT isinstance(pgid, int)         # never a mock, never a string, never None
+  ASSERT pgid &gt; 1                      # never init&#39;s pgid, never 0 (self-group), never negative
+  (same for pid when the negative-pid kill(2) form is used)</code></pre>
+<p>Language-specific enforcement:</p>
+<ul>
+<li><strong>Python</strong>: guard with
+<code>if isinstance(pid, int) and pid &gt; 1: pgid = os.getpgid(pid); if isinstance(pgid, int) and pgid &gt; 1: os.killpg(pgid, sig)</code>.</li>
+<li><strong>Go</strong>: <code>syscall.Kill(-pgid, sig)</code> — guard
+<code>pgid &gt; 1</code> before the call; test doubles must return
+<code>int(pgid) &gt; 1</code>.</li>
+<li><strong>Rust</strong>: <code>nix::sys::signal::killpg</code> —
+accept only <code>Pid::from_raw(n)</code> with <code>n &gt; 1</code>,
+and reject the sentinel meaning &quot;current process group&quot;.</li>
+<li><strong>Bash / shell</strong>:
+<code>kill -&lt;pgid&gt; &lt;sig&gt;</code> /
+<code>pkill -g &lt;pgid&gt;</code> — validate
+<code>[[ &quot;$pgid&quot; -gt 1 ]]</code> before the call.</li>
+<li><strong>C</strong>: <code>killpg(pgid, sig)</code> and
+<code>kill(-pid, sig)</code> — same integer guard.</li>
+</ul>
+<p><strong>(C) TESTS mocking subprocess/proc objects MUST explicitly set
+<code>mock.pid</code> (or equivalent) as int.</strong> A subprocess mock
+with an unset <code>pid</code> field is BOB-126-shaped by construction:
+the language&#39;s mock library (Python&#39;s <code>MagicMock</code>, Go
+testify&#39;s <code>Mock</code>, JS Jest&#39;s <code>jest.fn()</code>, etc.)
+provides a default coercion that can silently become a low integer.
+Every test that creates a fake subprocess object MUST:</p>
+<ol type="1">
+<li>Set <code>mock.pid = &lt;large int, e.g. 12345&gt;</code> explicitly
+— never rely on the mock library&#39;s default.</li>
+<li>Patch the process-group signaling call itself (e.g.
+<code>patch.object(module.os, &#39;killpg&#39;)</code>) as belt-and-suspenders
+so a future regression of the production code&#39;s guard cannot re-open the
+disaster.</li>
+<li>Assert the mocked <code>killpg</code> was called with
+<code>pgid &gt; 1</code> (paired §1.1 mutation catches a regression that
+lets pgid=1 through).</li>
+</ol>
+<p><strong>(D) DEFENSE-IN-DEPTH (§11.4.107(10) analyzer discipline
+applied).</strong> The guard MUST be present in BOTH the production code
+AND the test. Removing either layer alone must break at least one test.
+This is the four-layer coverage per §11.4.4(b) applied to the
+signal-safety class:</p>
+<ul>
+<li>Layer 1 (pre-build gate): grep pattern for <code>killpg\(.*\)</code>
+/ <code>kill\(-.*\)</code> calls that are NOT preceded by the guard —
+surface as review findings.</li>
+<li>Layer 2 (post-build gate): CodeGraph query for callers of
+<code>os.killpg</code> / <code>syscall.Kill(-*)</code> / equivalent,
+cross-referenced against guard presence.</li>
+<li>Layer 3 (runtime): kernel audit rules on SIGKILL syscalls with
+<code>a0=0xffffffff</code> (kill(-1)) or <code>a0=0x00000001</code> in
+the pidfd_send_signal case — a live host-safety canary.</li>
+<li>Layer 4 (paired §1.1 mutation): a regression test that DELIBERATELY
+invokes the killpg code path with a mock pid AND asserts
+<code>killpg</code> was not called with <code>pgid ≤ 1</code>. Reverts
+of the pid guard MUST make this test fail.</li>
+</ul>
+<p><strong>(E) HONEST BOUNDARY (§11.4.6).</strong> §11.4.263 hardens the
+process-group signal APIs specifically. It does NOT prohibit legitimate
+use of <code>killpg</code> for well-scoped process groups
+(<code>start_new_session=True</code> subprocesses where the child owns
+its group). It does NOT extend to signals other than SIGKILL where the
+blast radius is small (SIGCHLD, SIGUSR1, etc. — though the same guard is
+cheap and recommended). It does NOT prevent kernel OOM-killer or
+systemd-oomd from killing the user (those are separate host-safety
+concerns — §12.6 memory ceiling + §11.4.225 quota telemetry apply).</p>
+<p><strong>(F) STANDING DEFAULT.</strong> Every project inheriting this
+constitution treats §11.4.263 as always-on from the first prompt. Every
+code review (§11.4.125/§11.4.142/§11.4.194) MUST scan for process-group
+signal calls and verify the guard. Every subagent dispatched to write
+subprocess-cleanup code MUST include the guard in its output. Every
+test-writing subagent MUST include the
+<code>mock.pid = &lt;int&gt;</code> discipline.</p>
+<p><strong>Classification: universal (§11.4.17).</strong> Composes
+§11.4.1 (FAIL-bluff — swallowed exception around a successful
+catastrophic syscall is a bluff at the error-handling layer) /
+§11.4.4(b) (four-layer coverage) / §11.4.5 / §11.4.6 / §11.4.85
+(chaos-test host safety) / §11.4.107(10) (self-validated analyzer) /
+§11.4.115 (RED-first with the actual defect condition) / §11.4.126
+(standing default) / §11.4.201 (guard asserts real condition — pgid &gt;
+1) / §11.4.225 (host-safety orthogonal axis) / §11.4.226 (real captured
+evidence). Propagation gate <code>CM-COVENANT-114-263-PROPAGATION</code>
+(literal <code>11.4.263</code>) + recommended gates
+<code>CM-KILLPG-PGID-GUARD</code> (production code — every
+killpg/kill(-pid) call site has the
+<code>pid&gt;1 &amp;&amp; pgid&gt;1</code> guard) +
+<code>CM-TEST-MOCK-PID-EXPLICIT-INT</code> (test code — every subprocess
+mock has <code>mock.pid</code> explicitly set as int + killpg patched) +
+paired §1.1 mutations (remove the guard from production → the regression
+test fails; unset <code>mock.pid</code> in the test → assertion catches
+pgid&lt;=1 attempt).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.263.
+Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--skip-killpg-guard</code>,
+<code>--mock-pid-optional</code>, <code>--killpg-1-is-ok</code>,
+<code>--kill-minus-1-permitted</code>,
+<code>--suppress-catches-syscall</code>,
+<code>--test-may-not-explicit-pid</code> flag exists.</p>
 </body>
 </html>

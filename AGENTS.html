@@ -11845,5 +11845,53 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--evidence-optional</code>,
 <code>--pass-without-machine-artifact</code>,
 <code>--predict-success</code> flag.</p>
+<p><strong>§11.4.263 — Process-group signal-safety mandate: NEVER signal
+pgid ≤ 1, NEVER trust a mock-derived pid/pgid — validate as int &gt; 1
+before every killpg / kill(-pid, sig) / pkill / killall call (BOB-126
+forensic anchor, 2026-08-19).</strong> Compact summary: SEVEN
+forced-logout incidents on the operator&#39;s workstation over ~48h
+(BOB-116/120/123/124/125/126) traced by kernel audit trail to a single
+Python test — <code>AsyncMock().pid</code> unset →
+<code>MagicMock.__int__ == 1</code> default →
+<code>os.getpgid(1) == 1</code> → <code>os.killpg(1, SIGKILL)</code> →
+glibc → <code>kill(-1, SIGKILL)</code> = SIGKILL every UID-1000 process
+(systemd user@1000 manager, gnome-shell, tmux, ssh, browsers, Claude
+Code) — with <code>contextlib.suppress(Exception)</code> swallowing
+nothing because the syscall SUCCEEDED. Universal mandate: (A) NEVER
+signal <code>pgid ≤ 1</code> in any language —
+<code>killpg(1,sig)</code> == <code>kill(-1,sig)</code> == the disaster
+syscall on Linux/BSD/macOS; (B) validate
+<code>isinstance(pid,int) and pid &gt; 1</code> AND
+<code>isinstance(pgid,int) and pgid &gt; 1</code> before every
+process-group signal call (Python <code>os.killpg</code>, Go
+<code>syscall.Kill(-pgid,sig)</code>, Rust <code>nix killpg</code>, Bash
+<code>kill -&lt;pgid&gt;</code>/<code>pkill -g</code>, C
+<code>killpg</code>/<code>kill(-pid,sig)</code>); (C) TESTS mocking
+subprocess/proc objects MUST explicitly set
+<code>mock.pid = &lt;int&gt;</code> (never rely on mock library
+defaults) AND patch the killpg call itself AND assert killpg was called
+with <code>pgid &gt; 1</code>; (D) DEFENSE-IN-DEPTH four-layer coverage
+per §11.4.4(b) — pre-build grep gate, post-build CodeGraph query,
+runtime kernel audit rule <code>syscall=kill a0=0xffffffff a1=9</code>,
+paired §1.1 mutation regression test; (E) honest boundary — hardens
+process-group signal APIs; does NOT prohibit legitimate
+<code>start_new_session=True</code> child-owned groups (guard still
+cheap); does NOT prevent kernel OOM-killer / systemd-oomd (§12.6 +
+§11.4.225 apply); (F) standing default from first prompt — every code
+review scans for killpg calls + verifies guard, every subagent writing
+subprocess-cleanup code includes the guard, every test-writing subagent
+includes explicit <code>mock.pid</code>. Classification: universal
+(§11.4.17). Composes
+§11.4.1/§11.4.4(b)/§11.4.5/§11.4.6/§11.4.85/§11.4.107(10)/§11.4.115/§11.4.126/§11.4.201/§11.4.225/§11.4.226.
+Propagation gate <code>CM-COVENANT-114-263-PROPAGATION</code> +
+recommended gates <code>CM-KILLPG-PGID-GUARD</code> +
+<code>CM-TEST-MOCK-PID-EXPLICIT-INT</code> + paired §1.1 mutations.
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.263.
+Non-compliance is a release blocker regardless of context. No escape
+hatch — no <code>--skip-killpg-guard</code>,
+<code>--mock-pid-optional</code>, <code>--killpg-1-is-ok</code>,
+<code>--kill-minus-1-permitted</code>,
+<code>--suppress-catches-syscall</code>,
+<code>--test-may-not-explicit-pid</code> flag.</p>
 </body>
 </html>

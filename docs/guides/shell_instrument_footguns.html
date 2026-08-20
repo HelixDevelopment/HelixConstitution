@@ -387,7 +387,7 @@ Footguns — the §11.4.201(12) control-needle checklist</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>3</td>
+<td>4</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -395,7 +395,7 @@ Footguns — the §11.4.201(12) control-needle checklist</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-07-22T21:02:04Z</td>
+<td>2026-08-20T12:21:44Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -640,6 +640,57 @@ the SAME <code>$(...)</code> capture path; elapsed ≈ the watchdog budget
 the timing measurement says nothing about the work until the needle
 reads ~0.</li>
 </ul>
+<h3 id="i8-a-path-exclusion-filter-that-also-excludes-the-control-needles-own-path--the-needle-reports-false-blindness">I8.
+A path-exclusion filter that also excludes the CONTROL NEEDLE&#39;s own path
+— the needle reports FALSE BLINDNESS</h3>
+<ul>
+<li><strong>Construct:</strong>
+<code>grep -rl … &quot;$TOKEN&quot; DIR | grep -v &#39;&lt;path-substring&gt;&#39;</code>
+where the exclusion pattern ALSO matches the path(s) of the file(s)
+carrying the control needle. Canonical shape: excluding registry/carrier
+files by a path substring (<code>gate_ledger_</code>) while the chosen
+needle token (<code>CM-GATE-LEDGER-RATCHET</code>) is implemented in
+files literally named <code>cm_gate_ledger_ratchet.sh</code> /
+<code>cm_gate_ledger_ratchet_mutation_test.sh</code>.</li>
+<li><strong>Wrong confident answer:</strong> the §11.4.201(7)(b) control
+needle returns EMPTY, so the agent concludes &quot;INSTRUMENT BLIND — the
+counts say nothing&quot; and DISCARDS a measurement that was in fact CORRECT.
+This is the exact inverse of the failure the needle exists to catch: not
+a false null in the measurement, but a <strong>false blindness verdict
+about the instrument</strong>. It is dangerous in a specific way — it
+destroys good evidence, and it invites re-measuring with progressively
+weaker filters until the numbers &quot;look explainable&quot;, which is how a true
+result gets replaced by a convenient one.</li>
+<li><strong>Demonstrated:</strong> 2026-08-20, curriculum gate-inventory
+measurement. A hermetic control demo first REFUTED the
+initially-suspected cause (<code>--include</code> option-order): 3/3
+deterministic iterations, include-AFTER-pattern=1,
+include-BEFORE-pattern=1, no-include=2, rc=0, empty stderr — both option
+orders correct under ugrep 7.8.4, so the suspected mechanism was not
+real and the hypothesis was withdrawn rather than shipped (§11.4.6).
+Direct probe then resolved the needle&#39;s REAL files
+(<code>scripts/gates/cm_gate_ledger_ratchet.sh</code>,
+<code>…_mutation_test.sh</code>) and showed
+<code>| grep -v &#39;gate_ledger_&#39;</code> removing BOTH — the instrument had
+been seeing all along. The disputed counts were then re-confirmed by a
+THIRD instrument carrying no path-exclusion filter at all: identical
+<code>IMPLEMENTED=0 / DEFERRED=50 / ORPHAN=2</code>.</li>
+<li><strong>Countermeasure:</strong> run the needle against the RAW
+query, BEFORE the exclusion stage — never through the filtered pipeline;
+OR choose a needle whose resolved path provably cannot match the
+exclusion pattern; OR re-run the whole measurement once with NO
+exclusion filter and require the two runs to AGREE (agreement of two
+independently-shaped instruments is the stronger proof, and is what
+settled this case). Prefer filtering on a STRUCTURED field (file
+extension, a parsed column, a path prefix anchored at a directory
+boundary) over a bare path substring — a substring filter over filenames
+is itself a carrier match (I2 / §11.4.201(7)(a)) relocated from file
+CONTENT to file PATH.</li>
+<li><strong>Control needle for the needle:</strong> print the needle&#39;s
+own resolved paths and assert none of them matches the exclusion
+pattern, BEFORE trusting any &quot;instrument blind&quot; verdict. An unvalidated
+blindness claim is as unearned as an unvalidated absence claim.</li>
+</ul>
 <h2 id="part-b--code-side-footguns-the-shipped-shell-code-lies-to-its-host">Part
 B — Code-side footguns (the shipped shell code lies to its host)</h2>
 <h3 id="c1-bare-exec-with-side-redirections-in-a-sourced-function-mutates-the-callers-shell-permanently">C1.
@@ -685,6 +736,12 @@ fd-redirected watchdog ~0 with output intact; wedged probe still bounded
 rc=124), field incident first measured 2026-07-23 by a consuming
 toolchain&#39;s install re-review (cmd-subst read 15s == budget vs
 file-write 0s).</li>
+<li>Control-experiment demonstration (I8): 2026-08-20 — hermetic 3/3
+deterministic refutation of the suspected <code>--include</code>
+option-order cause (both orders correct, ugrep 7.8.4), direct resolution
+of the needle&#39;s own paths proving the exclusion filter ate them, and
+third-instrument agreement (no path filter) re-confirming the disputed
+counts 0/50/2.</li>
 <li>Forensic incidents: 2026-07-22 sourced-<code>exec</code> stderr
 silencing + its xtrace-blinded investigation (§11.4.67(6) FACT);
 2026-07-13 <code>pgrep -f</code> build-guard false-refusal (§11.4.201
