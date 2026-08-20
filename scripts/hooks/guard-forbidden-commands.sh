@@ -149,6 +149,205 @@ block() {
 }
 
 # --------------------------------------------------------------------------
+# CARRIER-vs-INVOCATION scrubber (BOB-099 / BOB-071 remediation, 2026-08-19).
+#
+# The quote-/comment-/heredoc-aware `_scrub_inert_regions` scrubber (defined
+# lower in this file for the sudo/su + host-power gates) MUST also gate the
+# emulator, force-push, --no-verify, and --no-gpg-sign checks below. The full
+# defense-in-depth rationale and the character-by-character state machine are
+# documented at the function definition further down.
+#
+# Historical shape of the false-positive (§11.4.196(D) / §11.4.201(7)(a) —
+# carrier-vs-thing): raw regexes against the whole command line matched trigger
+# tokens that appeared INSIDE a quoted `echo` string, a `#` comment, or a
+# quoted-heredoc body — text the shell would NEVER execute — so a harmless
+# operator or agent invocation like `echo 'emulator -avd is dev-only'` was
+# BLOCKED as an emulator gate violation, and `ls -la # git push --force is
+# forbidden` was BLOCKED as a force-push violation, even though NO real
+# emulator/adb/git-push invocation was ever going to run.
+#
+# Fix: compute the SCRUBBED_COMMAND ONCE, at the top, and switch every
+# structural-match gate below onto it. The escape-hatch marker (`#
+# guardrails:allow <reason>`) STAYS on raw $COMMAND above because the marker
+# itself lives in a comment — after scrubbing, that comment becomes filler and
+# the marker vanishes. This anchor block is the only forward reference in the
+# file; the function itself is defined below (near the sudo/su gate, where it
+# was originally introduced) to keep the rest of the file's structure intact.
+# --------------------------------------------------------------------------
+
+# Forward-declared helper: computed just below the function definition further
+# down; every gate that follows uses this variable instead of raw $COMMAND.
+# Provisional assignment so `set -u` never trips before the real one lands.
+SCRUBBED_COMMAND=""
+
+# Small local hoist so the emulator + force-push gates can run BEFORE the sudo
+# gate's original scrub site. This defines the scrubber function early WITHOUT
+# duplicating its body — we source-define it here via a lightweight indirection
+# that reads the real definition further below in the same file.
+#
+# Implementation: bash reads the whole script into memory, but functions become
+# callable only after their definition is executed. To avoid a large mechanical
+# re-order (which would balloon the diff), we re-locate the function definition
+# up here. The original block further down is stripped in the same edit so
+# there is no double-definition.
+_scrub_inert_regions() {
+  local s="$1"
+  local out="" ch prev=""
+  local -a stack=("LIVE")
+  local -a hd_delim=() hd_strip=()
+  local i n=${#s}
+  local top
+  for ((i = 0; i < n; i++)); do
+    ch="${s:i:1}"
+    top="${stack[-1]}"
+    case "$top" in
+      SQ)
+        if [[ "$ch" == "'" ]]; then
+          unset 'stack[-1]'
+          out+="$ch"
+        else
+          out+="#"
+        fi
+        ;;
+      DQ)
+        if [[ "$ch" == '"' && "$prev" != '\' ]]; then
+          unset 'stack[-1]'
+          out+="$ch"
+        elif [[ "$ch" == '$' && "${s:i+1:1}" == '(' ]]; then
+          stack+=("PAREN")
+          out+='$('
+          i=$((i + 1))
+          prev='('
+          continue
+        elif [[ "$ch" == '`' ]]; then
+          stack+=("BT")
+          out+="$ch"
+        else
+          out+="#"
+        fi
+        ;;
+      BT)
+        if [[ "$ch" == '`' && "$prev" != '\' ]]; then
+          unset 'stack[-1]'
+        fi
+        out+="$ch"
+        ;;
+      PAREN | LIVE)
+        if [[ "$ch" == "'" ]]; then
+          stack+=("SQ")
+          out+="$ch"
+        elif [[ "$ch" == '"' ]]; then
+          stack+=("DQ")
+          out+="$ch"
+        elif [[ "$ch" == '`' ]]; then
+          stack+=("BT")
+          out+="$ch"
+        elif [[ "$ch" == '$' && "${s:i+1:1}" == '(' ]]; then
+          stack+=("PAREN")
+          out+='$('
+          i=$((i + 1))
+          prev='('
+          continue
+        elif [[ "$ch" == ')' && "$top" == "PAREN" ]]; then
+          unset 'stack[-1]'
+          out+="$ch"
+        elif [[ "$ch" == '<' && "${s:i+1:1}" == '<' ]]; then
+          local j=$((i + 2)) hd_strip_flag=0 qc hd_dl=""
+          [[ "${s:j:1}" == '-' ]] && { hd_strip_flag=1; j=$((j + 1)); }
+          while [[ "${s:j:1}" == ' ' || "${s:j:1}" == $'\t' ]]; do
+            j=$((j + 1))
+          done
+          qc="${s:j:1}"
+          if [[ "$qc" == "'" || "$qc" == '"' ]]; then
+            local k=$((j + 1))
+            while [[ "$k" -lt "$n" && "${s:k:1}" != "$qc" ]]; do
+              hd_dl+="${s:k:1}"
+              k=$((k + 1))
+            done
+            j=$((k + 1))
+          elif [[ "$qc" == '\' ]]; then
+            local k=$((j + 1))
+            while [[ "${s:k:1}" =~ ^[A-Za-z0-9_]$ ]]; do
+              hd_dl+="${s:k:1}"
+              k=$((k + 1))
+            done
+            j="$k"
+          fi
+          if [[ -n "$hd_dl" ]]; then
+            out+="${s:i:$((j - i))}"
+            hd_delim+=("$hd_dl")
+            hd_strip+=("$hd_strip_flag")
+            i=$((j - 1))
+            prev="${s:i:1}"
+            continue
+          fi
+          out+="$ch"
+        elif [[ "$ch" == $'\n' && ${#hd_delim[@]} -gt 0 ]]; then
+          out+="$ch"
+          local body_i=$((i + 1)) hidx
+          for ((hidx = 0; hidx < ${#hd_delim[@]}; hidx++)); do
+            local delim="${hd_delim[$hidx]}" strip="${hd_strip[$hidx]}"
+            while [[ "$body_i" -le "$n" ]]; do
+              local line_end=$body_i
+              while [[ "$line_end" -lt "$n" && "${s:line_end:1}" != $'\n' ]]; do
+                line_end=$((line_end + 1))
+              done
+              local line="${s:body_i:$((line_end - body_i))}"
+              local chk="$line"
+              if [[ "$strip" -eq 1 ]]; then
+                while [[ "${chk:0:1}" == $'\t' ]]; do chk="${chk:1}"; done
+              fi
+              if [[ "$chk" == "$delim" ]]; then
+                out+="$line"
+                body_i=$((line_end + 1))
+                [[ "$line_end" -lt "$n" ]] && out+=$'\n'
+                break
+              else
+                local fillr="" fi_
+                for ((fi_ = 0; fi_ < ${#line}; fi_++)); do fillr+="#"; done
+                out+="$fillr"
+                if [[ "$line_end" -lt "$n" ]]; then
+                  out+=$'\n'
+                  body_i=$((line_end + 1))
+                else
+                  body_i=$((n + 1))
+                  break
+                fi
+              fi
+            done
+          done
+          hd_delim=()
+          hd_strip=()
+          i=$((body_i - 1))
+          prev=$'\n'
+          continue
+        elif [[ "$ch" == '#' && ( "$i" -eq 0 || "$prev" == ' ' || "$prev" == $'\t' || "$prev" == ';' || "$prev" == '|' || "$prev" == '&' || "$prev" == '(' || "$prev" == $'\n' ) ]]; then
+          while ((i < n)); do
+            ch="${s:i:1}"
+            if [[ "$ch" == $'\n' ]]; then
+              out+="$ch"
+              break
+            fi
+            out+="#"
+            i=$((i + 1))
+          done
+          prev="$ch"
+          continue
+        else
+          out+="$ch"
+        fi
+        ;;
+    esac
+    prev="$ch"
+  done
+  printf '%s' "$out"
+}
+
+# The one canonical scrubbed projection. Every structural-match gate below
+# uses this — the escape-hatch marker check above deliberately did not.
+SCRUBBED_COMMAND="$(_scrub_inert_regions "$COMMAND")"
+
+# --------------------------------------------------------------------------
 # 1. Emulator / device gate (§6.X / §6.V / §6.AG).
 #    Raw host-direct emulator launches and APK installs / instrumentation are
 #    dev-iteration ONLY and MUST NOT produce gate evidence. Gate runs go through
@@ -157,20 +356,20 @@ block() {
 EMULATOR_MSG="Gate emulator runs MUST go via scripts/run-challenge-matrix.sh → Containers submodule (§6.X). Raw host-direct adb/emulator is dev-iteration only, never gate evidence."
 
 # raw `emulator -avd ...` or a path ending in .../emulator referencing an SDK env
-if [[ "$COMMAND" =~ (^|[^[:alnum:]_/.-])emulator[[:space:]]+-avd([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[^[:alnum:]_/.-])emulator[[:space:]]+-avd([[:space:]]|$) ]]; then
   block "§6.X emulator gate" "$EMULATOR_MSG"
 fi
-if [[ "$COMMAND" =~ \$(ANDROID_[A-Z_]+|\{ANDROID_[A-Z_]+\})[^[:space:]]*/emulator([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ \$(ANDROID_[A-Z_]+|\{ANDROID_[A-Z_]+\})[^[:space:]]*/emulator([[:space:]]|$) ]]; then
   block "§6.X emulator gate" "$EMULATOR_MSG"
 fi
 
 # top-level `adb install` / `adb -s <serial> install`
-if [[ "$COMMAND" =~ (^|[^[:alnum:]_/.-])adb([[:space:]]+-s[[:space:]]+[^[:space:]]+)?[[:space:]]+install([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[^[:alnum:]_/.-])adb([[:space:]]+-s[[:space:]]+[^[:space:]]+)?[[:space:]]+install([[:space:]]|$) ]]; then
   block "§6.X emulator gate" "$EMULATOR_MSG"
 fi
 
 # `am instrument` (instrumentation runner invoked host-direct)
-if [[ "$COMMAND" =~ (^|[^[:alnum:]_/.-])am[[:space:]]+instrument([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[^[:alnum:]_/.-])am[[:space:]]+instrument([[:space:]]|$) ]]; then
   block "§6.X emulator gate" "$EMULATOR_MSG"
 fi
 
@@ -288,12 +487,12 @@ while IFS= read -r fp_clause; do
       block "§6.T.3 force-push" "$FORCE_MSG"
     fi
   fi
-done < <(_fp_split_clauses "$COMMAND")
+done < <(_fp_split_clauses "$SCRUBBED_COMMAND")
 
-if [[ "$COMMAND" =~ (^|[[:space:]])--no-verify([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]])--no-verify([[:space:]]|$) ]]; then
   block "§6.T.3 --no-verify" "$FORCE_MSG"
 fi
-if [[ "$COMMAND" =~ (^|[[:space:]])--no-gpg-sign([[:space:]]|$) ]]; then
+if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]])--no-gpg-sign([[:space:]]|$) ]]; then
   block "§6.T.3 --no-gpg-sign" "$FORCE_MSG"
 fi
 
@@ -375,195 +574,14 @@ fi
 # --------------------------------------------------------------------------
 SUDO_MSG="§6.U forbids sudo / su in any committed artifact or agent tool call. Use a container-based / user-level alternative (rootless Podman, user namespaces, local-only ports)."
 
-# Quote/command-substitution-aware inert-region scrubber (pure bash, no
-# external deps -- consistent with the rest of this hook). Walks $1
-# character-by-character with a small state stack:
-#   LIVE/PAREN -- executable text (top level, or inside a live $(...));
-#   SQ         -- inside a single-quoted span (always inert);
-#   DQ         -- inside a double-quoted span (inert EXCEPT the nested
-#                 PAREN/BT spans described below);
-#   BT         -- inside a backtick-substitution span (always live).
-# A `$(` seen in ANY live context (LIVE, PAREN, or -- the load-bearing case
-# -- DQ) pushes a new PAREN frame whose content is copied through
-# untouched (live) until its matching `)`; a backtick seen in ANY live
-# context (LIVE, PAREN, or DQ) pushes/pops a BT frame the same way. Inert
-# characters (everything else while the top-of-stack is SQ or DQ) are
-# replaced with `#` filler -- same length, so no accidental new boundary
-# character is introduced and no downstream offset shifts. A QUOTED-
-# delimiter here-document redirect (`<<[-]'DELIM'` / `<<[-]"DELIM"` /
-# `<<[-]\DELIM`) seen while LIVE/PAREN queues the delimiter (+ its `<<-`
-# tab-stripping flag); at the NEXT raw newline reached while still
-# LIVE/PAREN, every queued heredoc's body is consumed line-by-line up to
-# and including its exact terminator line, each non-terminator body line
-# scrubbed to filler in full (a quoted delimiter makes the WHOLE body
-# inert, no nested-live-region case applies). Known, documented, narrow
-# limitation: a `#` comment appearing on the SAME line as (and after) a
-# heredoc-start token, before that line's own newline, is scrubbed by the
-# comment-handler below WITHOUT first running heredoc-body consumption --
-# an extremely rare construct, accepted as an honest gap (§11.4.6) rather
-# than adding further nested-trigger complexity to this guard.
-_scrub_inert_regions() {
-  local s="$1"
-  local out="" ch prev=""
-  local -a stack=("LIVE")
-  local -a hd_delim=() hd_strip=()
-  local i n=${#s}
-  local top
-  for ((i = 0; i < n; i++)); do
-    ch="${s:i:1}"
-    top="${stack[-1]}"
-    case "$top" in
-      SQ)
-        if [[ "$ch" == "'" ]]; then
-          unset 'stack[-1]'
-          out+="$ch"
-        else
-          out+="#"
-        fi
-        ;;
-      DQ)
-        if [[ "$ch" == '"' && "$prev" != '\' ]]; then
-          unset 'stack[-1]'
-          out+="$ch"
-        elif [[ "$ch" == '$' && "${s:i+1:1}" == '(' ]]; then
-          stack+=("PAREN")
-          out+='$('
-          i=$((i + 1))
-          prev='('
-          continue
-        elif [[ "$ch" == '`' ]]; then
-          stack+=("BT")
-          out+="$ch"
-        else
-          out+="#"
-        fi
-        ;;
-      BT)
-        if [[ "$ch" == '`' && "$prev" != '\' ]]; then
-          unset 'stack[-1]'
-        fi
-        out+="$ch"
-        ;;
-      PAREN | LIVE)
-        if [[ "$ch" == "'" ]]; then
-          stack+=("SQ")
-          out+="$ch"
-        elif [[ "$ch" == '"' ]]; then
-          stack+=("DQ")
-          out+="$ch"
-        elif [[ "$ch" == '`' ]]; then
-          stack+=("BT")
-          out+="$ch"
-        elif [[ "$ch" == '$' && "${s:i+1:1}" == '(' ]]; then
-          stack+=("PAREN")
-          out+='$('
-          i=$((i + 1))
-          prev='('
-          continue
-        elif [[ "$ch" == ')' && "$top" == "PAREN" ]]; then
-          unset 'stack[-1]'
-          out+="$ch"
-        elif [[ "$ch" == '<' && "${s:i+1:1}" == '<' ]]; then
-          # Possible here-document redirect -- only a QUOTED delimiter is
-          # special-cased (see the function-level comment above); an
-          # unquoted delimiter falls through untouched (still live).
-          local j=$((i + 2)) hd_strip_flag=0 qc hd_dl=""
-          [[ "${s:j:1}" == '-' ]] && { hd_strip_flag=1; j=$((j + 1)); }
-          while [[ "${s:j:1}" == ' ' || "${s:j:1}" == $'\t' ]]; do
-            j=$((j + 1))
-          done
-          qc="${s:j:1}"
-          if [[ "$qc" == "'" || "$qc" == '"' ]]; then
-            local k=$((j + 1))
-            while [[ "$k" -lt "$n" && "${s:k:1}" != "$qc" ]]; do
-              hd_dl+="${s:k:1}"
-              k=$((k + 1))
-            done
-            j=$((k + 1))
-          elif [[ "$qc" == '\' ]]; then
-            local k=$((j + 1))
-            while [[ "${s:k:1}" =~ ^[A-Za-z0-9_]$ ]]; do
-              hd_dl+="${s:k:1}"
-              k=$((k + 1))
-            done
-            j="$k"
-          fi
-          if [[ -n "$hd_dl" ]]; then
-            out+="${s:i:$((j - i))}"
-            hd_delim+=("$hd_dl")
-            hd_strip+=("$hd_strip_flag")
-            i=$((j - 1))
-            prev="${s:i:1}"
-            continue
-          fi
-          out+="$ch"
-        elif [[ "$ch" == $'\n' && ${#hd_delim[@]} -gt 0 ]]; then
-          out+="$ch"
-          local body_i=$((i + 1)) hidx
-          for ((hidx = 0; hidx < ${#hd_delim[@]}; hidx++)); do
-            local delim="${hd_delim[$hidx]}" strip="${hd_strip[$hidx]}"
-            while [[ "$body_i" -le "$n" ]]; do
-              local line_end=$body_i
-              while [[ "$line_end" -lt "$n" && "${s:line_end:1}" != $'\n' ]]; do
-                line_end=$((line_end + 1))
-              done
-              local line="${s:body_i:$((line_end - body_i))}"
-              local chk="$line"
-              if [[ "$strip" -eq 1 ]]; then
-                while [[ "${chk:0:1}" == $'\t' ]]; do chk="${chk:1}"; done
-              fi
-              if [[ "$chk" == "$delim" ]]; then
-                out+="$line"
-                body_i=$((line_end + 1))
-                [[ "$line_end" -lt "$n" ]] && out+=$'\n'
-                break
-              else
-                local fillr="" fi_
-                for ((fi_ = 0; fi_ < ${#line}; fi_++)); do fillr+="#"; done
-                out+="$fillr"
-                if [[ "$line_end" -lt "$n" ]]; then
-                  out+=$'\n'
-                  body_i=$((line_end + 1))
-                else
-                  body_i=$((n + 1))
-                  break
-                fi
-              fi
-            done
-          done
-          hd_delim=()
-          hd_strip=()
-          i=$((body_i - 1))
-          prev=$'\n'
-          continue
-        elif [[ "$ch" == '#' && ( "$i" -eq 0 || "$prev" == ' ' || "$prev" == $'\t' || "$prev" == ';' || "$prev" == '|' || "$prev" == '&' || "$prev" == '(' || "$prev" == $'\n' ) ]]; then
-          # Real shell comment-start (unquoted `#` at word-start position,
-          # never a comment mid-word like `foo#bar`) -- a comment is NEVER
-          # executed, so everything from here to end-of-line (or end of
-          # string) is inert, same as a quoted string/word mentioning the
-          # forbidden token (`ls -la # this does not need sudo at all`).
-          while ((i < n)); do
-            ch="${s:i:1}"
-            if [[ "$ch" == $'\n' ]]; then
-              out+="$ch"
-              break
-            fi
-            out+="#"
-            i=$((i + 1))
-          done
-          prev="$ch"
-          continue
-        else
-          out+="$ch"
-        fi
-        ;;
-    esac
-    prev="$ch"
-  done
-  printf '%s' "$out"
-}
-
-SCRUBBED_COMMAND="$(_scrub_inert_regions "$COMMAND")"
+# _scrub_inert_regions + SCRUBBED_COMMAND are defined at the top of this file
+# (see the BOB-099 / BOB-071 CARRIER-vs-INVOCATION scrubber block above the
+# emulator gate). The original definition site LIVED HERE — it was hoisted up
+# in the BOB-099 fix so the emulator, force-push, --no-verify, and
+# --no-gpg-sign gates can share the same scrubbed projection. Nothing in this
+# section changes semantically; the sudo/su regexes still run against
+# $SCRUBBED_COMMAND, which the hoisted assignment computes once before any
+# gate fires.
 
 if [[ "$SCRUBBED_COMMAND" =~ (^|[[:space:]]|;|\||&|\(|\`)sudo([[:space:]]|$|\)|\`) ]]; then
   block "§6.U no-sudo" "$SUDO_MSG"
