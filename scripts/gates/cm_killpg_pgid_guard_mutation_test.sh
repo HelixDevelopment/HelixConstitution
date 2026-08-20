@@ -173,6 +173,48 @@ SH
 expect_pass "shell guarded pgid (pgid>1 checked before pkill -g)" "$CLEAN3"
 
 # ===================================================================
+# 3b. Wrong-variable guard — a CORRECT `pid > 1` guard sits in the window
+#     but the value actually PASSED to killpg (`pgid`) was only checked
+#     `> 0`, so a pgid of 1 still reaches the disaster syscall. A gate
+#     whose guard check is not scoped to the call's OWN target clears
+#     this on the unrelated `pid > 1` — a false-negative PASS on the
+#     exact §11.4.263 defect class.
+# ===================================================================
+MUT4="$TMP/wrong_variable_guard"
+mkdir -p "$MUT4"
+cat > "$MUT4/reaper.py" <<'PY'
+import contextlib
+import os
+import signal
+
+
+async def cleanup(proc):
+    if proc.returncode is None:
+        pid = proc.pid
+        if isinstance(pid, int) and pid > 1:
+            with contextlib.suppress(Exception):
+                pgid = os.getpgid(pid)
+                if isinstance(pgid, int) and pgid > 0:
+                    os.killpg(pgid, signal.SIGKILL)
+PY
+expect_fail "wrong-variable guard (pid>1 present, target pgid only checked >0)" "$MUT4"
+
+# ===================================================================
+# 3c. Shell negated-target broadcast — `kill -9 -1` is the shell spelling
+#     of the disaster syscall and MUST be flagged; a scanner that only
+#     matches `kill -"$pgid"` is blind to the literal form.
+# ===================================================================
+MUT5="$TMP/sh_literal_broadcast"
+mkdir -p "$MUT5"
+cat > "$MUT5/reap_all.sh" <<'SH'
+#!/usr/bin/env bash
+reap_everything() {
+    kill -9 -1
+}
+SH
+expect_fail "shell literal broadcast 'kill -9 -1'" "$MUT5"
+
+# ===================================================================
 # 4. Negative control — ordinary single-process `kill -9 $pid` MUST NEVER
 #    be flagged: kill(2)'s process-GROUP form requires a NEGATIVE pgid, and
 #    this is the single-process form. A gate that flags this is itself a

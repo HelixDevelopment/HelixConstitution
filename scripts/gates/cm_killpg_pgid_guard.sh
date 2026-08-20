@@ -23,14 +23,24 @@
 # This is a bounded-window regex-proximity heuristic, NOT a data-flow or AST
 # analysis (infeasible for a portable multi-language shell/awk scanner within
 # this gate's scope). It WILL correctly clear the anchor's own prescribed
-# guard idiom (`if isinstance(pid, int) and pid > 1: os.killpg(...)`) and WILL
-# correctly flag the literal BOB-126 shape (a bare, unguarded
-# `os.killpg(os.getpgid(proc.pid), signal.SIGKILL)`). A guard placed further
-# than `KILLPG_GUARD_WINDOW` (default 6) lines above the call site, or one
-# using an unusually-named guard variable outside the closed set
-# `pid|pgid|gid|process_group|pgrp`, is a DOCUMENTED, BOUNDED limitation —
-# never a silent one — rather than an attempt at full soundness this class of
-# scanner cannot honestly claim.
+# guard idiom — the pgid bound to a NAME and that NAME compared to 1 before
+# the call, e.g. `pgid = os.getpgid(pid); if pgid > 1: os.killpg(pgid, sig)`
+# — and WILL correctly flag the literal BOB-126 shape (a bare, unguarded
+# `os.killpg(os.getpgid(proc.pid), signal.SIGKILL)`).
+#
+# The guard must be scoped to THE CALL'S OWN TARGET: a window guard on a
+# DIFFERENT pid-family variable does not clear the call (see `extract_target`
+# / `target_guarded` below for the forensic shape this closes). Two honest,
+# bounded consequences, documented rather than silent (§11.4.6):
+#   * a call whose target is an INLINE EXPRESSION rather than a name
+#     (`os.killpg(os.getpgid(proc.pid), sig)`) can never be proven guarded by
+#     a text scanner and is reported UNGUARDED. This is not a workaround to
+#     route around — §11.4.263(B) mandates validating the pgid too, which is
+#     only expressible by binding it to a name first;
+#   * a guard placed further than `KILLPG_GUARD_WINDOW` (default 6) lines
+#     above the call site is likewise not seen.
+# Neither is an attempt at full soundness this class of scanner cannot
+# honestly claim.
 #
 # Shell-form detection is deliberately NARROW: an ordinary single-process
 # `kill -9 $pid` MUST NOT be flagged (POSIX kill(2)'s process-group form
@@ -113,8 +123,19 @@ case "$window" in
     ''|*[!0-9]*) echo "${GATE}: --window must be a non-negative integer, got '$window'" >&2; exit 2 ;;
 esac
 
-[ -d "$root" ] || { echo "${GATE}: scan root not found: $root" >&2; exit 2; }
-root="$(cd "$root" && pwd)"
+# The scan root may be a DIRECTORY (walked) or a SINGLE FILE (scanned as-is).
+# The single-file form lets a consumer delegate detection here per-file while
+# keeping its own scope/DATA local (§11.4.35), instead of copying this
+# scanner (§11.4.177 consume-by-reference, never copy).
+root_is_file=0
+if [ -f "$root" ]; then
+    root_is_file=1
+    root="$(cd "$(dirname "$root")" && pwd)/$(basename "$root")"
+elif [ -d "$root" ]; then
+    root="$(cd "$root" && pwd)"
+else
+    echo "${GATE}: scan root not found: $root" >&2; exit 2
+fi
 
 exts="${KILLPG_GUARD_EXT:-py go rs c cc cpp h hpp sh bash}"
 excludes="${KILLPG_GUARD_EXCLUDE:-.git node_modules vendor .venv __pycache__ scripts/gates out build dist}"
@@ -141,6 +162,9 @@ if [ "${#prune_expr[@]}" -gt 0 ]; then
     unset 'prune_expr[${#prune_expr[@]}-1]'
 fi
 
+if [ "$root_is_file" -eq 1 ]; then
+    files=("$root")
+else
 mapfile -d '' -t files < <(
     if [ "${#prune_expr[@]}" -gt 0 ]; then
         find "$root" -type d \( "${prune_expr[@]}" \) -prune -o -type f \( "${find_name_expr[@]}" \) -print0
@@ -148,6 +172,7 @@ mapfile -d '' -t files < <(
         find "$root" -type f \( "${find_name_expr[@]}" \) -print0
     fi
 )
+fi
 
 if [ "${#files[@]}" -eq 0 ]; then
     echo "⏭ ${GATE}: SKIP — topology_unsupported: no source files under scan (root=$root, ext=[$exts])"
@@ -160,7 +185,17 @@ fi
 #   * C/generic:          kill(-           — kill(-pid,sig) process-group form
 #   * shell:              pkill -g        — pkill's explicit process-group flag
 #   * shell:              kill -"$pgid" / kill -${pgid}  — negated-pgid idiom
-CALL_ERE='killpg[[:space:]]*\(|syscall\.Kill[[:space:]]*\([[:space:]]*-|(^|[^[:alnum:]_])kill[[:space:]]*\([[:space:]]*-|pkill[[:space:]]+-g[[:space:]]|kill[[:space:]]+-"?\$\{?[A-Za-z_][A-Za-z0-9_]*\}?"?'
+#   * shell:              kill -<SIG> -<target>  — the NEGATED-TARGET process
+#                         group form (`kill -9 -1`, `kill -TERM -"$pgid"`).
+#                         Upstreamed from the boba consumer's local gate,
+#                         which detected the literal shell broadcast-kill
+#                         `kill -9 -1` this scanner was blind to. The SIGNAL
+#                         token deliberately excludes a bare `0`: `kill -0`
+#                         delivers no signal at all (kill(2)) — it is the
+#                         POSIX liveness-PROBE idiom and is structurally
+#                         incapable of the §11.4.263 defect, so flagging it
+#                         would be a §11.4.201(1) false-positive refusal.
+CALL_ERE='killpg[[:space:]]*\(|syscall\.Kill[[:space:]]*\([[:space:]]*-|(^|[^[:alnum:]_])kill[[:space:]]*\([[:space:]]*-|pkill[[:space:]]+-g[[:space:]]|kill[[:space:]]+-"?\$\{?[A-Za-z_][A-Za-z0-9_]*\}?"?|kill[[:space:]]+-[A-Za-z1-9][A-Za-z0-9]*[[:space:]]+-("?\$\{?[A-Za-z_]|[0-9])'
 
 # Guard-proximity ERE: a pid/pgid/gid-family identifier compared to 1 via
 # ANY ordering comparator (>, >=, <, <=, -gt, -ge, -lt, -le; either operand
@@ -170,6 +205,68 @@ CALL_ERE='killpg[[:space:]]*\(|syscall\.Kill[[:space:]]*\([[:space:]]*-|(^|[^[:a
 # legitimate negated raise-early idiom "if pid <= 1: raise(...)" are real,
 # common guard shapes and BOTH must clear this gate without a false refusal.
 GUARD_ERE='(pid|pgid|gid|process_group|pgrp)[A-Za-z0-9_]*[[:space:]]*(>=?|<=?|-gt|-ge|-lt|-le)[[:space:]]*1([^0-9]|$)|1[[:space:]]*(<=?|>=?)[[:space:]]*(pid|pgid|gid|process_group|pgrp)'
+
+# ── Guard must be scoped to THE CALL'S OWN TARGET (§11.4.201 false-negative) ─
+# The family-name GUARD_ERE above is NOT identifier-scoped: it clears a call
+# whenever ANY pid/pgid-family name is compared to 1 in the window. That is a
+# false-negative PASS on the exact BOB-126 shape, e.g.
+#     _pid = proc.pid
+#     if isinstance(_pid, int) and _pid > 1:          # correct guard, wrong var
+#         _pgid = os.getpgid(_pid)
+#         if isinstance(_pgid, int) and _pgid > 0:    # WEAK: 0, not 1
+#             os.killpg(_pgid, SIGKILL)               # pgid==1 still reaches here
+# where the strong `_pid > 1` guard "covers" a target (`_pgid`) that was only
+# ever checked `> 0`. Upstreamed from the boba consumer gate: extract the
+# identifier actually PASSED to the call and require the window to compare
+# THAT identifier to 1.
+#
+# extract_target <matched-line> — prints the call's target identifier (a bare
+# name or a dotted-attribute chain such as `self._pgid`), or nothing when the
+# target is not a plain identifier (a nested call expression, an arithmetic
+# expression). An unextractable target is treated as UNGUARDED — conservative
+# by design (§11.4.101/§11.4.201): the anchor's own prescribed idiom assigns
+# the pgid to a variable and guards that variable, so a nested-call target is
+# a shape this scanner cannot prove safe and must not clear.
+extract_target() {
+    printf '%s\n' "$1" | sed -E \
+        -e 's/.*killpg[[:space:]]*\(//' \
+        -e 's/.*syscall\.Kill[[:space:]]*\(//' \
+        -e 's/.*[^A-Za-z0-9_]kill[[:space:]]*\(//' \
+        -e 's/.*pkill[[:space:]]+-g[[:space:]]+//' \
+        -e 's/.*kill[[:space:]]+-[A-Za-z1-9][A-Za-z0-9]*[[:space:]]+//' \
+        -e 's/.*kill[[:space:]]+//' \
+        | sed -nE 's/^[[:space:]]*-?[[:space:]]*"?\$?\{?([A-Za-z_][A-Za-z0-9_.]*).*/\1/p'
+}
+
+# target_guarded <window-text> <target-identifier>
+#   0 (guarded) iff the window compares THAT identifier to the literal 1 with
+#   any ordering comparator, in either operand order and either language's
+#   syntax. Any `.` in a dotted chain is regex-escaped so it matches itself
+#   and never behaves as an "any character" wildcard. Intervening non-word
+#   characters (a closing shell quote, a brace) are tolerated between the
+#   identifier and its comparator.
+target_guarded() {
+    _tg_window="$1"; _tg_ident="$2"
+    [ -n "$_tg_ident" ] || return 1
+    _tg_re="$(printf '%s' "$_tg_ident" | sed 's/\./\\./g')"
+    printf '%s\n' "$_tg_window" | grep -qE \
+"(^|[^A-Za-z0-9_])${_tg_re}[^A-Za-z0-9_]*(>=?|<=?|-gt|-ge|-lt|-le)[[:space:]]*1([^0-9]|\$)|1[[:space:]]*(<=?|>=?)[^A-Za-z0-9_]*${_tg_re}([^A-Za-z0-9_]|\$)"
+}
+
+# ── Numeric-literal target ⇒ ALWAYS unguarded (§11.4.201 false-negative fix) ─
+# A call whose process-group target is a NUMERIC LITERAL (`os.killpg(1, ...)`,
+# `kill(-1, sig)`, `syscall.Kill(-1, ...)`, `pkill -g 1`, `kill -9 -1`) is the
+# BOB-126 disaster syscall spelled out in source. No guard can make a hardcoded
+# `1` safe, and the proximity heuristic above is NOT identifier-scoped — so ANY
+# unrelated pid/pgid/gid-family bounds check that happens to sit in the
+# preceding window (even one for a completely different variable, even inside
+# a since-stripped comment) would otherwise clear it. That is a false-negative
+# PASS-bluff on the exact defect class this gate exists to catch. Upstreamed
+# from the boba consumer's local gate, whose identifier-scoped extraction
+# treats an identifier-less (literal/numeric) target as unconditionally
+# unguarded; refusing to guess here is the conservative-safe default
+# (§11.4.101/§11.4.201).
+LITERAL_TARGET_ERE='killpg[[:space:]]*\([[:space:]]*[0-9]|syscall\.Kill[[:space:]]*\([[:space:]]*-[[:space:]]*[0-9]|(^|[^[:alnum:]_])kill[[:space:]]*\([[:space:]]*-[[:space:]]*[0-9]|pkill[[:space:]]+-g[[:space:]]+[0-9]|kill[[:space:]]+-[A-Za-z1-9][A-Za-z0-9]*[[:space:]]+-[0-9]'
 
 unguarded=0
 guarded=0
@@ -195,13 +292,20 @@ for f in "${files[@]}"; do
 
         window_text="$(printf '%s\n' "$code_only" | sed -n "${start},${lineno}p")"
 
-        if printf '%s\n' "$window_text" | grep -qE "$GUARD_ERE"; then
+        target="$(extract_target "$text")"
+
+        if printf '%s\n' "$text" | grep -qE "$LITERAL_TARGET_ERE"; then
+            unguarded=$(( unguarded + 1 ))
+            echo "❌ ${GATE}: FAIL — UNGUARDABLE numeric-literal process-group target at ${f}:${lineno}: ${text# }"
+            echo "   (a hardcoded numeric pid/pgid can never be guarded — §11.4.263(A): NEVER signal pgid <= 1)"
+        elif printf '%s\n' "$window_text" | grep -qE "$GUARD_ERE" \
+             && target_guarded "$window_text" "$target"; then
             guarded=$(( guarded + 1 ))
             [ "$quiet" -eq 1 ] || echo "✅ ${GATE}: PASS — guarded process-group signal call at ${f}:${lineno}: ${text# }"
         else
             unguarded=$(( unguarded + 1 ))
             echo "❌ ${GATE}: FAIL — UNGUARDED process-group signal call at ${f}:${lineno}: ${text# }"
-            echo "   (no pid/pgid>1 comparator found in the preceding ${window} lines — §11.4.263(B))"
+            echo "   (no '>1' comparator on the call's own target '${target:-<non-identifier expression>}' in the preceding ${window} lines — §11.4.263(B))"
         fi
     done <<< "$hit_lines"
 done

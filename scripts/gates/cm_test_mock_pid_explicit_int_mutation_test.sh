@@ -143,6 +143,58 @@ expect_pass "MagicMock fixed (explicit constructor kwarg pid=<int>)" "$CLEAN2"
 #    .pid. Flagging it would be a §11.4.201(1) false-positive refusal: the
 #    defect only manifests when .pid is actually accessed/coerced.
 # ===================================================================
+# ===================================================================
+# 3b. SUBPROCESS-SHAPE (the LITERAL BOB-126 fixture): the test builds a
+#     process stand-in (.returncode = None + lifecycle attributes) and
+#     never sets .pid — and never MENTIONS .pid either, because it is
+#     PRODUCTION code that reads it. A gate that only fires on an in-file
+#     `.pid` read is structurally blind to the founding defect.
+# ===================================================================
+MUT4="$TMP/subprocess_shape"
+mkdir -p "$MUT4"
+cat > "$MUT4/test_search_stream.py" <<'PY'
+from unittest.mock import AsyncMock
+
+
+async def test_search_streams_results():
+    proc = AsyncMock()
+    proc.returncode = None
+    proc.stdout.readline = AsyncMock(return_value=b"")
+    proc.wait = AsyncMock(return_value=0)
+    await run_search(proc)
+PY
+expect_fail "subprocess-shaped stand-in, .pid never set AND never read" "$MUT4"
+
+CLEAN4="$TMP/subprocess_shape_fixed"
+mkdir -p "$CLEAN4"
+cat > "$CLEAN4/test_search_stream.py" <<'PY'
+from unittest.mock import AsyncMock
+
+
+async def test_search_streams_results():
+    proc = AsyncMock()
+    proc.returncode = None
+    proc.pid = 424242
+    proc.stdout.readline = AsyncMock(return_value=b"")
+    proc.wait = AsyncMock(return_value=0)
+    await run_search(proc)
+PY
+expect_pass "subprocess-shaped stand-in with explicit int .pid" "$CLEAN4"
+
+CLEAN5="$TMP/completed_process_factory"
+mkdir -p "$CLEAN5"
+cat > "$CLEAN5/test_completed.py" <<'PY'
+from unittest.mock import AsyncMock
+
+
+def _proc_mock():
+    proc = AsyncMock()
+    proc.returncode = 0
+    proc.wait = AsyncMock(return_value=0)
+    return proc
+PY
+expect_pass "negative control: completed-process factory (returncode is an exit code, kill path unreachable)" "$CLEAN5"
+
 NEG1="$TMP/pid_never_read"
 mkdir -p "$NEG1"
 cat > "$NEG1/test_unrelated.py" <<'PY'

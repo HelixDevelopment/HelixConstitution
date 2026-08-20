@@ -109,8 +109,18 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-[ -d "$root" ] || { echo "${GATE}: scan root not found: $root" >&2; exit 2; }
-root="$(cd "$root" && pwd)"
+# The scan root may be a DIRECTORY (walked) or a SINGLE FILE (scanned as-is)
+# — the single-file form lets a consumer delegate detection here per-file
+# while keeping its own scope/DATA local (§11.4.35/§11.4.177).
+root_is_file=0
+if [ -f "$root" ]; then
+    root_is_file=1
+    root="$(cd "$(dirname "$root")" && pwd)/$(basename "$root")"
+elif [ -d "$root" ]; then
+    root="$(cd "$root" && pwd)"
+else
+    echo "${GATE}: scan root not found: $root" >&2; exit 2
+fi
 
 excludes="${MOCK_PID_GUARD_EXCLUDE:-.git node_modules vendor .venv __pycache__ scripts/gates out build dist}"
 
@@ -125,6 +135,9 @@ if [ "${#prune_expr[@]}" -gt 0 ]; then
     unset 'prune_expr[${#prune_expr[@]}-1]'
 fi
 
+if [ "$root_is_file" -eq 1 ]; then
+    files=("$root")
+else
 mapfile -d '' -t files < <(
     if [ "${#prune_expr[@]}" -gt 0 ]; then
         find "$root" -type d \( "${prune_expr[@]}" \) -prune -o -type f -iname "$glob" -print0
@@ -132,6 +145,7 @@ mapfile -d '' -t files < <(
         find "$root" -type f -iname "$glob" -print0
     fi
 )
+fi
 
 if [ "${#files[@]}" -eq 0 ]; then
     echo "⏭ ${GATE}: SKIP — topology_unsupported: no candidate test files under scan (root=$root, glob=$glob)"
@@ -179,9 +193,47 @@ END {
             if (lines[i] ~ re_use) { accessed[v] = 1; break }
         }
     }
+    # Pass 4 (upstreamed from the boba consumer gate): SUBPROCESS-SHAPE
+    # detection, independent of whether `.pid` is read in the test file.
+    # The LITERAL BOB-126 shape never mentions `.pid` in the test at all --
+    # the test builds a process stand-in and PRODUCTION code reads `.pid`.
+    # Passes 1-3 are structurally blind to that (they need an in-file
+    # `.pid` read), so this pass keys on the process-stand-in SHAPE:
+    #   VAR.returncode = None      (asyncio convention "still running" --
+    #                               the ONLY state under which a cleanup /
+    #                               kill branch is reachable at all), AND
+    #   a process-lifecycle indicator on the SAME var.
+    # Both markers are REQUIRED: a mock whose returncode is a real exit code
+    # can never reach a kill path, so flagging it would be a §11.4.201(1)
+    # false-positive refusal.
+    for (i = 1; i <= total; i++) {
+        line = lines[i]
+        if (line ~ /patch(\.object)?[ \t]*\(.*killpg/) killpatch[i] = 1
+    }
+    for (v in mockcreate) {
+        re_rc   = v "[ \t]*\.[ \t]*returncode[ \t]*=[ \t]*None([^A-Za-z0-9_]|$)"
+        re_life = v "[ \t]*\.[ \t]*(stdout[ \t]*\.[ \t]*readline|stderr[ \t]*\.[ \t]*read|wait|kill|terminate|communicate)([^A-Za-z0-9_]|$)"
+        for (i = 1; i <= total; i++) {
+            if (lines[i] ~ re_rc)   rc_none[v] = 1
+            if (lines[i] ~ re_life) lifecycle[v] = 1
+        }
+    }
+    for (v in mockcreate) {
+        if (!((v) in rc_none) || !((v) in lifecycle)) continue
+        if ((v) in safe) continue
+        if ((v) in accessed) continue    # already reported by pass 3
+        exempt = 0
+        for (i in killpatch) {
+            d = i - mockcreate[v]
+            if (d < 0) d = -d
+            if (d <= 30) { exempt = 1; break }
+        }
+        if (exempt) continue
+        print mockcreate[v] "\t" v "\tsubproc\t" mockcreateline[v]
+    }
     for (v in mockcreate) {
         if ((v in accessed) && !((v) in safe)) {
-            print mockcreate[v] "\t" v "\t" mockcreateline[v]
+            print mockcreate[v] "\t" v "\tpidread\t" mockcreateline[v]
         }
     }
 }
@@ -195,10 +247,14 @@ for f in "${files[@]}"; do
     # thing itself).
     hits="$(sed -E 's/^[[:space:]]*#.*$//' "$f" 2>/dev/null | awk "$AWK_SCRIPT" 2>/dev/null || true)"
     [ -n "$hits" ] || continue
-    while IFS=$'\t' read -r lineno var line; do
+    while IFS=$'\t' read -r lineno var reason line; do
         [ -n "$lineno" ] || continue
         violations=$(( violations + 1 ))
-        echo "❌ ${GATE}: FAIL — ${f}:${lineno}: mock '${var}' — '.pid' is read but never explicitly set to an int (§${ANCHOR}(C))"
+        if [ "$reason" = "subproc" ]; then
+            echo "❌ ${GATE}: FAIL — ${f}:${lineno}: mock '${var}' — subprocess-shaped stand-in ('.returncode = None' + a process-lifecycle attribute) with no explicit int '.pid' and no nearby 'killpg' patch (§${ANCHOR}(C))"
+        else
+            echo "❌ ${GATE}: FAIL — ${f}:${lineno}: mock '${var}' — '.pid' is read but never explicitly set to an int (§${ANCHOR}(C))"
+        fi
         echo "   ${line# }"
     done <<< "$hits"
     [ "$quiet" -eq 1 ] || { [ -n "$hits" ] || true; }
