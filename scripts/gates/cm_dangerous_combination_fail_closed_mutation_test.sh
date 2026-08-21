@@ -3,13 +3,34 @@
 # meta-test for CM-DANGEROUS-COMBINATION-FAIL-CLOSED (anchor §11.4.252).
 #
 # ── Purpose ──────────────────────────────────────────────────────────────────
-# Proves the gate is NOT a bluff: plants each of the two literal fail-open
-# anti-pattern shapes the gate detects (swallowed exception / credential-
-# defaulted-to-literal, in both a Python and a C-family shape) and asserts the
-# gate correctly FAILs on each; then asserts it PASSes on clean fixtures using
-# the LEGITIMATE counterpart patterns (logged/re-raised exception handling,
-# env-var-sourced credential fallback) plus an honest SKIP on a no-candidate-
-# files directory.
+# Proves the gate is NOT a bluff: plants each fail-open anti-pattern shape the
+# gate detects (swallowed exception / silent-default-return / credential-
+# defaulted-to-literal, in Python and C-family shapes) and asserts the gate
+# correctly FAILs on each; then asserts it PASSes on clean fixtures using the
+# LEGITIMATE counterpart patterns (logged/re-raised handling, real fallback
+# work, env-var-sourced credential fallback) plus an honest SKIP on a
+# no-candidate-files directory.
+#
+# ── Blind-spot regression fixtures (the reason this suite exists) ────────────
+# The gate previously matched Python `except:` handlers with a LINE-ANCHORED
+# REGEX and read the handler body at exactly `lineno+1`. That shape was blind
+# in FOUR ways and false-positive in a FIFTH, and each is pinned here by its
+# own fixture so the specific blind spot cannot silently return:
+#
+#   L1  trailing comment on the handler line  (`except Exception:  # noqa`)
+#   L2  tuple exception clause                (`except (OSError, ValueError):`)
+#   L3  a comment between `except` and `pass` (body no longer at lineno+1)
+#   L4  silent default return                 (`except: return None`)
+#   L5  CARRIER FALSE POSITIVE — a docstring / string literal that merely
+#       MENTIONS `except: pass` (a style guide, or this very file) was matched
+#       as if it were code. The negative control below asserts the gate stays
+#       SILENT on it (§11.4.201(1): a false-positive refusal is a FAIL-bluff
+#       exactly as a false-negative pass is a PASS-bluff).
+#
+# Every L1-L4 fixture PASSED the pre-fix gate (i.e. went undetected) and MUST
+# FAIL a correct one; the L5 carrier FAILED the pre-fix gate and MUST PASS a
+# correct one. Both polarities are asserted, in BOTH the structural (AST) and
+# the degraded (text-fallback) execution modes.
 #
 # ── Usage ────────────────────────────────────────────────────────────────────
 #   cm_dangerous_combination_fail_closed_mutation_test.sh
@@ -63,6 +84,27 @@ expect_pass() { # $1=desc  $2..=command
         rc=1
     fi
 }
+expect_output_contains() { # $1=desc  $2=needle  $3..=command
+    local desc="$1" needle="$2"; shift 2
+    local out
+    # CAPTURE first, then match. Piping the command straight into grep would
+    # measure the PIPELINE status under `set -o pipefail`, and this gate exits
+    # non-zero whenever it finds a hit - so the assertion would read the gate's
+    # VERDICT instead of grep's MATCH and fail on correct output
+    # (§11.4.201(12): the pipeline exit status is part of the instrument).
+    out="$("$@" 2>&1)" || true
+    if printf '%s' "$out" | grep -qF -- "$needle"; then
+        echo "✅ META OK:   ${desc} — gate announced its degraded mode"
+    else
+        echo "❌ META FAIL: ${desc} — expected output to contain: ${needle}"
+        rc=1
+    fi
+}
+
+# Degraded (text-fallback) invocation: an EXPLICIT unusable interpreter pin is
+# authoritative, so this exercises the real no-Python code path rather than
+# simulating it.
+gate_textmode() { DANGEROUS_COMBO_PYTHON=/nonexistent/python bash "$GATE_SCRIPT" "$@"; }
 
 echo "======================================================================"
 echo "§1.1 paired-mutation meta-test for CM-DANGEROUS-COMBINATION-FAIL-CLOSED"
@@ -158,6 +200,149 @@ mkdir -p "$CLEAN4"
 echo "just documentation text, no source files" > "$CLEAN4/README.md"
 expect_pass "no candidate source files present — honest SKIP (exit 0), never a fake FAIL" \
     bash "$GATE_SCRIPT" --root "$CLEAN4" --quiet
+
+# ── 8. MUTATED (L1): trailing comment on the handler line ───────────────────
+# The pre-fix regex anchored the handler line with `:[[:space:]]*$`, so a
+# reviewed-and-annotated handler was exactly the one it could not see.
+MUT4="$TMP/mut4"
+mkdir -p "$MUT4"
+cat > "$MUT4/l1.py" <<'PY'
+def purge(path):
+    try:
+        shutil.rmtree(path)
+    except Exception:  # noqa: S110 - best effort
+        pass
+PY
+expect_fail "L1 swallowed exception with a TRAILING COMMENT on the handler line" \
+    bash "$GATE_SCRIPT" --root "$MUT4" --quiet
+expect_fail "L1 (degraded text-fallback mode)" \
+    gate_textmode --root "$MUT4" --quiet
+
+# ── 9. MUTATED (L2): tuple exception clause ─────────────────────────────────
+# The pre-fix exception-type group was `[A-Za-z_.]+`, which cannot match `(`.
+MUT5="$TMP/mut5"
+mkdir -p "$MUT5"
+cat > "$MUT5/l2.py" <<'PY'
+def purge(path):
+    try:
+        shutil.rmtree(path)
+    except (OSError, ValueError):
+        pass
+PY
+expect_fail "L2 swallowed exception with a TUPLE exception clause" \
+    bash "$GATE_SCRIPT" --root "$MUT5" --quiet
+expect_fail "L2 (degraded text-fallback mode)" \
+    gate_textmode --root "$MUT5" --quiet
+
+# ── 10. MUTATED (L3): a comment between `except` and `pass` ─────────────────
+# The pre-fix body check read exactly lineno+1, so a reviewer ADDING an
+# explanatory comment inside the handler deleted the site from the report.
+MUT6="$TMP/mut6"
+mkdir -p "$MUT6"
+cat > "$MUT6/l3.py" <<'PY'
+def purge(path):
+    try:
+        shutil.rmtree(path)
+    except Exception:
+        # best effort - the directory may already be gone
+        pass
+PY
+expect_fail "L3 swallowed exception with a COMMENT between except and pass" \
+    bash "$GATE_SCRIPT" --root "$MUT6" --quiet
+expect_fail "L3 (degraded text-fallback mode)" \
+    gate_textmode --root "$MUT6" --quiet
+
+# ── 11. MUTATED (L4): silent default return ─────────────────────────────────
+# Handing the caller a plausible-looking value that carries zero information
+# about the failure is the same fail-open defect as `pass` - arguably worse,
+# because the caller cannot tell the operation failed.
+MUT7="$TMP/mut7"
+mkdir -p "$MUT7"
+cat > "$MUT7/l4.py" <<'PY'
+def fetch_balance(account_id):
+    try:
+        return ledger.balance(account_id)
+    except Exception:
+        return 0
+PY
+expect_fail "L4 silent default return (except -> return <trivial literal>)" \
+    bash "$GATE_SCRIPT" --root "$MUT7" --quiet
+expect_fail "L4 (degraded text-fallback mode)" \
+    gate_textmode --root "$MUT7" --quiet
+
+# ── 12. NEGATIVE CONTROL (L5): a CARRIER that only MENTIONS the pattern ─────
+# A style guide documenting the anti-pattern, and a string constant holding a
+# forbidden snippet. The pre-fix text scanner FIRED on both (a §11.4.201(1)
+# FAIL-bluff: it refused healthy code). A parser cannot: a string literal is
+# not a Try node and a comment is not a statement.
+CLEAN5="$TMP/clean5"
+mkdir -p "$CLEAN5"
+cat > "$CLEAN5/carrier.py" <<'PY'
+"""Style guide for this project.
+
+Never write a swallowed handler like this:
+
+    except Exception:
+        pass
+
+Always log and re-raise instead.
+"""
+
+FORBIDDEN_SNIPPET = """
+except Exception:
+    pass
+"""
+
+
+def safe_delete(record_id):
+    try:
+        db.delete(record_id)
+    except OSError as exc:
+        logger.error("delete failed for %s: %s", record_id, exc)
+        raise
+PY
+expect_pass "L5 CARRIER negative control — docstring/string merely MENTIONING the pattern must NOT fire" \
+    bash "$GATE_SCRIPT" --root "$CLEAN5" --quiet
+
+# ── 13. NEGATIVE CONTROL: handlers that do REAL fallback work ──────────────
+# Guards the new silent-default-return class against over-reach: a handler
+# that logs, or returns a COMPUTED value, or runs an alternate strategy, is
+# fallback handling - not a silent default - and must NOT be flagged.
+CLEAN6="$TMP/clean6"
+mkdir -p "$CLEAN6"
+cat > "$CLEAN6/fallback.py" <<'PY'
+def parse_primary(blob):
+    try:
+        return primary_parser(blob)
+    except ParseError as exc:
+        logger.warning("primary parser failed: %s", exc)
+        return fallback_parser(blob)
+
+
+def load_config(path):
+    try:
+        return json.loads(read(path))
+    except FileNotFoundError:
+        return build_default_config(path)
+
+
+def read_rows(cursor):
+    try:
+        return cursor.fetchall()
+    except TransientError:
+        cursor.reconnect()
+        return cursor.fetchall()
+PY
+expect_pass "handlers doing REAL fallback work (log+delegate / computed default / retry) must NOT fire" \
+    bash "$GATE_SCRIPT" --root "$CLEAN6" --quiet
+
+# ── 14. DEGRADED MODE ANNOUNCES ITSELF (§11.4.6 / §11.4.201(6)) ────────────
+# A blind instrument that reports a quiet number is the false-null this gate
+# exists to avoid; when the structural analyser is unavailable the gate MUST
+# say so on stdout rather than silently reporting a floor as a census.
+expect_output_contains "degraded text-fallback mode is announced, never silent" \
+    "FLOOR, not a census" \
+    gate_textmode --root "$MUT4" --quiet
 
 echo "======================================================================"
 if [ "$rc" -eq 0 ]; then
