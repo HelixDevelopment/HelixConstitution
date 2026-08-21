@@ -304,6 +304,15 @@ covenant_propagation_main() {
     # The needle: any governance file sitting DIRECTLY at $root is known to
     # exist on disk, so it MUST appear in the discovered set. If it does not,
     # the instrument is blind and we say so rather than reporting an absence.
+    #
+    # NOTE on intermittent firing (observed 2026-08-20): this needle can refuse
+    # a run while ANOTHER process is rewriting a carrier. A writer using the
+    # standard write-temp-then-rename pattern leaves a window in which `find`
+    # does not see the path, so the discovered set really IS short for that
+    # instant. That refusal is a TRUE POSITIVE, not flakiness — the carrier set
+    # was genuinely incomplete and auditing it would have reported a false
+    # absence. Re-run once the tree is quiescent (§11.4.84); do NOT "fix" this
+    # by weakening the needle.
     local _needle _needle_found=0 _needle_total=0 _needle_missing=""
     for _needle in CLAUDE.md AGENTS.md QWEN.md GEMINI.md; do
         [ -f "${root}/${_needle}" ] || continue
@@ -315,7 +324,7 @@ covenant_propagation_main() {
         fi
     done
     if [ "$_needle_total" -gt 0 ] && [ "$_needle_found" -lt "$_needle_total" ]; then
-        echo "${GATE}: BLIND — carrier-discovery control needle FAILED: ${_needle_found}/${_needle_total} root governance files present on disk were not returned by discovery (missing:${_needle_missing}). The carrier set is incomplete; refusing to report an absence from a blind instrument (§11.4.201(7)(b))." >&2
+        echo "${GATE}: BLIND — carrier-discovery control needle FAILED: $(( _needle_total - _needle_found )) of ${_needle_total} root governance files present on disk were NOT returned by discovery (missing:${_needle_missing}; found ${_needle_found}). The carrier set is incomplete; refusing to report an absence from a blind instrument (§11.4.201(7)(b))." >&2
         return 2
     fi
 

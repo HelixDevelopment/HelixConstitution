@@ -107,6 +107,22 @@ while IFS=$'\t' read -r gate anchor; do
 done <<< "$rows"
 
 echo "----------------------------------------------------------------------"
-echo "suite(${MODE}): ${total} entries, $((total-bad)) exit-0, ${bad} non-zero"
+# §11.4.6 SCOPE TRANSPARENCY. A verdict without its audited surface is
+# scope-blind: "34 entries, 34 exit-0" reads identically whether the run
+# audited 150 carriers or 8. FORENSIC (2026-08-20): a fresh NON-RECURSIVE
+# clone of the committed state audits 8 carriers (only the parent tracks
+# any; the rest live inside uninitialised submodules) while the developer
+# worktree audits 150 — a ~19x difference behind an identical headline.
+# Coverage here is a function of submodule init state, so the count MUST
+# travel with the verdict, and a suspiciously small set MUST say so.
+_suite_ncar="${COVENANT_PROPAGATION_CARRIERS:+$(wc -l < "$COVENANT_PROPAGATION_CARRIERS" 2>/dev/null)}"
+_suite_ncar="${_suite_ncar:-unknown}"
+echo "suite(${MODE}): ${total} entries, $((total-bad)) exit-0, ${bad} non-zero — over ${_suite_ncar} carrier(s)"
+if [ "$_suite_ncar" != "unknown" ] && [ "$_suite_ncar" -lt 20 ] 2>/dev/null; then
+    echo "suite(${MODE}): NOTE — only ${_suite_ncar} carrier(s) audited. On a non-recursive clone most"
+    echo "suite(${MODE}):        carriers live inside uninitialised submodules and are NOT audited."
+    echo "suite(${MODE}):        A GREEN verdict here covers a far smaller surface than a fully"
+    echo "suite(${MODE}):        populated checkout (§11.4.6 — the count is part of the claim)."
+fi
 [ "$bad" -eq 0 ] || exit 1
 exit 0

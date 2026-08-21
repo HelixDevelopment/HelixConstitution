@@ -377,8 +377,8 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 <body>
 <h1 id="owed-gate-implementations--114227a-deferral-registry">Owed gate
 implementations — §11.4.227(A) deferral registry</h1>
-<p><strong>Revision:</strong> 1 <strong>Last modified:</strong>
-2026-08-20T11:24:06Z <strong>Description:</strong> The tracked work
+<p><strong>Revision:</strong> 3 <strong>Last modified:</strong>
+2026-08-20T15:37:04Z <strong>Description:</strong> The tracked work
 items every row of <code>scripts/gates/gate_ledger_deferrals.tsv</code>
 points at. <strong>Authority:</strong> §11.4.227(A) (named-gate ledger +
 monotone-decrease ratchet), §11.4.197 (started work reaches a terminal
@@ -389,16 +389,42 @@ governance corpus to be <strong>either</strong> implemented in an
 executable gate site <strong>or</strong> covered by a <strong>registered
 deferral pointing at a tracked item</strong>. Silent gate debt is
 forbidden, and so is deleting a name to lower the count.</p>
-<p>The 66 gates below are named in the corpus but not yet implemented.
-Each needs a genuine per-domain harness (a build-reproducibility
-comparison, a SLSA attestation verifier, a contract broker, a
-diagram-accuracy oracle, …). <strong>Implementing them as stubs that
-cannot FAIL would be the exact §11.4 bluff this corpus forbids</strong>
-— a gate that cannot refuse is decoration, and per §11.4.115(F) a guard
-never observed FAILing on a genuinely-broken artifact is unvalidated
-instrumentation that mints nothing. So they are registered as
-<strong>owed debt</strong>, visibly counted and monotone-decreasing,
-rather than faked green.</p>
+<p><strong>64 of this document&#39;s 76 <code>OWED-GATE-NNN</code> entries
+are still genuinely owed</strong> — confirmed 2026-08-20T15:32:40Z by
+diffing every <code>OWED-GATE-NNN</code> entry&#39;s backtick-quoted gate
+name (Sections A</p>
+<ul>
+<li>C, numeric ids only — the non-numeric <code>OWED-GATE-ADV-F*</code>
+findings in Section B.1 are review findings, not gates, and are
+excluded) against the first column of
+<code>scripts/gates/gate_ledger_deferrals.tsv</code> (72 rows total; a
+control-needle overlap check confirmed the diff instrument is not blind,
+§11.4.201(7)(b)). The remaining 12 entries already resolve to a landed
+gate-site file under <code>constitution/scripts/gates/</code> — they are
+IMPLEMENTED, not yet pruned from this list, and their discharge is a
+<em>different</em> stream&#39;s call, backed by a passing §1.1 mutation test
+(§11.4.227(A) Acceptance Criterion 5). <strong>This count is a live
+snapshot, not a fixed figure</strong> — the TSV is under active
+concurrent implementation and the number moves; re-derive it by
+re-running the same diff rather than trusting this sentence after the
+fact. <em>(Historical note: an earlier draft of this sentence read &quot;66&quot;
+— no interpretation checked against evidence at the time this note was
+written [Section A entry count, this document&#39;s total
+<code>OWED-GATE-NNN</code> count, the TSV&#39;s row count, or the ledger&#39;s
+own live <code>unimplemented=</code> figure per §11.4.227(A), which
+reads 420 and matches the checked-in
+<code>gate_ledger_baseline.txt</code>] equalled 66 under any of those
+readings, so the figure has been replaced with the one above rather than
+guessed at, §11.4.6.)</em> Each still-owed gate needs a genuine
+per-domain harness (a build-reproducibility comparison, a SLSA
+attestation verifier, a contract broker, a diagram-accuracy oracle, …).
+<strong>Implementing them as stubs that cannot FAIL would be the exact
+§11.4 bluff this corpus forbids</strong> — a gate that cannot refuse is
+decoration, and per §11.4.115(F) a guard never observed FAILing on a
+genuinely-broken artifact is unvalidated instrumentation that mints
+nothing. So they are registered as <strong>owed debt</strong>, visibly
+counted and monotone-decreasing, rather than faked green.</li>
+</ul>
 <p><strong>Honest boundary (§11.4.6):</strong> registering a deferral
 proves the debt is <em>tracked</em>, not that the gate <em>works</em>.
 Each item is discharged only when its executable site lands with a
@@ -446,6 +472,65 @@ matches its Type - Bug to Fixed, Feature to Implemented, Task to
 Completed</li>
 <li><strong>Blocked on:</strong> the Issues/Fixed tracker DATA is
 consumer-owned and absent from this project-agnostic repo</li>
+</ul></li>
+</ul>
+<h3 id="114148">§11.4.148</h3>
+<ul>
+<li><strong>OWED-GATE-071</strong> —
+<code>CM-ITEM-SLICED-SMALL-AND-TESTABLE</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every item carries acceptance
+criteria whose satisfaction is decidable from that item&#39;s own evidence
+and is a vertical slice - a thin end-to-end capability a user can
+observe; a horizontal-layer item, or one whose criteria depend on a
+sibling item landing, FAILs naming the item</li>
+<li><strong>Blocked on:</strong> the workable-items tracker DATA is
+consumer-owned and absent from this project-agnostic repo, the same
+blocker class as OWED-GATE-012</li>
+<li><strong>Paired 1.1 mutation:</strong> re-shape one item into a
+horizontal layer whose criteria cannot be met alone and the gate MUST
+FAIL; golden-FALSE per 11.4.201(1) - a legitimately-dependent item that
+is nonetheless independently testable once its dependency is met MUST
+NOT fire it</li>
+</ul></li>
+</ul>
+<h3 id="114169">§11.4.169</h3>
+<ul>
+<li><strong>OWED-GATE-075</strong> —
+<code>CM-SUITE-SHAPE-DECLARED-AND-PUSHED-DOWN</code>
+<ul>
+<li><strong>Must assert:</strong> asserts the project declares its
+chosen suite shape together with the risk-location justification that
+selected it, and that a high-level test failing with no lower-level
+counterpart opens a tracked 11.4.197 item to add the lower-level
+test</li>
+<li><strong>Blocked on:</strong> needs a consumer suite-shape
+declaration plus a test-level classifier able to tell high-level from
+low-level tests, neither adopted</li>
+<li><strong>Paired 1.1 mutation:</strong> remove the shape declaration,
+or record a high-level-only failure with no tracked lower-level
+follow-up, and the gate MUST FAIL; golden-FALSE per 11.4.201(1) - a
+declared trophy shape on a genuinely I/O-heavy system MUST NOT fire it
+merely for having few unit tests</li>
+</ul></li>
+</ul>
+<h3 id="114233">§11.4.233</h3>
+<ul>
+<li><strong>OWED-GATE-069</strong> —
+<code>CM-DEPENDENCY-POINTER-PREFLIGHT-FAIL-CLOSED</code>
+<ul>
+<li><strong>Must assert:</strong> asserts the preflight resolves every
+submodule pointer, verifies it matches the intended ref, fails closed on
+a missing checkout, and for the truly load-bearing components asserts a
+runtime signature on the flashed or deployed artifact - closing all
+three mess classes stale, absent-uninitialised and unfetchable</li>
+<li><strong>Blocked on:</strong> separating the unfetchable class from
+the merely-absent class requires probing configured remotes, and the
+hermetic pre-build gate run has no guaranteed network reach</li>
+<li><strong>Paired 1.1 mutation:</strong> de-initialise one submodule
+and the gate MUST FAIL; point one gitlink at a commit no configured
+remote serves and it MUST FAIL; golden-FALSE - a fully-initialised tree
+at its intended refs MUST NOT fire it</li>
 </ul></li>
 </ul>
 <h3 id="114234">§11.4.234</h3>
@@ -585,6 +670,23 @@ bisection from the last known-good tag with a monotone-observable
 precheck rather than blame-log walking</li>
 <li><strong>Blocked on:</strong> needs a per-investigation evidence
 record format, none adopted yet</li>
+</ul></li>
+<li><strong>OWED-GATE-068</strong> —
+<code>CM-DELTA-DEBUG-MINIMAL-CASE</code>
+<ul>
+<li><strong>Must assert:</strong> asserts an investigation of a
+non-monotone or non-commit-discriminated failure records the narrowed
+axis and its minimal failing case, and that this case is the 11.4.115
+RED test&#39;s input; a fix designed against an un-narrowed failing input
+FAILs</li>
+<li><strong>Blocked on:</strong> needs the same per-investigation
+evidence record format still owed by OWED-GATE-005, none adopted
+yet</li>
+<li><strong>Paired 1.1 mutation:</strong> strip the minimal-case record
+so the fix is designed against the full unreduced input and the gate
+MUST FAIL; golden-FALSE per 11.4.201(1) - a genuine monotone
+commit-range regression localised by git bisect alone MUST NOT fire
+it</li>
 </ul></li>
 </ul>
 <h3 id="114243">§11.4.243</h3>
@@ -921,6 +1023,37 @@ a README structural parser is needed</li>
 </ul>
 <h3 id="114260">§11.4.260</h3>
 <ul>
+<li><strong>OWED-GATE-066</strong> —
+<code>CM-CORRELATION-ID-THREADED-ACROSS-BOUNDARIES</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a declared request or trace id
+is emitted by every signal and survives every async hop - queue, worker
+and scheduled sweep; a hop that drops it FAILs</li>
+<li><strong>Blocked on:</strong> this repo ships no running services
+emitting signals across async hops, so it needs a consumer service and
+signal inventory as DATA</li>
+<li><strong>Paired 1.1 mutation:</strong> drop the correlation id at the
+queue boundary and the gate MUST FAIL; golden-FALSE per 11.4.201(1) - a
+surface with genuinely no async hop and no crash-reporting channel,
+honestly 11.4.3 SKIP-with-reason, MUST NOT fire it</li>
+</ul></li>
+<li><strong>OWED-GATE-067</strong> —
+<code>CM-CRASH-FREE-RELEASE-GATE</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a crash-free users or sessions
+gate exists with a declared, locally-calibrated threshold, and that a
+crash signature new at the release boundary blocks regardless of
+volume</li>
+<li><strong>Blocked on:</strong> requires a crash-reporting backend and
+a calibrated per-project threshold, neither available in this
+project-agnostic repo; the anchor mandates that the gate exists and that
+its threshold is declared locally, never a constitutional numeric
+value</li>
+<li><strong>Paired 1.1 mutation:</strong> admit a release carrying a new
+crash signature at low volume and the gate MUST FAIL; golden-FALSE per
+11.4.201(1) - a surface with no crash-reporting channel, honestly 11.4.3
+SKIP-with-reason, MUST NOT fire it</li>
+</ul></li>
 <li><strong>OWED-GATE-016</strong> —
 <code>CM-CUTTING-EDGE-POSTURE-ALWAYS-ON</code>
 <ul>
@@ -1009,6 +1142,153 @@ store</li>
 operator eyeballing or an absence-of-error observation</li>
 <li><strong>Blocked on:</strong> requires the evidence store to
 mechanically distinguish narrative from artifact</li>
+</ul></li>
+</ul>
+<h3 id="114264">§11.4.264</h3>
+<ul>
+<li><strong>OWED-GATE-063</strong> —
+<code>CM-BUILD-ONCE-PROMOTE-DIGEST</code>
+<ul>
+<li><strong>Must assert:</strong> asserts the pipeline&#39;s build step is
+invoked at most once per release candidate and that every post-build
+environment stage references a pinned content-addressed digest and NOT a
+rebuild target; a stage that re-invokes the build FAILs</li>
+<li><strong>Blocked on:</strong> this project-agnostic repo ships no
+deployment pipeline, so the gate needs a consumer pipeline definition as
+DATA per 11.4.35</li>
+<li><strong>Paired 1.1 mutation:</strong> add a second per-environment
+build invocation and the gate MUST FAIL; replace a promoted digest
+reference with a mutable tag and it MUST FAIL; golden-FALSE per
+11.4.201(1) - a single build followed by N digest-referencing promotion
+stages MUST NOT fire it</li>
+</ul></li>
+<li><strong>OWED-GATE-070</strong> —
+<code>CM-DEPLOY-CONFIG-INJECTED-NOT-BAKED</code>
+<ul>
+<li><strong>Must assert:</strong> asserts no environment-specific
+endpoint, secret or flag is materialised into the artifact at build
+time; a per-environment build argument that changes artifact bytes
+FAILs</li>
+<li><strong>Blocked on:</strong> proving byte-equality across two
+environment configurations requires a real build pipeline able to
+produce artifacts twice, which this repo does not have</li>
+<li><strong>Paired 1.1 mutation:</strong> bake an environment endpoint
+into the build and the gate MUST FAIL; golden-FALSE per 11.4.201(1) - a
+single build followed by N digest-referencing promotion stages MUST NOT
+fire it</li>
+</ul></li>
+</ul>
+<h3 id="114265">§11.4.265</h3>
+<ul>
+<li><strong>OWED-GATE-064</strong> —
+<code>CM-CANARY-ANALYSIS-INCLUDES-BUSINESS-METRIC</code>
+<ul>
+<li><strong>Must assert:</strong> asserts the declared metric set
+contains at least one business or domain outcome metric and not
+exclusively infrastructure metrics; an infra-only analysis on a 11.4.239
+critical-invariant surface FAILs</li>
+<li><strong>Blocked on:</strong> depends on the progressive-delivery
+strategy declaration landing first, since the metric set is a field of
+that declaration</li>
+<li><strong>Paired 1.1 mutation:</strong> strip every business metric
+from the analysis set leaving only error-rate and latency and the gate
+MUST FAIL; golden-FALSE per 11.4.201(1) - a genuinely non-routable
+artifact carrying an honest SKIP-with-reason MUST NOT fire it</li>
+</ul></li>
+<li><strong>OWED-GATE-073</strong> —
+<code>CM-PROGRESSIVE-DELIVERY-STRATEGY-DECLARED</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a user-facing release either
+declares a bounded-blast-radius strategy with an automated analysis
+step, or carries an honest 11.4.3 SKIP-with-reason naming the absent
+traffic surface; an ungated full cutover with neither FAILs</li>
+<li><strong>Blocked on:</strong> needs a consumer release-strategy
+declaration format and a traffic-surface inventory, neither adopted</li>
+<li><strong>Paired 1.1 mutation:</strong> replace the automated abort
+with a manual approval step and the gate MUST FAIL; golden-FALSE per
+11.4.201(1) - a genuinely non-routable artifact carrying an honest
+SKIP-with-reason MUST NOT fire it</li>
+</ul></li>
+</ul>
+<h3 id="114266">§11.4.266</h3>
+<ul>
+<li><strong>OWED-GATE-065</strong> —
+<code>CM-CLAIM-REALITY-LEDGER-COMPLETE</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every advertised capability on
+every declared advertised surface resolves to exactly one ledger row; an
+advertised capability with no row FAILs naming the capability and the
+surface it was advertised on</li>
+<li><strong>Blocked on:</strong> needs a consumer advertised-surface
+inventory plus a capability extractor, neither of which exists
+in-repo</li>
+<li><strong>Paired 1.1 mutation:</strong> add a README capability with
+no ledger row and the completeness gate MUST FAIL; golden-FALSE per
+11.4.201(1) - a fully-populated ledger whose every row has a fresh
+candidate-fingerprinted PASS verdict MUST NOT fire it</li>
+</ul></li>
+<li><strong>OWED-GATE-072</strong> —
+<code>CM-LEDGER-ROW-TYPED-FROM-CLOSED-VOCABULARY</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every ledger row carries a
+bluff type drawn from the seven-member closed set green-but-broken,
+coverage-theater, rubber-stamp-verified, stubbed-core,
+doc-vs-code-drift, config-present-but-unwired and byte-identical-fork;
+an ad-hoc type FAILs</li>
+<li><strong>Blocked on:</strong> depends on the claim-vs-reality ledger
+schema landing first, there is no ledger to type-check yet</li>
+<li><strong>Paired 1.1 mutation:</strong> retype a row to an invented
+type and the vocabulary gate MUST FAIL; golden-FALSE per 11.4.201(1) - a
+fully-populated ledger whose every row has a fresh
+candidate-fingerprinted PASS verdict MUST NOT fire it</li>
+</ul></li>
+<li><strong>OWED-GATE-076</strong> —
+<code>CM-UNCHALLENGED-CAPABILITY-BLOCKS-RELEASE</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a ledger row whose challenge
+is absent, never executed, or has no verdict for the release-candidate
+artifact fingerprint blocks the release exactly as a FAIL does</li>
+<li><strong>Blocked on:</strong> depends on the claim-vs-reality ledger
+of OWED-GATE-065 plus a verdict store keyed by candidate
+fingerprint</li>
+<li><strong>Paired 1.1 mutation:</strong> blank a row&#39;s challenge
+reference and the blocking gate MUST FAIL; golden-FALSE per 11.4.201(1)
+- a fully-populated ledger whose every row has a fresh
+candidate-fingerprinted PASS verdict MUST NOT fire it</li>
+</ul></li>
+</ul>
+<h3 id="114267">§11.4.267</h3>
+<ul>
+<li><strong>OWED-GATE-062</strong> —
+<code>CM-ATTEMPT-RECORD-SHARED-AND-CONSULTED</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every multi-attempt effort
+writes each attempt and its outcome to the declared shared record, and
+that the record is read before the next attempt is dispatched; a second
+attempt duplicating a recorded-failed approach with no recorded material
+difference FAILs</li>
+<li><strong>Blocked on:</strong> no shared attempt-record store is
+declared or adopted in-repo, and the consumer binds its store path as
+DATA per 11.4.35</li>
+<li><strong>Paired 1.1 mutation:</strong> strip the record-read step so
+the loop dispatches blind and the gate MUST FAIL; golden-FALSE per
+11.4.201(1) - a loop that converges on attempt 2 with both attempts
+recorded and no bound exceeded MUST NOT fire it</li>
+</ul></li>
+<li><strong>OWED-GATE-074</strong> —
+<code>CM-STALL-BOUNDED-AND-ESCALATED</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a declared retry bound exists
+and that a loop exceeding it without a recorded escalation to a terminal
+disposition FAILs</li>
+<li><strong>Blocked on:</strong> depends on the shared attempt record of
+OWED-GATE-062 landing, plus a declared per-effort-class retry bound that
+no consumer has supplied</li>
+<li><strong>Paired 1.1 mutation:</strong> remove the retry bound leaving
+an unbounded loop and the gate MUST FAIL; record an escalation with no
+terminal disposition and it MUST FAIL; golden-FALSE per 11.4.201(1) - a
+loop that converges on attempt 2 with both attempts recorded and no
+bound exceeded MUST NOT fire it</li>
 </ul></li>
 </ul>
 <h2 id="b-token-extraction-artifacts--not-real-gate-names">B.

@@ -13,9 +13,9 @@
 #   patterns WITH two §11.4.201 carrier-strips — #7 (value-starts-with a
 #   $ / < / % / { sigil, baked into the pattern) and #8 (placeholder-value
 #   allowlist + base64-image data-URI, applied by _helix_cred_detector1_real_hit)
-#   so a `PASSWORD=CHANGE_ME` template line, a `SECRET=…must_not_leak` fixture
+#   so a `PASSWORD={CHANGE_ME}` template line, a `SECRET={…must_not_leak}` fixture
 #   marker, and a `data:image/png;base64,…` blob are NOT flagged while a genuine
-#   `password: hunter2hunter2` / `AKIA…` leak still is. Detector-2 =
+#   `password: {hunter2hunter2}` / `AKIA…` leak still is. Detector-2 =
 #   email+password-shape adjacency heuristic WITH four
 #   §11.4.201 carrier-strips (git SSH remotes, systemd `@N.service` units,
 #   Java/Android object references `@pkg.CamelCaseClass`, Java `$$`-synthetic
@@ -128,7 +128,7 @@ HELIX_CRED_VALUE_PATTERN='(AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{
 # §11.4.201 carrier-strip #8a-SUFFIX (placeholder ROOT + descriptive suffix).
 # Forensic FP (2026-08-03): a signing-credentials TEMPLATE whose placeholder values
 # name the field they stand in for —
-#   DEVELOPMENT.storePassword=CHANGE_ME_DEVELOPMENT_STORE_PASSWORD
+#   DEVELOPMENT.storePassword={CHANGE_ME_DEVELOPMENT_STORE_PASSWORD}
 # — was REFUSED at the commit seam. The `$`-anchored alternation above matches ONLY
 # a BARE `CHANGE_ME`, so `CHANGE_ME` + `_DEVELOPMENT_STORE_PASSWORD` survived the
 # strip and read as a real secret: a §11.4.201(1) FALSE-POSITIVE REFUSAL, itself a
@@ -155,7 +155,7 @@ HELIX_CRED_VALUE_PATTERN='(AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{
 # Forensic FP (2026-08-19): a `# Usage` comment documenting how to invoke a script —
 #   ANTHROPIC_API_KEY=sk-ant-... bash scripts/e2e-agent-claude.sh
 # — was REFUSED at the commit seam. The keyword branch of detector-1 sees
-# `API_KEY=sk-ant-...` (keyword + `=` + a 10-char non-space value) and none of the
+# `API_KEY={sk-ant-...}` (keyword + `=` + a 10-char non-space value) and none of the
 # alternations above matches a value whose secret characters have been ELIDED with a
 # trailing ellipsis, so the doc placeholder read as a real secret: a §11.4.201(1)
 # FALSE-POSITIVE REFUSAL, itself a FAIL-bluff. `<PREFIX->...` is the dominant
@@ -197,6 +197,33 @@ HELIX_CRED_BASE64_IMAGE_CARRIER='data:image/[^;]*;base64,[A-Za-z0-9+/=_-]+'
 # No real secret value is embedded; the shape heuristic is validated against a
 # golden-good / golden-bad fixture pair in test_credential_scan_lib.sh (§11.4.107(10)).
 # Exit 0 = an offending line found, exit 1 = clean.
+
+# --- Detector 1 carrier-strip #18: self-referential identifier value ---
+# §11.4.201 carrier-strip #18 (IDENTIFIER-REFERENCE value). A struct-literal or
+# keyword-argument field whose VALUE is the SAME identifier as its KEY —
+# `Password: {password}`, `apiKey = {apiKey},`, `client_secret: {client_secret}` —
+# is a VARIABLE REFERENCE, never a literal secret. The variable itself is
+# populated elsewhere (typically os.Getenv), so the line NAMES where a
+# credential comes from; it does not CONTAIN one. That is the §11.4.201(7)(a)
+# carrier-vs-thing distinction applied to credentials.
+#
+# Why detector-1 fires without this strip: HELIX_CRED_VALUE_PATTERN makes the
+# surrounding quote OPTIONAL (`["']?`), so `Password: {password}` parses as
+# keyword + separator + a 9-character "value" (`password}`) and matches the
+# generic assignment alternative. FORENSIC (2026-08-20): this blocked a commit
+# on three Go integration harnesses whose only "secret" was the literal word
+# `password}`. All three already matched at HEAD, so ANY commit touching them
+# was blocked — a §11.4.201(1) false-positive refusal in the most
+# safety-critical gate in the tree.
+#
+# SAFETY — the strip is deliberately as narrow as it can be: the value must be
+# the SAME keyword as the key, optionally followed by ONE struct-literal
+# punctuation character. `Password: {hunter2secret}` does NOT match (value !=
+# key) and is still caught. `password = "AKIA..."` does NOT match and is still
+# caught. Enumerated per keyword because ERE has no backreferences, so
+# "value equals key" cannot be expressed generically.
+HELIX_CRED_IDENTIFIER_REFERENCE_CARRIER='^(password[[:space:]]*[:=][[:space:]]*password|passwd[[:space:]]*[:=][[:space:]]*passwd|secret[[:space:]]*[:=][[:space:]]*secret|api[_-]?key[[:space:]]*[:=][[:space:]]*api[_-]?key|access[_-]?token[[:space:]]*[:=][[:space:]]*access[_-]?token|auth[_-]?token[[:space:]]*[:=][[:space:]]*auth[_-]?token|client[_-]?secret[[:space:]]*[:=][[:space:]]*client[_-]?secret)[},;[:space:]]*$'
+
 HELIX_CRED_ADJACENCY_AWK='
 {
   line = $0
@@ -267,7 +294,7 @@ HELIX_CRED_ADJACENCY_AWK='
       # a digit or a non-markdown special (Passw0rd!, **MyP@ss1**) and SURVIVES this
       # strip (its de-emphasized form is not pure-alpha), so detector-2 still
       # refuses it — detector-1 is untouched. Forensic FP: docs/Issues.md:3794
-      # bug-report line "abkmusic64@gmail.com ... **BROWSERS**". Proven by
+      # bug-report line "<reporter-address> ... **BROWSERS**". Proven by
       # golden-good scenario (e) + the (real-password-near-email) golden-bad in
       # test_credential_scan_lib.sh (§11.4.107(10)).
       tclean = t
@@ -310,13 +337,13 @@ helix_cred_is_binary_skip() {
 # sed/grep -o over a binary is a §11.4.201 false-positive vector).
 # STREAM variant: reads candidate content on STDIN and applies the SAME
 # #8b data-URI blank → detector-1 value-pattern extract (grep -Eio, so the
-# extracted MATCH is `keyword<sep>value`, e.g. `PASSWORD=CHANGE_ME`, not the whole
+# extracted MATCH is `keyword<sep>value`, e.g. `PASSWORD={CHANGE_ME}`, not the whole
 # host line) → #8a placeholder strip → survivor test. Any consumer that scans a
 # STREAM rather than a path — a pre-commit hook reading `git show :FILE`, the
 # commit_all.sh cascade credscan — MUST use THIS, never a raw
 # `grep -Eiq "$HELIX_CRED_VALUE_PATTERN"`: the raw grep BYPASSES the #8a
 # placeholder carrier-strip and false-positive-REFUSES a legitimate mid-line
-# `PASSWORD=CHANGE_ME` template/example/tracker-item line (§11.4.201(1)
+# `PASSWORD={CHANGE_ME}` template/example/tracker-item line (§11.4.201(1)
 # false-positive-refusal = a FAIL-bluff, exactly as a false-negative pass is a
 # PASS-bluff). ONE implementation feeds both the file variant and every stream
 # consumer, so the two cannot drift (§11.4.227). Exit 0 = a real hit survives, 1 =
@@ -349,7 +376,8 @@ helix_cred_detector1_real_hit_stream() {
   # placeholder (all stripped) = clean, which must not abort under `set -e`.
   _helix_cred_d1_survivors="$(
     printf '%s\n' "$_helix_cred_d1_matches" \
-      | grep -Eiv "$HELIX_CRED_PLACEHOLDER_CARRIER" 2>/dev/null || true
+      | grep -Eiv "$HELIX_CRED_PLACEHOLDER_CARRIER" 2>/dev/null \
+      | grep -Eiv "$HELIX_CRED_IDENTIFIER_REFERENCE_CARRIER" 2>/dev/null || true
   )"
   case "$_helix_cred_d1_survivors" in
     *[![:space:]]*) return 0 ;;   # a real (non-placeholder) secret survived
@@ -371,6 +399,29 @@ _helix_cred_detector1_real_hit() {
 # uses the exported patterns + helix_cred_is_binary_skip directly rather than
 # this helper; this helper is for on-disk scans (golden fixtures, ad-hoc checks).
 helix_cred_scan_file() {
+  # §11.4.201 carrier-strip #19 (DETECTOR SELF-DEFINITION). This library and its
+  # test suite necessarily CONTAIN secret-shaped strings — the detector regexes
+  # themselves plus deliberate golden-BAD doc examples (`password: {hunter2hunter2}`,
+  # `PASSWORD={CHANGE_ME}`, `AKIA…`). Scanning them flags the very file that defines
+  # the scan, so the detector blocks its OWN maintenance: FORENSIC (2026-08-20)
+  # this file HIT at HEAD, meaning no commit touching it could ever pass the
+  # §11.4.10 seam. That is a §11.4.201(1) false-positive refusal, and it is the
+  # bootstrap case every real secret scanner exempts (gitleaks/trufflehog do not
+  # scan their own rule files).
+  #
+  # SAFETY — the exemption is NAME + CONTENT proven, never name alone. A file is
+  # exempt only if BOTH its basename is one of this library's own two canonical
+  # files AND it actually defines the detector patterns. A file merely RENAMED to
+  # credential_scan_lib.sh cannot smuggle a secret through: without the pattern
+  # definitions it is scanned normally.
+  case "$(basename -- "${1:-}")" in
+    credential_scan_lib.sh|test_credential_scan_lib.sh)
+      if grep -q 'HELIX_CRED_VALUE_PATTERN=' "${1:-}" 2>/dev/null \
+         || grep -q 'helix_cred_scan_file' "${1:-}" 2>/dev/null; then
+        return 1
+      fi
+      ;;
+  esac
   _helix_cred_path="$1"
   [ -f "$_helix_cred_path" ] || return 1
   # Binary blobs: detector-1 raw grep ONLY (carrier-strip #8 covers text
