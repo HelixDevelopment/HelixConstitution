@@ -1,0 +1,5 @@
+#!/bin/sh
+# fixture git hook: post-commit
+# Synthetic body. Content is load-bearing only for the gate's byte-equality
+# assertion; it is never executed by the selftest.
+exit 0

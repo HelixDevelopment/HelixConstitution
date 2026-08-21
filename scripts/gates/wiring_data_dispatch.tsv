@@ -1,0 +1,41 @@
+# wiring_data_dispatch.tsv — declared DATA-DRIVEN dispatchers.
+#
+# Schema (TAB-separated, exactly six fields):
+#   <dispatcher-path-rel-consumer-root>\t<pack-rel-gates-dir>\t<key-field>\t<strip-prefix>\t<name-prefix>\t<name-suffix>
+#
+# Consumed by: scripts/gates/cm_unreferenced_gate_bound_or_retired.sh
+#
+# ── WHY THIS FILE EXISTS (it prevents a 51-finding false refusal) ───────────
+# covenant_propagation_suite.sh does NOT contain the names of the gates it
+# runs. It CONSTRUCTS each path at runtime:
+#
+#     slug="${anchor#11.4.}"                                    (suite:90)
+#     script="${HERE}/cm_covenant_114_${slug}_propagation.sh"   (suite:93)
+#
+# So a sweep that looked for gate BASENAMES in seam files would report all 51
+# propagation wrappers as unreferenced — a mass false-positive refusal, which
+# §11.4.201(1) holds to be exactly as serious as a false pass. The rows below
+# MIRROR the dispatcher's own derivation byte-for-byte rather than inventing a
+# parallel one (§11.4.6 — do not guess a mechanism that is written down).
+#
+# A gate is DATA-DISPATCH-BOUND iff its filename is reproduced by applying a
+# rule below to a REAL row of that rule's data pack. Measured on this tree:
+# 34 of the 51 wrappers have an anchors row; the other 17 do NOT and are
+# correctly reported UNBOUND. That deficit is real — it is the same 17 an
+# independent task measured — and this file does not paper over it.
+#
+# The dispatcher must ITSELF be seam-bound, or dispatch through it proves
+# nothing. The sweep verifies that and REFUSES if the dispatcher is not
+# reachable from a declared seam file.
+#
+# Fields:
+#   <key-field>     1-based field of the pack the filename is derived FROM.
+#   <strip-prefix>  removed from the key's left edge (the `${anchor#11.4.}`
+#                   step). Use `-` for none.
+#   <name-prefix>   / <name-suffix>  wrap the remaining slug.
+#
+# Classification: universal (§11.4.17) — consumer-owned DATA per §11.4.35.
+#
+# dispatcher	pack	key-field	strip-prefix	name-prefix	name-suffix
+constitution/scripts/gates/covenant_propagation_suite.sh	covenant_propagation_anchors.tsv	2	11.4.	cm_covenant_114_	_propagation.sh
+constitution/scripts/gates/covenant_propagation_suite.sh	covenant_propagation_anchors.tsv	2	11.4.	cm_covenant_114_	_propagation_mutation_test.sh

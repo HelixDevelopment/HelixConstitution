@@ -1,0 +1,193 @@
+# wiring_sweep_result.tsv — FR-019 sweep result. GENERATED; do not hand-edit.
+# Regenerate: cm_unreferenced_gate_bound_or_retired.sh
+# The fingerprint covers EXACTLY the inputs this sweep read (every gate
+# file, every declared seam file, and the four registries). Change any of
+# them and it changes, so a result computed against an earlier tree cannot
+# satisfy a later one — that is the FR-021 staleness guarantee, and it is
+# the whole reason the value is recorded here rather than assumed.
+# Schema: <kind>\t<a>\t<b>\t<c>
+sweep-verdict	REFUSE	2026-08-21T17:34:39Z	unbound=48
+tree-fingerprint	9f77ffaf5530c2e5752b20e66b819b41af835a89deba877c3cc1e2df98196034	gates=181	seams=13
+summary	seam-literal=2	data-dispatch=68	paired=56;deferred=7;retired=0
+# gate-token	gate-file	disposition	basis
+gate	CM-ANCHOR-DETECTS-TAIL-TRUNCATION-MUTATION-TEST	cm_anchor_detects_tail_truncation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_anchor_detects_tail_truncation.sh
+gate	CM-ANCHOR-DETECTS-TAIL-TRUNCATION	cm_anchor_detects_tail_truncation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-ANCHOR-RECORD-COMPLETE-MUTATION-TEST	cm_anchor_record_complete_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_anchor_record_complete.sh
+gate	CM-ANCHOR-RECORD-COMPLETE	cm_anchor_record_complete.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-BADGE-CLOSED-COLOR-VOCABULARY-MUTATION-TEST	cm_badge_closed_color_vocabulary_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_badge_closed_color_vocabulary.sh
+gate	CM-BADGE-CLOSED-COLOR-VOCABULARY	cm_badge_closed_color_vocabulary.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-BADGE-MACHINE-DERIVED-SOURCE-MUTATION-TEST	cm_badge_machine_derived_source_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_badge_machine_derived_source.sh
+gate	CM-BADGE-MACHINE-DERIVED-SOURCE	cm_badge_machine_derived_source.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-BADGE-SELF-VALIDATED-MUTATION-TEST	cm_badge_self_validated_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_badge_self_validated.sh
+gate	CM-BADGE-SELF-VALIDATED	cm_badge_self_validated.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-BUILD-ON-SOURCE-PROVEN-NOT-TEST-SIDE-MUTATION-TEST	cm_build_on_source_proven_not_test_side_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_build_on_source_proven_not_test_side.sh
+gate	CM-BUILD-ON-SOURCE-PROVEN-NOT-TEST-SIDE	cm_build_on_source_proven_not_test_side.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-CHAIN-ENTRY-UNION-RULE-MUTATION-TEST	cm_chain_entry_union_rule_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_chain_entry_union_rule.sh
+gate	CM-CHAIN-ENTRY-UNION-RULE	cm_chain_entry_union_rule.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-CHAIN-INTEGRITY-DETECTS-ALTERATION-MUTATION-TEST	cm_chain_integrity_detects_alteration_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_chain_integrity_detects_alteration.sh
+gate	CM-CHAIN-INTEGRITY-DETECTS-ALTERATION	cm_chain_integrity_detects_alteration.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-CLI-AGENT-PLUGINS-WIRED-MUTATION-TEST	cm_cli_agent_plugins_wired_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_cli_agent_plugins_wired.sh
+gate	CM-CLI-AGENT-PLUGINS-WIRED	cm_cli_agent_plugins_wired.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-CONTINUUM-RESUME-ENGINE-PRESENT-MUTATION-TEST	cm_continuum_resume_engine_present_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_continuum_resume_engine_present.sh
+gate	CM-CONTINUUM-RESUME-ENGINE-PRESENT	cm_continuum_resume_engine_present.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-162-PROPAGATION	cm_covenant_114_162_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-167-PROPAGATION-MUTATION-TEST	cm_covenant_114_167_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_167_propagation.sh
+gate	CM-COVENANT-114-167-PROPAGATION	cm_covenant_114_167_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-176-PROPAGATION-MUTATION-TEST	cm_covenant_114_176_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_176_propagation.sh
+gate	CM-COVENANT-114-176-PROPAGATION	cm_covenant_114_176_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-187-PROPAGATION-MUTATION-TEST	cm_covenant_114_187_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_187_propagation.sh
+gate	CM-COVENANT-114-187-PROPAGATION	cm_covenant_114_187_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-191-PROPAGATION-MUTATION-TEST	cm_covenant_114_191_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_191_propagation.sh
+gate	CM-COVENANT-114-191-PROPAGATION	cm_covenant_114_191_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-196-PROPAGATION-MUTATION-TEST	cm_covenant_114_196_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_196_propagation.sh
+gate	CM-COVENANT-114-196-PROPAGATION	cm_covenant_114_196_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-199-PROPAGATION-MUTATION-TEST	cm_covenant_114_199_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_199_propagation.sh
+gate	CM-COVENANT-114-199-PROPAGATION	cm_covenant_114_199_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-200-PROPAGATION-MUTATION-TEST	cm_covenant_114_200_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_200_propagation.sh
+gate	CM-COVENANT-114-200-PROPAGATION	cm_covenant_114_200_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-201-PROPAGATION-MUTATION-TEST	cm_covenant_114_201_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_201_propagation.sh
+gate	CM-COVENANT-114-201-PROPAGATION	cm_covenant_114_201_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-202-PROPAGATION-MUTATION-TEST	cm_covenant_114_202_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_202_propagation.sh
+gate	CM-COVENANT-114-202-PROPAGATION	cm_covenant_114_202_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-207-PROPAGATION-MUTATION-TEST	cm_covenant_114_207_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_207_propagation.sh
+gate	CM-COVENANT-114-207-PROPAGATION	cm_covenant_114_207_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-213-PROPAGATION-MUTATION-TEST	cm_covenant_114_213_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_213_propagation.sh
+gate	CM-COVENANT-114-213-PROPAGATION	cm_covenant_114_213_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-230-PROPAGATION-MUTATION-TEST	cm_covenant_114_230_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_230_propagation.sh
+gate	CM-COVENANT-114-230-PROPAGATION	cm_covenant_114_230_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-231-PROPAGATION-MUTATION-TEST	cm_covenant_114_231_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_231_propagation.sh
+gate	CM-COVENANT-114-231-PROPAGATION	cm_covenant_114_231_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-232-PROPAGATION-MUTATION-TEST	cm_covenant_114_232_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_232_propagation.sh
+gate	CM-COVENANT-114-232-PROPAGATION	cm_covenant_114_232_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-233-PROPAGATION-MUTATION-TEST	cm_covenant_114_233_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_233_propagation.sh
+gate	CM-COVENANT-114-233-PROPAGATION	cm_covenant_114_233_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-234-PROPAGATION-MUTATION-TEST	cm_covenant_114_234_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-234-PROPAGATION	cm_covenant_114_234_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-235-PROPAGATION-MUTATION-TEST	cm_covenant_114_235_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_235_propagation.sh
+gate	CM-COVENANT-114-235-PROPAGATION	cm_covenant_114_235_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-COVENANT-114-236-PROPAGATION-MUTATION-TEST	cm_covenant_114_236_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-236-PROPAGATION	cm_covenant_114_236_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-237-PROPAGATION-MUTATION-TEST	cm_covenant_114_237_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-237-PROPAGATION	cm_covenant_114_237_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-238-PROPAGATION-MUTATION-TEST	cm_covenant_114_238_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-238-PROPAGATION	cm_covenant_114_238_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-239-PROPAGATION-MUTATION-TEST	cm_covenant_114_239_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-239-PROPAGATION	cm_covenant_114_239_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-240-PROPAGATION-MUTATION-TEST	cm_covenant_114_240_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-240-PROPAGATION	cm_covenant_114_240_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-241-PROPAGATION-MUTATION-TEST	cm_covenant_114_241_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-241-PROPAGATION	cm_covenant_114_241_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-242-PROPAGATION-MUTATION-TEST	cm_covenant_114_242_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-242-PROPAGATION	cm_covenant_114_242_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-243-PROPAGATION-MUTATION-TEST	cm_covenant_114_243_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-243-PROPAGATION	cm_covenant_114_243_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-244-PROPAGATION-MUTATION-TEST	cm_covenant_114_244_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-244-PROPAGATION	cm_covenant_114_244_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-245-PROPAGATION-MUTATION-TEST	cm_covenant_114_245_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-245-PROPAGATION	cm_covenant_114_245_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-246-PROPAGATION-MUTATION-TEST	cm_covenant_114_246_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-246-PROPAGATION	cm_covenant_114_246_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-247-PROPAGATION-MUTATION-TEST	cm_covenant_114_247_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-247-PROPAGATION	cm_covenant_114_247_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-248-PROPAGATION-MUTATION-TEST	cm_covenant_114_248_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-248-PROPAGATION	cm_covenant_114_248_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-249-PROPAGATION-MUTATION-TEST	cm_covenant_114_249_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-249-PROPAGATION	cm_covenant_114_249_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-250-PROPAGATION-MUTATION-TEST	cm_covenant_114_250_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-250-PROPAGATION	cm_covenant_114_250_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-251-PROPAGATION-MUTATION-TEST	cm_covenant_114_251_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-251-PROPAGATION	cm_covenant_114_251_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-252-PROPAGATION-MUTATION-TEST	cm_covenant_114_252_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-252-PROPAGATION	cm_covenant_114_252_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-253-PROPAGATION-MUTATION-TEST	cm_covenant_114_253_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-253-PROPAGATION	cm_covenant_114_253_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-254-PROPAGATION-MUTATION-TEST	cm_covenant_114_254_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-254-PROPAGATION	cm_covenant_114_254_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-255-PROPAGATION-MUTATION-TEST	cm_covenant_114_255_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-255-PROPAGATION	cm_covenant_114_255_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-256-PROPAGATION-MUTATION-TEST	cm_covenant_114_256_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-256-PROPAGATION	cm_covenant_114_256_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-257-PROPAGATION-MUTATION-TEST	cm_covenant_114_257_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-257-PROPAGATION	cm_covenant_114_257_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-258-PROPAGATION-MUTATION-TEST	cm_covenant_114_258_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-258-PROPAGATION	cm_covenant_114_258_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-259-PROPAGATION-MUTATION-TEST	cm_covenant_114_259_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-259-PROPAGATION	cm_covenant_114_259_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-260-PROPAGATION-MUTATION-TEST	cm_covenant_114_260_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-260-PROPAGATION	cm_covenant_114_260_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-261-PROPAGATION-MUTATION-TEST	cm_covenant_114_261_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-261-PROPAGATION	cm_covenant_114_261_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-262-PROPAGATION-MUTATION-TEST	cm_covenant_114_262_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-262-PROPAGATION	cm_covenant_114_262_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-263-PROPAGATION-MUTATION-TEST	cm_covenant_114_263_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-263-PROPAGATION	cm_covenant_114_263_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-264-PROPAGATION-MUTATION-TEST	cm_covenant_114_264_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-264-PROPAGATION	cm_covenant_114_264_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-265-PROPAGATION-MUTATION-TEST	cm_covenant_114_265_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-265-PROPAGATION	cm_covenant_114_265_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-266-PROPAGATION-MUTATION-TEST	cm_covenant_114_266_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-266-PROPAGATION	cm_covenant_114_266_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-267-PROPAGATION-MUTATION-TEST	cm_covenant_114_267_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-267-PROPAGATION	cm_covenant_114_267_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-27-PROPAGATION-MUTATION-TEST	cm_covenant_114_27_propagation_mutation_test.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-COVENANT-114-27-PROPAGATION	cm_covenant_114_27_propagation.sh	BOUND-DATA-DISPATCH	filename reproduced from a real data-pack row via a declared dispatcher rule
+gate	CM-DANGEROUS-COMBINATION-FAIL-CLOSED-MUTATION-TEST	cm_dangerous_combination_fail_closed_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_dangerous_combination_fail_closed.sh
+gate	CM-DANGEROUS-COMBINATION-FAIL-CLOSED	cm_dangerous_combination_fail_closed.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv
+gate	CM-DIAGRAM-EMBEDDED-NOT-ORPHAN-MUTATION-TEST	cm_diagram_embedded_not_orphan_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_diagram_embedded_not_orphan.sh
+gate	CM-DIAGRAM-EMBEDDED-NOT-ORPHAN	cm_diagram_embedded_not_orphan.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-EVERY-FINDING-CLOSED-OR-TRACKED-MUTATION-TEST	cm_every_finding_closed_or_tracked_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_every_finding_closed_or_tracked.sh
+gate	CM-EVERY-FINDING-CLOSED-OR-TRACKED	cm_every_finding_closed_or_tracked.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv
+gate	CM-EVIDENCE-ANALYZER-SELF-VALIDATED-MUTATION-TEST	cm_evidence_analyzer_self_validated_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_evidence_analyzer_self_validated.sh
+gate	CM-EVIDENCE-ANALYZER-SELF-VALIDATED	cm_evidence_analyzer_self_validated.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv
+gate	CM-FAQ-FROM-REAL-QUESTIONS-MUTATION-TEST	cm_faq_from_real_questions_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_faq_from_real_questions.sh
+gate	CM-FAQ-FROM-REAL-QUESTIONS	cm_faq_from_real_questions.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-FEATURE-DIRECTIVE-MUTATION-TEST	cm_feature_directive_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_feature_directive.sh
+gate	CM-FEATURE-DIRECTIVE	cm_feature_directive.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-FIRST-REFUSAL-OBSERVED-MUTATION-TEST	cm_first_refusal_observed_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_first_refusal_observed.sh
+gate	CM-FIRST-REFUSAL-OBSERVED	cm_first_refusal_observed.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-GATE-LEDGER-RATCHET-MUTATION-TEST	cm_gate_ledger_ratchet_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_gate_ledger_ratchet.sh
+gate	CM-GATE-LEDGER-RATCHET	cm_gate_ledger_ratchet.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-GIT-HOOKS-INSTALLED-MUTATION-TEST	cm_git_hooks_installed_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_git_hooks_installed.sh
+gate	CM-GIT-HOOKS-INSTALLED	cm_git_hooks_installed.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
+gate	CM-GUIDE-PER-USER-WORKFLOW-MUTATION-TEST	cm_guide_per_user_workflow_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_guide_per_user_workflow.sh
+gate	CM-GUIDE-PER-USER-WORKFLOW	cm_guide_per_user_workflow.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-HEALTHCHECK-COVERS-SERVED-PORTS-MUTATION-TEST	cm_healthcheck_covers_served_ports_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_healthcheck_covers_served_ports.sh
+gate	CM-HEALTHCHECK-COVERS-SERVED-PORTS	cm_healthcheck_covers_served_ports.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-KILLPG-PGID-GUARD-MUTATION-TEST	cm_killpg_pgid_guard_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_killpg_pgid_guard.sh
+gate	CM-KILLPG-PGID-GUARD	cm_killpg_pgid_guard.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-LEDGER-ROW-TYPED-FROM-CLOSED-VOCABULARY-MUTATION-TEST	cm_ledger_row_typed_from_closed_vocabulary_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_ledger_row_typed_from_closed_vocabulary.sh
+gate	CM-LEDGER-ROW-TYPED-FROM-CLOSED-VOCABULARY	cm_ledger_row_typed_from_closed_vocabulary.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-MACHINE-EVIDENCE-AT-EVERY-GATE-MUTATION-TEST	cm_machine_evidence_at_every_gate_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_machine_evidence_at_every_gate.sh
+gate	CM-MACHINE-EVIDENCE-AT-EVERY-GATE	cm_machine_evidence_at_every_gate.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv
+gate	CM-MULTITRACK-ENGINE-IN-CONSTITUTION-MUTATION-TEST	cm_multitrack_engine_in_constitution_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_multitrack_engine_in_constitution.sh
+gate	CM-MULTITRACK-ENGINE-IN-CONSTITUTION	cm_multitrack_engine_in_constitution.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
+gate	CM-NO-NARRATIVE-ONLY-PASS-MUTATION-TEST	cm_no_narrative_only_pass_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_no_narrative_only_pass.sh
+gate	CM-NO-NARRATIVE-ONLY-PASS	cm_no_narrative_only_pass.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv
+gate	CM-OPENDESIGN-UI-SYSTEM-MUTATION-TEST	cm_opendesign_ui_system_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_opendesign_ui_system.sh
+gate	CM-OPENDESIGN-UI-SYSTEM	cm_opendesign_ui_system.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-ORACLE-STRATEGY-NAMED-AND-INDEPENDENT-MUTATION-TEST	cm_oracle_strategy_named_and_independent_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_oracle_strategy_named_and_independent.sh
+gate	CM-ORACLE-STRATEGY-NAMED-AND-INDEPENDENT	cm_oracle_strategy_named_and_independent.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-README-BADGE-ROW-AT-TOP-MUTATION-TEST	cm_readme_badge_row_at_top_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_readme_badge_row_at_top.sh
+gate	CM-README-BADGE-ROW-AT-TOP	cm_readme_badge_row_at_top.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-REPORTING-DIRECTIVES-MUTATION-TEST	cm_reporting_directives_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_reporting_directives.sh
+gate	CM-REPORTING-DIRECTIVES	cm_reporting_directives.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-RULE-BINDS-TO-SEAM-MUTATION-TEST	cm_rule_binds_to_seam_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_rule_binds_to_seam.sh
+gate	CM-RULE-BINDS-TO-SEAM	cm_rule_binds_to_seam.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-SUBSYSTEM-SHORTCUTS-MUTATION-TEST	cm_subsystem_shortcuts_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_subsystem_shortcuts.sh
+gate	CM-SUBSYSTEM-SHORTCUTS	cm_subsystem_shortcuts.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-TEST-MOCK-PID-EXPLICIT-INT-MUTATION-TEST	cm_test_mock_pid_explicit_int_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_test_mock_pid_explicit_int.sh
+gate	CM-TEST-MOCK-PID-EXPLICIT-INT	cm_test_mock_pid_explicit_int.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-TRACK-BRANCH-LABEL-MUTATION-TEST	cm_track_branch_label_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_track_branch_label.sh
+gate	CM-TRACK-BRANCH-LABEL	cm_track_branch_label.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-UNCHALLENGED-CAPABILITY-BLOCKS-RELEASE-MUTATION-TEST	cm_unchallenged_capability_blocks_release_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_unchallenged_capability_blocks_release.sh
+gate	CM-UNCHALLENGED-CAPABILITY-BLOCKS-RELEASE	cm_unchallenged_capability_blocks_release.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-UNREFERENCED-GATE-BOUND-OR-RETIRED-MUTATION-TEST	cm_unreferenced_gate_bound_or_retired_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_unreferenced_gate_bound_or_retired.sh
+gate	CM-UNREFERENCED-GATE-BOUND-OR-RETIRED	cm_unreferenced_gate_bound_or_retired.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-USER-MANUAL-PER-COMPONENT-MUTATION-TEST	cm_user_manual_per_component_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_user_manual_per_component.sh
+gate	CM-USER-MANUAL-PER-COMPONENT	cm_user_manual_per_component.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-VERSION-INCREMENT-ON-DEPLOY-MUTATION-TEST	cm_version_increment_on_deploy_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_version_increment_on_deploy.sh
+gate	CM-VERSION-INCREMENT-ON-DEPLOY	cm_version_increment_on_deploy.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-ZERO-FINDINGS-AUDIT-SWEEP-MUTATION-TEST	cm_zero_findings_audit_sweep_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_zero_findings_audit_sweep.sh
+gate	CM-ZERO-FINDINGS-AUDIT-SWEEP	cm_zero_findings_audit_sweep.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv
+gate	CM-ZERO-FINDINGS-MONOTONE-RATCHET-MUTATION-TEST	cm_zero_findings_monotone_ratchet_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_zero_findings_monotone_ratchet.sh
+gate	CM-ZERO-FINDINGS-MONOTONE-RATCHET	cm_zero_findings_monotone_ratchet.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv

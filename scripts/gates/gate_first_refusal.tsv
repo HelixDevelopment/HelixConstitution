@@ -1,0 +1,39 @@
+# gate_first_refusal.tsv — FR-022 FIRST-REFUSAL registry (§11.4.115(F)).
+#
+# A gate newly bound to a seam is UNVALIDATED INSTRUMENTATION until it has
+# been OBSERVED REFUSING at least once on a genuinely-broken input. Until
+# that observation is recorded here, the gate contributes NO PASS to any
+# suite result — an unobserved guard proves nothing, and counting its PASS
+# would be a §11.4 PASS-bluff at the instrumentation layer.
+#
+# Schema (TAB-separated, 3 columns, one row per gate token):
+#   <gate-token>\t<mutation-test-path>\t<observed-red-evidence-path>
+#
+#   <gate-token>                 the gate's own CM-* token, exactly as the
+#                                gate assigns it to its `GATE=` variable.
+#   <mutation-test-path>         the paired §1.1 mutation that flips the gate
+#                                to FAIL. Repo-root-relative.
+#   <observed-red-evidence-path> a recorded, NON-EMPTY transcript of that
+#                                mutation actually being run and the gate
+#                                actually refusing. Repo-root-relative.
+#                                `PENDING-FIRST-REFUSAL` = not yet observed.
+#
+# `PENDING-FIRST-REFUSAL`, an empty field, a path that does not resolve, and
+# a zero-byte file are ALL refusals — never "unobserved but acceptable"
+# (§11.4.201(6): a missing observation is not an observation; §11.4.6: an
+# absence is never silently upgraded into a pass).
+#
+# Lines beginning with `#` and blank lines are comments.
+#
+# Seeded (measured 2026-08-21) with the gates this feature wires whose paired
+# mutation ALREADY EXISTS on disk. Their evidence is PENDING because the
+# mutation runs are separate, later tasks — recording an evidence path before
+# the run happened would be exactly the fabrication FR-022 exists to stop.
+# Gates whose mutation siblings do not yet exist are deliberately ABSENT from
+# this file rather than carrying a placeholder row: an absent row already
+# refuses, and a placeholder row would assert a mutation test that is not
+# there.
+#
+CM-KILLPG-PGID-GUARD	constitution/scripts/gates/cm_killpg_pgid_guard_mutation_test.sh	PENDING-FIRST-REFUSAL
+CM-TEST-MOCK-PID-EXPLICIT-INT	constitution/scripts/gates/cm_test_mock_pid_explicit_int_mutation_test.sh	PENDING-FIRST-REFUSAL
+CM-GATE-LEDGER-RATCHET	constitution/scripts/gates/cm_gate_ledger_ratchet_mutation_test.sh	PENDING-FIRST-REFUSAL

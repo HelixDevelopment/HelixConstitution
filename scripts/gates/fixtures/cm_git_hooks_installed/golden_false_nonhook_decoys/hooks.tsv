@@ -1,0 +1,6 @@
+# fixture hook map — same schema as the consumer map (name<TAB>source)
+pre-commit	src_a/pre-commit
+pre-push	src_a/pre-push
+post-commit	src_a/post-commit
+commit-msg	src_a/commit-msg
+post-merge	src_b/post-merge

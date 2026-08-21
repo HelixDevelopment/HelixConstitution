@@ -1,0 +1,1 @@
+# decoy: fixture data dir, not a git hook

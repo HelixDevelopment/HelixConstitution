@@ -1,0 +1,103 @@
+# rule_seam_bindings.tsv — the rule-to-seam binding registry (FR-010 / FR-011 / FR-018).
+#
+# Schema (TAB-separated, exactly three fields):
+#     <rule-anchor>\t<seam-id>\t<gate-token>
+#
+# Consumed by: scripts/gates/cm_rule_binds_to_seam.sh
+#
+# ── Field 1: <rule-anchor> ───────────────────────────────────────────────────
+# The BARE DOTTED anchor id — `11.4.187`, `12.12` — with NO leading section
+# sign. This is deliberate (§11.4.201(7)(c) — the encoding is part of the
+# instrument): `§` is two UTF-8 bytes (0xC2 0xA7), and a registry keyed on it
+# resolves by absence the moment any producer writes it as Latin-1, as an
+# HTML entity, or splits it across a byte-boundary. The bare dotted id is
+# pure ASCII and cannot mis-compare. It matches the key convention already
+# used by covenant_propagation_anchors.tsv field 2.
+#
+# ── Field 2: <seam-id> ───────────────────────────────────────────────────────
+# CLOSED SET, restated here byte-for-byte from the E5 table in
+# specs/002-anti-slop-enforcement/data-model.md. A near-miss id resolves BY
+# ABSENCE and silently voids the lookup, so the set is restated in this file
+# rather than only referenced:
+#
+#     pre-action
+#     commit
+#     pre-build
+#     release-tag
+#     qa-deploy
+#     manual-qa-handoff
+#
+# No other value is legal. `deploy` is NOT `qa-deploy`; `prebuild` is NOT
+# `pre-build`. cm_rule_binds_to_seam.sh REFUSES a row carrying an id outside
+# this set rather than treating it as an unlisted-and-therefore-instance
+# seam — that fail-open rule (seam-tier-table.md) governs the TIER axis, not
+# the SPELLING axis, and applying it here would convert every typo into a
+# silent pass.
+#
+# ── Field 3: <gate-token> ────────────────────────────────────────────────────
+# The CM-* token of the gate that performs the refusal at that seam. The gate
+# must have an executable gate site on disk — a token named here with no
+# executable site is a prose carrier and NEVER counts (§11.4.227(A)).
+#
+# ── Uniqueness (FR-018) ──────────────────────────────────────────────────────
+# The normalised (seam-id, gate-token) PAIR is the restatement key. Two rules
+# claiming the same pair means the second restates the first, and the
+# declaring change is refused with the covering rule NAMED. Honest boundary
+# (§11.4.6): pair-collision is the DECIDABLE projection of restatement.
+# Semantic overlap outside it — two rules that mean the same thing while
+# binding different pairs — remains §11.4.142/§11.4.194 review territory and
+# is NOT claimed to be covered here.
+#
+# ── Provenance of the seeded rows ────────────────────────────────────────────
+# Every row below was MEASURED on this tree, not asserted:
+#   * `11.4.187 / pre-build / CM-MULTITRACK-ENGINE-IN-CONSTITUTION` — the gate
+#     basename appears on a non-comment line of
+#     device/rockchip/rk3588/tests/pre_build_verification.sh (literal
+#     invocation, measured 2026-08-21 with a control needle proving the scan
+#     was not blind).
+#   * every `CM-COVENANT-114-*-PROPAGATION` row — data-dispatch bound: the
+#     gate path is CONSTRUCTED by covenant_propagation_suite.sh:93 from a row
+#     in covenant_propagation_anchors.tsv, and that suite is invoked from
+#     pre_build_verification.sh:43844. Each row below therefore exists in
+#     covenant_propagation_anchors.tsv; the 17 wrappers on disk with no
+#     anchors row are DELIBERATELY absent here, because they are genuinely
+#     unbound today (that is the T029/T030 deficit, not a registry gap).
+#
+# Classification: universal (§11.4.17) — consumer-owned DATA per §11.4.35.
+#
+# rule-anchor	seam-id	gate-token
+11.4.187	pre-build	CM-MULTITRACK-ENGINE-IN-CONSTITUTION
+11.4.27	pre-build	CM-COVENANT-114-27-PROPAGATION
+11.4.234	pre-build	CM-COVENANT-114-234-PROPAGATION
+11.4.236	pre-build	CM-COVENANT-114-236-PROPAGATION
+11.4.237	pre-build	CM-COVENANT-114-237-PROPAGATION
+11.4.238	pre-build	CM-COVENANT-114-238-PROPAGATION
+11.4.239	pre-build	CM-COVENANT-114-239-PROPAGATION
+11.4.240	pre-build	CM-COVENANT-114-240-PROPAGATION
+11.4.241	pre-build	CM-COVENANT-114-241-PROPAGATION
+11.4.242	pre-build	CM-COVENANT-114-242-PROPAGATION
+11.4.243	pre-build	CM-COVENANT-114-243-PROPAGATION
+11.4.244	pre-build	CM-COVENANT-114-244-PROPAGATION
+11.4.245	pre-build	CM-COVENANT-114-245-PROPAGATION
+11.4.246	pre-build	CM-COVENANT-114-246-PROPAGATION
+11.4.247	pre-build	CM-COVENANT-114-247-PROPAGATION
+11.4.248	pre-build	CM-COVENANT-114-248-PROPAGATION
+11.4.249	pre-build	CM-COVENANT-114-249-PROPAGATION
+11.4.250	pre-build	CM-COVENANT-114-250-PROPAGATION
+11.4.251	pre-build	CM-COVENANT-114-251-PROPAGATION
+11.4.252	pre-build	CM-COVENANT-114-252-PROPAGATION
+11.4.253	pre-build	CM-COVENANT-114-253-PROPAGATION
+11.4.254	pre-build	CM-COVENANT-114-254-PROPAGATION
+11.4.255	pre-build	CM-COVENANT-114-255-PROPAGATION
+11.4.256	pre-build	CM-COVENANT-114-256-PROPAGATION
+11.4.257	pre-build	CM-COVENANT-114-257-PROPAGATION
+11.4.258	pre-build	CM-COVENANT-114-258-PROPAGATION
+11.4.259	pre-build	CM-COVENANT-114-259-PROPAGATION
+11.4.260	pre-build	CM-COVENANT-114-260-PROPAGATION
+11.4.261	pre-build	CM-COVENANT-114-261-PROPAGATION
+11.4.262	pre-build	CM-COVENANT-114-262-PROPAGATION
+11.4.263	pre-build	CM-COVENANT-114-263-PROPAGATION
+11.4.264	pre-build	CM-COVENANT-114-264-PROPAGATION
+11.4.265	pre-build	CM-COVENANT-114-265-PROPAGATION
+11.4.266	pre-build	CM-COVENANT-114-266-PROPAGATION
+11.4.267	pre-build	CM-COVENANT-114-267-PROPAGATION

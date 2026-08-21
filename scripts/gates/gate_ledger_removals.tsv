@@ -1,0 +1,66 @@
+# gate_ledger_removals.tsv — §11.4.227(A) / §11.4.124 RETIREMENT registry.
+#
+# Schema (TAB-separated, exactly FOUR fields):
+#     <gate-token>\t<reason>\t<git-history-citation>\t<superseding-note>
+#
+# Consumed by TWO independent readers, and the schema is constrained by both:
+#   * scripts/gates/gate_ledger.sh:239 — keys on FIELD 1 ONLY, via
+#     `cut -f1 | grep -qx`. Comment and blank lines can never match a gate
+#     name, so this header is inert to it. Adding fields 2..4 is safe.
+#   * scripts/gates/cm_unreferenced_gate_bound_or_retired.sh — reads field 3
+#     and REFUSES a row whose citation is absent or malformed.
+#
+# ── WHY FIELD 3 IS MANDATORY (this is the whole point of the file) ──────────
+# Without a mandatory, *checked* citation, "retire the name" becomes a way to
+# lower the unimplemented count without doing the work — the
+# delete-names-to-lower-the-count channel §11.4.227(A) exists to close. A
+# retirement row with a blank or hand-waved citation is strictly WORSE than no
+# row at all: it launders a deletion into a clean ledger.
+#
+# So field 3 is not documentation. It is the evidence, and it is machine-
+# checked. A row that does not satisfy BOTH conditions below is REFUSED, and
+# the gate it names is reported as UNBOUND exactly as if the row were absent:
+#
+#     (a) it contains a literal `git log` (the command that produced it), and
+#     (b) it contains at least one commit id of 7-40 hex characters.
+#
+# There is deliberately NO placeholder escape — no `TBD`, no `N/A`, no
+# `no-history-found`. An escape hatch here would reopen the exact channel the
+# field closes. If a gate genuinely has no history (it was never wired), that
+# is still a citable fact: cite the `git log -S'<token>' --all` run that
+# returned nothing, with the commit id of the tree you ran it against.
+#
+# ── Field 2: <reason>, closed set ───────────────────────────────────────────
+#     superseded-by-generated-wrapper   replaced by a generated thin wrapper
+#                                       that keeps a real gate site per token
+#     repealed                          the RULE was repealed (the §11.4.166
+#                                       pattern) — visible, never silent
+#     feature-removed                   the capability it gated was removed,
+#                                       operator-confirmed per §11.4.122
+#     duplicate-of                      one token per implementation per
+#                                       §11.4.251; names the survivor in
+#                                       field 4
+#     renamed                           superseded by a differently-named
+#                                       token, named in field 4
+#
+# ── Field 3 shape ───────────────────────────────────────────────────────────
+#     <git-command> :: <commit-id> <what that commit shows>
+# e.g.
+#     git log --follow -- path/to/gate.sh :: 3f2a91c wired at seam X; unwired by 9d4e7b1
+#
+# ── Field 4: <superseding-note> ─────────────────────────────────────────────
+# What now performs the check, or an explicit statement that nothing does and
+# why that is correct. Never blank.
+#
+# ── CURRENT STATE ───────────────────────────────────────────────────────────
+# ZERO data rows. This feature's wiring stream deletes and retires NOTHING —
+# it only makes retirement *possible to do honestly*. The replacement work
+# that will add rows here is a different task (it replaces superseded gates
+# with generated wrappers rather than deleting them, precisely so the ledger
+# count does not rise). The citation requirement is proven load-bearing by
+# fixtures in cm_unreferenced_gate_bound_or_retired_mutation_test.sh, not by
+# live rows — a requirement is not weaker for having nothing to refuse yet.
+#
+# Classification: universal (§11.4.17) — consumer-owned DATA per §11.4.35.
+#
+# gate-token	reason	git-history-citation	superseding-note

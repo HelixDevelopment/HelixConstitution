@@ -55,6 +55,13 @@
 #          tool itself (§11.4.201(7)(b) — a null result is not evidence until
 #          the instrument is proven to see).
 #
+#   gate_ledger.sh nongate-entries
+#       -> prints the REGISTERED NON-GATE entries (one path-suffix per
+#          line) that are excluded from the §11.4.227(A) gate-count
+#          denominator, so every enumerator (this tool's own generate
+#          scan, the FR-019 wiring sweep, any future counter) consumes
+#          ONE registry instead of re-deriving the list. Exit 0.
+#
 # ── Inputs ───────────────────────────────────────────────────────────────────
 #   <impl-dir>       tree scanned recursively for `*.sh` gate sites (this
 #                    project's canonical scan root is `constitution/scripts`
@@ -79,6 +86,39 @@
 #                    GEMINI.md) restate the SAME anchors and are the concern
 #                    of the SEPARATE anchor-block-integrity gates
 #                    (§11.4.227(B)), not this ledger.
+#
+# ── Non-gate entries: the §11.4.227(A) gate-count DENOMINATOR ───────────────
+# Not every `*.sh` file living in a gate directory IS a gate. Three classes
+# routinely sit beside real gates and MUST NOT participate in the count:
+#   * LIBRARIES sourced by real gates (they carry the shared engine, not a
+#     verdict — a gate token appearing inside one is the library's own
+#     template/placeholder text, never that gate's implementation site);
+#   * GENERATORS that emit gate files (the generator is build tooling, not a
+#     gate — it names tokens in the wrappers it writes);
+#   * pointer/carrier helpers that hold a LITERAL placeholder spelling of a
+#     token family (e.g. a `...-NNN-...` form) purely as documentation.
+#
+# Counting any of these as an implementation site is precisely the
+# §11.4.201(7)(a) CARRIER miscount this tool exists to prevent: the file
+# MENTIONS the token, it does not IMPLEMENT it. The exclusion filter already
+# skipped non-`.sh` files and `*_mutation_test.sh` siblings; this registry
+# closes the remaining hole for non-gate `.sh` entries.
+#
+# The registry is DATA (§11.4.35 / §11.4.28 — a consuming project supplies
+# its own): the built-in default below is overridable by pointing
+# `GATE_LEDGER_NONGATE_FILE` at a newline-delimited file of path-suffixes.
+# An override path that cannot be read is a REFUSAL, never a silently empty
+# registry (§11.4.252 fail-closed, §11.4.6 no-guessing) — a blind-empty
+# registry would silently restore the carrier miscount.
+#
+# Entries are matched as PATH SUFFIXES so the registry is stable no matter
+# which ancestor directory the caller passes as `<impl-dir>` (§11.4.111
+# resolve-by-stable-name, not by a caller-relative accident).
+#
+# REGISTERED != RETIRED. These files are NOT deleted, NOT retired and NOT
+# deprecated by this registry (§11.4.124 investigate-before-remove): they
+# remain fully live, sourced and executed exactly as before. They stop being
+# COUNTED, and nothing else.
 #
 # ── Outputs ──────────────────────────────────────────────────────────────────
 #   generate: TSV ledger on stdout.
@@ -126,7 +166,55 @@ SELF="$0"
 TOOL="gate_ledger.sh"
 
 usage() {
-    sed -n '1,70p' "$SELF" | sed 's/^# \{0,1\}//'
+    sed -n '1,77p' "$SELF" | sed 's/^# \{0,1\}//'
+}
+
+# ── Non-gate registry (§11.4.227(A) denominator; see the header section) ────
+# One path-SUFFIX per line. Default = this corpus's four measured non-gate
+# entries; override with GATE_LEDGER_NONGATE_FILE (consumer DATA, §11.4.35).
+NONGATE_DEFAULT="gates/lib/covenant_propagation_engine.sh
+gates/lib/covenant_propagation_mutation_engine.sh
+gates/lib/pointer_carrier.sh
+gates/covenant_propagation_wrappers_generate.sh"
+
+# nongate_entries: prints the registered non-gate path-suffixes, one per line.
+# Fail-CLOSED on an unreadable override (§11.4.252) — never a blind-empty
+# registry, which would silently restore the carrier miscount.
+nongate_entries() {
+    if [ -n "${GATE_LEDGER_NONGATE_FILE:-}" ]; then
+        if [ ! -r "$GATE_LEDGER_NONGATE_FILE" ]; then
+            echo "BLIND: GATE_LEDGER_NONGATE_FILE=${GATE_LEDGER_NONGATE_FILE} is unreadable — refusing rather than counting with an empty non-gate registry (§11.4.252/§11.4.6)" >&2
+            exit 2
+        fi
+        grep -v '^[[:space:]]*#' -- "$GATE_LEDGER_NONGATE_FILE" | sed '/^[[:space:]]*$/d'
+        return 0
+    fi
+    printf '%s\n' "$NONGATE_DEFAULT"
+}
+
+# is_nongate <path>: exit 0 when <path> is a REGISTERED non-gate entry, i.e.
+# it equals a registered suffix or ends with `/`+suffix. Suffix matching keeps
+# the registry stable across whichever ancestor dir is passed as <impl-dir>
+# (§11.4.111). Boundary-anchored on `/` so `xpointer_carrier.sh` can never
+# be mistaken for `pointer_carrier.sh`.
+NONGATE_CACHE=""
+NONGATE_CACHED=0
+is_nongate() {
+    if [ "$NONGATE_CACHED" -eq 0 ]; then
+        NONGATE_CACHE="$(nongate_entries)" || exit 2
+        NONGATE_CACHED=1
+    fi
+    _ing_path="$1"
+    while IFS= read -r _ing_e; do
+        [ -n "$_ing_e" ] || continue
+        if [ "$_ing_path" = "$_ing_e" ]; then return 0; fi
+        case "$_ing_path" in
+            */"$_ing_e") return 0 ;;
+        esac
+    done <<EOF
+$NONGATE_CACHE
+EOF
+    return 1
 }
 
 MODE="${1:-}"
@@ -192,7 +280,20 @@ generate)
         # can never match inside its own strictly-longer, correctly-suffixed
         # `CM-COVENANT-114-<NNN>-PROPAGATION` sibling.
         hits="$(grep -rlE --include='*.sh' -- "(^|[^A-Z0-9-])${g}([^A-Z0-9-]|\$)" "$IMPL" 2>/dev/null | grep -v '_mutation_test\.sh$')"
-        hit="$(printf '%s\n' "$hits" | head -1)"
+        # §11.4.227(A) denominator: drop REGISTERED NON-GATE entries
+        # (libraries / generators / pointer-carriers). They MENTION the token,
+        # they do not IMPLEMENT it — counting one is the §11.4.201(7)(a)
+        # carrier miscount. Registered != retired: the files stay live.
+        gate_hits=""
+        while IFS= read -r _h; do
+            [ -n "$_h" ] || continue
+            is_nongate "$_h" && continue
+            gate_hits="${gate_hits}${_h}
+"
+        done <<EOF
+$hits
+EOF
+        hit="$(printf '%s\n' "$gate_hits" | head -1)"
         if [ -n "$hit" ]; then
             printf '%s\tIMPLEMENTED\t%s\n' "$g" "$hit"
             continue
@@ -249,6 +350,14 @@ check)
 
     echo "LEDGER: unimplemented=${count} baseline=${baseline} fails=${fails}"
     [ "$fails" -eq 0 ] || exit 1
+    exit 0
+    ;;
+
+nongate-entries)
+    # Read-only registry accessor: the ONE place any enumerator (this tool's
+    # own generate scan, the FR-019 wiring sweep, any future counter) reads
+    # the §11.4.227(A) non-gate exclusion set from, instead of re-deriving it.
+    nongate_entries
     exit 0
     ;;
 
@@ -336,6 +445,60 @@ SH
         exit 1
     fi
 
+    # ── non-gate registry: golden-BAD (exclusion is LOAD-BEARING) ──────────
+    #    A token whose ONLY `.sh` occurrence is inside a REGISTERED non-gate
+    #    entry (a sourced library / a generator / a pointer-carrier) MUST
+    #    classify UNIMPLEMENTED — the file MENTIONS the token, it does not
+    #    IMPLEMENT it (§11.4.201(7)(a) / §11.4.227(A) denominator).
+    ng_impl="$tmp/impl_nongate"; mkdir -p "$ng_impl/gates/lib"
+    cat > "$ng_impl/gates/lib/pointer_carrier.sh" <<'SH'
+#!/usr/bin/env bash
+# library sourced by real gates; names the token only as placeholder text
+PLACEHOLDER="CM-SELFTEST-NONGATE-ONLY"
+SH
+    chmod +x "$ng_impl/gates/lib/pointer_carrier.sh"
+    ng_def="$tmp/deferrals_empty_ng.tsv"; : > "$ng_def"
+    ng_corpus="$tmp/ng_corpus.md"
+    printf 'Gate `CM-SELFTEST-NONGATE-ONLY` is named in the corpus.\n' > "$ng_corpus"
+    ng_out="$("$SELF" generate "$ng_impl" "$ng_def" "$ng_corpus")"
+    if ! printf '%s\n' "$ng_out" | grep -qE '^CM-SELFTEST-NONGATE-ONLY[[:space:]]+UNIMPLEMENTED'; then
+        echo "SELFCHECK-FAIL: a gate token present ONLY inside a REGISTERED non-gate entry (gates/lib/pointer_carrier.sh) was NOT classified UNIMPLEMENTED — a library/generator carrier is inflating the implemented count (§11.4.227(A) denominator wrong)" >&2
+        printf '%s\n' "$ng_out" >&2
+        exit 1
+    fi
+
+    # ── non-gate registry: golden-TRUE (must NOT over-fire) ────────────────
+    #    A token implemented by a REAL gate MUST stay IMPLEMENTED even when a
+    #    registered non-gate entry ALSO mentions it. A false-positive refusal
+    #    here is a FAIL-bluff of the same severity as a false pass
+    #    (§11.4.201(1)).
+    ng2_impl="$tmp/impl_nongate_neg"; mkdir -p "$ng2_impl/gates/lib"
+    cat > "$ng2_impl/gates/lib/pointer_carrier.sh" <<'SH'
+#!/usr/bin/env bash
+PLACEHOLDER="CM-SELFTEST-NONGATE-BOTH"
+SH
+    cat > "$ng2_impl/gates/cm_selftest_nongate_both.sh" <<'SH'
+#!/usr/bin/env bash
+GATE="CM-SELFTEST-NONGATE-BOTH"
+echo "$GATE: PASS"
+exit 0
+SH
+    chmod +x "$ng2_impl/gates/lib/pointer_carrier.sh" "$ng2_impl/gates/cm_selftest_nongate_both.sh"
+    ng2_def="$tmp/deferrals_empty_ng2.tsv"; : > "$ng2_def"
+    ng2_corpus="$tmp/ng2_corpus.md"
+    printf 'Gate `CM-SELFTEST-NONGATE-BOTH` is named in the corpus.\n' > "$ng2_corpus"
+    ng2_out="$("$SELF" generate "$ng2_impl" "$ng2_def" "$ng2_corpus")"
+    if ! printf '%s\n' "$ng2_out" | grep -qE '^CM-SELFTEST-NONGATE-BOTH[[:space:]]+IMPLEMENTED'; then
+        echo "SELFCHECK-FAIL: a gate token WITH a real gate site was classified non-IMPLEMENTED because a registered non-gate entry also mentions it — the exclusion is over-firing (§11.4.201(1) false-positive refusal)" >&2
+        printf '%s\n' "$ng2_out" >&2
+        exit 1
+    fi
+    if ! printf '%s\n' "$ng2_out" | grep -qE 'cm_selftest_nongate_both\.sh$'; then
+        echo "SELFCHECK-FAIL: the IMPLEMENTED evidence path for CM-SELFTEST-NONGATE-BOTH is not the real gate site — the non-gate entry is still being cited as evidence" >&2
+        printf '%s\n' "$ng2_out" >&2
+        exit 1
+    fi
+
     # ── check-mode golden-true/golden-false ─────────────────────────────────
     # golden-TRUE: ratchet holds (count == baseline), no vanished name -> PASS
     ck_ledger="$tmp/ck_ledger.tsv"
@@ -369,7 +532,7 @@ SH
         exit 1
     fi
 
-    echo "SELFCHECK: PASS — control needle sees; golden-good IMPLEMENTED; golden-bad prose-carrier UNIMPLEMENTED; mutation-test-only reference UNIMPLEMENTED; registered-deferral DEFERRED; check-mode ratchet + vanished-name golden-TRUE/golden-FALSE pairs all correct"
+    echo "SELFCHECK: PASS — control needle sees; golden-good IMPLEMENTED; golden-bad prose-carrier UNIMPLEMENTED; mutation-test-only reference UNIMPLEMENTED; registered non-gate entry does NOT mint IMPLEMENTED, and does NOT suppress a real gate site; registered-deferral DEFERRED; check-mode ratchet + vanished-name golden-TRUE/golden-FALSE pairs all correct"
     exit 0
     ;;
 

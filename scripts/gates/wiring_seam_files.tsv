@@ -1,0 +1,45 @@
+# wiring_seam_files.tsv — the declared seam files the FR-019 wiring sweep
+# treats as EXECUTION POINTS THAT CAN REFUSE.
+#
+# Schema (TAB-separated, exactly two fields):
+#     <seam-id>\t<path-relative-to-consumer-root>
+#
+# Consumed by: scripts/gates/cm_unreferenced_gate_bound_or_retired.sh
+#
+# <seam-id> is drawn from the E5 closed set restated in
+# rule_seam_bindings.tsv. A near-miss id is REFUSED, not silently ignored.
+#
+# ── Why this is a DATA file and not a list inside the gate ──────────────────
+# The gate is shared constitution-side tooling (§11.4.177): it must carry no
+# project literal. Every path below is this consumer's, supplied as DATA per
+# §11.4.35. A different consumer ships a different file and the gate is
+# unchanged.
+#
+# ── Measured, 2026-08-21, with a control needle proving the scan sees ───────
+# Exactly ONE gate is referenced from a non-comment line of any file below:
+# cm_multitrack_engine_in_constitution.sh, from pre_build_verification.sh.
+# Everything else that is bound is bound by DATA DISPATCH (see
+# wiring_data_dispatch.tsv), not by a literal reference.
+#
+# ── Honest recorded gap (§11.4.6) ──────────────────────────────────────────
+# The E5 seam `manual-qa-handoff` has NO identified seam file on this tree.
+# It is therefore absent below rather than pointed at a plausible-looking
+# file. No gate can currently bind to it, and the sweep says so rather than
+# implying coverage that does not exist.
+#
+# Classification: universal (§11.4.17) — consumer-owned DATA per §11.4.35.
+#
+# seam-id	path-relative-to-consumer-root
+pre-build	device/rockchip/rk3588/tests/pre_build_verification.sh
+commit	scripts/commit_all.sh
+commit	scripts/git_hooks/pre-commit
+commit	scripts/git_hooks/commit-msg
+commit	scripts/git_hooks/pre-push
+commit	scripts/git_hooks/post-commit
+commit	constitution/scripts/hooks/post-merge
+release-tag	scripts/testing/release_tag.sh
+qa-deploy	scripts/deploy_release.sh
+pre-action	constitution/scripts/hooks/guard-branch-consistency.sh
+pre-action	constitution/scripts/hooks/guard-forbidden-commands.sh
+pre-action	constitution/scripts/hooks/guard-track-branch-label.sh
+pre-action	constitution/scripts/hooks/guard-work-track-binding.sh
