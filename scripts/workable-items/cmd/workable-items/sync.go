@@ -46,7 +46,11 @@ func syncMDToDB(args []string) int {
 			fmt.Fprintf(os.Stderr, "sync md-to-db: persist issues: %v\n", err)
 			return exitUsage
 		}
-		fmt.Printf("Issues.md: %d items, %d segments\n", len(items), len(segs))
+		// BOB-155 (same acceptance criterion, lesser instance): name the file
+		// ACTUALLY read, not a hardcoded tracker filename. The literal label
+		// misreported the input whenever the caller passed any other path, and
+		// baked one consumer's tracker naming into a shared submodule (§11.4.28).
+		fmt.Printf("%s: %d items, %d segments\n", *issuesPath, len(items), len(segs))
 		total += len(items)
 	}
 	if *fixedPath != "" {
@@ -60,7 +64,7 @@ func syncMDToDB(args []string) int {
 			fmt.Fprintf(os.Stderr, "sync md-to-db: persist fixed: %v\n", err)
 			return exitUsage
 		}
-		fmt.Printf("Fixed.md: %d items, %d segments\n", len(items), len(segs))
+		fmt.Printf("%s: %d items, %d segments\n", *fixedPath, len(items), len(segs))
 		total += len(items)
 	}
 	if *issuesPath == "" && *fixedPath == "" {
@@ -633,11 +637,53 @@ func diffCmd(args []string) int {
 	dbPath := fs.String("db", "", "path to the workable-items SQLite DB")
 	issuesPath := fs.String("issues", "", "path to Issues.md")
 	fixedPath := fs.String("fixed", "", "path to Fixed.md")
+	// BOB-155: the explicit opt-in for the DB-internal-integrity-only shape.
+	// It exists so the blanket refusal below cannot silently delete the
+	// documented desync-only capability (statusColumnBodyDesyncs, wired at the
+	// top of this function) — that shape survives, but it must be asked for BY
+	// NAME rather than being what you get by forgetting a flag.
+	dbOnly := fs.Bool("db-only", false,
+		"run ONLY the DB-internal integrity checks and read no Markdown (the verdict says so)")
 	if err := fs.Parse(args); err != nil {
 		return exitUsage
 	}
 	if *dbPath == "" {
 		fmt.Fprintln(os.Stderr, "diff: --db is required")
+		return exitUsage
+	}
+
+	// BOB-155 (§11.4.201(6) false-null, severity High). Without this refusal,
+	// `diff --db <p>` with no Markdown paths fell through to the unconditional
+	// success verdict and printed "DB and Markdown are in sync" — BYTE-IDENTICAL
+	// to a genuinely successful comparison — having opened zero Markdown files.
+	// A blind instrument and a clean tree returned the same reassuring output,
+	// so no reader could tell them apart, inside the very tool whose job is to
+	// verify that sync. Measured 2026-08-21: with a planted `**Status:**`
+	// divergence the flagless form said "in sync" (exit 0) while the path-ful
+	// form correctly reported 2 difference(s) (exit 1).
+	//
+	// REFUSE rather than default to conventional paths: (1) the sibling
+	// subcommands in this same file — syncMDToDB and syncDBToMD — already
+	// refuse when all of their own path flags are absent, so refusing keeps
+	// diff consistent with its siblings instead of making it the exception;
+	// (2) this command ships in a submodule consumed by multiple projects
+	// (§11.4.28), and a "conventional path" default would have to hardcode one
+	// consumer's tracker layout as a project literal, which is exactly what a
+	// decoupled submodule may not carry; (3) fail-closed is the conservative
+	// default when an input to correctness is unverifiable (§11.4.252).
+	haveMarkdown := *issuesPath != "" || *fixedPath != ""
+	if !haveMarkdown && !*dbOnly {
+		fmt.Fprintln(os.Stderr,
+			"diff: at least one of --issues / --fixed is required — refusing to report a "+
+				"DB-vs-Markdown verdict without reading any Markdown "+
+				"(pass --db-only to run just the DB-internal integrity checks)")
+		return exitUsage
+	}
+	// Mixing the modes would make the verdict misdescribe what was actually
+	// read, which is the same class of defect as the false-null itself.
+	if haveMarkdown && *dbOnly {
+		fmt.Fprintln(os.Stderr,
+			"diff: --db-only is mutually exclusive with --issues / --fixed")
 		return exitUsage
 	}
 
@@ -725,8 +771,6 @@ func diffCmd(args []string) int {
 	// one path IS given, we perform the comparison against the subset of
 	// trackers actually provided (issues-only or fixed-only invocation stays
 	// meaningful for its own tracker).
-	haveMarkdown := *issuesPath != "" || *fixedPath != ""
-
 	differences := 0
 	if haveMarkdown {
 		parsedSeen := map[string]bool{}
@@ -771,10 +815,37 @@ func diffCmd(args []string) int {
 
 	differences += len(desyncs)
 
+	// BOB-155 acceptance: the verdict NAMES its inputs, always. This is what
+	// lets a reader distinguish a real comparison from a vacuous one by reading
+	// the output alone — the property whose absence made the false-null
+	// invisible. The --db-only verdict deliberately never uses the phrase "DB
+	// and Markdown are in sync", because it compared no Markdown.
+	if *dbOnly {
+		if differences == 0 {
+			fmt.Printf("diff: DB-internal checks passed — %d item(s) inspected; "+
+				"no Markdown compared (--db-only)\n", len(dbItems))
+			return exitOK
+		}
+		fmt.Printf("diff: %d DB-internal difference(s) across %d item(s); "+
+			"no Markdown compared (--db-only)\n", differences, len(dbItems))
+		return exitUsage
+	}
+
+	var sources []string
+	if *issuesPath != "" {
+		sources = append(sources, *issuesPath)
+	}
+	if *fixedPath != "" {
+		sources = append(sources, *fixedPath)
+	}
+	read := strings.Join(sources, ", ")
+
 	if differences == 0 {
-		fmt.Println("diff: DB and Markdown are in sync")
+		fmt.Printf("diff: DB and Markdown are in sync (compared %d Markdown item(s) "+
+			"against %d DB item(s); read %s)\n", len(parsed), len(dbItems), read)
 		return exitOK
 	}
-	fmt.Printf("diff: %d difference(s)\n", differences)
+	fmt.Printf("diff: %d difference(s) (compared %d Markdown item(s) against %d DB "+
+		"item(s); read %s)\n", differences, len(parsed), len(dbItems), read)
 	return exitUsage
 }

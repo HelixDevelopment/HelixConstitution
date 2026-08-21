@@ -48,7 +48,7 @@
 //
 // §1.1 PAIRED-MUTATION SENTINEL: reverting the sync.go diffCmd hunk that calls
 // `statusColumnBodyDesyncs(dbItems)` (or reverting the `differences += len(desyncs)`
-// tally) makes TestDiffCmd_BareDBOnlyReportsColumnBodyDesync's GREEN branch FAIL —
+// tally) makes TestDiffCmd_DBOnlyReportsColumnBodyDesync FAIL —
 // proving the wiring is not a tautology.
 //
 // HARD CONSTRAINT: fresh temp DB only; NEVER touches the live docs/workable_items.db.
@@ -332,77 +332,74 @@ func TestATM627_StatusDesync_RealisticMultiBlockBody(t *testing.T) {
 	}
 }
 
-// TestDiffCmd_BareDBOnlyReportsColumnBodyDesync proves diff's NEW defense-in-depth
-// wiring: `diff --db <path>` invoked WITHOUT --issues/--fixed now ALSO names a
-// pure DB-internal column<->body_md Status desync, rather than only the
-// uninformative "absent in Markdown" line every DB item gets under that
-// invocation shape when no Markdown comparison happens at all.
+// TestDiffCmd_DBOnlyReportsColumnBodyDesync proves diff's defense-in-depth
+// wiring: the no-Markdown invocation shape ALSO names a pure DB-internal
+// column<->body_md Status desync, instead of only the uninformative "absent in
+// Markdown" line every DB row used to get under that shape.
 //
-// RED_MODE=1 (default): replicates diffCmd's PRE-FIX compare loop VERBATIM
-// (the exact loop body that existed before the statusColumnBodyDesyncs wiring
-// landed 2026-07-07) against the real DB + real parser, and asserts that
-// PRE-FIX loop produces ZERO desync-specific output for the bare `--db`-only
-// invocation shape — capturing the gap on the broken artifact (§11.4.5
-// defect-present evidence).
+// §11.4.120 RECONCILIATION (BOB-155, 2026-08-21) — two changes, both because
+// this gate had begun asserting things that were no longer true:
 //
-// RED_MODE=0: the GREEN regression-guard — the CURRENT (patched) diffCmd,
-// invoked bare (`--db` only, no Markdown paths), DOES print the specific
-// finding and its exit code reflects the desync.
-func TestDiffCmd_BareDBOnlyReportsColumnBodyDesync(t *testing.T) {
-	dbPath := buildSPK481ShapedFixtureDB(t)
-	injectSubHeadingStatusDesync(t, dbPath)
+//  1. INVOCATION. The shape under test moved from the bare `--db` form to the
+//     explicit `--db-only` opt-in. The bare form now REFUSES (BOB-155: it was
+//     printing "DB and Markdown are in sync" having read no Markdown at all,
+//     a §11.4.201(6) false-null). The CAPABILITY this gate protects is intact —
+//     it simply has to be asked for by name now, which is the point.
+//
+//  2. INJECTION. The gate injected injectSubHeadingStatusDesync, which the
+//     ATM-842 scoping fix turned into the guard's NEGATIVE CONTROL — a
+//     sub-item's Status line is correctly no longer an item-level desync, so
+//     that injection produces NO finding by design. The gate's assertions were
+//     never updated to match, so it demanded a finding from a fixture built to
+//     produce none. It now exercises BOTH poles per §11.4.201: the negative
+//     control MUST stay silent, and injectOwnStatusDesync — the item's OWN
+//     Status line disagreeing with its OWN column, which is precisely what
+//     statusColumnBodyDesyncs exists to catch — MUST be named.
+//
+// No polarity switch: the RED branch replicated a pre-2026-07-07 loop that no
+// longer exists in sync.go, so it failed on every default `go test` run and
+// masked the fact that the GREEN branch had gone stale. This is now an
+// unconditional guard on the current contract.
+func TestDiffCmd_DBOnlyReportsColumnBodyDesync(t *testing.T) {
+	// --- golden-FALSE (negative control, §11.4.201) ------------------------
+	// A sub-item's Status line is NOT the item's status and has no column to be
+	// out of sync with. The guard must NOT fire here; if it does, it is a
+	// false-positive detector and every finding it reports is suspect.
+	negDB := buildSPK481ShapedFixtureDB(t)
+	injectSubHeadingStatusDesync(t, negDB)
 
-	if redMode() {
-		// PRE-FIX artifact, replicated verbatim: diffCmd's compare loop before the
-		// statusColumnBodyDesyncs wiring landed — no markdown given, so `parsed`
-		// stays empty and the ONLY output is "present in DB, absent in Markdown"
-		// for every row; nothing names the column<->body desync specifically.
-		db, err := openDB(dbPath)
-		if err != nil {
-			t.Fatalf("openDB: %v", err)
-		}
-		dbItems, err := loadItems(db)
-		db.Close()
-		if err != nil {
-			t.Fatalf("loadItems: %v", err)
-		}
-
-		var preFixOutput []string
-		var parsed []item // no --issues/--fixed given, pre-fix diffCmd never populated this either
-		parsedSeen := map[string]bool{}
-		for _, p := range parsed {
-			parsedSeen[p.AtmID] = true
-		}
-		for _, d := range dbItems {
-			if !parsedSeen[d.AtmID] {
-				preFixOutput = append(preFixOutput, "- "+d.AtmID+" present in DB, absent in Markdown")
-			}
-		}
-		for _, line := range preFixOutput {
-			if strings.Contains(line, "desync") || strings.Contains(line, "column↔body") {
-				t.Fatalf("RED: the pre-fix replicated loop unexpectedly names the desync (RED setup invalid): %s", line)
-			}
-		}
-		if len(preFixOutput) == 0 {
-			t.Fatalf("RED setup invalid: expected the pre-fix loop to produce output for the bare-db invocation, got none")
-		}
-		t.Logf("RED reproduced: pre-fix diffCmd (bare --db, no markdown) produces only "+
-			"uninformative 'absent in Markdown' noise (%d line(s)), never naming the "+
-			"column<->body_md Status desync specifically", len(preFixOutput))
-		return
+	rc, out := captureDiff(t, []string{"--db", negDB, "--db-only"})
+	if strings.Contains(out, "desync") || strings.Contains(out, "column↔body") {
+		t.Fatalf("negative control: --db-only reported a column<->body desync for a "+
+			"SUB-ITEM Status line, which ATM-842 scoping makes correctly not an "+
+			"item-level desync:\n%s", out)
 	}
+	if rc != exitOK {
+		t.Fatalf("negative control: --db-only exited %d (want exitOK %d) on a DB whose "+
+			"only mutation is not an item-level desync:\n%s", rc, exitOK, out)
+	}
+	// BOB-155: and the no-Markdown shape must never claim Markdown sync.
+	if strings.Contains(out, "DB and Markdown are in sync") {
+		t.Fatalf("--db-only claimed DB/Markdown sync while reading no Markdown:\n%s", out)
+	}
+	t.Logf("negative control OK: --db-only stays silent on the sub-item mutation:\n%s", out)
 
-	// GREEN: the CURRENT (patched) diffCmd, invoked bare (--db only).
-	rc, out := captureDiff(t, []string{"--db", dbPath})
+	// --- golden-TRUE (the real desync the guard exists for) ----------------
+	posDB := buildSPK481ShapedFixtureDB(t)
+	injectOwnStatusDesync(t, posDB)
+
+	rc, out = captureDiff(t, []string{"--db", posDB, "--db-only"})
 	if rc == exitOK {
-		t.Fatalf("GREEN: diffCmd returned exitOK on a desynced DB invoked bare (--db only); stdout=%q", out)
+		t.Fatalf("--db-only returned exitOK on a DB carrying a genuine item-level "+
+			"column<->body Status desync; stdout=%q", out)
 	}
 	if !strings.Contains(out, "ATM-950") || !strings.Contains(out, "column") {
-		t.Fatalf("GREEN: bare `diff --db` did not name the column<->body Status desync for ATM-950; stdout=%q", out)
+		t.Fatalf("--db-only did not name the column<->body Status desync for ATM-950; "+
+			"stdout=%q", out)
 	}
 	if !strings.Contains(out, `"Operator-blocked"`) || !strings.Contains(out, `"Reopened"`) {
-		t.Fatalf("GREEN: bare `diff --db` desync line did not cite both divergent values; stdout=%q", out)
+		t.Fatalf("--db-only desync line did not cite both divergent values; stdout=%q", out)
 	}
-	t.Logf("GREEN: bare `diff --db` (no --issues/--fixed) now names the specific "+
-		"column<->body_md Status desync for ATM-950:\n%s", out)
+	t.Logf("golden-TRUE OK: --db-only names the item-level column<->body_md Status "+
+		"desync for ATM-950:\n%s", out)
 }

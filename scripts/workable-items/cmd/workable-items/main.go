@@ -27,7 +27,12 @@ Usage:
 Subcommands:
   sync md-to-db --db <p> [--issues <p>] [--fixed <p>]   Parse trackers, upsert DB.
   sync db-to-md --db <p> [--out-issues <p>] [--out-fixed <p>]  Regenerate trackers from DB.
-  diff --db <p> [--issues <p>] [--fixed <p>]            Show DB vs Markdown divergence.
+  diff --db <p> (--issues <p> | --fixed <p>)            Show DB vs Markdown divergence.
+                                                       At least one Markdown path is
+                                                       REQUIRED; the verdict names the
+                                                       files it read.
+  diff --db <p> --db-only                              DB-internal integrity checks only
+                                                       (reads no Markdown, and says so).
   validate --db <p>                                     Closed-set + §11.4.91 invariants.
   repair-bodies --db <p> [--dry-run]                    Canonicalize stale body **Status:** lines + populate empty bodies from columns (ATM-627/task #20).
   add <type> <severity> --db <p> --title <T> --description <D> [--id <id>] [--prefix <P>] [--created-by <h>] [--assigned-to <h>]
