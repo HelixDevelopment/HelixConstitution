@@ -34,6 +34,6 @@
 # refuses, and a placeholder row would assert a mutation test that is not
 # there.
 #
-CM-KILLPG-PGID-GUARD	constitution/scripts/gates/cm_killpg_pgid_guard_mutation_test.sh	PENDING-FIRST-REFUSAL
-CM-TEST-MOCK-PID-EXPLICIT-INT	constitution/scripts/gates/cm_test_mock_pid_explicit_int_mutation_test.sh	PENDING-FIRST-REFUSAL
-CM-GATE-LEDGER-RATCHET	constitution/scripts/gates/cm_gate_ledger_ratchet_mutation_test.sh	PENDING-FIRST-REFUSAL
+CM-KILLPG-PGID-GUARD	constitution/scripts/gates/cm_killpg_pgid_guard_mutation_test.sh	qa-results/002-anti-slop/first-refusal/cm_killpg_pgid_guard_mutation_run.log
+CM-TEST-MOCK-PID-EXPLICIT-INT	constitution/scripts/gates/cm_test_mock_pid_explicit_int_mutation_test.sh	qa-results/002-anti-slop/first-refusal/cm_test_mock_pid_explicit_int_mutation_run.log
+CM-GATE-LEDGER-RATCHET	constitution/scripts/gates/cm_gate_ledger_ratchet_mutation_test.sh	qa-results/002-anti-slop/first-refusal/cm_gate_ledger_ratchet_mutation_run.log

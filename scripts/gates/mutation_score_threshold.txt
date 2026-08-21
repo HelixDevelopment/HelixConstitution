@@ -1,0 +1,29 @@
+# mutation_score_threshold.txt — the CM-MUTATION-SCORE-ON-DIFF threshold
+# (feature 002-anti-slop-enforcement, task T408b; tracked as ATM-1023).
+#
+# FORMAT: exactly one non-comment, non-blank line, holding EITHER
+#   * an integer 0-100 — the minimum killed/generated percentage the changed
+#     lines of a diff must reach; or
+#   * the literal token  OPERATOR_DECISION_PENDING
+#
+# ── WHY NO NUMBER IS SET ────────────────────────────────────────────────────
+# The threshold is an OPERATOR DECISION (§11.4.66) and was NOT chosen
+# autonomously. §11.4.201(8) forbids a gating metric that has not been
+# validated against the definition of done: construct the correct end-state,
+# evaluate the metric there, and if the correct end-state does not reach
+# target the metric is INVALID and must not gate work. An agent-invented
+# percentage would be exactly that un-validated gating metric.
+#
+# While this file reads OPERATOR_DECISION_PENDING the gate reports
+# SKIP with reason `operator_decision_pending` and exits 0. It does NOT pass
+# silently and it does NOT refuse — refusing against an un-chosen threshold
+# would be a false-positive refusal, itself a FAIL-bluff (§11.4.201(1)).
+#
+# ── HOW TO CHOOSE IT ────────────────────────────────────────────────────────
+# The gate reports the measured score without enforcing while this token
+# stands. Run it advisory over real diffs, read the distribution, then set the
+# number from measurement rather than from intuition.
+#
+# The brief carrying both open decisions (the value, and whether/where it
+# enforces) is docs/requests/OPERATOR_DECISION_mutation_score_on_diff.md.
+OPERATOR_DECISION_PENDING

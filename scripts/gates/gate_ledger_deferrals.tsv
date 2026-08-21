@@ -86,3 +86,20 @@ CM-TRANSLATION-CONTEXT-SPIRIT-REVIEW	OWED-GATE-054	asserts each localized artifa
 CM-ZERO-FINDINGS-AUDIT-SWEEP	OWED-GATE-056	asserts the ten-class findings sweep runs and emits a machine-readable findings ledger; blocked: requires the sweep script plus per-class golden-good and golden-bad fixtures
 CM-ZERO-FINDINGS-MONOTONE-RATCHET	OWED-GATE-057	asserts per-class and total findings counts never increase; blocked: depends on the sweep and an operator-owned brownfield baseline decision per 11.4.66
 CM-ZERO-NASTY-SURPRISES-AUDIT	OWED-GATE-058	asserts no known-broken code ships, no gate is silenced and no test is disabled without a tracked follow-up; blocked: depends on the findings sweep and a tracker
+#
+# --- T031a (feature 002-anti-slop-enforcement) -------------------------------
+# The four §11.4.176 mechanism gates. MEASURED (2026-08-21, control-needled):
+# each token occurs corpus-wide in exactly ONE *.sh file — the PROSE COMMENT at
+# constitution/scripts/gates/cm_covenant_114_176_propagation.sh:19-21, whose own
+# text says they "remain a separate, larger work item". Per §11.4.227(A) a prose
+# carrier NEVER counts as an implementation, so counting them IMPLEMENTED today
+# is an artifact of the ledger instrument seeing a comment inside a .sh file.
+# Registering them here is honest debt registration, NOT relabelling live
+# enforcement: no executable check for any of the four exists anywhere.
+# It is also the §11.4.227(A) precondition for replacing 176's legacy wrapper
+# with the generated thin wrapper (which drops that comment) without the
+# unimplemented count rising by 4.
+CM-DEVICE-LOCK-DEADLOCK-FREE	OWED-GATE-076	asserts the §11.4.176(B) capability-aware device lock breaks all four Coffman conditions (all-or-nothing acquisition, non-blocking claim, TTL reap) so no two tracks can deadlock over a shared device; blocked: needs a multi-device claim harness able to drive real concurrent contention — none exists in-repo. Named ONLY in a prose comment at cm_covenant_114_176_propagation.sh:21; zero executable sites.
+CM-LOGICAL-GROUP-COHESION	OWED-GATE-077	asserts every workable item in a logic group resolves to that group's single canonical (track, branch) destination per §11.4.176(A)/§11.4.191; blocked: needs the group→destination registry join wired as a checkable seam. Named ONLY in a prose comment at cm_covenant_114_176_propagation.sh:20; zero executable sites.
+CM-NO-CROSS-TRACK-SCOPE-OVERLAP	OWED-GATE-078	asserts two concurrently-claimed work units never share a file-scope path per §11.4.176(A) disjoint-scope + §11.4.58 L3; blocked: needs a live cross-track claim registry to diff scopes against — the per-repo claim registries are empty. Named ONLY in a prose comment at cm_covenant_114_176_propagation.sh:20; zero executable sites.
+CM-WORK-DIVISION-EXCLUSIVE-CLAIM	OWED-GATE-079	asserts the §11.4.176(A) exactly-once claim registry admits one and only one claimant per workable item, refusing a second claim; blocked: needs a shared cross-track claim store — not adopted in-repo. Named ONLY in a prose comment at cm_covenant_114_176_propagation.sh:19; zero executable sites.

@@ -1,0 +1,22 @@
+# uncovered_capability_gaps.tsv — the FOUR recorded uncovered capability gaps
+# (T223; spec.md A-007, VERIFIED 2026-08-21).
+#
+# FR-020: an externally named dependency is admissible ONLY when it maps to a
+# gap recorded HERE. Everything else in this space is already covered, and
+# adopting a second mechanism for a covered capability is the restatement
+# FR-018 refuses. When adoption is refused for an unmapped gap, the refusal
+# names the COVERING RULE from the register row's `covered_by` field, so the
+# proposer is told which seam to bind to rather than merely being rejected.
+#
+# Format: <gap_id>\t<description>\t<nearest_anchor>
+#   nearest_anchor is the constitution anchor this gap is filed AGAINST — the
+#   rule whose scope the gap sits inside. It is NOT a claim that the gap is
+#   covered by that anchor: these four are the gaps that anchor does NOT close.
+#
+# This table is deliberately SHORT. A-007 measured only four genuinely
+# uncovered gaps out of the whole surveyed space; a longer table would be a
+# claim nobody measured (§11.4.6).
+G1	hash-chained or signed tool-call ledger — current records are append-only and content-addressed, which detects mutation of a known blob but NOT deletion or reordering by an actor who can also rewrite the manifest	11.4.29
+G2	adequacy rules for a statistical oracle — one is sanctioned but unpowered, so it can report a clean result it had no power to reach	11.4.107
+G3	validation that a named tool and its arguments are REAL, as distinct from the existing forbidden-command deny-list which only refuses a known-bad name	11.4.109
+G4	declare-intent-before-editing as a mechanically gated precondition — gated today only for interface interaction, not for file edits	11.4.084

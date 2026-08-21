@@ -1,0 +1,14 @@
+# mutation_score_kill_map.tsv — <source-path><TAB><kill-command-template>
+#
+# The kill command decides whether a mutant is KILLED. The template MUST
+# contain the literal {mutant}; the engine substitutes the mutant's path.
+# The command MUST exit 0 on the unmutated source and non-zero on a broken one
+# — the engine verifies BOTH before it will report a score.
+#
+# A changed shell file with NO row here is reported UNSCORED and named. It is
+# NOT scored as 0% (which would be a fabricated failure) and NOT as 100%
+# (which would be a fabricated pass). An unscored file is an honest gap.
+#
+# EMPTY of rows at creation: no source file has an operator-approved kill
+# command yet, because enforcement itself is still an open operator decision
+# (see docs/requests/OPERATOR_DECISION_mutation_score_on_diff.md).

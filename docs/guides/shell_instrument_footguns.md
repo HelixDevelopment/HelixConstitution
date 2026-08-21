@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Revision | 4 |
+| Revision | 5 |
 | Created | 2026-07-22 |
-| Last modified | 2026-08-20T12:21:44Z |
+| Last modified | 2026-08-21T18:44:08Z |
 | Status | active |
 | Authority | Constitution §11.4.201(7)(12) + §11.4.67(6). Consulted by EVERY §11.4.142/§11.4.209 code review that touches a shell-based test, gate, guard, or measurement. |
 | Scope | Universal (§11.4.17) — inherited by reference (§11.4.28/§11.4.177), never copied per project. |
@@ -81,6 +81,40 @@ Every entry below is a shell construct that returns a **clean, confident, WRONG 
 - **Countermeasure:** run the needle against the RAW query, BEFORE the exclusion stage — never through the filtered pipeline; OR choose a needle whose resolved path provably cannot match the exclusion pattern; OR re-run the whole measurement once with NO exclusion filter and require the two runs to AGREE (agreement of two independently-shaped instruments is the stronger proof, and is what settled this case). Prefer filtering on a STRUCTURED field (file extension, a parsed column, a path prefix anchored at a directory boundary) over a bare path substring — a substring filter over filenames is itself a carrier match (I2 / §11.4.201(7)(a)) relocated from file CONTENT to file PATH.
 - **Control needle for the needle:** print the needle's own resolved paths and assert none of them matches the exclusion pattern, BEFORE trusting any "instrument blind" verdict. An unvalidated blindness claim is as unearned as an unvalidated absence claim.
 
+### I9. A RELATIVE date predicate errors out, and behind `2>/dev/null` its error reads as "nothing changed"
+
+- **Construct:** `changed=$(find . -newermt '-1 day' -type f 2>/dev/null | wc -l)` — the shape scripts actually use for "what moved recently".
+- **Wrong confident answer:** on this host `/usr/bin/find` is **bfs 4.1.1**, which accepts only ISO-8601-like timestamps. The relative form is a **parse error, not an empty result**: the predicate never runs, no file is ever tested, and with stderr discarded the pipeline yields `0`. The caller reads "0 files changed recently" and believes the tree is quiet. A freshness gate built this way reports clean forever.
+- **Measured (2026-08-21, this host):** `find . -newermt '-1 day' -type f` → **rc=1**, stderr `bfs: error: Invalid timestamp.` (with a list of the ISO-8601-like forms it does accept); `find . -newermt '-1 day' -type f 2>/dev/null | wc -l` → **0**. The same directory with an ABSOLUTE timestamp: `find . -newermt '2020-01-01' -type f` → **rc=0**, count **2**. So the zero was an artifact of the predicate, not of the tree.
+- **Countermeasure:** compute the boundary ONCE into a variable and pass it as an absolute timestamp — `since=$(date -u -d '1 day ago' '+%Y-%m-%d %H:%M:%S')` then `find . -newermt "$since"`. Never discard `find`'s stderr on a predicate whose syntax the local implementation may not share; capture the rc DIRECTLY (never after `| wc -l`, which is I5).
+- **Control needle:** run the same predicate against a file you have just `touch`ed and require a non-zero count before believing any zero. A date query that cannot find a file created one second ago is not measuring dates.
+- **Matcher:** `trap_relative_date_predicate` in `constitution/scripts/gates/lib/instrument_trap_scan.sh` (a `-newermt` whose argument begins `-`/`+` or carries `ago`/`yesterday`/`today`/`now`; a `"$var"` argument is exempt because its value is decided elsewhere).
+
+### I10. `grep -qv` returns the WRONG exit status whenever any line matches
+
+- **Construct:** `if grep -qv 'expected_token' manifest.txt; then echo "manifest has an unexpected line"; fi` — reading "-q plus -v" as "quietly ask whether a non-matching line exists".
+- **Wrong confident answer:** `-q` reports whether the INVERTED match produced output, and the two interact so that the answer flips on files that contain the token. The verdict is silently inverted on exactly the inputs the check exists for.
+- **Measured (2026-08-21, this host, ugrep 7.8.4):** file containing `alpha` and `beta`. `grep -qv 'alpha' f.txt` → **rc=1**, i.e. "no non-matching line", while `beta` is plainly present and `grep -cv 'alpha' f.txt` → **1**. On a token absent from the file, `grep -qv 'zzz' f.txt` → **rc=0**. So the construct answers correctly only when it does not matter.
+- **Countermeasure:** count and compare — `others=$(grep -cv 'expected_token' manifest.txt); [ "${others:-0}" -gt 0 ]`. A COUNT comparison is readable, testable, and cannot be inverted by the tool. This is the same discipline `us2_assert.sh` bakes in as `us2_check_absent`.
+- **Control needle:** assert the count on a file you KNOW contains a non-matching line before trusting any zero.
+- **Matcher:** `trap_inverted_match` (a `grep` whose flags carry both `q` and `v`, clustered or adjacent).
+
+### I11. A greedy `sed` capture spans past its own delimiter and merges two fields into one
+
+- **Construct:** `sed -n 's/.*gate: \(.*\) status: \(.*\)/\1/p'`, and the closely related `sed -n 's/.*id: \(.*\)/\1/p'`.
+- **Wrong confident answer:** two independent greedy effects, both silent, both rc=0. (a) The LEADING `.*` binds as far right as possible, so on a line where the key appears twice the extractor reports the LAST occurrence while its author meant the first. (b) The CAPTURE `\(.*\)` runs past the next literal delimiter, so a line holding two `key: value` pairs yields the second value where the first was intended. Nothing errors; the listing is simply, confidently wrong.
+- **Measured (2026-08-21, this host):** input `id: 001 id: 002` → greedy `s/.*id: \(.*\)/\1/p` printed **`002`**; the anchored, class-bounded form `s/^id: \([^ ][^ ]*\).*/\1/p` printed **`001`**. Input `gate: A status: OK note: gate: B status: FAIL` → greedy `s/.*gate: \(.*\) status: .*/\1/p` printed **`B`**; the class-bounded `s/gate: \([^ ][^ ]*\) status: .*/\1/p` printed **`A`**.
+- **Countermeasure:** bound every capture with a character class that cannot cross the delimiter (`\([^ ][^ ]*\)`), anchor the pattern (`^`) when the field is positional, and prefer shell parameter expansion (`${line#*"key":}`) when the FIRST occurrence is what is wanted — `#` always takes the shortest leading match, which is the property the greedy regex lacks. This library's own JSON readers use parameter expansion for exactly this reason.
+- **Control needle:** run the extractor over a line carrying the key TWICE and assert it returns the intended occurrence. A single-occurrence fixture cannot distinguish greedy from correct.
+- **Matcher:** `trap_greedy_display_transform` (a `sed` whose capture group is a bare `.*`).
+
+### Cross-references, not restatements (§11.4.227)
+
+Two of the five measured trap classes carried by the US2 instrument-trap scanner are ALREADY documented above and are deliberately NOT repeated here:
+
+- **pipeline exit status** — the scanner's `trap_pipeline_exit_status` matcher is the greppable form of **I5**.
+- **query-class mismatch** — the scanner's `trap_query_class_mismatch` matcher is the greppable form of **I6**, and its rule is §11.4.201(7)(b)'s needle-class requirement.
+
 ## Part B — Code-side footguns (the shipped shell code lies to its host)
 
 ### C1. Bare `exec` with side redirections in a SOURCED function mutates the caller's shell permanently
@@ -95,5 +129,6 @@ Every entry below is a shell construct that returns a **clean, confident, WRONG 
 - Control-experiment demonstrations (I1, I2, I3, I4): 2026-07-23, HEL-010 constitution-promotion session — transcript-captured runs (`timeout` on a function → rc=127; `pgrep -fa` unique-needle self-match; column-0-`}` heredoc truncation dropping the tail sentinel; one-line xtrace then blindness after `exec 2>/dev/null`).
 - Control-experiment demonstration (I7): run 2026-07-22T20:36Z UTC, transcript-captured 20:41Z (2026-07-23 local), HEL-010 harvest delta — hermetic repro, 3/3 deterministic iterations, four scenarios (naive `$(...)` stall == full budget; same probe to file ~0; fd-redirected watchdog ~0 with output intact; wedged probe still bounded rc=124), field incident first measured 2026-07-23 by a consuming toolchain's install re-review (cmd-subst read 15s == budget vs file-write 0s).
 - Control-experiment demonstration (I8): 2026-08-20 — hermetic 3/3 deterministic refutation of the suspected `--include` option-order cause (both orders correct, ugrep 7.8.4), direct resolution of the needle's own paths proving the exclusion filter ate them, and third-instrument agreement (no path filter) re-confirming the disputed counts 0/50/2.
+- Control-experiment demonstration (I9, I10, I11): 2026-08-21, feature 002 US2 stream — hermetic measurements on this host (bfs 4.1.1 rejecting `-newermt '-1 day'` with rc=1 while the absolute form returned 2 hits; ugrep 7.8.4 `grep -qv alpha` returning rc=1 on a file holding a non-matching line while `grep -cv` returned 1; greedy `sed` returning `002`/`B` where the anchored class-bounded forms returned `001`/`A`). Each class ships a matcher in `constitution/scripts/gates/lib/instrument_trap_scan.sh` with a golden-BAD and a golden-GOOD fixture under `scripts/testing/anti_slop/fixtures/traps/`, and a paired §1.1 mutation at `constitution/scripts/gates/cm_instrument_trap_scan_mutation_test.sh`.
 - Forensic incidents: 2026-07-22 sourced-`exec` stderr silencing + its xtrace-blinded investigation (§11.4.67(6) FACT); 2026-07-13 `pgrep -f` build-guard false-refusal (§11.4.201 forensic anchor); 2026-07-17 carrier/measurement harvest (I5, I6 — §11.4.201(6)(7) FACTs).
-- Export note (§11.4.65, honest): `.html`/`.pdf` twins for this document are NOT generated in this commit — the governance-twin exporter is not yet a documented runnable in-repo script (the Rev-60 probed finding); twins are owed to the exporter commit, no silent divergence claimed (§11.4.106(E)).
+- Export note (§11.4.65, honest, corrected 2026-08-21): the four-format siblings (`.html`, `.pdf`, `.docx`) ARE generated for this revision. The earlier note here claimed the governance-twin exporter was not a runnable in-repo script; that was measured false on 2026-08-21 — `scripts/testing/sync_all_markdown_exports.sh --paths <file.md>` exists, pandoc and weasyprint both resolve on this host, and a targeted run regenerated all three siblings (mtime >= the `.md`). The stale claim is corrected rather than left standing, because a note asserting an exporter does not exist is itself an absence reported without a control needle.

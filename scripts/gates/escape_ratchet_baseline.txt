@@ -1,0 +1,30 @@
+# escape_ratchet_baseline.txt — the CM-ESCAPE-RATCHET monotone baseline
+# (FR-044, feature 002-anti-slop-enforcement, task T405c).
+#
+# FORMAT: exactly one non-comment, non-blank line, holding EITHER
+#   * a bare non-negative integer — the maximum escape count a cycle may
+#     record before the release seam refuses; or
+#   * the literal token  OPERATOR_DECISION_PENDING
+#
+# ── WHY THE VALUE IS NOT SET ────────────────────────────────────────────────
+# The INITIAL baseline value is an OPERATOR DECISION (§11.4.66) and was NOT
+# chosen autonomously. An agent-invented number would be an un-validated
+# gating metric, which §11.4.201(8) forbids until it has been evaluated
+# against the definition of done.
+#
+# While this file reads OPERATOR_DECISION_PENDING the gate
+# `cm_escape_ratchet.sh` reports SKIP with reason `operator_decision_pending`
+# and exits 0. It does NOT pass silently and it does NOT refuse — refusing
+# against an un-chosen baseline would be a false-positive refusal, itself a
+# FAIL-bluff under §11.4.201(1).
+#
+# ── HOW TO CHOOSE IT (recommended, not mandatory) ───────────────────────────
+# Run the gate advisory for N cycles with the ledger populated; it prints the
+# measured escape count per cycle without enforcing. Set the baseline from the
+# measured distribution, then let the ratchet drive it monotonically down.
+#
+# ── DIRECTION ───────────────────────────────────────────────────────────────
+# Lowering is the intended direction and may be done by `--ratchet`.
+# RAISING requires an explicit, reviewable edit — never a silent bump to make
+# room for new escapes.
+OPERATOR_DECISION_PENDING

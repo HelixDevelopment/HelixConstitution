@@ -387,7 +387,7 @@ Footguns — the §11.4.201(12) control-needle checklist</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>4</td>
+<td>5</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -395,7 +395,7 @@ Footguns — the §11.4.201(12) control-needle checklist</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-08-20T12:21:44Z</td>
+<td>2026-08-21T18:44:08Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -691,6 +691,133 @@ own resolved paths and assert none of them matches the exclusion
 pattern, BEFORE trusting any &quot;instrument blind&quot; verdict. An unvalidated
 blindness claim is as unearned as an unvalidated absence claim.</li>
 </ul>
+<h3 id="i9-a-relative-date-predicate-errors-out-and-behind-2devnull-its-error-reads-as-nothing-changed">I9.
+A RELATIVE date predicate errors out, and behind
+<code>2&gt;/dev/null</code> its error reads as &quot;nothing changed&quot;</h3>
+<ul>
+<li><strong>Construct:</strong>
+<code>changed=$(find . -newermt &#39;-1 day&#39; -type f 2&gt;/dev/null | wc -l)</code>
+— the shape scripts actually use for &quot;what moved recently&quot;.</li>
+<li><strong>Wrong confident answer:</strong> on this host
+<code>/usr/bin/find</code> is <strong>bfs 4.1.1</strong>, which accepts
+only ISO-8601-like timestamps. The relative form is a <strong>parse
+error, not an empty result</strong>: the predicate never runs, no file
+is ever tested, and with stderr discarded the pipeline yields
+<code>0</code>. The caller reads &quot;0 files changed recently&quot; and believes
+the tree is quiet. A freshness gate built this way reports clean
+forever.</li>
+<li><strong>Measured (2026-08-21, this host):</strong>
+<code>find . -newermt &#39;-1 day&#39; -type f</code> → <strong>rc=1</strong>,
+stderr <code>bfs: error: Invalid timestamp.</code> (with a list of the
+ISO-8601-like forms it does accept);
+<code>find . -newermt &#39;-1 day&#39; -type f 2&gt;/dev/null | wc -l</code> →
+<strong>0</strong>. The same directory with an ABSOLUTE timestamp:
+<code>find . -newermt &#39;2020-01-01&#39; -type f</code> →
+<strong>rc=0</strong>, count <strong>2</strong>. So the zero was an
+artifact of the predicate, not of the tree.</li>
+<li><strong>Countermeasure:</strong> compute the boundary ONCE into a
+variable and pass it as an absolute timestamp —
+<code>since=$(date -u -d &#39;1 day ago&#39; &#39;+%Y-%m-%d %H:%M:%S&#39;)</code> then
+<code>find . -newermt &quot;$since&quot;</code>. Never discard <code>find</code>&#39;s
+stderr on a predicate whose syntax the local implementation may not
+share; capture the rc DIRECTLY (never after <code>| wc -l</code>, which
+is I5).</li>
+<li><strong>Control needle:</strong> run the same predicate against a
+file you have just <code>touch</code>ed and require a non-zero count
+before believing any zero. A date query that cannot find a file created
+one second ago is not measuring dates.</li>
+<li><strong>Matcher:</strong> <code>trap_relative_date_predicate</code>
+in <code>constitution/scripts/gates/lib/instrument_trap_scan.sh</code>
+(a <code>-newermt</code> whose argument begins
+<code>-</code>/<code>+</code> or carries
+<code>ago</code>/<code>yesterday</code>/<code>today</code>/<code>now</code>;
+a <code>&quot;$var&quot;</code> argument is exempt because its value is decided
+elsewhere).</li>
+</ul>
+<h3 id="i10-grep--qv-returns-the-wrong-exit-status-whenever-any-line-matches">I10.
+<code>grep -qv</code> returns the WRONG exit status whenever any line
+matches</h3>
+<ul>
+<li><strong>Construct:</strong>
+<code>if grep -qv &#39;expected_token&#39; manifest.txt; then echo &quot;manifest has an unexpected line&quot;; fi</code>
+— reading &quot;-q plus -v&quot; as &quot;quietly ask whether a non-matching line
+exists&quot;.</li>
+<li><strong>Wrong confident answer:</strong> <code>-q</code> reports
+whether the INVERTED match produced output, and the two interact so that
+the answer flips on files that contain the token. The verdict is
+silently inverted on exactly the inputs the check exists for.</li>
+<li><strong>Measured (2026-08-21, this host, ugrep 7.8.4):</strong> file
+containing <code>alpha</code> and <code>beta</code>.
+<code>grep -qv &#39;alpha&#39; f.txt</code> → <strong>rc=1</strong>, i.e. &quot;no
+non-matching line&quot;, while <code>beta</code> is plainly present and
+<code>grep -cv &#39;alpha&#39; f.txt</code> → <strong>1</strong>. On a token
+absent from the file, <code>grep -qv &#39;zzz&#39; f.txt</code> →
+<strong>rc=0</strong>. So the construct answers correctly only when it
+does not matter.</li>
+<li><strong>Countermeasure:</strong> count and compare —
+<code>others=$(grep -cv &#39;expected_token&#39; manifest.txt); [ &quot;${others:-0}&quot; -gt 0 ]</code>.
+A COUNT comparison is readable, testable, and cannot be inverted by the
+tool. This is the same discipline <code>us2_assert.sh</code> bakes in as
+<code>us2_check_absent</code>.</li>
+<li><strong>Control needle:</strong> assert the count on a file you KNOW
+contains a non-matching line before trusting any zero.</li>
+<li><strong>Matcher:</strong> <code>trap_inverted_match</code> (a
+<code>grep</code> whose flags carry both <code>q</code> and
+<code>v</code>, clustered or adjacent).</li>
+</ul>
+<h3 id="i11-a-greedy-sed-capture-spans-past-its-own-delimiter-and-merges-two-fields-into-one">I11.
+A greedy <code>sed</code> capture spans past its own delimiter and
+merges two fields into one</h3>
+<ul>
+<li><strong>Construct:</strong>
+<code>sed -n &#39;s/.*gate: \(.*\) status: \(.*\)/\1/p&#39;</code>, and the
+closely related <code>sed -n &#39;s/.*id: \(.*\)/\1/p&#39;</code>.</li>
+<li><strong>Wrong confident answer:</strong> two independent greedy
+effects, both silent, both rc=0. (a) The LEADING <code>.*</code> binds
+as far right as possible, so on a line where the key appears twice the
+extractor reports the LAST occurrence while its author meant the first.
+(b) The CAPTURE <code>\(.*\)</code> runs past the next literal
+delimiter, so a line holding two <code>key: value</code> pairs yields
+the second value where the first was intended. Nothing errors; the
+listing is simply, confidently wrong.</li>
+<li><strong>Measured (2026-08-21, this host):</strong> input
+<code>id: 001 id: 002</code> → greedy <code>s/.*id: \(.*\)/\1/p</code>
+printed <strong><code>002</code></strong>; the anchored, class-bounded
+form <code>s/^id: \([^ ][^ ]*\).*/\1/p</code> printed
+<strong><code>001</code></strong>. Input
+<code>gate: A status: OK note: gate: B status: FAIL</code> → greedy
+<code>s/.*gate: \(.*\) status: .*/\1/p</code> printed
+<strong><code>B</code></strong>; the class-bounded
+<code>s/gate: \([^ ][^ ]*\) status: .*/\1/p</code> printed
+<strong><code>A</code></strong>.</li>
+<li><strong>Countermeasure:</strong> bound every capture with a
+character class that cannot cross the delimiter
+(<code>\([^ ][^ ]*\)</code>), anchor the pattern (<code>^</code>) when
+the field is positional, and prefer shell parameter expansion
+(<code>${line#*&quot;key&quot;:}</code>) when the FIRST occurrence is what is
+wanted — <code>#</code> always takes the shortest leading match, which
+is the property the greedy regex lacks. This library&#39;s own JSON readers
+use parameter expansion for exactly this reason.</li>
+<li><strong>Control needle:</strong> run the extractor over a line
+carrying the key TWICE and assert it returns the intended occurrence. A
+single-occurrence fixture cannot distinguish greedy from correct.</li>
+<li><strong>Matcher:</strong> <code>trap_greedy_display_transform</code>
+(a <code>sed</code> whose capture group is a bare <code>.*</code>).</li>
+</ul>
+<h3 id="cross-references-not-restatements-114227">Cross-references, not
+restatements (§11.4.227)</h3>
+<p>Two of the five measured trap classes carried by the US2
+instrument-trap scanner are ALREADY documented above and are
+deliberately NOT repeated here:</p>
+<ul>
+<li><strong>pipeline exit status</strong> — the scanner&#39;s
+<code>trap_pipeline_exit_status</code> matcher is the greppable form of
+<strong>I5</strong>.</li>
+<li><strong>query-class mismatch</strong> — the scanner&#39;s
+<code>trap_query_class_mismatch</code> matcher is the greppable form of
+<strong>I6</strong>, and its rule is §11.4.201(7)(b)&#39;s needle-class
+requirement.</li>
+</ul>
 <h2 id="part-b--code-side-footguns-the-shipped-shell-code-lies-to-its-host">Part
 B — Code-side footguns (the shipped shell code lies to its host)</h2>
 <h3 id="c1-bare-exec-with-side-redirections-in-a-sourced-function-mutates-the-callers-shell-permanently">C1.
@@ -742,16 +869,35 @@ option-order cause (both orders correct, ugrep 7.8.4), direct resolution
 of the needle&#39;s own paths proving the exclusion filter ate them, and
 third-instrument agreement (no path filter) re-confirming the disputed
 counts 0/50/2.</li>
+<li>Control-experiment demonstration (I9, I10, I11): 2026-08-21, feature
+002 US2 stream — hermetic measurements on this host (bfs 4.1.1 rejecting
+<code>-newermt &#39;-1 day&#39;</code> with rc=1 while the absolute form
+returned 2 hits; ugrep 7.8.4 <code>grep -qv alpha</code> returning rc=1
+on a file holding a non-matching line while <code>grep -cv</code>
+returned 1; greedy <code>sed</code> returning
+<code>002</code>/<code>B</code> where the anchored class-bounded forms
+returned <code>001</code>/<code>A</code>). Each class ships a matcher in
+<code>constitution/scripts/gates/lib/instrument_trap_scan.sh</code> with
+a golden-BAD and a golden-GOOD fixture under
+<code>scripts/testing/anti_slop/fixtures/traps/</code>, and a paired
+§1.1 mutation at
+<code>constitution/scripts/gates/cm_instrument_trap_scan_mutation_test.sh</code>.</li>
 <li>Forensic incidents: 2026-07-22 sourced-<code>exec</code> stderr
 silencing + its xtrace-blinded investigation (§11.4.67(6) FACT);
 2026-07-13 <code>pgrep -f</code> build-guard false-refusal (§11.4.201
 forensic anchor); 2026-07-17 carrier/measurement harvest (I5, I6 —
 §11.4.201(6)(7) FACTs).</li>
-<li>Export note (§11.4.65, honest): <code>.html</code>/<code>.pdf</code>
-twins for this document are NOT generated in this commit — the
-governance-twin exporter is not yet a documented runnable in-repo script
-(the Rev-60 probed finding); twins are owed to the exporter commit, no
-silent divergence claimed (§11.4.106(E)).</li>
+<li>Export note (§11.4.65, honest, corrected 2026-08-21): the
+four-format siblings (<code>.html</code>, <code>.pdf</code>,
+<code>.docx</code>) ARE generated for this revision. The earlier note
+here claimed the governance-twin exporter was not a runnable in-repo
+script; that was measured false on 2026-08-21 —
+<code>scripts/testing/sync_all_markdown_exports.sh --paths &lt;file.md&gt;</code>
+exists, pandoc and weasyprint both resolve on this host, and a targeted
+run regenerated all three siblings (mtime &gt;= the <code>.md</code>).
+The stale claim is corrected rather than left standing, because a note
+asserting an exporter does not exist is itself an absence reported
+without a control needle.</li>
 </ul>
 </body>
 </html>
