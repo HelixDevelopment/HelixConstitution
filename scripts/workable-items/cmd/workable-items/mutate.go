@@ -155,6 +155,31 @@ func updateCmd(args []string) int {
 		// explicitly so a typo'd --status surfaces rather than silently mapping
 		// to Queued. We accept the input only if it normalises to itself OR is a
 		// recognised synonym whose intent is unambiguous.
+		//
+		// §11.4.15 / §11.4.19 / ATM-627 INTEG-03 LOCATION↔STATUS GUARD. Closed-set
+		// MEMBERSHIP is necessary but NOT sufficient: a terminal `… (→ Fixed.md)`
+		// value is legal in the abstract yet ILLEGAL for a row still located in
+		// Issues. `close` performs the §11.4.19 ATOMIC migration (row + doc_segment
+		// Issues→Fixed, plus a mandatory captured-evidence artefact); a bare status
+		// write here performs NEITHER, stranding a closed item in the OPEN tracker —
+		// it does not disappear from the open summary and never appears in the closed
+		// one. The predicate is terminalStatuses(), the SAME closed set moveCmd's
+		// guard and the fixedLocationNonTerminalStatus / issuesLocationTerminalStatus
+		// detective gates (sync.go) use, so preventive and detective halves can never
+		// drift apart. Scoped to set["status"] deliberately (§11.4.201(1) — a guard
+		// asserts the REAL condition and refuses NOTHING else): a non-status field
+		// edit on a row already in the forbidden state must still succeed, or the
+		// guard would block the very remediation it exists to prompt.
+		if loc == "Issues" && terminalStatuses()[strings.TrimSpace(ns)] {
+			fmt.Fprintf(os.Stderr,
+				"update: refusing to set terminal status %q on %s while it is located in Issues — "+
+					"a terminal status without the migration strands a closed item in the OPEN tracker "+
+					"(§11.4.19 requires the closure move to be atomic; §11.4.15/ATM-627 INTEG-03).\n"+
+					"  new closure (records captured evidence):  close %s --db <db> --status <fixed|implemented|completed|obsolete> --evidence <path>\n"+
+					"  already closed elsewhere (reconcile):     move --id %s --db <db> --to Fixed --why <text>\n",
+				ns, *id, *id, *id)
+			return exitUsage
+		}
 		cur.Status = ns
 	}
 	if set["created-by"] {

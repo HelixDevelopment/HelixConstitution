@@ -315,6 +315,15 @@ func validateCmd(args []string) int {
 	// this: current_location↔status closed-set agreement).
 	violations = append(violations, fixedLocationNonTerminalStatus(items)...)
 
+	// (f2) §11.4.15 / §11.4.19 / ATM-627 INTEG-03 — the MIRROR half of (f). An
+	// Issues-location item MUST carry a NON-terminal status. (f) only ever asserted
+	// Fixed ⇒ terminal, so the opposite desync — a terminal `… (→ Fixed.md)` status on
+	// a row still in the OPEN tracker, produced by any bare status write that skipped
+	// the §11.4.19 atomic migration — passed exit 0 while every reader saw a closed
+	// item listed as open (a §11.4.6/§11.4.15 bluff gate). Both halves now share ONE
+	// predicate source, terminalStatuses(), so they can never drift apart.
+	violations = append(violations, issuesLocationTerminalStatus(items)...)
+
 	// (g) §11.4.5 / §11.4.69 / §11.4.123 / §11.4.226 — closure-evidence
 	// RESOLVABILITY. A closed item's item_history rows carry evidence_path: the
 	// pointer to the captured proof that IS the closure's warrant. Nothing ever
@@ -429,6 +438,48 @@ func fixedLocationNonTerminalStatus(items []item) []string {
 		if !terminal[strings.TrimSpace(it.Status)] {
 			out = append(out, fmt.Sprintf(
 				"%s: Fixed-location item has NON-terminal status %q — a Fixed-location item must carry a terminal `… (→ Fixed.md)` status; a non-terminal item belongs in Issues (§11.4.15/ATM-627 INTEG-03) [%s]",
+				it.AtmID, it.Status, it.repOrDefault()))
+		}
+	}
+	return out
+}
+
+// issuesLocationTerminalStatus returns, for the MIRROR half of the ATM-627 INTEG-03
+// location↔status defect CLASS, a description of every item at
+// current_location='Issues' whose status IS a terminal closed-set value (a
+// `… (→ Fixed.md)` value). A terminal status in the OPEN tracker means the item was
+// closed WITHOUT the §11.4.19 atomic migration: it neither disappears from the open
+// summary nor appears in the closed one, so every tracker reader sees a closed item
+// listed as open work.
+//
+// WHY THIS EXISTS SEPARATELY FROM fixedLocationNonTerminalStatus. That function
+// asserts Fixed ⇒ terminal; this one asserts Issues ⇒ NON-terminal. They are the two
+// halves of ONE invariant, and only the first was ever implemented — so `update
+// --status` could write a terminal value onto an Issues row and validate reported
+// "OK — all invariants satisfied". Control-needled on a real corpus before this fix:
+// the guarded direction had ZERO violations while the unguarded direction had ten,
+// and the SAME validate on the SAME DB through the SAME path fired immediately when
+// the guarded direction was injected — proving the silence was a genuine gap and not
+// a blind instrument (§11.4.201(6)(7)(b)).
+//
+// A WRITE-SEAM GUARD ALONE IS NOT ENOUGH (§11.4.146(D3) full-table sweep): rows
+// written before the preventive guard existed, and anything writing raw SQL that
+// bypasses the CLI entirely, are invisible to a diff-only or forward-only check.
+// Read-only, so it can never break an already-consistent DB.
+//
+// §1.1 PAIRED-MUTATION SENTINEL: replacing this function's body with `return nil`
+// removes the guard; TestValidate_CatchesTerminalStatusAtIssues (RED polarity per
+// §11.4.115) then FAILs — proving the guard is not a tautology.
+func issuesLocationTerminalStatus(items []item) []string {
+	terminal := terminalStatuses()
+	var out []string
+	for _, it := range items {
+		if it.CurrentLocation != "Issues" {
+			continue
+		}
+		if terminal[strings.TrimSpace(it.Status)] {
+			out = append(out, fmt.Sprintf(
+				"%s: Issues-location item has TERMINAL status %q — a closed item must live at Fixed; the §11.4.19 closure migration was skipped (use `close` for a new closure, or `move --to Fixed` to reconcile one already closed elsewhere) (§11.4.15/ATM-627 INTEG-03) [%s]",
 				it.AtmID, it.Status, it.repOrDefault()))
 		}
 	}
