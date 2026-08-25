@@ -52,6 +52,18 @@ cp -p "${real_root}/Constitution.md" "${scratch}/Constitution.md"
 mkdir -p "${scratch}/scripts"
 cp -a "${real_root}/scripts/." "${scratch}/scripts/"
 
+# The scratch tree stands in for a REAL CHECKOUT, so it must BE one: the
+# ledger classifies a file as an implementation site only when that file is
+# TRACKED in the repository owning it (an untracked working-tree file is not
+# in a fresh clone, so counting it would be a phantom ratchet advance). A bare
+# `mktemp -d` copy has no index, which the engine correctly refuses as BLIND.
+# `git add -A` alone is enough: tracked-ness is read from the INDEX, so no
+# commit — and therefore no user identity — is required. Every mutation below
+# edits already-copied files or the TSV registries; none creates a NEW `.sh`
+# gate site, so one staging pass here covers the whole run.
+git -C "${scratch}" init -q 2>/dev/null || true
+git -C "${scratch}" add -A 2>/dev/null || true
+
 # Re-freeze the scratch baseline to the CURRENT scratch-tree ground truth
 # BEFORE any mutation, rather than trusting the checked-in real-tree
 # baseline file to be perfectly in sync at every instant. This is what

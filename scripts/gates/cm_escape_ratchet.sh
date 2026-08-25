@@ -257,7 +257,7 @@ run_gate() {
         $1=="ROW" && $3=="defect" && $4==c && $6=="none" {n++} END{printf "%d", n+0}')
 
     [ "$QUIET" -eq 1 ] || printf '%s\n' "$_scan" | awk -F'\t' -v c="$_cycle" '
-        $1=="ROW" && $3=="defect" && $4==c {printf "  defect %s  channel=%s  should_have_been_caught_by=%s\n", $6, $5, $6==""?"?":$6}'
+        $1=="ROW" && $3=="defect" && $4==c {printf "  defect %s  channel=%s  should_have_been_caught_by=%s\n", $7, $5, ($6==""?"?":$6)}'
 
     printf 'REPORT\tcycle=%s\tbaseline=%s\tescapes=%s\tcaught_by_automated_seam=%s\tclassified_none=%s\n' \
         "$_cycle" "$_bv" "$_esc" "$_caught" "$_none"

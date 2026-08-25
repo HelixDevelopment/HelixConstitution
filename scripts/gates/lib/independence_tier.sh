@@ -143,6 +143,137 @@ _itier_selftest() {
     if [ "$_itier_r" -eq 1 ]; then _it_ok "self-owned writable store => boundary ABSENT (rc=1)"
     else _it_bad "self-owned writable store => rc=$_itier_r (expected 1 ABSENT)"; fi
 
+    # (1b) DECOY — the false-positive guard for the OWNERSHIP half of the
+    #      predicate. A path owned by ANOTHER uid but still WRITABLE by me is
+    #      NOT a boundary: I can still rewrite the store, which is the entire
+    #      thing a boundary would prevent.
+    #      This case is load-bearing and was added after measurement, not from
+    #      theory: dropping the `[ ! -w ]` half of _itier_boundary_raw passed
+    #      EVERY other assertion in this selftest (8/8 PASS, rc=0 on knowingly
+    #      broken code), because no fixture here was other-uid-owned AND
+    #      self-writable. Without this case the ownership check alone is
+    #      decoration for that dimension (§11.4.201/§11.4.107(10): a golden-FALSE
+    #      set must contain a decoy the mutation actually defeats).
+    _itier_decoy=''
+    _itier_uid=$(id -u 2>/dev/null)
+    for _itier_c in /tmp /var/tmp /dev/shm; do
+        [ -d "$_itier_c" ] || continue
+        _itier_co=$(stat -c '%u' "$_itier_c" 2>/dev/null) || continue
+        [ -n "$_itier_co" ] || continue
+        if [ "$_itier_co" != "$_itier_uid" ] && [ -w "$_itier_c" ]; then
+            _itier_decoy="$_itier_c"; break
+        fi
+    done
+    if [ -n "$_itier_decoy" ]; then
+        itier_detect_boundary "$_itier_decoy" >/dev/null 2>&1
+        _itier_dr=$?
+        if [ "$_itier_dr" -eq 1 ]; then
+            _it_ok "DECOY other-uid-owned but SELF-WRITABLE ($_itier_decoy) => ABSENT (rc=1); ownership alone is NOT accepted as a boundary"
+        else
+            _it_bad "DECOY other-uid-owned but self-writable ($_itier_decoy) => rc=$_itier_dr (expected 1 ABSENT) — the writability half of the predicate is not being applied, so any other-uid store would be miscounted as a capability boundary"
+        fi
+    else
+        printf '  SKIP no other-uid-owned self-writable path found among /tmp /var/tmp /dev/shm — the ownership-half decoy cannot be constructed on this host, so that dimension is NOT covered here (§11.4.3 skip-with-reason, never a pass)\n'
+    fi
+
+    # (1c) OWNERSHIP-DECOY — the false-positive guard for the OTHER half of the
+    #      predicate: the OWNERSHIP check. A path owned by ME but made read-only
+    #      (chmod 444) is NOT a boundary — I own it, so I can chmod it back and
+    #      rewrite the store at will, which is the entire thing a boundary would
+    #      prevent (this file's own predicate comment states exactly that case).
+    #      This case is load-bearing and was added after measurement, not from
+    #      theory: dropping the `[ "$_itier_owner" != "$_itier_me" ]` half of
+    #      _itier_boundary_raw passed EVERY other assertion in this selftest
+    #      (9/9 PASS, rc=0 on knowingly broken code), because no fixture here was
+    #      self-owned AND non-writable. Without this case the writability check
+    #      alone is decoration for that dimension, and the detector OVERCLAIMS
+    #      the achieved tier (§11.4.201/§11.4.107(10): a golden-FALSE set must
+    #      contain a decoy the mutation actually defeats).
+    #      KILL-POWER PRECONDITION (§11.4.201(7)(b)-shaped): this fixture only
+    #      separates the two predicates while `[ ! -w ]` is genuinely TRUE for
+    #      this uid. uid 0 bypasses the permission bits entirely, and some
+    #      filesystems/ACLs do not honour them, so the precondition is MEASURED
+    #      and the case SKIPs honestly rather than passing for the wrong reason
+    #      (§11.4.3 skip-with-reason, never a pass).
+    _itier_ro_dir="$_itier_tmp/ro_fixture"
+    (
+        # Subshell-scoped cleanup: an EXIT trap installed HERE fires on every
+        # exit path of this fixture and can never clobber a caller's EXIT trap
+        # when this file is SOURCED (§11.4.14 cleanup, without the sourced-
+        # library global-trap hazard that §11.4.67(6) names for `exec`).
+        trap 'chmod 0700 "$_itier_ro_dir" 2>/dev/null; rm -rf "$_itier_ro_dir"' EXIT
+        mkdir -p "$_itier_ro_dir" 2>/dev/null || exit 3
+        : > "$_itier_ro_dir/store.jsonl" 2>/dev/null || exit 3
+        chmod 0444 "$_itier_ro_dir/store.jsonl" 2>/dev/null || exit 3
+        # Precondition probe: is it REALLY non-writable for this uid?
+        if [ -w "$_itier_ro_dir/store.jsonl" ]; then exit 2; fi
+        _itier_boundary_raw "$_itier_ro_dir/store.jsonl"
+        _itier_ro_rc=$?
+        if [ "$_itier_ro_rc" -ne 0 ]; then exit 0; fi
+        exit 1
+    )
+    _itier_ro_v=$?
+    case "$_itier_ro_v" in
+        0) _it_ok "OWNERSHIP-DECOY self-owned but NON-WRITABLE (chmod 444) => ABSENT; non-writability alone is NOT accepted as a boundary" ;;
+        1) _it_bad "OWNERSHIP-DECOY self-owned chmod-444 path was reported as a BOUNDARY — the ownership half of the predicate is not being applied, so any self-owned read-only store would be miscounted as a capability boundary (the detector OVERCLAIMS the achieved tier)" ;;
+        2) printf '  SKIP OWNERSHIP-DECOY this uid can write a chmod-444 file it owns (uid 0, or a filesystem/ACL not honouring the mode bits), so the ownership-half decoy cannot be constructed here and that dimension is NOT covered (§11.4.3 skip-with-reason, never a pass)\n' ;;
+        *) _it_bad "OWNERSHIP-DECOY fixture setup failed (mkdir/create/chmod under $_itier_tmp) — the ownership dimension was NOT exercised" ;;
+    esac
+
+    # (1d) SUBJECT-UNMEASURABLE — the false-null guard for M9 (the OTHER
+    #      `return 3` site). itier_detect_boundary has TWO independent
+    #      `return 3` sites: the NEEDLE-unreachable branch (exercised by the
+    #      BLIND fixture below) and the SUBJECT-unmeasurable branch (this
+    #      fixture) — a store path that does not exist, so
+    #      _itier_boundary_raw cannot even stat it (raw rc=2). Those are TWO
+    #      DIFFERENT lines in TWO different `case` arms; killing one proves
+    #      NOTHING about the other. A mutation of the SUBJECT arm alone
+    #      (leaving the NEEDLE arm untouched) passed EVERY other assertion in
+    #      this selftest (10/10 PASS, rc=0 on knowingly broken code) —
+    #      CONDUCTOR-CONFIRMED 2026-08-22 — because no fixture here drove an
+    #      unmeasurable SUBJECT while the NEEDLE stayed reachable. Without
+    #      this case, "cannot be measured" silently degrades into "there is NO
+    #      boundary" — the EXACT false null this file's own header (see the
+    #      "THE DETECTOR'S OWN CONTROL NEEDLE" block above) exists to prevent,
+    #      and the detector OVERCLAIMS `instance` for a store it never
+    #      actually looked at (§11.4.201(6) false-null; §11.4.201/§11.4.107(10):
+    #      a golden-FALSE set must contain a decoy the mutation actually
+    #      defeats).
+    #      KILL-POWER PRECONDITION (§11.4.201(7)(b)-shaped): this fixture only
+    #      separates the two `return 3` sites while the NEEDLE is genuinely
+    #      reachable right now AND the candidate SUBJECT path genuinely does
+    #      not exist. Both are MEASURED, and the case SKIPs honestly rather
+    #      than passing for the wrong reason (§11.4.3 skip-with-reason, never
+    #      a pass).
+    (
+        # Subshell-scoped cleanup — see the (1c) comment above for why the
+        # trap lives here rather than at file/sourced-library scope
+        # (§11.4.67(6)).
+        _itier_su_path="$_itier_tmp/subject-unmeasurable-$$"
+        trap 'rm -f "$_itier_su_path" 2>/dev/null' EXIT
+        # Precondition 1: the needle is genuinely reachable right now.
+        _itier_boundary_raw "$ITIER_NEEDLE_PATH"
+        if [ $? -ne 0 ]; then exit 2; fi
+        # Precondition 2: the candidate subject path genuinely does not exist
+        # (so _itier_boundary_raw's own `[ -e "$_itier_p" ]` check is what
+        # makes it unmeasurable, not a fixture bug).
+        if [ -e "$_itier_su_path" ]; then exit 2; fi
+        itier_detect_boundary "$_itier_su_path" >/dev/null 2>&1
+        _itier_su_rc=$?
+        case "$_itier_su_rc" in
+            3) exit 0 ;;
+            1) exit 1 ;;
+            *) exit 4 ;;
+        esac
+    )
+    _itier_su_v=$?
+    case "$_itier_su_v" in
+        0) _it_ok "SUBJECT-UNMEASURABLE nonexistent (unmeasurable) subject + reachable needle => BLIND (rc=3), never a reported ABSENT" ;;
+        1) _it_bad "SUBJECT-UNMEASURABLE nonexistent (unmeasurable) subject + reachable needle reported ABSENT (rc=1) instead of BLIND — the SUBJECT's own 'return 3' degraded into an overclaimed absence; a store the detector could not even see was reported as having NO boundary (the exact false null FR-033/§11.4.201(6) forbids)" ;;
+        2) printf '  SKIP SUBJECT-UNMEASURABLE precondition unmet (needle unreachable, or the candidate subject path unexpectedly already exists) — this dimension is NOT covered here (§11.4.3 skip-with-reason, never a pass)\n' ;;
+        *) _it_bad "SUBJECT-UNMEASURABLE fixture returned an unexpected rc from itier_detect_boundary (neither 1 ABSENT nor 3 BLIND) — the subject dimension was NOT exercised as designed" ;;
+    esac
+
     # (2) achieved tier for that store is `instance`, NOT capability
     _itier_t=$(itier_achieved qa-deploy "$_itier_tmp/store.jsonl")
     if [ "$_itier_t" = "instance" ]; then _it_ok "achieved tier on a single-uid host is 'instance' (honest degradation)"

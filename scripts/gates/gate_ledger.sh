@@ -32,6 +32,53 @@
 # §1.1 mutation harness, not the gate) — only a NON-mutation-test `.sh` hit
 # counts as IMPLEMENTED.
 #
+# ── Tracked-ness: an UNTRACKED file is not an implementation site ────────
+# A `.sh` file that exists only in the working tree — never `git add`ed — is
+# NOT an implementation site, because a fresh clone of the repository does not
+# contain it. Counting one moves the §11.4.227(A) monotone-decrease ratchet on
+# local-only state that nobody else can reproduce: a PHANTOM ADVANCE, and
+# exactly the bluff shape the ratchet exists to prevent (§11.4/§11.4.1 at the
+# measurement layer, §11.4.201(6) — a working-tree grep and a repository are
+# not the same instrument).
+#
+# Forensic FACT (measured 2026-08-23 on this corpus, the defect that motivated
+# this clause): two never-committed files under `scripts/gates/` minted one
+# `IMPLEMENTED` row, and the ledger reported `unimplemented=418 baseline=419`
+# — a ratchet ADVANCE — while a fresh clone measured 419. The scan was a bare
+# filesystem `grep` with ZERO git-awareness (`git ` occurred 0 times in this
+# file; control needle: `UNIMPLEMENTED`=16, `grep`=18, negative control 0).
+#
+# So every candidate hit is additionally filtered by TRACKED-NESS, resolved
+# from the repository that OWNS the scanned path (`rev-parse --show-toplevel`
+# on `<impl-dir>`, never a hardcoded project path — §11.4.177/§11.4.28 keep
+# this engine project-agnostic and consumer-inherited BY REFERENCE).
+#
+#   * TRACKED  = present in that repository's INDEX (`git ls-files` /
+#                `--error-unmatch` semantics). A tracked file that is merely
+#                MODIFIED still counts — excluding it would be a
+#                §11.4.201(1) false-positive refusal, a FAIL-bluff of the same
+#                severity as the phantom advance. Only genuinely untracked
+#                files are dropped.
+#   * A `git status --porcelain | grep '^??'` parse is NEVER used: status
+#     COLLAPSES an untracked directory into a single entry (measured on this
+#     corpus: 10 status entries vs 34 real files), so it under-reports.
+#   * NESTED repositories are honoured: a hit the outer `ls-files` does not
+#     list is re-resolved against its OWN owning repository before being
+#     declared untracked, so a gate living inside a nested submodule is not
+#     falsely dropped.
+#
+# HONEST BOUNDARY (§11.4.6): "tracked" here means INDEX-tracked, not
+# HEAD-committed. A staged-but-uncommitted file counts, and is likewise absent
+# from a fresh clone until pushed; staging is the deliberate act this engine
+# treats as the tracking boundary, matching the conventional meaning of
+# "tracked". A consumer whose gate sites are GENERATED at build time and
+# deliberately gitignored would see them stop counting under this rule; that
+# case is a §11.4.66 operator decision (commit the generated wrappers, or
+# register their deferral), never a silent re-loosening of this filter.
+# Measured on this corpus at landing: 313 tracked + 4 untracked = 317 `.sh`
+# on disk, ZERO ignored — the generated propagation wrappers ARE committed, so
+# this filter changes no legitimate classification here.
+#
 # ── The `--` footgun this tool avoids (§11.4.201(7)(c) — the path is part of
 #     the instrument) ─────────────────────────────────────────────────────
 # `grep -rlE --include='*.sh' -- "$g" "$IMPL"` MUST keep every OPTION
@@ -217,6 +264,117 @@ EOF
     return 1
 }
 
+# ── Tracked-ness filter (git-awareness; see the header section) ───────────
+# Populated by `generate` via resolve_tracked_set() before any hit is
+# classified. Empty/unset outside `generate`, which never calls is_tracked().
+IMPL_NOSLASH=""
+IMPL_TOP=""
+IMPL_PREFIX=""
+TRACKED_SET=""
+TRACKED_NL="
+"
+
+# resolve_tracked_set <impl-dir>: resolve the repository OWNING <impl-dir> and
+# snapshot its index entries for that subtree, as repo-relative paths.
+#
+# Fail-CLOSED (§11.4.252 / §11.4.6 / §11.4.201): git missing, the path not
+# inside a repository, or an unresolvable index query is a REFUSAL (BLIND,
+# exit 2) — never a silent fallback. The two silent fallbacks are BOTH
+# forbidden and the refusal is chosen over either:
+#   * counting EVERY file would restore the phantom-advance defect verbatim;
+#   * counting NOTHING would flip every gate to UNIMPLEMENTED at once — a mass
+#     ratchet FAIL on a healthy corpus, the more dangerous direction because it
+#     buries a real signal under hundreds of false ones (§11.4.201(1)).
+# A refusal states the unresolvable condition and produces no number at all,
+# which is the only honest third answer.
+resolve_tracked_set() {
+    _rts_impl="$1"
+
+    if ! command -v git >/dev/null 2>&1; then
+        echo "BLIND: git is not available on PATH — tracked-ness of the gate sites under ${_rts_impl} cannot be resolved, and this tool refuses to count either every file (restores the phantom-advance defect) or none (mass false ratchet advance), §11.4.252/§11.4.6" >&2
+        exit 2
+    fi
+
+    IMPL_NOSLASH="${_rts_impl%/}"
+    [ -n "$IMPL_NOSLASH" ] || IMPL_NOSLASH="/"
+
+    IMPL_TOP="$(git -C "$_rts_impl" rev-parse --show-toplevel 2>/dev/null)" || IMPL_TOP=""
+    if [ -z "$IMPL_TOP" ]; then
+        echo "BLIND: impl-dir ${_rts_impl} is not inside a git repository — tracked-ness is unresolvable there, so this tool refuses rather than counting untracked working-tree files as implementations (§11.4.227(A) phantom advance) or counting none (§11.4.201(1) mass false refusal). Scan a real checkout, or \`git init\` the tree under test." >&2
+        exit 2
+    fi
+
+    IMPL_PREFIX="$(git -C "$_rts_impl" rev-parse --show-prefix 2>/dev/null)" || IMPL_PREFIX=""
+
+    if ! _rts_list="$(git -C "$_rts_impl" ls-files --full-name -- . 2>/dev/null)"; then
+        echo "BLIND: \`git ls-files\` failed for ${_rts_impl} (repository ${IMPL_TOP}) — the tracked set is unresolvable and this tool refuses to guess it, §11.4.6" >&2
+        exit 2
+    fi
+
+    # Control needle (§11.4.201(7)(b)) — a NULL is not evidence until the
+    # instrument is proven able to see through the SAME path.
+    #
+    # An empty tracked set alongside `.sh` files on disk has two REAL causes,
+    # and neither is a defect: a genuinely fresh repository (nothing staged
+    # anywhere), or a subtree whose every `.sh` file is genuinely new. Both are
+    # determinate answers — every gate there is honestly UNIMPLEMENTED, because
+    # a fresh clone would contain none of those files. REFUSING on either would
+    # be a §11.4.201(1) FALSE-POSITIVE refusal, which is a FAIL-bluff of the
+    # same severity as the phantom advance this filter prevents.
+    #
+    # So the needle LICENSES the zero rather than second-guessing it: the same
+    # `ls-files`, on the same repository, is asked whether it can see ANY entry
+    # at all. A successful probe — whether it returns entries (instrument
+    # demonstrably sees) or none (repository demonstrably empty) — makes the
+    # subtree zero real evidence. Only a probe that FAILS leaves the zero
+    # unresolvable, and that is refused (never silently trusted, §11.4.6).
+    if [ -z "$_rts_list" ] && [ -n "$(find "$_rts_impl" -name '*.sh' -type f -print -quit 2>/dev/null)" ]; then
+        if ! _rts_needle="$(git -C "$IMPL_TOP" ls-files 2>/dev/null)"; then
+            echo "BLIND: repository-wide \`git ls-files\` probe failed for ${IMPL_TOP} — the empty tracked set under ${_rts_impl} cannot be licensed as a real absence; refusing rather than guessing (§11.4.6/§11.4.201(7)(b))" >&2
+            exit 2
+        fi
+        if [ -n "$_rts_needle" ]; then
+            echo "NOTE: zero tracked files under ${_rts_impl}; control needle licenses it — the repository ${IMPL_TOP} index IS readable and non-empty, so every gate site in that subtree is genuinely untracked (§11.4.201(7)(b))" >&2
+        else
+            echo "NOTE: zero tracked files under ${_rts_impl}; control needle licenses it — the repository ${IMPL_TOP} index is readable and genuinely EMPTY (nothing staged anywhere), §11.4.201(7)(b)" >&2
+        fi
+    fi
+
+    TRACKED_SET="${TRACKED_NL}${_rts_list}${TRACKED_NL}"
+    return 0
+}
+
+# is_tracked <hit-path>: exit 0 when the grep hit is a TRACKED file.
+# <hit-path> is the path exactly as grep printed it, i.e. the `<impl-dir>`
+# argument followed by the file's subpath, so the repo-relative name is pure
+# string surgery — no per-hit `realpath`, no per-hit subprocess on the fast
+# path. Quoted expansions keep glob metacharacters in filenames literal.
+is_tracked() {
+    _it_p="$1"
+    _it_sub="${_it_p#"$IMPL_NOSLASH"}"
+    _it_sub="${_it_sub#/}"
+    _it_rel="${IMPL_PREFIX}${_it_sub}"
+    case "$TRACKED_SET" in
+        *"${TRACKED_NL}${_it_rel}${TRACKED_NL}"*) return 0 ;;
+    esac
+
+    # MISS — before declaring the file untracked, honour NESTED repositories:
+    # the outer `ls-files` deliberately does not list files inside a submodule,
+    # so a gate living in one would otherwise be falsely dropped
+    # (§11.4.201(1)). Re-resolve against the file's OWN owning repository.
+    # Only reached for genuine misses, so the cost stays off the fast path.
+    _it_dir="${_it_p%/*}"
+    [ "$_it_dir" != "$_it_p" ] || _it_dir="."
+    _it_base="${_it_p##*/}"
+    _it_own="$( (cd "$_it_dir" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null) || true )"
+    if [ -n "$_it_own" ] && [ "$_it_own" != "$IMPL_TOP" ]; then
+        if (cd "$_it_dir" 2>/dev/null && git ls-files --error-unmatch -- "./${_it_base}" >/dev/null 2>&1); then
+            return 0
+        fi
+    fi
+    return 1
+}
+
 MODE="${1:-}"
 if [ -z "$MODE" ]; then
     usage >&2
@@ -245,6 +403,10 @@ generate)
     done
     [ -d "$IMPL" ] || { echo "BLIND: impl-dir $IMPL absent" >&2; exit 2; }
     [ -r "$DEF" ] || { echo "BLIND: deferrals-tsv $DEF absent" >&2; exit 2; }
+
+    # Resolve the OWNING repository's tracked set once, before any hit is
+    # classified (see the tracked-ness header section). Refuses on BLIND.
+    resolve_tracked_set "$IMPL"
 
     names="$(cat -- "$@" | extract_names)"
     if [ -z "$names" ]; then
@@ -288,6 +450,11 @@ generate)
         while IFS= read -r _h; do
             [ -n "$_h" ] || continue
             is_nongate "$_h" && continue
+            # Tracked-ness (git-awareness): an untracked working-tree file is
+            # not an implementation site — a fresh clone does not have it, so
+            # counting it is a §11.4.227(A) PHANTOM RATCHET ADVANCE. A tracked
+            # but MODIFIED file still counts (§11.4.201(1)).
+            is_tracked "$_h" || continue
             gate_hits="${gate_hits}${_h}
 "
         done <<EOF
@@ -366,6 +533,25 @@ selfcheck)
     tmp="$(mktemp -d)"
     trap 'rm -rf "$tmp"' EXIT
 
+    # Scratch impl trees are real (throwaway) REPOSITORIES: `generate` resolves
+    # tracked-ness from the repo owning <impl-dir> (see the tracked-ness header
+    # section), so a bare mktemp dir would be an honest BLIND refusal, not a
+    # usable fixture. `git add` (index) is the tracking boundary — no commit is
+    # needed, and none is made.
+    _sc_repo() {   # _sc_repo <dir> [--no-add]
+        _scr_d="$1"; shift 2>/dev/null || true
+        git -C "$_scr_d" init -q >/dev/null 2>&1 || {
+            echo "SELFCHECK-FAIL: could not \`git init\` scratch repo $_scr_d — the tracked-ness fixtures cannot be built" >&2
+            exit 2
+        }
+        if [ "${1:-}" != "--no-add" ]; then
+            git -C "$_scr_d" add -A >/dev/null 2>&1 || {
+                echo "SELFCHECK-FAIL: could not stage scratch repo $_scr_d" >&2
+                exit 2
+            }
+        fi
+    }
+
     # ── control needle (§11.4.201(7)(b)) ────────────────────────────────────
     # A synthetic corpus with exactly one known-present gate token MUST be
     # extracted before any zero-extraction result elsewhere is trusted as a
@@ -387,6 +573,7 @@ echo "$GATE: PASS"
 exit 0
 SH
     chmod +x "$good_impl/cm_selftest_good.sh"
+    _sc_repo "$good_impl"
     good_def="$tmp/deferrals_empty_good.tsv"; : > "$good_def"
     good_corpus="$tmp/good_corpus.md"
     printf 'Gate `CM-SELFTEST-GOOD` protects the good path.\n' > "$good_corpus"
@@ -402,6 +589,7 @@ SH
     #    proves structure-not-substring (§11.4.201(7)(a)) actually holds.
     bad_impl="$tmp/impl_bad"; mkdir -p "$bad_impl"
     printf 'CM-SELFTEST-BAD is mentioned here, in a doc, never in an executable script.\n' > "$bad_impl/prose_carrier.md"
+    _sc_repo "$bad_impl"
     bad_def="$tmp/deferrals_empty_bad.tsv"; : > "$bad_def"
     bad_corpus="$tmp/bad_corpus.md"
     printf 'Gate `CM-SELFTEST-BAD` protects the bad path.\n' > "$bad_corpus"
@@ -422,6 +610,7 @@ GATE="CM-SELFTEST-MUTONLY"
 echo "mutation test for $GATE"
 SH
     chmod +x "$mut_impl/cm_selftest_mutonly_mutation_test.sh"
+    _sc_repo "$mut_impl"
     mut_def="$tmp/deferrals_empty_mut.tsv"; : > "$mut_def"
     mut_corpus="$tmp/mut_corpus.md"
     printf 'Gate `CM-SELFTEST-MUTONLY` protects the mutation-only path.\n' > "$mut_corpus"
@@ -434,6 +623,7 @@ SH
 
     # ── deferred classification: a registered deferral (no impl) -> DEFERRED
     defr_impl="$tmp/impl_defr"; mkdir -p "$defr_impl"
+    _sc_repo "$defr_impl"
     defr_def="$tmp/deferrals_one.tsv"
     printf 'CM-SELFTEST-DEFERRED\tTRACKED-ITEM-EXAMPLE-123\n' > "$defr_def"
     defr_corpus="$tmp/defr_corpus.md"
@@ -457,6 +647,7 @@ SH
 PLACEHOLDER="CM-SELFTEST-NONGATE-ONLY"
 SH
     chmod +x "$ng_impl/gates/lib/pointer_carrier.sh"
+    _sc_repo "$ng_impl"
     ng_def="$tmp/deferrals_empty_ng.tsv"; : > "$ng_def"
     ng_corpus="$tmp/ng_corpus.md"
     printf 'Gate `CM-SELFTEST-NONGATE-ONLY` is named in the corpus.\n' > "$ng_corpus"
@@ -484,6 +675,7 @@ echo "$GATE: PASS"
 exit 0
 SH
     chmod +x "$ng2_impl/gates/lib/pointer_carrier.sh" "$ng2_impl/gates/cm_selftest_nongate_both.sh"
+    _sc_repo "$ng2_impl"
     ng2_def="$tmp/deferrals_empty_ng2.tsv"; : > "$ng2_def"
     ng2_corpus="$tmp/ng2_corpus.md"
     printf 'Gate `CM-SELFTEST-NONGATE-BOTH` is named in the corpus.\n' > "$ng2_corpus"
@@ -496,6 +688,94 @@ SH
     if ! printf '%s\n' "$ng2_out" | grep -qE 'cm_selftest_nongate_both\.sh$'; then
         echo "SELFCHECK-FAIL: the IMPLEMENTED evidence path for CM-SELFTEST-NONGATE-BOTH is not the real gate site — the non-gate entry is still being cited as evidence" >&2
         printf '%s\n' "$ng2_out" >&2
+        exit 1
+    fi
+
+    # ── tracked-ness: golden-BAD (an UNTRACKED gate site MUST NOT count) ───
+    #    A `.sh` gate site present in the working tree but never `git add`ed is
+    #    NOT an implementation: a fresh clone does not contain it, so counting
+    #    it moves the §11.4.227(A) ratchet on unreproducible local-only state
+    #    (the PHANTOM ADVANCE this filter exists to prevent).
+    ut_impl="$tmp/impl_untracked"; mkdir -p "$ut_impl"
+    cat > "$ut_impl/cm_selftest_untracked.sh" <<'SH'
+#!/usr/bin/env bash
+GATE="CM-SELFTEST-UNTRACKED"
+echo "$GATE: PASS"
+exit 0
+SH
+    chmod +x "$ut_impl/cm_selftest_untracked.sh"
+    _sc_repo "$ut_impl" --no-add          # repo exists; the gate file is NOT staged
+    ut_def="$tmp/deferrals_empty_ut.tsv"; : > "$ut_def"
+    ut_corpus="$tmp/ut_corpus.md"
+    printf 'Gate `CM-SELFTEST-UNTRACKED` is named in the corpus.\n' > "$ut_corpus"
+    ut_out="$("$SELF" generate "$ut_impl" "$ut_def" "$ut_corpus")"
+    if ! printf '%s\n' "$ut_out" | grep -qE '^CM-SELFTEST-UNTRACKED[[:space:]]+UNIMPLEMENTED'; then
+        echo "SELFCHECK-FAIL: an UNTRACKED .sh gate site was counted as IMPLEMENTED — a fresh clone does not contain it, so the §11.4.227(A) ratchet would advance on unreproducible local-only state (phantom advance)" >&2
+        printf '%s\n' "$ut_out" >&2
+        exit 1
+    fi
+
+    # ── tracked-ness: golden-TRUE (a TRACKED gate site MUST still count) ───
+    #    The converse of the fixture above, on a byte-identical gate file: the
+    #    ONLY difference is `git add`. Without this the filter would be proven
+    #    only to EXCLUDE, never to still INCLUDE (§11.4.201(1)).
+    tr_impl="$tmp/impl_tracked"; mkdir -p "$tr_impl"
+    cat > "$tr_impl/cm_selftest_untracked.sh" <<'SH'
+#!/usr/bin/env bash
+GATE="CM-SELFTEST-UNTRACKED"
+echo "$GATE: PASS"
+exit 0
+SH
+    chmod +x "$tr_impl/cm_selftest_untracked.sh"
+    _sc_repo "$tr_impl"                   # SAME file, staged
+    tr_out="$("$SELF" generate "$tr_impl" "$ut_def" "$ut_corpus")"
+    if ! printf '%s\n' "$tr_out" | grep -qE '^CM-SELFTEST-UNTRACKED[[:space:]]+IMPLEMENTED'; then
+        echo "SELFCHECK-FAIL: a TRACKED .sh gate site (byte-identical to the untracked fixture, differing only by \`git add\`) was NOT classified IMPLEMENTED — the tracked-ness filter is over-firing (§11.4.201(1) false-positive refusal)" >&2
+        printf '%s\n' "$tr_out" >&2
+        exit 1
+    fi
+
+    # ── tracked-ness: golden-TRUE (a tracked-but-MODIFIED site still counts) ─
+    #    Only genuinely UNTRACKED files are dropped. A tracked file with local
+    #    edits is still in the index and still ships from a clone; excluding it
+    #    would be a FAIL-bluff of the same severity as the phantom advance.
+    md_impl="$tmp/impl_modified"; mkdir -p "$md_impl"
+    cat > "$md_impl/cm_selftest_modified.sh" <<'SH'
+#!/usr/bin/env bash
+GATE="CM-SELFTEST-MODIFIED"
+echo "$GATE: PASS"
+exit 0
+SH
+    chmod +x "$md_impl/cm_selftest_modified.sh"
+    _sc_repo "$md_impl"
+    printf '# locally modified after staging — still tracked\n' >> "$md_impl/cm_selftest_modified.sh"
+    md_def="$tmp/deferrals_empty_md.tsv"; : > "$md_def"
+    md_corpus="$tmp/md_corpus.md"
+    printf 'Gate `CM-SELFTEST-MODIFIED` is named in the corpus.\n' > "$md_corpus"
+    md_out="$("$SELF" generate "$md_impl" "$md_def" "$md_corpus")"
+    if ! printf '%s\n' "$md_out" | grep -qE '^CM-SELFTEST-MODIFIED[[:space:]]+IMPLEMENTED'; then
+        echo "SELFCHECK-FAIL: a TRACKED-but-MODIFIED .sh gate site was NOT classified IMPLEMENTED — only genuinely untracked files may be dropped (§11.4.201(1))" >&2
+        printf '%s\n' "$md_out" >&2
+        exit 1
+    fi
+
+    # ── tracked-ness: BLIND (a NON-REPOSITORY scan root MUST refuse) ───────
+    #    Tracked-ness is unresolvable outside a repository. The tool refuses
+    #    (exit 2) rather than silently counting everything (restores the
+    #    phantom-advance defect) or counting nothing (a mass false ratchet
+    #    advance — the more dangerous direction).
+    nr_impl="$tmp/impl_nonrepo"; mkdir -p "$nr_impl"
+    cat > "$nr_impl/cm_selftest_nonrepo.sh" <<'SH'
+#!/usr/bin/env bash
+GATE="CM-SELFTEST-NONREPO"
+SH
+    chmod +x "$nr_impl/cm_selftest_nonrepo.sh"   # deliberately NOT a repository
+    nr_def="$tmp/deferrals_empty_nr.tsv"; : > "$nr_def"
+    nr_corpus="$tmp/nr_corpus.md"
+    printf 'Gate `CM-SELFTEST-NONREPO` is named in the corpus.\n' > "$nr_corpus"
+    if nr_out="$("$SELF" generate "$nr_impl" "$nr_def" "$nr_corpus" 2>/dev/null)"; then
+        echo "SELFCHECK-FAIL: generate on a NON-REPOSITORY scan root exited 0 instead of refusing — tracked-ness is unresolvable there and a silent fallback restores the phantom-advance defect (§11.4.252 fail-closed)" >&2
+        printf '%s\n' "$nr_out" >&2
         exit 1
     fi
 
@@ -532,7 +812,7 @@ SH
         exit 1
     fi
 
-    echo "SELFCHECK: PASS — control needle sees; golden-good IMPLEMENTED; golden-bad prose-carrier UNIMPLEMENTED; mutation-test-only reference UNIMPLEMENTED; registered non-gate entry does NOT mint IMPLEMENTED, and does NOT suppress a real gate site; registered-deferral DEFERRED; check-mode ratchet + vanished-name golden-TRUE/golden-FALSE pairs all correct"
+    echo "SELFCHECK: PASS — control needle sees; golden-good IMPLEMENTED; golden-bad prose-carrier UNIMPLEMENTED; mutation-test-only reference UNIMPLEMENTED; registered non-gate entry does NOT mint IMPLEMENTED, and does NOT suppress a real gate site; registered-deferral DEFERRED; untracked gate site NOT counted while the byte-identical TRACKED one IS, and a tracked-but-modified site still counts; a non-repository scan root REFUSES rather than mis-counting; check-mode ratchet + vanished-name golden-TRUE/golden-FALSE pairs all correct"
     exit 0
     ;;
 

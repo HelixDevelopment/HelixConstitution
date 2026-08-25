@@ -6,9 +6,9 @@
 # satisfy a later one — that is the FR-021 staleness guarantee, and it is
 # the whole reason the value is recorded here rather than assumed.
 # Schema: <kind>\t<a>\t<b>\t<c>
-sweep-verdict	REFUSE	2026-08-21T18:49:08Z	unbound=36
-tree-fingerprint	a2d945e0cb12454a29307f2842fb97b1e69638de9d8db8de7159bfa81ac9e608	gates=194	seams=13
-summary	seam-literal=10	data-dispatch=90	paired=51;deferred=7;retired=0
+sweep-verdict	REFUSE	2026-08-23T09:46:13Z	unbound=30
+tree-fingerprint	445f4d5ecbfc7ee98b20dc65979b0b8c984a18d484fb42074fdd5d91150552da	gates=196	seams=13
+summary	seam-literal=17	data-dispatch=90	paired=52;deferred=7;retired=0
 # gate-token	gate-file	disposition	basis
 gate	CM-ANCHOR-DETECTS-TAIL-TRUNCATION-MUTATION-TEST	cm_anchor_detects_tail_truncation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_anchor_detects_tail_truncation.sh
 gate	CM-ANCHOR-DETECTS-TAIL-TRUNCATION	cm_anchor_detects_tail_truncation.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
@@ -31,7 +31,8 @@ gate	CM-CLI-AGENT-PLUGINS-WIRED	cm_cli_agent_plugins_wired.sh	UNBOUND	no seam re
 gate	CM-CONTINUUM-RESUME-ENGINE-PRESENT-MUTATION-TEST	cm_continuum_resume_engine_present_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_continuum_resume_engine_present.sh
 gate	CM-CONTINUUM-RESUME-ENGINE-PRESENT	cm_continuum_resume_engine_present.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
 gate	CM-CONTROL-NEEDLE-REQUIRED-MUTATION-TEST	cm_control_needle_required_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_control_needle_required.sh
-gate	CM-CONTROL-NEEDLE-REQUIRED	cm_control_needle_required.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-CONTROL-NEEDLE-REQUIRED	cm_control_needle_required.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
+gate	CM-COVENANT-114-162-PROPAGATION-MUTATION-TEST	cm_covenant_114_162_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_162_propagation.sh
 gate	CM-COVENANT-114-162-PROPAGATION	cm_covenant_114_162_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
 gate	CM-COVENANT-114-167-PROPAGATION-MUTATION-TEST	cm_covenant_114_167_propagation_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_covenant_114_167_propagation.sh
 gate	CM-COVENANT-114-167-PROPAGATION	cm_covenant_114_167_propagation.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
@@ -136,12 +137,13 @@ gate	CM-COVENANT-114-27-PROPAGATION	cm_covenant_114_27_propagation.sh	BOUND-DATA
 gate	CM-DANGEROUS-COMBINATION-FAIL-CLOSED-MUTATION-TEST	cm_dangerous_combination_fail_closed_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_dangerous_combination_fail_closed.sh
 gate	CM-DANGEROUS-COMBINATION-FAIL-CLOSED	cm_dangerous_combination_fail_closed.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv
 gate	CM-DEPENDENCY-ADOPTION-ADMITTED-MUTATION-TEST	cm_dependency_adoption_admitted_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_dependency_adoption_admitted.sh
-gate	CM-DEPENDENCY-ADOPTION-ADMITTED	cm_dependency_adoption_admitted.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-DEPENDENCY-ADOPTION-ADMITTED	cm_dependency_adoption_admitted.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
 gate	CM-DEPENDENCY-REGISTER-VERDICTS-MUTATION-TEST	cm_dependency_register_verdicts_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_dependency_register_verdicts.sh
-gate	CM-DEPENDENCY-REGISTER-VERDICTS	cm_dependency_register_verdicts.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-DEPENDENCY-REGISTER-VERDICTS	cm_dependency_register_verdicts.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
 gate	CM-DIAGRAM-EMBEDDED-NOT-ORPHAN-MUTATION-TEST	cm_diagram_embedded_not_orphan_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_diagram_embedded_not_orphan.sh
 gate	CM-DIAGRAM-EMBEDDED-NOT-ORPHAN	cm_diagram_embedded_not_orphan.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
-gate	CM-ESCAPE-RATCHET	cm_escape_ratchet.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-ESCAPE-RATCHET-SELFTEST	cm_escape_ratchet_selftest.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-ESCAPE-RATCHET	cm_escape_ratchet.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
 gate	CM-EVERY-FINDING-CLOSED-OR-TRACKED-MUTATION-TEST	cm_every_finding_closed_or_tracked_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_every_finding_closed_or_tracked.sh
 gate	CM-EVERY-FINDING-CLOSED-OR-TRACKED	cm_every_finding_closed_or_tracked.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv
 gate	CM-EVIDENCE-ANALYZER-SELF-VALIDATED-MUTATION-TEST	cm_evidence_analyzer_self_validated_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_evidence_analyzer_self_validated.sh
@@ -151,7 +153,7 @@ gate	CM-FAQ-FROM-REAL-QUESTIONS	cm_faq_from_real_questions.sh	UNBOUND	no seam re
 gate	CM-FEATURE-DIRECTIVE-MUTATION-TEST	cm_feature_directive_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_feature_directive.sh
 gate	CM-FEATURE-DIRECTIVE	cm_feature_directive.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
 gate	CM-FIRST-REFUSAL-OBSERVED-MUTATION-TEST	cm_first_refusal_observed_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_first_refusal_observed.sh
-gate	CM-FIRST-REFUSAL-OBSERVED	cm_first_refusal_observed.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-FIRST-REFUSAL-OBSERVED	cm_first_refusal_observed.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
 gate	CM-GATE-LEDGER-RATCHET-MUTATION-TEST	cm_gate_ledger_ratchet_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_gate_ledger_ratchet.sh
 gate	CM-GATE-LEDGER-RATCHET	cm_gate_ledger_ratchet.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
 gate	CM-GIT-HOOKS-INSTALLED-MUTATION-TEST	cm_git_hooks_installed_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_git_hooks_installed.sh
@@ -161,7 +163,7 @@ gate	CM-GUIDE-PER-USER-WORKFLOW	cm_guide_per_user_workflow.sh	UNBOUND	no seam re
 gate	CM-HEALTHCHECK-COVERS-SERVED-PORTS-MUTATION-TEST	cm_healthcheck_covers_served_ports_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_healthcheck_covers_served_ports.sh
 gate	CM-HEALTHCHECK-COVERS-SERVED-PORTS	cm_healthcheck_covers_served_ports.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
 gate	CM-INSTRUMENT-TRAP-SCAN-MUTATION-TEST	cm_instrument_trap_scan_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_instrument_trap_scan.sh
-gate	CM-INSTRUMENT-TRAP-SCAN	cm_instrument_trap_scan.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-INSTRUMENT-TRAP-SCAN	cm_instrument_trap_scan.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
 gate	CM-KILLPG-PGID-GUARD-MUTATION-TEST	cm_killpg_pgid_guard_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_killpg_pgid_guard.sh
 gate	CM-KILLPG-PGID-GUARD	cm_killpg_pgid_guard.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
 gate	CM-LEDGER-ROW-TYPED-FROM-CLOSED-VOCABULARY-MUTATION-TEST	cm_ledger_row_typed_from_closed_vocabulary_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_ledger_row_typed_from_closed_vocabulary.sh
@@ -169,7 +171,7 @@ gate	CM-LEDGER-ROW-TYPED-FROM-CLOSED-VOCABULARY	cm_ledger_row_typed_from_closed_
 gate	CM-MACHINE-EVIDENCE-AT-EVERY-GATE-MUTATION-TEST	cm_machine_evidence_at_every_gate_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_machine_evidence_at_every_gate.sh
 gate	CM-MACHINE-EVIDENCE-AT-EVERY-GATE	cm_machine_evidence_at_every_gate.sh	DEFERRED-REGISTERED	registered owed debt in gate_ledger_deferrals.tsv
 gate	CM-MECHANISM-OBSERVED-REFUSING-MUTATION-TEST	cm_mechanism_observed_refusing_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_mechanism_observed_refusing.sh
-gate	CM-MECHANISM-OBSERVED-REFUSING	cm_mechanism_observed_refusing.sh	UNBOUND	no seam reference, no data-dispatch rule, no deferral row, no retirement row
+gate	CM-MECHANISM-OBSERVED-REFUSING	cm_mechanism_observed_refusing.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
 gate	CM-MULTITRACK-ENGINE-IN-CONSTITUTION-MUTATION-TEST	cm_multitrack_engine_in_constitution_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_multitrack_engine_in_constitution.sh
 gate	CM-MULTITRACK-ENGINE-IN-CONSTITUTION	cm_multitrack_engine_in_constitution.sh	BOUND-SEAM-LITERAL	basename on a non-comment line of a declared seam file
 gate	CM-MUTATION-SCORE-ON-DIFF-MUTATION-TEST	cm_mutation_score_on_diff_mutation_test.sh	BOUND-PAIRED-MUTATION	paired gate present: cm_mutation_score_on_diff.sh

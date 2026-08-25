@@ -14,6 +14,9 @@
 #             are for uncited reads — FR-027 where it actually bites  (RUNTIME)
 #   UNION-A5  VerifyComplete still DETECTs a genuine shortfall        (RUNTIME)
 #   UNION-A6  the classifier is WIRED at the recording path         (structural)
+#   UNION-A7  that wiring is EXERCISED: the consumer is BUILT and RUN
+#             on rows the REAL producer emitted, and both verdicts are
+#             reachable                                               (RUNTIME)
 #
 # A3 and A4 are the FR-027 FALSE-POSITIVE half, and they are HARD ASSERTIONS,
 # not comments. A gate that demanded an entry for every read would not be
@@ -70,7 +73,20 @@ while [ $# -gt 0 ]; do
     case $1 in
         --module) MODULE=$2; shift 2 ;;
         -h|--help) sed -n '2,40p' "$0"; exit 0 ;;
-        *) printf 'unknown argument: %s\n' "$1" >&2; exit 2 ;;
+        *)
+            # Two-sided diagnosability. The commonest way to arrive here is a
+            # caller that expects a PER-INSTANCE union-rule check -- "is THIS
+            # chain complete for THESE calls" -- and drives this gate with two
+            # positional files. That is a DIFFERENT LAYER: this gate asserts the
+            # shipped CLASSIFIER (is it correct, is it wired), not one
+            # (calls, chain) pair. Saying so here costs one line and saves the
+            # next caller a debugging cycle; the verdict is unchanged.
+            printf 'unknown argument: %s\n' "$1" >&2
+            printf 'hint: usage is --module <module-root>. This gate asserts the union-rule\n' >&2
+            printf 'hint: CLASSIFIER itself, not whether one (calls, chain) instance is\n' >&2
+            printf 'hint: complete. A per-instance chain-coverage check is a different layer\n' >&2
+            printf 'hint: and a different tool; it is not reachable through this CLI.\n' >&2
+            exit 2 ;;
     esac
 done
 
@@ -278,6 +294,132 @@ case $CN_RESULT in
     *)
         cn_blind UNION-A6-WIRED-AT-RECORDING-PATH "$CN_RESULT: $CN_DETAIL" ;;
 esac
+
+
+# ── UNION-A7 — the wiring is EXERCISED, not merely present (§11.4.108) ───────
+# A6 is a SOURCE-layer fact: a call site exists. That is necessary and it is not
+# sufficient — a call site inside an entry point nobody can build, or one whose
+# result never reaches an outcome, is still a classifier that classifies nothing
+# that happens. A7 is the RUNTIME half: it BUILDS the consumer and RUNS it, on
+# rows a REAL producer emitted, and asserts the verdict tracks the classifier.
+#
+# Both directions are asserted, because a consumer that only ever says PASS
+# proves as little as one that only ever says DETECTED (§11.4.107(10)):
+#   golden-good  chain long enough for the recorded commands  -> PASS, rc 0
+#   golden-bad   the SAME commands against a short chain      -> DETECTED, rc 1
+# Neither verdict is therefore hardcoded.
+#
+# The counts are asserted too, not just the verdict. `required=` is computed by
+# chain.RequiredEntries over calls chain.ClassifyExec produced, so a classifier
+# that stopped demanding an entry for an executed command would change that
+# number while the verdict could still read PASS on a long-enough chain.
+#
+# The recorder rows come from the SHELL producer itself rather than a fixture
+# written here. A fixture shaped by this gate would agree with the decoder by
+# construction and would prove nothing about the producer the system actually
+# runs (F-002-24 was exactly that divergence going unnoticed).
+A7_ID=UNION-A7-WIRING-EXERCISED-AT-RUNTIME
+XREC="$SELF_DIR/lib/execution_record.sh"
+if ! command -v go >/dev/null 2>&1; then
+    cn_skip "$A7_ID" 'go toolchain absent: the consumer could not be built or run, so its behaviour was NOT observed'
+elif [ ! -f "$XREC" ]; then
+    cn_skip "$A7_ID" "execution recorder absent ($XREC): no REAL producer rows could be obtained, and a fixture written here would prove nothing about the producer"
+else
+    A7="$TMP/a7"
+    mkdir -p "$A7/streams"
+    # Three REAL rows from the real producer.
+    a7_rows=0
+    for _i in 1 2 3; do
+        if ( cd "$(dirname "$XREC")" && . "$XREC" && \
+             exec_record_run "$A7/rec.jsonl" "$A7/streams" -- /bin/echo "union-a7-$_i" ) >/dev/null 2>&1; then
+            a7_rows=$((a7_rows + 1))
+        fi
+    done
+
+    # Two real chains, built by the module's OWN builder (§11.4.251: no second
+    # canonicaliser here, or a drift between them would be invisible).
+    mkdir -p "$A7/mk"
+    cat > "$A7/mk/go.mod" <<EOF
+module a7mk
+
+go 1.22
+
+require github.com/vasic-digital/continuum v0.0.0
+
+replace github.com/vasic-digital/continuum => $MODULE
+EOF
+    cat > "$A7/mk/main.go" <<'MKEOF'
+package main
+
+import (
+	"os"
+	"strconv"
+
+	"github.com/vasic-digital/continuum/pkg/verify"
+)
+
+func main() {
+	n, err := strconv.Atoi(os.Args[2])
+	if err != nil {
+		os.Exit(2)
+	}
+	if err := verify.WriteHealthyChainForTest(os.Args[1], n); err != nil {
+		os.Exit(2)
+	}
+}
+MKEOF
+    ( cd "$A7/mk" && go run . "$A7/chain_full.jsonl" 3 && go run . "$A7/chain_short.jsonl" 1 ) \
+        >"$A7/mk.log" 2>&1
+    A7_MK_RC=$?
+
+    # Build the consumer OUT of the module (never into it: this gate stays
+    # read-only w.r.t. the repository).
+    ( cd "$MODULE" && go build -o "$A7/unionrule" ./cmd/continuum-unionrule ) >"$A7/build.log" 2>&1
+    A7_BUILD_RC=$?
+
+    if [ "$a7_rows" -ne 3 ] || [ "$A7_MK_RC" -ne 0 ] || [ "$A7_BUILD_RC" -ne 0 ]; then
+        cn_blind "$A7_ID" \
+            "the runtime probe could not be set up (real_rows=$a7_rows/3 chain_rc=$A7_MK_RC build_rc=$A7_BUILD_RC): $(head -3 "$A7/build.log" "$A7/mk.log" 2>/dev/null | tr '\n' ' ')"
+    else
+        "$A7/unionrule" --recorder "$A7/rec.jsonl" --chain "$A7/chain_full.jsonl" >"$A7/good.out" 2>&1
+        A7_GOOD_RC=$?
+        "$A7/unionrule" --recorder "$A7/rec.jsonl" --chain "$A7/chain_short.jsonl" >"$A7/bad.out" 2>&1
+        A7_BAD_RC=$?
+        cat "$A7/good.out" "$A7/bad.out" > "$A7/both.out" 2>/dev/null
+
+        # Every read of the consumer's output is needled: a reader that cannot
+        # see the consumer's lines is BLIND, not a consumer defect.
+        a7_seen() { # a7_seen <query> -> 0 present, 1 absent, 2 blind
+            cn_certified_absence '-E' '^UNIONRULE (calls|verdict|finding) ?' "$1" "$A7/both.out"
+            case $CN_RESULT in
+                PRESENT) return 0 ;;
+                ABSENT)  return 1 ;;
+                *)       return 2 ;;
+            esac
+        }
+
+        a7_seen '^UNIONRULE calls=3 state_changing=3 requiring_entry=3 required=3 entries=3$'; a7_counts=$?
+        a7_seen '^UNIONRULE verdict=PASS$';       a7_pass=$?
+        a7_seen '^UNIONRULE verdict=DETECTED$';   a7_det=$?
+        a7_seen "^UNIONRULE finding kind=chain_entry_ABSENT "; a7_find=$?
+
+        if [ "$a7_counts" -eq 2 ] || [ "$a7_pass" -eq 2 ] || [ "$a7_det" -eq 2 ] || [ "$a7_find" -eq 2 ]; then
+            cn_blind "$A7_ID" "$CN_RESULT reading the consumer output: $CN_DETAIL"
+        elif [ "$a7_counts" -ne 0 ]; then
+            cn_fail "$A7_ID" \
+                "the consumer ran but its counts are not the classifier's: expected 3 executed commands to require 3 entries. Got: $(grep -m1 '^UNIONRULE calls=' "$A7/both.out" 2>/dev/null)"
+        elif [ "$a7_pass" -ne 0 ] || [ "$A7_GOOD_RC" -ne 0 ]; then
+            cn_fail "$A7_ID" \
+                "golden-good FAILED: a chain holding one entry per recorded command was not reported PASS (rc=$A7_GOOD_RC). $(head -3 "$A7/good.out" | tr '\n' ' ')"
+        elif [ "$a7_det" -ne 0 ] || [ "$a7_find" -ne 0 ] || [ "$A7_BAD_RC" -eq 0 ]; then
+            cn_fail "$A7_ID" \
+                "golden-bad FAILED: a genuinely short chain was NOT detected (rc=$A7_BAD_RC). A consumer that cannot report a shortfall asserts nothing. $(head -3 "$A7/bad.out" | tr '\n' ' ')"
+        else
+            cn_pass "$A7_ID" \
+                "the consumer was BUILT and RUN on 3 rows the real producer emitted: it demanded 3 entries (chain.RequiredEntries over chain.ClassifyExec output), reported PASS on a 3-entry chain (rc 0) and DETECTED chain_entry_ABSENT on a 1-entry chain (rc 1) — both verdicts reachable, so neither is hardcoded"
+        fi
+    fi
+fi
 
 cn_summary "$GATE_ID"
 exit $?
