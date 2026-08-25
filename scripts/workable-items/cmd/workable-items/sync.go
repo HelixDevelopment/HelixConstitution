@@ -695,6 +695,15 @@ func diffCmd(args []string) int {
 	// NAME rather than being what you get by forgetting a flag.
 	dbOnly := fs.Bool("db-only", false,
 		"run ONLY the DB-internal integrity checks and read no Markdown (the verdict says so)")
+	// BOB-186: the named opt-in for the PARTIAL-Markdown shape, mirroring what
+	// --db-only did for the no-Markdown shape. The per-tracker comparison is a
+	// real, documented capability (see the "Restrict the 'absent in Markdown'
+	// pass" comment below) and is NOT deleted by the accounting guard (§11.4.122
+	// forbids silently removing an existing capability) — it survives, but must
+	// be asked for BY NAME rather than being what you get by forgetting a flag.
+	partialScope := fs.Bool("partial-scope", false,
+		"compare ONLY the trackers whose paths were supplied; the verdict names the DB "+
+			"locations it did not cover and never claims a full DB-vs-Markdown sync")
 	if err := fs.Parse(args); err != nil {
 		return exitUsage
 	}
@@ -737,6 +746,17 @@ func diffCmd(args []string) int {
 			"diff: --db-only is mutually exclusive with --issues / --fixed")
 		return exitUsage
 	}
+	// Same rationale, one flag over: --db-only compares NO Markdown, while
+	// --partial-scope asserts something about WHICH Markdown trackers were
+	// compared. Accepting both would mean silently ignoring one of them, which is
+	// how a verdict starts misdescribing its own inputs — the same defect class
+	// as the false-null itself.
+	if *dbOnly && *partialScope {
+		fmt.Fprintln(os.Stderr,
+			"diff: --partial-scope is meaningless with --db-only, which compares no "+
+				"Markdown at all — pass one or the other")
+		return exitUsage
+	}
 
 	db, err := openDB(*dbPath)
 	if err != nil {
@@ -748,6 +768,99 @@ func diffCmd(args []string) int {
 	dbItems, err := loadItems(db)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "diff: %v\n", err)
+		return exitUsage
+	}
+
+	// BOB-186 (§11.4.201(6) false-null, severity High — the PARTIAL-read sibling
+	// of the BOB-155 no-read false-null fixed above).
+	//
+	// Measured 2026-08-25 on a live 185-row registry:
+	//
+	//	$ workable-items diff --db docs/workable_items.db --issues docs/Issues.md
+	//	diff: DB and Markdown are in sync (compared 77 Markdown item(s)
+	//	                                   against 185 DB item(s); read docs/Issues.md)
+	//	exit 0
+	//
+	// 77 against 185. The verdict printed BOTH numbers and still said "in sync".
+	// The 107 rows located in Fixed were never compared against anything — the
+	// terminal "absent in Markdown" pass deliberately (and CORRECTLY) skips a
+	// tracker whose path the caller did not supply, so it would not manufacture
+	// false positives; but the VERDICT then claimed a full DB-vs-Markdown sync it
+	// had not performed. A partially blind instrument returned the same quiet
+	// green a genuinely synced corpus returns, and no reader could tell them
+	// apart from the output alone. Load-bearing: consuming projects wire this
+	// verdict into their §11.4.106(F) commit seam, so a caller passing only
+	// --issues was told the docs chain was clean while Fixed had silently
+	// diverged.
+	//
+	// THE RULE: a DB-vs-Markdown verdict may only be emitted when the supplied
+	// Markdown paths ACCOUNT FOR every DB item's current_location. Anything else
+	// is refused (§11.4.201(4) conservative-safe default; consistent with the
+	// no-paths refusal directly above and with diff's siblings syncMDToDB /
+	// syncDBToMD, which likewise refuse rather than guess).
+	//
+	// KEYED ON MEASURED DB CONTENT, NEVER ON "were both flags given". A DB
+	// holding zero Fixed rows IS fully accounted for by --issues alone and must
+	// still pass — refusing it would trade this false-null for a §11.4.201(1)
+	// false-positive refusal, which is forbidden in the same breath.
+	//
+	// The location set is CHECK-constrained by the schema to exactly
+	// {'Issues','Fixed'} (schema.sql: current_location TEXT NOT NULL CHECK
+	// (current_location IN ('Issues','Fixed'))), so every location has a
+	// corresponding path flag and none can be structurally unaccountable. These
+	// are the TOOL'S OWN schema literals, not a consumer's tracker filenames —
+	// no project literal enters the submodule (§11.4.28).
+	type trackerScope struct {
+		location string // schema current_location value
+		flag     string // the flag that supplies its Markdown
+		supplied bool
+	}
+	trackers := []trackerScope{
+		{location: "Issues", flag: "--issues", supplied: *issuesPath != ""},
+		{location: "Fixed", flag: "--fixed", supplied: *fixedPath != ""},
+	}
+	// Deterministic order: iterate the fixed slice, never a map.
+	type unaccountedTracker struct {
+		location string
+		flag     string
+		rows     int
+	}
+	var unaccounted []unaccountedTracker
+	unaccountedRowTotal := 0
+	if haveMarkdown {
+		for _, tr := range trackers {
+			if tr.supplied {
+				continue
+			}
+			rows := 0
+			for _, it := range dbItems {
+				if it.CurrentLocation == tr.location {
+					rows++
+				}
+			}
+			if rows > 0 {
+				unaccounted = append(unaccounted, unaccountedTracker{
+					location: tr.location, flag: tr.flag, rows: rows,
+				})
+				unaccountedRowTotal += rows
+			}
+		}
+	}
+	if len(unaccounted) > 0 && !*partialScope {
+		// Print the RESOLVED EVIDENCE on the refusal (§11.4.201(5)): which
+		// location, how many rows, and which flag supplies it — so a false
+		// positive, if one ever occurs, is diagnosable in one step.
+		var parts []string
+		for _, u := range unaccounted {
+			parts = append(parts, fmt.Sprintf("%d item(s) located in %s (supply %s)",
+				u.rows, u.location, u.flag))
+		}
+		fmt.Fprintf(os.Stderr,
+			"diff: refusing to report a DB-vs-Markdown verdict that would silently "+
+				"exclude part of the DB — the supplied Markdown path(s) do not account "+
+				"for %s. Supply the missing path(s) for a full verdict, or pass "+
+				"--partial-scope to compare only the trackers supplied and receive a "+
+				"scope-limited verdict.\n", strings.Join(parts, "; "))
 		return exitUsage
 	}
 
@@ -890,6 +1003,33 @@ func diffCmd(args []string) int {
 		sources = append(sources, *fixedPath)
 	}
 	read := strings.Join(sources, ", ")
+
+	// BOB-186: the verdict's SHAPE is decided by the MEASURED unaccounted set,
+	// never by the flag. --partial-scope grants PERMISSION to proceed; it does not
+	// change what is true. So a --partial-scope run that turns out to account for
+	// every DB row still gets the ordinary full-sync verdict, and a scope-limited
+	// run NEVER gets to say "in sync" — the phrase is reserved, by construction,
+	// for a comparison that actually covered the whole DB.
+	if len(unaccounted) > 0 {
+		var skipped []string
+		for _, u := range unaccounted {
+			skipped = append(skipped, fmt.Sprintf("%d in %s (no %s supplied)",
+				u.rows, u.location, u.flag))
+		}
+		notCovered := strings.Join(skipped, "; ")
+		if differences == 0 {
+			fmt.Printf("diff: PARTIAL SCOPE — no differences within the tracker(s) compared "+
+				"(compared %d Markdown item(s); read %s), but %d of %d DB item(s) were NOT "+
+				"compared: %s. This is NOT a full DB-vs-Markdown sync verdict.\n",
+				len(parsed), read, unaccountedRowTotal, len(dbItems), notCovered)
+			return exitOK
+		}
+		fmt.Printf("diff: PARTIAL SCOPE — %d difference(s) within the tracker(s) compared "+
+			"(compared %d Markdown item(s); read %s), and %d of %d DB item(s) were NOT "+
+			"compared: %s.\n", differences, len(parsed), read,
+			unaccountedRowTotal, len(dbItems), notCovered)
+		return exitUsage
+	}
 
 	if differences == 0 {
 		fmt.Printf("diff: DB and Markdown are in sync (compared %d Markdown item(s) "+

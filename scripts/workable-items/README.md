@@ -1,7 +1,7 @@
 # workable-items — §11.4.93 SQLite-SSoT Go binary
 
-**Revision:** 3
-**Last modified:** 2026-05-31T00:00:00Z
+**Revision:** 4
+**Last modified:** 2026-08-25T00:00:00Z
 **Description:** Authoritative source-of-truth registry for every workable item in every consuming project. Bidirectional regen between SQLite DB and Markdown trackers per Constitution §11.4.93.
 
 ## Overview
@@ -36,8 +36,21 @@ workable-items sync md-to-db --db <p> [--issues <p>] [--fixed <p>]
                                     # parse Issues.md+Fixed.md → upsert DB
 workable-items sync db-to-md --db <p> [--out-issues <p>] [--out-fixed <p>]
                                     # regen MD docs from DB (byte-identical round-trip)
-workable-items diff --db <p> [--issues <p>] [--fixed <p>]
-                                    # show DB vs MD divergence (CI gate)
+workable-items diff --db <p> [--issues <p>] [--fixed <p>] [--partial-scope] | --db-only
+                                    # show DB vs MD divergence (CI gate).
+                                    # REFUSES rather than emit a verdict it cannot
+                                    # support: with NO Markdown path (BOB-155), and
+                                    # when the supplied path(s) do not account for
+                                    # every DB item's current_location (BOB-186) —
+                                    # e.g. --issues alone while the DB holds Fixed
+                                    # rows, which previously reported "in sync"
+                                    # having compared none of them.
+                                    # --db-only     : DB-internal checks only, reads
+                                    #                 no Markdown (verdict says so).
+                                    # --partial-scope: compare only the tracker(s)
+                                    #                 supplied; the verdict names the
+                                    #                 locations it did NOT cover and
+                                    #                 never claims a full sync.
 workable-items validate --db <p>    # invariant + schema sanity (pre-build gate)
 workable-items add <type> <severity> --db <p> --title <T> --description <D> [--id <id>] [--prefix <P>]
                                     # create a new Queued item in Issues; --id
