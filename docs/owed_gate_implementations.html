@@ -377,8 +377,8 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 <body>
 <h1 id="owed-gate-implementations--114227a-deferral-registry">Owed gate
 implementations — §11.4.227(A) deferral registry</h1>
-<p><strong>Revision:</strong> 3 <strong>Last modified:</strong>
-2026-08-20T15:37:04Z <strong>Description:</strong> The tracked work
+<p><strong>Revision:</strong> 4 <strong>Last modified:</strong>
+2026-08-26T16:56:28Z <strong>Description:</strong> The tracked work
 items every row of <code>scripts/gates/gate_ledger_deferrals.tsv</code>
 points at. <strong>Authority:</strong> §11.4.227(A) (named-gate ledger +
 monotone-decrease ratchet), §11.4.197 (started work reaches a terminal
@@ -389,10 +389,12 @@ governance corpus to be <strong>either</strong> implemented in an
 executable gate site <strong>or</strong> covered by a <strong>registered
 deferral pointing at a tracked item</strong>. Silent gate debt is
 forbidden, and so is deleting a name to lower the count.</p>
-<p><strong>64 of this document&#39;s 76 <code>OWED-GATE-NNN</code> entries
-are still genuinely owed</strong> — confirmed 2026-08-20T15:32:40Z by
-diffing every <code>OWED-GATE-NNN</code> entry&#39;s backtick-quoted gate
-name (Sections A</p>
+<p><strong>64 of this document&#39;s then-76 <code>OWED-GATE-NNN</code>
+entries are still genuinely owed</strong> <em>(figure predates Section
+D, which registered 15 further ids on 2026-08-26 — re-derive per the
+instruction below rather than adding to this number)</em> — confirmed
+2026-08-20T15:32:40Z by diffing every <code>OWED-GATE-NNN</code> entry&#39;s
+backtick-quoted gate name (Sections A</p>
 <ul>
 <li>C, numeric ids only — the non-numeric <code>OWED-GATE-ADV-F*</code>
 findings in Section B.1 are review findings, not gates, and are
@@ -1490,5 +1492,311 @@ tracked and visible — it is NOT a gate that runs. §11.4.263&#39;s
 signal-safety mandate is therefore <strong>unenforced
 mechanically</strong> in this repository today; only its anchor text
 binds.</p>
+<hr />
+<h2 id="d-deferrals-registered-2026-08-26--the-15-owed-gate--ids-that-pointed-at-no-tracked-item">D.
+Deferrals registered 2026-08-26 — the 15 <code>OWED-GATE-*</code> ids
+that pointed at no tracked item</h2>
+<p>These 15 ids appeared in the first column&#39;s partner field of
+<code>scripts/gates/gate_ledger_deferrals.tsv</code> with <strong>no
+corresponding entry in this document</strong> — a DANGLING pointer: the
+TSV header states every row &quot;is registered as owed debt against a
+tracked item in docs/owed_gate_implementations.md&quot;, and for these
+fifteen that item did not exist. <code>gate_ledger.sh</code> never
+caught it because the ledger checks only that a deferral ROW exists for
+the gate name, never that the row&#39;s id RESOLVES — an honest instrument
+gap, not a miscount. Registering them here is the sanctioned
+§11.4.227(A) path (never renumbering, per §11.4.54 id stability, and
+never deleting a row, per §11.4.227(A)).</p>
+<p><strong>Measurement (§11.4.201(7)(b)):</strong> the dangling set was
+derived by diffing every <code>OWED-GATE-NNN</code> id in the TSV&#39;s
+field 2 against every such id in this document; the diff instrument was
+control-needle-proven (a KNOWN-tracked id already registered in Section
+A returned 1 hit in this document by the same <code>/usr/bin/grep</code>
+invocation, and an id whose three-digit suffix appears nowhere returned
+0). Ids in the <strong>080-083 suffix range</strong> were checked and
+exist NOWHERE in the tree (same instrument, control-needle-proven
+against the suffix-084 id registered below), so no entry is minted for
+them — inventing an id for a row that does not exist would be the
+§11.4.6 guess this registry forbids.</p>
+<p><strong>Honest boundary (§11.4.6):</strong> registering a deferral
+proves the debt is <em>tracked</em>, not that the gate <em>works</em>.
+Every entry below is still OWED; the §11.4.227(A) acceptance criteria at
+the top of this document apply unchanged. The baseline in
+<code>gate_ledger_baseline.txt</code> was NOT raised — these rows were
+already DEFERRED in the ledger&#39;s eyes; only their tracked item was
+missing.</p>
+<h3 id="114176">§11.4.176</h3>
+<ul>
+<li><strong>OWED-GATE-077</strong> —
+<code>CM-LOGICAL-GROUP-COHESION</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every workable item in a logic
+group resolves to that group&#39;s single canonical (track, branch)
+destination per §11.4.176(A)/§11.4.191</li>
+<li><strong>Blocked on:</strong> needs the group→destination registry
+join wired as a checkable seam. Named ONLY in a prose comment at
+cm_covenant_114_176_propagation.sh:20; zero executable sites.</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+<li><strong>OWED-GATE-078</strong> —
+<code>CM-NO-CROSS-TRACK-SCOPE-OVERLAP</code>
+<ul>
+<li><strong>Must assert:</strong> asserts two concurrently-claimed work
+units never share a file-scope path per §11.4.176(A) disjoint-scope +
+§11.4.58 L3</li>
+<li><strong>Blocked on:</strong> needs a live cross-track claim registry
+to diff scopes against — the per-repo claim registries are empty. Named
+ONLY in a prose comment at cm_covenant_114_176_propagation.sh:20; zero
+executable sites.</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+<li><strong>OWED-GATE-079</strong> —
+<code>CM-WORK-DIVISION-EXCLUSIVE-CLAIM</code>
+<ul>
+<li><strong>Must assert:</strong> asserts the §11.4.176(A) exactly-once
+claim registry admits one and only one claimant per workable item,
+refusing a second claim</li>
+<li><strong>Blocked on:</strong> needs a shared cross-track claim store
+— not adopted in-repo. Named ONLY in a prose comment at
+cm_covenant_114_176_propagation.sh:19; zero executable sites.</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+</ul>
+<h3 id="114269">§11.4.269</h3>
+<ul>
+<li><strong>OWED-GATE-084</strong> —
+<code>CM-CRITIC-CONSENSUS-ADVISORY-ONLY</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a claim supported only by an
+ungoverned critic/consensus/confidence signal is refused, the
+accept/refuse outcome is identical whether the ungoverned critic step
+ran or was skipped, every stored critic output carries role advisory and
+enters no evidence chain, and a mandatory
+11.4.125/.134/.142/.165/.209/.237/.256 review verdict is never
+downgraded to advisory</li>
+<li><strong>Blocked on:</strong> no critic/consensus mechanism and no
+advisory store are wired in-repo, and the consumer binds both as DATA
+per 11.4.35</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+</ul>
+<h3 id="114270">§11.4.270</h3>
+<ul>
+<li><strong>OWED-GATE-085</strong> —
+<code>CM-DEPENDENCY-EXISTENCE-VERDICT-REGISTER</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every claimed dependency has a
+register row carrying a closed-set {VERIFIED,AMBIGUOUS,UNVERIFIED}
+verdict plus an evidence field, a name collision resolves AMBIGUOUS
+never VERIFIED, adoption on an UNVERIFIED/AMBIGUOUS row is refused, and
+adoption neither precedes its wiring-sweep result nor targets an
+already-covered capability</li>
+<li><strong>Blocked on:</strong> no dependency-existence register exists
+in-repo, and the consumer supplies the register location plus its
+recorded uncovered-gap set as DATA per 11.4.35</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+</ul>
+<h3 id="114238-1">§11.4.238</h3>
+<ul>
+<li><strong>OWED-GATE-086</strong> —
+<code>CM-DISCOVERY-CHANNEL-RECORD-COMPLETE</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every recorded defect carries
+a closed-set discovery channel plus a should_have_been_caught_by
+seam-name or a justified none, verifier-seam-written and never
+producer-authored</li>
+<li><strong>Blocked on:</strong> the defect records carry no
+discovery-channel field today and no verifier-seam writer exists, so the
+gate has no field to read (11.4.238 EXTENSION, gate-code declared a
+separate work item)</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+<li><strong>OWED-GATE-087</strong> —
+<code>CM-ESCAPE-RATCHET-NO-DATA-POINT-HONEST</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a cycle whose escape count
+exceeds the recorded baseline refuses the release seam, a cycle with
+manual_qa_ran false contributes no data point and cannot lower the
+baseline, and none-tagged records are tallied separately</li>
+<li><strong>Blocked on:</strong> no escape-count baseline and no
+manual_qa_ran flag are recorded today, so the ratchet has no baseline to
+compare against (11.4.238 EXTENSION, gate-code declared a separate work
+item)</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+</ul>
+<h3 id="114268">§11.4.268</h3>
+<ul>
+<li><strong>OWED-GATE-088</strong> —
+<code>CM-EVIDENCE-CHAIN-ANCHOR-CATCHES-RECOMPUTE-AND-TRUNCATION</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a periodic anchor record
+exists on the declared interval carrying head-digest plus entry-count
+plus an honest mechanism/policy strength, and that anchor cross-check
+detects a recomputed-forward deletion and a tail truncation that
+chain-alone verification passes cleanly on</li>
+<li><strong>Blocked on:</strong> no evidence chain and no anchor store
+exist in-repo, and the consumer binds the anchor location plus interval
+as DATA per 11.4.35</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+<li><strong>OWED-GATE-089</strong> —
+<code>CM-EVIDENCE-CHAIN-DELETE-REORDER-DETECTED</code>
+<ul>
+<li><strong>Must assert:</strong> asserts full forward chain-walk
+verification reports a deleted or reordered entry left internally
+inconsistent, recomputing every link rather than spot-checking one entry
+content</li>
+<li><strong>Blocked on:</strong> no evidence chain implementation exists
+in-repo, and 11.4.268 requires reusing an existing content-addressed
+store rather than standing up a rival one</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+<li><strong>OWED-GATE-090</strong> —
+<code>CM-EVIDENCE-CHAIN-INCOMPLETE-VERIFICATION-REFUSES</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a chain truncated
+mid-verification or an anchor location unreachable at verification time
+yields UNVERIFIED refusal per 11.4.201 conservative-safe default, never
+a clean pass by default</li>
+<li><strong>Blocked on:</strong> depends on the chain and anchor stores
+landing first, since there is no verification path to make refuse</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+</ul>
+<h3 id="114115">§11.4.115</h3>
+<ul>
+<li><strong>OWED-GATE-091</strong> —
+<code>CM-EVIDENCE-RECORDER-RECONCILED</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every evidence-bearing claim
+citing a specific command output has a matching recorder entry for the
+exact command cited, refused at the same status-write seam 11.4.146(D3)
+already enforces</li>
+<li><strong>Blocked on:</strong> no command-execution recorder exists
+in-repo, so there is no entry set to reconcile citations against
+(11.4.115(H) EXTENSION, gate-code declared a separate work item)</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+<li><strong>OWED-GATE-092</strong> —
+<code>CM-EVIDENCE-RECORD-FIELD-SET-COMPLETE</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every command-execution
+evidence entry carries start-timestamp, working directory, argument list
+as a genuine list never a shell-joined string, exit status and duration,
+refusing the write on a missing or unparseable field</li>
+<li><strong>Blocked on:</strong> no command-execution recorder with this
+schema exists in-repo (11.4.115(H) EXTENSION, gate-code declared a
+separate work item)</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+<li><strong>OWED-GATE-093</strong> —
+<code>CM-EVIDENCE-STREAM-DIGEST-PRE-TRUNCATION</code>
+<ul>
+<li><strong>Must assert:</strong> asserts a truncated or redacted stream
+entry carries a full-stream digest, byte count and an outside-VCS
+reference all computed BEFORE truncation, with truncation recorded as a
+fact rather than silent</li>
+<li><strong>Blocked on:</strong> depends on the command-execution
+recorder landing first, since there is no stream-capture path to digest
+(11.4.115(H) EXTENSION, gate-code declared a separate work item)</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+</ul>
+<h3 id="114240-1">§11.4.240</h3>
+<ul>
+<li><strong>OWED-GATE-094</strong> —
+<code>CM-INDEPENDENCE-TIER-HONESTLY-RECORDED</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every accepted verdict carries
+an independence_tier field within the closed {instance,model,capability}
+set, never capability at a Tier-C-triggered seam lacking a
+mechanically-verified host boundary, while a same-model independent
+verdict at an ordinary seam is accepted without a capability check</li>
+<li><strong>Blocked on:</strong> verdicts carry no independence_tier
+field today, and 11.4.240(F) records that capability tier is
+unestablishable on a single-uid host until an operator takes the
+host-boundary action (11.4.240(F) EXTENSION, gate-code declared a
+separate work item)</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+</ul>
+<h3 id="114271">§11.4.271</h3>
+<ul>
+<li><strong>OWED-GATE-095</strong> —
+<code>CM-WAIVER-ROSTERED-EXPIRY-TRACKED</code>
+<ul>
+<li><strong>Must assert:</strong> asserts every active waiver resolves
+to a genuinely rostered non-producer authoriser identity, a future
+unelapsed expiry and a named stable-id tracked item, with any one of the
+three missing invalidating the waiver and reverting its gate to
+blocking</li>
+<li><strong>Blocked on:</strong> no authoriser roster and no waiver
+store exist in-repo, and the consumer binds both as DATA per
+11.4.35</li>
+<li><strong>Paired §1.1 mutation:</strong> owed together with the
+harness — per §11.4.115(F) observation-before-trust the gate is not
+trusted until a paired mutation has been OBSERVED to make it FAIL, and
+per §11.4.227(A) the row leaves the TSV and the baseline ratchets down
+only then.</li>
+</ul></li>
+</ul>
 </body>
 </html>
