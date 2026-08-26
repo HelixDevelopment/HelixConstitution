@@ -409,15 +409,43 @@ helix_cred_scan_file() {
   # bootstrap case every real secret scanner exempts (gitleaks/trufflehog do not
   # scan their own rule files).
   #
-  # SAFETY — the exemption is NAME + CONTENT proven, never name alone. A file is
-  # exempt only if BOTH its basename is one of this library's own two canonical
-  # files AND it actually defines the detector patterns. A file merely RENAMED to
-  # credential_scan_lib.sh cannot smuggle a secret through: without the pattern
-  # definitions it is scanned normally.
+  # SAFETY — the exemption is NAME + DEFINITION proven: never name alone, and
+  # never a MENTION. Each canonical basename carries its OWN proof, because the
+  # two files legitimately differ (the suite defines NO detector pattern —
+  # measured: `HELIX_CRED_VALUE_PATTERN=` occurs 0x in it), and every proof is
+  # LINE-ANCHORED at an assignment / function-definition form, which a comment
+  # can never satisfy (a comment line begins with `#`, excluded by the
+  # `^[[:space:]]*` anchor). A file merely RENAMED to credential_scan_lib.sh that
+  # merely NAMES these tokens in prose is therefore scanned normally.
+  #
+  # FORENSIC (2026-08-25, §11.4.201(7)(a) carrier-vs-thing INSIDE the scanner):
+  # the previous form was `grep -q A || grep -q B`, unanchored, with B a bare
+  # FUNCTION NAME that occurs in this library's own comments — so any file
+  # renamed to credential_scan_lib.sh carrying `# helix_cred_scan_file` in a
+  # COMMENT was exempted with a real secret (reproduced 3-way). Swapping `||`
+  # for `&&` does NOT fix it and is a second bluff in the opposite direction:
+  # measured, it (a) still lets a carrier through when the comment names BOTH
+  # tokens, and (b) DE-EXEMPTS test_credential_scan_lib.sh (0 pattern hits),
+  # resurrecting the §11.4.201(1) false-positive refusal this block exists to
+  # cure. Only per-basename ANCHORED DEFINITION proofs are correct in both
+  # directions.
   case "$(basename -- "${1:-}")" in
-    credential_scan_lib.sh|test_credential_scan_lib.sh)
-      if grep -q 'HELIX_CRED_VALUE_PATTERN=' "${1:-}" 2>/dev/null \
-         || grep -q 'helix_cred_scan_file' "${1:-}" 2>/dev/null; then
+    credential_scan_lib.sh)
+      # DEFINES the detector: anchored ASSIGNMENT of the value pattern AND an
+      # anchored DEFINITION of this very function.
+      if grep -Eq '^[[:space:]]*HELIX_CRED_VALUE_PATTERN=' "${1:-}" 2>/dev/null \
+         && grep -Eq '^[[:space:]]*helix_cred_scan_file[[:space:]]*\([[:space:]]*\)' "${1:-}" 2>/dev/null; then
+        return 1
+      fi
+      ;;
+    test_credential_scan_lib.sh)
+      # IS the golden suite: anchored DEFINITIONS of both of its oracle
+      # functions (assert_clean / assert_caught — the two entry points every
+      # golden fixture routes through) AND an anchored, executable (non-comment)
+      # CALL of the scanner they drive.
+      if grep -Eq '^[[:space:]]*assert_clean[[:space:]]*\([[:space:]]*\)' "${1:-}" 2>/dev/null \
+         && grep -Eq '^[[:space:]]*assert_caught[[:space:]]*\([[:space:]]*\)' "${1:-}" 2>/dev/null \
+         && grep -Eq '^[[:space:]]*(if[[:space:]]+)?!?[[:space:]]*helix_cred_scan_file[[:space:]]' "${1:-}" 2>/dev/null; then
         return 1
       fi
       ;;

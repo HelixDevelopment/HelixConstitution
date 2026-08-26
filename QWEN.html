@@ -8503,23 +8503,23 @@ session-transcript with no subagent-vs-conductor marker — recorded as an
 open limitation to be tracked, never silently claimed solved. (6)
 <strong>DIVERGENT-LABELER RECONCILIATION (§11.4.227)</strong> — the LIVE
 labeler wired via <code>.claude/settings.json</code> is
-<code>constitution/scripts/multitrack/track_branch_label.sh</code> (both
-it and the top-level <code>scripts/multitrack/</code> duplicate carry
-the model-field extension (functionally equivalent on the alias+model
-fields, not byte-identical — the constitution copy additionally carries
-the 2026-07-26 effort field the top-level copy does not yet mirror));
-the two copies are reconciled to a single source of truth (top-level a
-thin wrapper exec-ing the constitution copy, §11.4.177
-inherited-by-reference) as a reconciliation to be tracked, never a
-silent divergence. (7) <strong>EFFORT FIELD (added 2026-07-26 per the
-operator IMPORTANT mandate — verbatim: &quot;Besides dynamic determining
-proper models to use, we MUST decide the effort as well and switch
-between the effort settings same as we do now for chosen model! Labeling
-MUST BE extended for this details as well. Example: (T1/main - claude4 -
-opus - high).&quot;).</strong> The 5-field label appends
-<code>&lt;effort&gt;</code> after <code>&lt;model&gt;</code>, recording
-which reasoning-EFFORT setting is CURRENTLY in force for that
-work-stream, drawn from the closed set
+<code>constitution/scripts/multitrack/track_branch_label.sh</code>; the
+top-level <code>scripts/multitrack/</code> path is a thin pass-through
+WRAPPER that <code>exec</code>s that canonical copy (§11.4.177
+inherited-by-reference), so it mirrors nothing, cannot drift, and emits
+byte-identical output by construction. The reconciliation LANDED in
+commit <code>a48e919f52d</code> and is gate-enforced at
+<code>pre_build_verification.sh:41911-41915</code> (the gate detects the
+<code>exec</code> wrapper and follows it to the canonical
+implementation), never a silent divergence. (7) <strong>EFFORT FIELD
+(added 2026-07-26 per the operator IMPORTANT mandate — verbatim:
+&quot;Besides dynamic determining proper models to use, we MUST decide the
+effort as well and switch between the effort settings same as we do now
+for chosen model! Labeling MUST BE extended for this details as well.
+Example: (T1/main - claude4 - opus - high).&quot;).</strong> The 5-field
+label appends <code>&lt;effort&gt;</code> after
+<code>&lt;model&gt;</code>, recording which reasoning-EFFORT setting is
+CURRENTLY in force for that work-stream, drawn from the closed set
 <code>{low | medium | high | xhigh | max}</code> (the SAME effort ladder
 §11.4.231 clause (F) selects). (a) DERIVATION (§11.4.6, never guessed) —
 <code>&lt;effort&gt;</code> is read from whatever LIVE effort signal the

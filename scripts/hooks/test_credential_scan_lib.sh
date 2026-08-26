@@ -454,6 +454,55 @@ else
     bad "(stream-bad-B2) binary stream with plaintext secret — MISSED (binary -o false negative)"
 fi
 
+# =============================================================================
+# (19) SELF-DEFINITION EXEMPTION — carrier-strip #19, BOTH directions.
+# §11.4.201(7)(a) carrier-vs-thing applied to the exemption itself: the two
+# canonical files MUST stay exempt (a §11.4.201(1) false-positive refusal blocks
+# this library's own maintenance — FORENSIC 2026-08-20), while a file merely
+# RENAMED to one of those basenames and merely MENTIONING the tokens in prose
+# MUST be scanned normally (FORENSIC 2026-08-25: the pre-fix
+# `grep -q A || grep -q B` exempted exactly that carrier, and a naive `&&`
+# de-exempts this very suite — 0 occurrences of the pattern-assignment token).
+# Every fixture secret below is ASSEMBLED AT RUNTIME so this file never carries
+# a new literal credential-shaped token.
+# =============================================================================
+_x19_secret="$(printf 'api%s=%s%s' '_key' 'AKIA' 'Q7X2M4B8N1V5C3Z9')"
+_x19_fn="$(printf 'helix%s' '_cred_scan_file')"
+_x19_pat="$(printf 'HELIX%s=' '_CRED_VALUE_PATTERN')"
+mkdir -p "$WORK/x19a" "$WORK/x19b" "$WORK/x19c" "$WORK/x19d"
+
+# golden-GOOD: the two canonical files themselves stay exempt.
+assert_clean "(19-good-1) canonical credential_scan_lib.sh stays exempt" "$LIB"
+assert_clean "(19-good-2) canonical test_credential_scan_lib.sh stays exempt" \
+             "$HERE/test_credential_scan_lib.sh"
+
+# golden-BAD 1: renamed to the library basename, tokens only in a COMMENT.
+{ echo '#!/bin/sh'
+  printf '# doc: %s is assigned by the library and %s() is its entry point\n' "$_x19_pat" "$_x19_fn"
+  printf '%s\n' "$_x19_secret"; } > "$WORK/x19a/credential_scan_lib.sh"
+assert_caught "(19-bad-1) renamed to lib basename, tokens in comments only" \
+              "$WORK/x19a/credential_scan_lib.sh"
+
+# golden-BAD 2: renamed to the suite basename, every required token in a COMMENT.
+{ echo '#!/bin/sh'
+  printf '# doc: the suite defines assert_clean() / assert_caught() and calls %s\n' "$_x19_fn"
+  printf '%s\n' "$_x19_secret"; } > "$WORK/x19b/test_credential_scan_lib.sh"
+assert_caught "(19-bad-2) renamed to suite basename, tokens in comments only" \
+              "$WORK/x19b/test_credential_scan_lib.sh"
+
+# golden-BAD 3: PARTIAL forgery — assigns the pattern but defines no scanner.
+{ echo '#!/bin/sh'; printf "%s'x'\n" "$_x19_pat"; printf '%s\n' "$_x19_secret"; } \
+  > "$WORK/x19c/credential_scan_lib.sh"
+assert_caught "(19-bad-3) lib basename, pattern assigned but no scanner defined" \
+              "$WORK/x19c/credential_scan_lib.sh"
+
+# golden-BAD 4: PARTIAL forgery — one oracle defined, the other missing.
+{ echo '#!/bin/sh'; echo 'assert_clean() { :; }'
+  printf '  %s "$1"\n' "$_x19_fn"; printf '%s\n' "$_x19_secret"; } \
+  > "$WORK/x19d/test_credential_scan_lib.sh"
+assert_caught "(19-bad-4) suite basename, assert_caught definition missing" \
+              "$WORK/x19d/test_credential_scan_lib.sh"
+
 echo ""
 echo "== RESULT: ${pass} passed, ${fail} failed =="
 [ "$fail" -eq 0 ]
