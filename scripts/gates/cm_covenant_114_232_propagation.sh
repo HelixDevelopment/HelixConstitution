@@ -1,285 +1,61 @@
 #!/usr/bin/env bash
-# cm_covenant_114_232_propagation.sh — CM-COVENANT-114-232-PROPAGATION gate
-# (anti-mess long-op orchestration: registered / single-owned-per-purpose /
-# liveness-proven / handed-off-on-stop / safely-reaped / consistency-checked
-# / escape-bounded).
+# cm_covenant_114_232_propagation.sh — CM-COVENANT-114-232-PROPAGATION gate (anchor §11.4.232).
 #
 # ── Purpose ──────────────────────────────────────────────────────────────────
-# §11.4.232 requires the anchor BLOCK (the anchor's own governance paragraph,
-# not merely the bare literal `11.4.232` — §11.4.227(B)) to be present
-# EXACTLY ONCE in every owned governance context-carrier file (CLAUDE.md /
-# AGENTS.md / QWEN.md / GEMINI.md) across the consumer fleet, per §11.4.157
-# five-carrier-lockstep + §11.4.35 inheritance, AND to be BYTE-IDENTICAL
-# across every carrier that has it (no F7-class divergent-duplicate drift).
+# §11.4.227(B) anchor-block integrity for §11.4.232: the anchor's BLOCK (its
+# own governance paragraph, not merely the bare literal `11.4.232`) MUST be
+# present EXACTLY ONCE in every owned governance context-carrier
+# (CLAUDE.md / AGENTS.md / QWEN.md / GEMINI.md) across the consumer fleet
+# (§11.4.157 lockstep, §11.4.35 inheritance), and every such block MUST be
+# BYTE-IDENTICAL across the carriers that carry it. Block-STARTS are counted
+# (line-anchored), never bare literals — a mid-body citation is a CARRIER
+# (§11.4.201(7)(a)); a genuine §11.4.35 pointer-inheritance consumer carrying
+# zero blocks is an honest SKIP, never a MISSING (§11.4.201(1)).
 #
-# Per §11.4.227(B) this gate counts BLOCK-STARTS, never a bare-literal grep:
-#   * a "block-start" is a LINE-ANCHORED heading pattern (the line itself
-#     begins with the anchor marker) — a mid-sentence/mid-body CITATION of
-#     the anchor (e.g. "... per §11.4.232(A) ...") is a CARRIER and MUST NOT
-#     count (§11.4.201(7)(a): match structure, not substring);
-#   * 0 block-starts in a discovered carrier = MISSING -> FAIL;
-#   * >1 block-starts in one carrier = DUPLICATION (the F7 class) -> FAIL;
-#   * exactly 1 block-start per carrier is required, AND every carrier's
-#     FULL block (heading line through the line before the next block-start
-#     of ANY anchor, or EOF — NOT merely the heading line: these anchors are
-#     genuinely multi-paragraph, forensic-motivation + lettered-clause +
-#     Classification + Canonical-authority + no-escape-hatch) MUST be
-#     byte-identical (sha256-equal) to every other carrier's — a
-#     divergent-but-present duplicate is a FAIL the old bare-literal-presence
-#     gates (e.g. cm_covenant_114_213) could not see (the F7 forensic case:
-#     two anchors landed verbatim-divergent copies across all four mirrors
-#     while every presence-only propagation gate stayed green).
-#   * §11.4.35 POINTER-INHERITANCE carriers (files carrying a REAL,
-#     non-fenced, line-anchored `## INHERITED FROM ...` heading) are
-#     engine-rules-only mirrors that legitimately carry ZERO per-anchor
-#     blocks — a zero-count on such a carrier is an honest
-#     POINTER-INHERITANCE-SKIP, NEVER a MISSING/FAIL (a false-positive
-#     refusal is itself a §11.4.201(1) FAIL-bluff). The pointer predicate
-#     is FENCE-AWARE: the canonical constitution mirrors themselves quote
-#     the `## INHERITED FROM ...` heading inside a fenced ```markdown code
-#     block (the "How inheritance works" EXAMPLE, e.g. CLAUDE.md:91,
-#     GEMINI.md:33) — that fenced text is a CARRIER, not a real pointer
-#     heading (§11.4.201(7)(a)); a bare (non-fence-tracking) grep would
-#     mis-classify those FULL mirrors as pointer consumers the moment they
-#     lose their real anchor block, silently converting a real MISSING/FAIL
-#     into an honest-looking SKIP — the false-negative the fence-tracking
-#     predicate exists to prevent. A pointer carrier that DOES restate the
-#     block is NOT skipped — it still participates in exactly-once +
-#     lockstep so a restating consumer's own duplication/divergence is
-#     still caught.
-#
-# Recognised block-start conventions (line-anchored, ^ = start of line):
-#   ^**§11.4.<N>              (bold-paragraph form — the current convention
-#                              for §11.4.185 and later anchors, incl. 232-233)
-#   ^### §11.4.<N>            (H3-heading form — Constitution.md's own style)
-#   ^- §11.4.<N>               (bullet compact-summary form — older anchors)
-# In all three forms the anchor number is boundary-checked ([^0-9] or EOL)
-# so a numeric prefix-match (e.g. "2321") can never be mistaken for "232".
-#
-# Control needle (§11.4.201(7)(b)): before trusting a zero-match "MISSING"
-# verdict on any carrier, the extractor is self-tested against a synthetic
-# line KNOWN to contain a genuine block-start for this exact anchor+regex
-# class; if the needle itself fails to match, the instrument is BLIND and
-# the run aborts (exit 2) rather than reporting a false absence.
+# ── Thin-wrapper rationale (§11.4.251) ───────────────────────────────────────
+# Every gate in this family runs the IDENTICAL check and differs only in its
+# gate NAME and anchor NUMBER. Keeping one full copy of the ~400-line check per
+# gate would be exactly the near-identical fork §11.4.251 forbids, so the code
+# lives ONCE in `lib/covenant_propagation_engine.sh` and the role values live
+# in the data pack `covenant_propagation_anchors.tsv`. This file carries only
+# its own gate name — required because the §11.4.227(A) ledger's structural
+# instrument needs a real executable `.sh` gate site naming the gate. It is
+# generated by `covenant_propagation_wrappers_generate.sh` (§11.4.77); edit
+# the engine or the data pack, never this file by hand.
 #
 # ── Usage ────────────────────────────────────────────────────────────────────
 #   cm_covenant_114_232_propagation.sh [--root <consumer-root>] [--quiet]
 #     --root <dir>   consumer fleet root to scan (default: $CONSUMER_ROOT or "..")
-#     --quiet        suppress the per-file PASS lines (FAIL lines always shown)
-#
-# ── Inputs ───────────────────────────────────────────────────────────────────
-#   CONSUMER_ROOT  env override for the fleet root (arg --root takes precedence).
-#   The gate discovers carriers by name (CLAUDE.md / AGENTS.md / QWEN.md /
-#   GEMINI.md) under the root, EXCLUDING vendored / third-party trees that are
-#   not authored by us (node_modules, .git, out, build, dist, prebuilts,
-#   external, vendor, target). Project-agnostic per §11.4.28 — no consuming
-#   project's paths are hardcoded.
-#
-# ── Outputs ──────────────────────────────────────────────────────────────────
-#   Per-carrier PASS/FAIL/SKIP lines on stdout + a final summary; nonzero
-#   exit on any MISSING / DUPLICATED / DIVERGENT owned carrier. A
-#   §11.4.35 pointer-inheritance carrier reports POINTER-INHERITANCE-SKIP
-#   (informational, never a fail cause).
+#     --quiet        suppress per-file PASS lines (FAIL lines always shown)
+#     -h|--help      print this header
 #
 # ── Side-effects ─────────────────────────────────────────────────────────────
 #   None (read-only; no network, no commit, no device mutation).
 #
 # ── Dependencies ─────────────────────────────────────────────────────────────
-#   bash, POSIX find + grep + sha256sum (or shasum -a 256 fallback). Parses
-#   clean under bash -n.
+#   bash, lib/covenant_propagation_engine.sh, lib/pointer_carrier.sh,
+#   covenant_propagation_anchors.tsv. Parses clean under bash -n.
 #
-# ── Cross-references ──────────────────────────────────────────────────────────
-#   §11.4.232 (anti-mess long-op orchestration), §11.4.227(B) (anchor-block
-#   integrity: block-starts not bare literals, exactly-once, lockstep hash),
-#   §11.4.201(7)(a)/(b) (structure-not-substring + control needle), §11.4.157
-#   (five-carrier lockstep), §11.4.35 (inheritance), §11.4.28 (decoupling),
-#   §1.1 (paired mutation — strip a block / duplicate a block / diverge a
-#   block across carriers -> this gate FAILs). Note (§11.4.6 honest boundary):
-#   this gate checks the four MIRROR carriers (CLAUDE/AGENTS/QWEN/GEMINI.md)
-#   — Constitution.md itself is the anchor's own source-of-truth location and
-#   is guaranteed to carry the block by construction, so it is intentionally
-#   not re-scanned here (same convention as the legacy bare-literal gates,
-#   e.g. cm_covenant_114_213_propagation.sh).
+# ── Cross-references ─────────────────────────────────────────────────────────
+#   §11.4.232 (the anchor enforced), §11.4.227(A)/(B), §11.4.201(1)/(7)(a)/(7)(b),
+#   §11.4.157, §11.4.35, §11.4.251, §11.4.28/§11.4.177, §1.1 (paired mutation:
+#   cm_covenant_114_232_propagation_mutation_test.sh).
 #
 # ── Exit codes ───────────────────────────────────────────────────────────────
-#   0 — every discovered owned carrier carries exactly ONE `11.4.232` block,
-#       and every such block is byte-identical across all carriers that have it.
-#   1 — at least one discovered owned carrier is MISSING the block, carries
-#       it MORE THAN ONCE, or carries a block that DIVERGES from its peers.
-#   2 — environment error (root not found, no carriers discovered, or the
-#       control-needle self-test failed — the instrument is blind).
+#   0 PASS · 1 MISSING/DUPLICATED/DIVERGENT · 2 environment error / BLIND.
 #
 # Classification: universal (§11.4.17) — no project-specific data.
 
 set -euo pipefail
 
-ANCHOR="11.4.232"
 GATE="CM-COVENANT-114-232-PROPAGATION"
 
-root="${CONSUMER_ROOT:-..}"
-quiet=""
-while [ $# -gt 0 ]; do
-    case "$1" in
-        --root)  root="$2"; shift 2 ;;
-        --quiet) quiet="1"; shift ;;
-        -h|--help) sed -n '1,70p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
-        *) echo "${GATE}: unknown arg '$1'" >&2; exit 2 ;;
-    esac
-done
-
-[ -d "$root" ] || { echo "${GATE}: consumer root not found: $root" >&2; exit 2; }
-root="$(cd "$root" && pwd)"
-
-# Anchor number, ERE-escaped (dots literalised) for use inside the
-# block-start regex; a trailing boundary of [^0-9] or end-of-line prevents a
-# numeric prefix-match (e.g. never confuse "2321" with "232").
-ANCHOR_RE="$(printf '%s' "$ANCHOR" | sed 's/\./\\./g')"
-BLOCK_RE="^(\\*\\*|### |- )§${ANCHOR_RE}([^0-9]|\$)"
-
-sha256_of() {
-    if command -v sha256sum >/dev/null 2>&1; then
-        sha256sum | awk '{print $1}'
-    elif command -v shasum >/dev/null 2>&1; then
-        shasum -a 256 | awk '{print $1}'
-    else
-        echo "${GATE}: neither sha256sum nor shasum available" >&2
-        exit 2
-    fi
-}
-
-# §11.4.35 pointer-inheritance predicate — FENCE-AWARE (coordinator B2 fix).
-# A bare `grep -qE '^## INHERITED FROM '` false-matches the "How inheritance
-# works" EXAMPLE that the real constitution mirrors carry INSIDE a fenced
-# ```markdown code block (constitution/CLAUDE.md:91, GEMINI.md:33) — that
-# fenced text is a CARRIER quoting the heading (§11.4.201(7)(a)), never a
-# real pointer heading. This predicate tracks fence state (```/~~~ toggles)
-# and only recognises `## INHERITED FROM ` OUTSIDE any fence as a genuine
-# pointer. Returns 0 (true) iff a real, non-fenced pointer heading exists.
-# §11.4.28/§11.4.177 — is_pointer_carrier() is now inherited BY REFERENCE from
-# the shared lib (single source of truth), never an inline copy. The fence-aware
-# predicate is unchanged (byte-identical awk to the former inline definition).
-_pc_lib="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/lib/pointer_carrier.sh"
-if [ -r "$_pc_lib" ]; then
-    # shellcheck source=lib/pointer_carrier.sh
-    . "$_pc_lib"
-else
-    echo "${GATE}: shared pointer-carrier lib not found at $_pc_lib" >&2
+_engine="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/lib/covenant_propagation_engine.sh"
+if [ ! -r "$_engine" ]; then
+    echo "${GATE}: shared propagation engine not found at $_engine" >&2
     exit 2
 fi
+# shellcheck source=lib/covenant_propagation_engine.sh
+. "$_engine"
 
-# ── Control needle (§11.4.201(7)(b)) ─────────────────────────────────────────
-# Prove the extractor + regex class can actually SEE a genuine block-start for
-# THIS anchor before any zero-match result on a real carrier is trusted as a
-# true absence. A needle that fails to match means the instrument is BLIND —
-# report that, never a false MISSING.
-needle_line="**§${ANCHOR} — control-needle synthetic block-start.**"
-needle_hit="$(printf '%s\n' "$needle_line" | grep -cE "$BLOCK_RE" || true)"
-if [ "${needle_hit:-0}" -lt 1 ]; then
-    echo "${GATE}: BLIND — control needle failed to match the block-start regex for ${ANCHOR}; refusing to trust any zero-match result" >&2
-    exit 2
-fi
-# Negative-control companion: a MID-BODY citation (not line-anchored) MUST
-# NOT match — proves the regex discriminates structure from substring.
-citation_line="This composes with §${ANCHOR}(A) as a mid-sentence citation, never a block-start."
-citation_hit="$(printf '%s\n' "$citation_line" | grep -cE "$BLOCK_RE" || true)"
-if [ "${citation_hit:-0}" -ge 1 ]; then
-    echo "${GATE}: BLIND — the block-start regex for ${ANCHOR} false-matched a mid-body citation (carrier-vs-block-start discrimination broken)" >&2
-    exit 2
-fi
-
-# Discover owned governance carriers, excluding non-authored trees.
-carriers="$(find "$root" \
-    \( -path '*/node_modules' -o -path '*/.git' -o -path '*/out' \
-       -o -path '*/build' -o -path '*/dist' -o -path '*/prebuilts' \
-       -o -path '*/external' -o -path '*/vendor' -o -path '*/target' \) -prune \
-    -o \( -type f \( -name 'CLAUDE.md' -o -name 'AGENTS.md' \
-       -o -name 'QWEN.md' -o -name 'GEMINI.md' \) -print \) 2>/dev/null | sort)"
-
-if [ -z "${carriers//[$' \t\r\n']/}" ]; then
-    echo "${GATE}: no governance carriers (CLAUDE/AGENTS/QWEN/GEMINI.md) found under $root" >&2
-    exit 2
-fi
-
-# Generic (any-anchor-number) block-start regex — used ONLY to find the END
-# boundary of THIS anchor's block (the next block-start line of ANY anchor
-# marks where this anchor's own multi-paragraph block stops). Never used for
-# detection of this anchor's own presence (that stays the anchor-specific
-# BLOCK_RE above).
-GENERIC_BLOCK_RE='^(\*\*|### |- )§11\.4\.[0-9]'
-
-pass=0 fail=0 skip=0
-declare -a hashes=()
-declare -a hash_owners=()
-
-while IFS= read -r f; do
-    [ -n "$f" ] || continue
-    rel="${f#"$root"/}"
-    count="$(grep -cE "$BLOCK_RE" "$f" || true)"
-    count="${count:-0}"
-    if [ "$count" -eq 0 ]; then
-        # §11.4.35 pointer-inheritance carriers (## INHERITED FROM ...) are
-        # engine-rules-only mirrors that legitimately carry ZERO per-anchor
-        # blocks — they inherit by reference, not by restating every anchor.
-        # A zero-count on such a carrier is an honest, expected SKIP, never a
-        # false-positive MISSING/FAIL (§11.4.201(1)). A pointer carrier that
-        # DOES restate the block (count>0) is NOT skipped here — it falls
-        # through to the exactly-once + lockstep checks below like any other
-        # carrier, so a restating consumer's own duplication/divergence is
-        # still caught.
-        if is_pointer_carrier "$f" 2>/dev/null; then
-            skip=$((skip + 1))
-            echo "⏭ POINTER-INHERITANCE-SKIP ${rel}  — §11.4.35 pointer consumer (engine-rules-only mirror; zero ${ANCHOR} blocks expected, not a violation)"
-        else
-            fail=$((fail + 1))
-            echo "❌ MISSING     ${rel}  — zero ${ANCHOR} block-starts (bare-literal citations elsewhere do not count, §11.4.201(7)(a))"
-        fi
-    elif [ "$count" -gt 1 ]; then
-        fail=$((fail + 1))
-        echo "❌ DUPLICATED  ${rel}  — ${count} ${ANCHOR} block-starts (F7-class duplication, §11.4.227(B))"
-    else
-        # Extract the FULL block (§11.4.227(B) content-hash-of-the-block, not
-        # merely its heading line): from this block's start line through the
-        # line immediately before the NEXT block-start of ANY anchor (or EOF
-        # if this is the last anchor in the file). This anchor's own blocks
-        # are genuinely multi-paragraph (heading + forensic motivation +
-        # lettered clauses + Classification + Canonical-authority + No-escape-
-        # hatch lines), so hashing only the first line would miss a body-only
-        # divergence — the exact I1 gap.
-        start_line="$(grep -nE "$BLOCK_RE" "$f" | head -1 | cut -d: -f1)"
-        next_line="$(awk -v s="$start_line" 'NR>s && /'"${GENERIC_BLOCK_RE}"'/{print NR; exit}' "$f")"
-        if [ -n "$next_line" ]; then
-            end_line=$((next_line - 1))
-        else
-            end_line="$(wc -l < "$f")"
-        fi
-        block_text="$(sed -n "${start_line},${end_line}p" "$f")"
-        h="$(printf '%s' "$block_text" | sha256_of)"
-        hashes+=("$h")
-        hash_owners+=("$rel")
-        pass=$((pass + 1))
-        [ -n "$quiet" ] || echo "✅ PRESENT     ${rel}  — exactly one ${ANCHOR} block (lines ${start_line}-${end_line})"
-    fi
-done <<< "$carriers"
-
-lockstep_fail=0
-if [ "${#hashes[@]}" -gt 1 ]; then
-    first_hash="${hashes[0]}"
-    first_owner="${hash_owners[0]}"
-    idx=0
-    for h in "${hashes[@]}"; do
-        if [ "$h" != "$first_hash" ]; then
-            lockstep_fail=$((lockstep_fail + 1))
-            echo "❌ DIVERGENT   ${hash_owners[$idx]}  — ${ANCHOR} block differs from ${first_owner} (§11.4.157 lockstep violation)"
-        fi
-        idx=$((idx + 1))
-    done
-fi
-
-echo "----------------------------------------------------------------------"
-echo "${GATE}: ${pass} single-block-PRESENT, ${skip} POINTER-INHERITANCE-SKIP, ${fail} MISSING/DUPLICATED, ${lockstep_fail} DIVERGENT (anchor ${ANCHOR}) under ${root}"
-if [ "$fail" -gt 0 ] || [ "$lockstep_fail" -gt 0 ]; then
-    echo "❌ ${GATE}: FAIL — anchor-block integrity violated for §${ANCHOR}"
-    exit 1
-fi
-echo "✅ ${GATE}: PASS — every owned carrier carries exactly one byte-identical §${ANCHOR} block"
-exit 0
+covenant_propagation_main "$GATE" "$@"

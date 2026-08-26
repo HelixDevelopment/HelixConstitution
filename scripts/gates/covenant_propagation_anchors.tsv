@@ -125,3 +125,22 @@ CM-COVENANT-114-224-PROPAGATION	11.4.224
 CM-COVENANT-114-226-PROPAGATION	11.4.226
 CM-COVENANT-114-228-PROPAGATION	11.4.228
 CM-COVENANT-114-229-PROPAGATION	11.4.229
+#
+# OWED-211 / OWED-214 remediation, 2026-08-26: these anchors were previously
+# UNREGISTERED because each carried a real §11.4.227(B) / §11.4.157 defect that a
+# registered gate would have exposed as RED. The governance CONTENT was repaired
+# (duplication reconciled by union; mirror divergence made byte-identical to the
+# canonical-adjacent constitution-mirror text) and each was MEASURED clean via the
+# shared engine on a scratch one-row pack BEFORE the row below was added.
+# §11.4.167 and §11.4.194 are deliberately NOT here — see the remediation report.
+CM-COVENANT-114-162-PROPAGATION	11.4.162
+CM-COVENANT-114-176-PROPAGATION	11.4.176
+CM-COVENANT-114-187-PROPAGATION	11.4.187
+CM-COVENANT-114-193-PROPAGATION	11.4.193
+CM-COVENANT-114-201-PROPAGATION	11.4.201
+CM-COVENANT-114-208-PROPAGATION	11.4.208
+CM-COVENANT-114-209-PROPAGATION	11.4.209
+CM-COVENANT-114-215-PROPAGATION	11.4.215
+CM-COVENANT-114-225-PROPAGATION	11.4.225
+CM-COVENANT-114-227-PROPAGATION	11.4.227
+CM-COVENANT-114-232-PROPAGATION	11.4.232

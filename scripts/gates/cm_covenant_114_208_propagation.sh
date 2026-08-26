@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# cm_covenant_114_201_propagation.sh — CM-COVENANT-114-201-PROPAGATION gate (anchor §11.4.201).
+# cm_covenant_114_208_propagation.sh — CM-COVENANT-114-208-PROPAGATION gate (anchor §11.4.208).
 #
 # ── Purpose ──────────────────────────────────────────────────────────────────
-# §11.4.227(B) anchor-block integrity for §11.4.201: the anchor's BLOCK (its
-# own governance paragraph, not merely the bare literal `11.4.201`) MUST be
+# §11.4.227(B) anchor-block integrity for §11.4.208: the anchor's BLOCK (its
+# own governance paragraph, not merely the bare literal `11.4.208`) MUST be
 # present EXACTLY ONCE in every owned governance context-carrier
 # (CLAUDE.md / AGENTS.md / QWEN.md / GEMINI.md) across the consumer fleet
 # (§11.4.157 lockstep, §11.4.35 inheritance), and every such block MUST be
@@ -24,7 +24,7 @@
 # the engine or the data pack, never this file by hand.
 #
 # ── Usage ────────────────────────────────────────────────────────────────────
-#   cm_covenant_114_201_propagation.sh [--root <consumer-root>] [--quiet]
+#   cm_covenant_114_208_propagation.sh [--root <consumer-root>] [--quiet]
 #     --root <dir>   consumer fleet root to scan (default: $CONSUMER_ROOT or "..")
 #     --quiet        suppress per-file PASS lines (FAIL lines always shown)
 #     -h|--help      print this header
@@ -37,9 +37,9 @@
 #   covenant_propagation_anchors.tsv. Parses clean under bash -n.
 #
 # ── Cross-references ─────────────────────────────────────────────────────────
-#   §11.4.201 (the anchor enforced), §11.4.227(A)/(B), §11.4.201(1)/(7)(a)/(7)(b),
+#   §11.4.208 (the anchor enforced), §11.4.227(A)/(B), §11.4.201(1)/(7)(a)/(7)(b),
 #   §11.4.157, §11.4.35, §11.4.251, §11.4.28/§11.4.177, §1.1 (paired mutation:
-#   cm_covenant_114_201_propagation_mutation_test.sh).
+#   cm_covenant_114_208_propagation_mutation_test.sh).
 #
 # ── Exit codes ───────────────────────────────────────────────────────────────
 #   0 PASS · 1 MISSING/DUPLICATED/DIVERGENT · 2 environment error / BLIND.
@@ -48,7 +48,7 @@
 
 set -euo pipefail
 
-GATE="CM-COVENANT-114-201-PROPAGATION"
+GATE="CM-COVENANT-114-208-PROPAGATION"
 
 _engine="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/lib/covenant_propagation_engine.sh"
 if [ ! -r "$_engine" ]; then

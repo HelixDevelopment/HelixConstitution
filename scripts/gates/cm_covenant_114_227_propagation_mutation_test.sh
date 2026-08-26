@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# cm_covenant_114_162_propagation_mutation_test.sh — §1.1 paired-mutation meta-test for CM-COVENANT-114-162-PROPAGATION
-# (anchor §11.4.162).
+# cm_covenant_114_227_propagation_mutation_test.sh — §1.1 paired-mutation meta-test for CM-COVENANT-114-227-PROPAGATION
+# (anchor §11.4.227).
 #
 # ── Purpose ──────────────────────────────────────────────────────────────────
-# Proves CM-COVENANT-114-162-PROPAGATION is a GENUINE gate, not a bluff: it MUST
+# Proves CM-COVENANT-114-227-PROPAGATION is a GENUINE gate, not a bluff: it MUST
 # FAIL on every planted defect class and MUST PASS on every clean / honestly
 # exempt fixture (the §1.1 discriminator). Fixtures are built in a THROWAWAY
 # mktemp corpus — the real repository is never mutated.
@@ -20,7 +20,7 @@
 # (§11.4.77) — edit the engine or the data pack, never this file by hand.
 #
 # ── Usage ────────────────────────────────────────────────────────────────────
-#   cm_covenant_114_162_propagation_mutation_test.sh
+#   cm_covenant_114_227_propagation_mutation_test.sh
 #
 # ── Side-effects ─────────────────────────────────────────────────────────────
 #   Creates + removes a temp fixture dir under $TMPDIR (trap-cleaned).
@@ -30,7 +30,7 @@
 #   Parses clean under bash -n.
 #
 # ── Cross-references ─────────────────────────────────────────────────────────
-#   §1.1, §11.4.162, §11.4.227(B), §11.4.201(1)/(7)(a), §11.4.157, §11.4.35,
+#   §1.1, §11.4.227, §11.4.227(B), §11.4.201(1)/(7)(a), §11.4.157, §11.4.35,
 #   §11.4.251, §11.4.107(10).
 #
 # ── Exit codes ───────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@
 
 set -uo pipefail
 
-GATE="CM-COVENANT-114-162-PROPAGATION"
+GATE="CM-COVENANT-114-227-PROPAGATION"
 
 _mut_engine="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/lib/covenant_propagation_mutation_engine.sh"
 if [ ! -r "$_mut_engine" ]; then
