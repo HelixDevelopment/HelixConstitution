@@ -503,6 +503,109 @@ assert_caught "(19-bad-3) lib basename, pattern assigned but no scanner defined"
 assert_caught "(19-bad-4) suite basename, assert_caught definition missing" \
               "$WORK/x19d/test_credential_scan_lib.sh"
 
+# --- carrier-strips #20/#21/#22/#23 (2026-08-26) ----------------------------
+# Three FALSE-POSITIVE carrier shapes, each with a golden-GOOD (carrier is
+# clean) AND a golden-BAD (a REAL secret in the SAME shape is still caught).
+
+# (20) SHAPE A — secret keyword assigned from an ENV-LOOKUP CALL.
+cat > "$WORK/good_20_env_lookup.kts" <<'EOF'
+signingConfigs {
+    create("release") {
+        storePassword = System.getenv("ATMO_STORE_PASSWORD") ?: ""
+        keyAlias      = System.getenv("ATMO_KEY_ALIAS") ?: "atmosphere-release"
+        keyPassword   = System.getenv("ATMO_KEY_PASSWORD") ?: ""
+    }
+}
+val goSide   = os.Getenv("API_TOKEN")
+val nodeSide = process.env.CLIENT_SECRET
+EOF
+assert_clean "(20) keyword = System.getenv( / os.Getenv( (env-lookup call value)" \
+             "$WORK/good_20_env_lookup.kts"
+
+cat > "$WORK/bad_20_env_lookup_literal.kts" <<'EOF'
+signingConfigs {
+    create("release") {
+        keyPassword = "Hunter2Hunter2Xy"
+    }
+}
+EOF
+assert_caught "(20-bad) LITERAL keyPassword in the same signing block (env-strip must not leak it)" \
+              "$WORK/bad_20_env_lookup_literal.kts"
+
+# (21) SHAPE B — secret keyword whose value is a PascalCase TYPE NAME.
+cat > "$WORK/good_21_symbol_ref.md" <<'EOF'
+The sibling seam is
+`OptionCPairingTransport.pair(host, pairingPort, secret: OptionCPairingSecret, ourPublicKey)`
+and the box mirror carries `token: RemoteSessionToken)`.
+EOF
+assert_clean "(21) keyword: PascalCaseTypeName (symbol reference, not a secret)" \
+             "$WORK/good_21_symbol_ref.md"
+
+cat > "$WORK/bad_21_symbol_digit.md" <<'EOF'
+secret: Hunter2Secret
+EOF
+assert_caught "(21-bad-1) CamelCase value carrying a DIGIT (letters-only rule must hold)" \
+              "$WORK/bad_21_symbol_digit.md"
+
+cat > "$WORK/bad_21_one_hump.md" <<'EOF'
+secret = SuperSecret
+EOF
+assert_caught "(21-bad-2) one-hump letters-only value (two-hump floor must hold)" \
+              "$WORK/bad_21_one_hump.md"
+
+cat > "$WORK/bad_21_short_hump.md" <<'EOF'
+secret: MySecret
+EOF
+assert_caught "(21-bad-3) short one-hump letters-only value (two-hump floor must hold)" \
+              "$WORK/bad_21_short_hump.md"
+
+# (22) SHAPE C-i — git SSH remote split by an exporter mailto autolink.
+cat > "$WORK/good_22_markup_git_remote.html" <<'EOF'
+<p>then add as submodule the forked repo:
+<a href="mailto:git@github.com">git@github.com</a>:MyOrg1234/Some-Repo.git.</p>
+EOF
+assert_clean "(22) markup-SPLIT git remote (autolinked <a>…</a> between host and :)" \
+             "$WORK/good_22_markup_git_remote.html"
+
+# (23) SHAPE C-ii — mailto autolink duplicating the address into a markup-wrapped token.
+cat > "$WORK/good_23_mailto_autolink.html" <<'EOF'
+<p>Maintainer contact:
+<a href="mailto:ops85team@example.com">ops85team@example.com</a> for access requests.</p>
+EOF
+assert_clean "(23) mailto autolink duplicate DIGIT-BEARING address (markup-wrapped email self-ref)" \
+             "$WORK/good_23_mailto_autolink.html"
+
+cat > "$WORK/bad_23_mailto_plus_password.html" <<'EOF'
+<p>login <a href="mailto:ops85team@example.com">ops85team@example.com</a> / Hunter2Hunter2! now</p>
+EOF
+assert_caught "(23-bad) REAL password adjacent to a mailto-autolinked email (markup strip must not leak it)" \
+              "$WORK/bad_23_mailto_plus_password.html"
+
+# (24) The elvis/or FALLBACK literal — the catch that carrier-strip #20 must not
+# cost. MEASURED 2026-08-26: with #20 present but no fallback alternative, a real
+# secret in `= System.getenv("X") ?: "<secret>"` went HIT -> CLEAN, a catch
+# REGRESSION. These pin both directions.
+cat > "$WORK/bad_24_elvis_real.kts" <<'EOF'
+storePassword = System.getenv("ATMO_PW") ?: "Hunter2Hunter2Xy"
+EOF
+assert_caught "(24-bad-1) REAL secret in an elvis fallback beside an env lookup" \
+              "$WORK/bad_24_elvis_real.kts"
+
+cat > "$WORK/bad_24_or_real.go" <<'EOF'
+apiKey := os.Getenv("K")
+api_key = os.Getenv("K") || "Hunter2Hunter2Xy"
+EOF
+assert_caught "(24-bad-2) REAL secret in an or-fallback beside an env lookup" \
+              "$WORK/bad_24_or_real.go"
+
+cat > "$WORK/good_24_elvis_placeholder.kts" <<'EOF'
+storePassword = System.getenv("ATMO_PW") ?: ""
+keyPassword   = System.getenv("ATMO_KP") ?: "CHANGE_ME"
+keyAlias      = System.getenv("ATMO_ALIAS") ?: "atmosphere-release"
+EOF
+assert_clean "(24) empty / CHANGE_ME elvis fallback + non-keyword keyAlias fallback" \
+             "$WORK/good_24_elvis_placeholder.kts"
+
 echo ""
 echo "== RESULT: ${pass} passed, ${fail} failed =="
 [ "$fail" -eq 0 ]

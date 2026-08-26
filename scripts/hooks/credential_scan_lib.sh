@@ -107,7 +107,7 @@
 # preceding character, which is harmless: the extracted match is only tested
 # against the `^`-anchored placeholder carrier (#8a), which an `sk-` token never
 # matches either way.
-HELIX_CRED_VALUE_PATTERN='(AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{36}|github_pat_[0-9A-Za-z_]{22,}|xox[baprs]-[0-9A-Za-z-]{10,}|(^|[^0-9A-Za-z])sk-[0-9A-Za-z]{20,}|AIza[0-9A-Za-z_-]{35}|-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?[^[:space:]"'"'"'$<%{][^[:space:]"'"'"']{7,})'
+HELIX_CRED_VALUE_PATTERN='(AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{36}|github_pat_[0-9A-Za-z_]{22,}|xox[baprs]-[0-9A-Za-z-]{10,}|(^|[^0-9A-Za-z])sk-[0-9A-Za-z]{20,}|AIza[0-9A-Za-z_-]{35}|-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=].{0,80}(\?:|\|\|)[[:space:]]*["'"'"'][^"'"'"']{8,}["'"'"']|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']?[^[:space:]"'"'"'$<%{][^[:space:]"'"'"']{7,})'
 
 # --- Detector 1 carrier-strip #8: placeholder-value + base64-image data-URI ---
 # §11.4.201 carrier-strip #8a (placeholder-value allowlist). A recognised secret
@@ -224,6 +224,85 @@ HELIX_CRED_BASE64_IMAGE_CARRIER='data:image/[^;]*;base64,[A-Za-z0-9+/=_-]+'
 # "value equals key" cannot be expressed generically.
 HELIX_CRED_IDENTIFIER_REFERENCE_CARRIER='^(password[[:space:]]*[:=][[:space:]]*password|passwd[[:space:]]*[:=][[:space:]]*passwd|secret[[:space:]]*[:=][[:space:]]*secret|api[_-]?key[[:space:]]*[:=][[:space:]]*api[_-]?key|access[_-]?token[[:space:]]*[:=][[:space:]]*access[_-]?token|auth[_-]?token[[:space:]]*[:=][[:space:]]*auth[_-]?token|client[_-]?secret[[:space:]]*[:=][[:space:]]*client[_-]?secret)[},;[:space:]]*$'
 
+# --- Detector 1 carrier-strip #24: PLACEHOLDER elvis/or FALLBACK literal ---
+# §11.4.201 companion to the new elvis/or-fallback detector alternative. That
+# alternative exists so `password = System.getenv("X") ?: "<real secret>"` is
+# CAUGHT even though carrier-strip #20 exempts the env-lookup call itself
+# (MEASURED 2026-08-26: without it the #20 strip turned a real fallback secret
+# from HIT into CLEAN — a catch REGRESSION, which §11.4.201 ranks strictly worse
+# than the false positive #20 cures). This strip keeps that alternative honest in
+# the other direction: a fallback that is a config-template PLACEHOLDER
+# (`?: "CHANGE_ME"`) is not a secret and must not refuse the commit.
+HELIX_CRED_FALLBACK_PLACEHOLDER_CARRIER='(\?:|\|\|)[[:space:]]*["'"'"']?(change_?me|changeme|placeholder|example|dummy|redacted|todo|tbd|fixme|xxx+|your[_-][a-z0-9._-]*|[a-z0-9._-]*must_not_leak[a-z0-9._-]*)["'"'"']?[,;)}[:space:]]*$'
+
+# --- Detector 1 carrier-strip #20: ENVIRONMENT-LOOKUP value ---
+# §11.4.201 carrier-strip #20 (ENV-LOOKUP CALL value). A secret keyword whose
+# VALUE is an environment-read CALL EXPRESSION — `storePassword =
+# System.getenv(`, `password = os.Getenv(`, `secret: process.env.X` — NAMES
+# where a credential comes from; it does not CONTAIN one. That is the
+# §11.4.201(7)(a) carrier-vs-thing distinction, the same one carrier-strip #18
+# already applies to a self-referential identifier value.
+#
+# Why detector-1 fires without this strip: HELIX_CRED_VALUE_PATTERN makes the
+# surrounding quote OPTIONAL and stops the value at the first quote/space, so
+# `storePassword = System.getenv("X") ?: ""` parses as keyword + separator + a
+# 14-character "value" (`System.getenv(`) and matches the generic assignment
+# alternative. FORENSIC (2026-08-26, MEASURED): a Kotlin Android signing block
+# produced EIGHT such matches (4 signingConfigs x storePassword+keyPassword),
+# every one of them the literal `System.getenv(` (sha256 e9ef39fffec5, len 14),
+# blocking every commit that touched the file — a §11.4.201(1) false-positive
+# refusal. NOTE the two OTHER hypotheses were MEASURED FALSE and are NOT what
+# this strip cures: `keyAlias` is not a detector-1 keyword at all (0 matches),
+# and an empty-string `?: ""` fallback can never match because the value pattern
+# forbids a value STARTING with a quote.
+#
+# SAFETY — enumerated env-read idioms ONLY, whole-value anchored. A literal
+# assignment `keyPassword = "Hunter2Hunter2!"` does NOT match (the value is not
+# an env-read call) and is still caught. A value merely CONTAINING "env"
+# (`password = envelope123`) does NOT match — the idioms are enumerated, never
+# a bare `env` substring, so this cannot be widened by accident.
+# HONEST BOUNDARY (§11.4.6): a real secret placed in an elvis FALLBACK on the
+# same line (`= System.getenv("X") ?: "realsecret"`) is not caught by detector-1
+# either BEFORE or AFTER this strip — `grep -Eio` stops the value at the first
+# quote and no keyword precedes the fallback, so the fallback was never in
+# detector-1's reach. This strip therefore removes a false positive without
+# weakening any catch that previously existed; the fallback gap is PRE-EXISTING
+# and is stated here rather than silently inherited. Golden-bad fixture (20-bad)
+# pins the literal-assignment catch.
+HELIX_CRED_ENV_LOOKUP_CARRIER='^(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*((java\.lang\.)?system\.getenv\(|os\.getenv\(|getenv\(|os\.environ(\[|\.get\()|process\.env[.[][A-Za-z0-9_.]*|env\[|environment\.getenvironmentvariable\()$'
+
+# --- Detector 1 carrier-strip #21: PASCALCASE SYMBOL-REFERENCE value ---
+# §11.4.201 carrier-strip #21 (TYPE / SYMBOL NAME value). A secret keyword whose
+# VALUE is a bare PascalCase symbol ending in the credential noun —
+# `secret: OptionCPairingSecret,`, `token = SessionToken)`, `apiKey: BackendKey`
+# — is a TYPE NAME in a function signature or struct literal, never a literal
+# secret. This is carrier-strip #18 generalised from "value IS the key" to
+# "value is a symbol NAMED FOR the key".
+#
+# FORENSIC (2026-08-26, MEASURED): a design document quoting a Kotlin signature
+# `pair(host, pairingPort, secret: OptionCPairingSecret, ourPublicKey)` matched
+# detector-1 in BOTH its .md and its .html export. NOTE the prose hypothesis was
+# MEASURED FALSE: the match is not narrative English, it is exactly the extracted
+# token `secret: OptionCPairingSecret,`.
+#
+# SAFETY — deliberately the narrowest form that covers the class, and applied
+# CASE-SENSITIVELY (grep -Ev, NOT -Eiv) because the discriminator IS the case:
+#   * value must START uppercase and be LETTERS ONLY — a real secret carrying a
+#     digit or a special (`Hunter2Hunter2!`, `abc-123-def`) can never match;
+#   * value must END in the capitalised credential noun (Secret/Password/Passwd/
+#     Token/Key) — an arbitrary CamelCase word does not qualify;
+#   * value must carry TWO CamelCase humps BEFORE that noun. MEASURED during
+#     this change (adversarial self-probe, §11.4.194(6)(d)): the one-hump form
+#     also skipped `secret = SuperSecret` / `secret: MySecret`, which are weak
+#     but PLAUSIBLE real secrets, so the one-hump form was rejected and this
+#     two-hump floor adopted. Both now stay CAUGHT (golden-bad 21-bad-2/-3);
+#   * only ONE trailing struct-literal punctuation character is tolerated.
+# `secret: Hunter2Secret` does NOT match (digit). `secret: hunter` does NOT match
+# (lowercase initial, no noun suffix). Both are still caught. Under `-i` the
+# uppercase-initial test would collapse and the strip WOULD over-match, so the
+# case-sensitive grep is load-bearing, not cosmetic.
+HELIX_CRED_SYMBOL_REFERENCE_CARRIER='^[A-Za-z_.-]*([Ss][Ee][Cc][Rr][Ee][Tt]|[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]|[Pp][Aa][Ss][Ss][Ww][Dd]|[Tt][Oo][Kk][Ee][Nn]|[Kk][Ee][Yy])[[:space:]]*[:=][[:space:]]*[A-Z][a-z]*[A-Z][A-Za-z]*(Secret|Password|Passwd|Token|Key)[,;)}]?$'
+
 HELIX_CRED_ADJACENCY_AWK='
 {
   line = $0
@@ -235,7 +314,17 @@ HELIX_CRED_ADJACENCY_AWK='
   # REAL condition. The org/repo "/" is REQUIRED, so a genuine git@<host>:<secret>
   # with no slash is still scanned and detector-1 (value-pattern) is untouched.
   # Proven by golden-good scenario (a) in test_credential_scan_lib.sh.
-  gsub("git@[A-Za-z0-9.-]+:[A-Za-z0-9._-]+/[A-Za-z0-9._-]+", " ", line)
+  # §11.4.201 carrier-strip #22 (MARKUP-SPLIT git remote). An HTML export of a
+  # doc that mentions a git SSH remote is mailto-autolinked by the exporter, so
+  # `git@host:org/repo` becomes `<a href="mailto:git@host">git@host</a>:org/repo`
+  # and an END TAG now sits between the host and the ":". That split defeats the
+  # contiguous strip below, and the org name (digits + letters) then reads as a
+  # password-shaped token adjacent to the "email". FORENSIC (2026-08-26,
+  # MEASURED): the offending token was the GitHub org name, not the address.
+  # Tolerating ONE optional HTML end tag at exactly that position restores the
+  # REAL condition; the org/repo "/" is still REQUIRED, so a genuine
+  # git@<host>:<secret> with no slash is still scanned.
+  gsub("git@[A-Za-z0-9.-]+(</[A-Za-z][A-Za-z0-9]*>)?:[A-Za-z0-9._-]+/[A-Za-z0-9._-]+", " ", line)
   # §11.4.201 carrier-strip #2: a systemd user-instance unit name (form
   # user@<uid>.service / <name>@<N>.service) is email-SHAPED (local@digits.service,
   # ".service" reads as a TLD) but is NOT an email — it appears verbatim in every
@@ -282,7 +371,21 @@ HELIX_CRED_ADJACENCY_AWK='
       t = toks[i]
       if (length(t) < 6 || length(t) > 128) continue
       if (tolower(t) ~ /redacted|changeme|placeholder|yourpassword|your-password|your_password|xxxxxxxx|dummy/) continue
-      if (t ~ /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z][A-Za-z]+$/) continue
+      # §11.4.201 carrier-strip #23 (MARKUP-WRAPPED email self-reference). The
+      # email-is-not-a-password skip below is ^...$ anchored against the RAW
+      # token, so an HTML mailto autolink defeats it: the exporter emits the
+      # address TWICE, `<a href="mailto:E">E</a>`, the first copy satisfies the
+      # email match and the second arrives at this loop still wearing its markup
+      # (`">E<`), which the anchored test cannot recognise as an email. FORENSIC
+      # (2026-08-26, MEASURED): 6 of 7 offending HTML exports tripped on exactly
+      # that `">E<` token. Strip the surrounding markup punctuation BEFORE the
+      # anchored comparison. The cleaned form is used ONLY for the is-it-an-email
+      # test — the password-shape tests below still run on the RAW token — so a
+      # real password wearing the same markup (`">Hunter2Hunter2!<`) does not
+      # clean to an email, is NOT skipped, and is still refused.
+      tnm = t
+      gsub(/^["<>=&;]+/, "", tnm); gsub(/["<>=&;]+$/, "", tnm)
+      if (tnm ~ /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z][A-Za-z]+$/) continue
       if (t ~ /^[-+0-9(). _]+$/) continue
       if (t ~ /\.(md|html|pdf|docx|sh|txt|json|ya?ml|xml|png|jpe?g|gif|svg|log|go|py|kt|java|cpp|ts|js|tsv|csv|db|c|h)$/) continue
       # §11.4.201 carrier-strip #5: a Markdown-emphasized plain WORD (**BROWSERS**,
@@ -377,7 +480,10 @@ helix_cred_detector1_real_hit_stream() {
   _helix_cred_d1_survivors="$(
     printf '%s\n' "$_helix_cred_d1_matches" \
       | grep -Eiv "$HELIX_CRED_PLACEHOLDER_CARRIER" 2>/dev/null \
-      | grep -Eiv "$HELIX_CRED_IDENTIFIER_REFERENCE_CARRIER" 2>/dev/null || true
+      | grep -Eiv "$HELIX_CRED_IDENTIFIER_REFERENCE_CARRIER" 2>/dev/null \
+      | grep -Eiv "$HELIX_CRED_ENV_LOOKUP_CARRIER" 2>/dev/null \
+      | grep -Ev  "$HELIX_CRED_SYMBOL_REFERENCE_CARRIER" 2>/dev/null \
+      | grep -Eiv "$HELIX_CRED_FALLBACK_PLACEHOLDER_CARRIER" 2>/dev/null || true
   )"
   case "$_helix_cred_d1_survivors" in
     *[![:space:]]*) return 0 ;;   # a real (non-placeholder) secret survived
