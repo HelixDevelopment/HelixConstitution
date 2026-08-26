@@ -598,6 +598,41 @@ EOF
 assert_caught "(24-bad-2) REAL secret in an or-fallback beside an env lookup" \
               "$WORK/bad_24_or_real.go"
 
+cat > "$WORK/good_26_sed_at_delim.sh" <<'EOF'
+sed -e 's@MessageDigest.isEqual(a, b)@true@' "$src" > "$mut2"
+EOF
+assert_clean "(26) sed s@PATTERN@REPL@ delimiters (pseudo-email shape) — clean (no false positive)" \
+              "$WORK/good_26_sed_at_delim.sh"
+
+cat > "$WORK/bad_26_real_email_beside_sed.sh" <<'EOF'
+sed -e 's@Foo.bar@true@' x
+admin@company.com : hunter2RealPassword
+EOF
+assert_caught "(26-bad) REAL email+password on a line beside a sed s@..@..@ (blank must not leak it)" \
+              "$WORK/bad_26_real_email_beside_sed.sh"
+
+cat > "$WORK/good_25_accessor_call.kt" <<'EOF'
+val password: String = "",
+val token: String = "",
+password = obj.optString("password", ""),
+token    = obj.optString("token", ""),
+EOF
+assert_clean "(25) accessor/method CALL in value position (obj.optString) — clean (no false positive)" \
+              "$WORK/good_25_accessor_call.kt"
+
+cat > "$WORK/bad_25_quoted_lookalike.kt" <<'EOF'
+password = "objDotOptStringLooksLikeACall"
+EOF
+assert_caught "(25-bad-1) quoted literal that merely LOOKS like a call (strip must be \$-anchored past the quote)" \
+              "$WORK/bad_25_quoted_lookalike.kt"
+
+cat > "$WORK/bad_25_real_literal.kt" <<'EOF'
+password = obj.optString("password", "")
+api_key  = "AKIAIOSFODNN7EXAMPLE"
+EOF
+assert_caught "(25-bad-2) REAL secret on a line beside an accessor-call carrier (strip must not blanket the file)" \
+              "$WORK/bad_25_real_literal.kt"
+
 cat > "$WORK/good_24_elvis_placeholder.kts" <<'EOF'
 storePassword = System.getenv("ATMO_PW") ?: ""
 keyPassword   = System.getenv("ATMO_KP") ?: "CHANGE_ME"

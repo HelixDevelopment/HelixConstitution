@@ -271,6 +271,23 @@ HELIX_CRED_FALLBACK_PLACEHOLDER_CARRIER='(\?:|\|\|)[[:space:]]*["'"'"']?(change_
 # pins the literal-assignment catch.
 HELIX_CRED_ENV_LOOKUP_CARRIER='^(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*((java\.lang\.)?system\.getenv\(|os\.getenv\(|getenv\(|os\.environ(\[|\.get\()|process\.env[.[][A-Za-z0-9_.]*|env\[|environment\.getenvironmentvariable\()$'
 
+# --- Detector 1 carrier-strip #25: GENERIC ACCESSOR / METHOD-CALL value -----
+# 11.4.201(1) false-positive cure, MEASURED 2026-08-27. #20 exempts env-lookup
+# CALL expressions but as an ENUMERATED list (System.getenv( / os.Getenv( /
+# process.env.X). The same STRUCTURAL class appears for any accessor call, e.g.
+# Kotlin JSON parsing:   password = obj.optString("password", "")
+# which detector-1 extracts as the value 'password = obj.optString(' and flags.
+# This refused a clean tree at the pre-commit seam (8 staged files, all carriers:
+# a NanoKVM device model plus its red-baseline copies).
+#
+# SAFETY (the #24 lesson -- a strip must NEVER turn a REAL secret CLEAN): a
+# credential LITERAL never ends in an opening paren. password = "AKIA..."
+# extracts as 'password = "AKIA' and does NOT match -> still caught. The
+# elvis/or-fallback alternative (#24) is a SEPARATE detector alternative, so
+# password = foo() ?: "<real secret>" is still caught. The value must be an
+# identifier chain terminated by an opening paren and nothing else (end-anchored).
+HELIX_CRED_ACCESSOR_CALL_CARRIER='^(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*[a-z_][a-z0-9_]*(\.[a-z_][a-z0-9_]*)*\($'
+
 # --- Detector 1 carrier-strip #21: PASCALCASE SYMBOL-REFERENCE value ---
 # §11.4.201 carrier-strip #21 (TYPE / SYMBOL NAME value). A secret keyword whose
 # VALUE is a bare PascalCase symbol ending in the credential noun —
@@ -335,6 +352,20 @@ HELIX_CRED_ADJACENCY_AWK='
   # A real email lands on a real TLD, so genuine "user@company.com : <pw>" is
   # untouched. Proven by golden-good scenario (b) in test_credential_scan_lib.sh.
   gsub("[A-Za-z0-9._%+-]+@[0-9]+\\.service", " ", line)
+      # 11.4.201 carrier-strip #26: sed substitute expression with @ delimiters.
+      # MEASURED 2026-08-27: a mutation-testing line of the form
+      #     sed -e 0s@MessageDigest.isEqual(a, b)@true@0 "SRC"
+      # (0 = single quote) makes s@MessageDigest.isEqual email-SHAPED: local part s,
+      # domain MessageDigest, TLD isEqual. The adjacency heuristic therefore flagged a
+      # mutation-testing script as a credential leak - a 11.4.201(1) false-positive
+      # refusal at the pre-commit seam, which is a FAIL-bluff exactly as a false pass
+      # is a PASS-bluff.
+      # The distinguishing feature vs a real address is the THREE-@ sed structure
+      # preceded by a lone one-letter sed command (s or y), which a genuine email
+      # never has. Blank the whole sed expression BEFORE the email match (mirrors the
+      # git@ / systemd-unit / Java-object-ref strips above), so a REAL email elsewhere
+      # on the same line is untouched and still evaluated.
+      gsub("(^|[^A-Za-z0-9._%+-])[sy]@[^@]*@[^@]*@", " ", line)
   # §11.4.201 carrier-strip #3: a Java/Android object reference (form
   # <pkg.Class>@<pkg>.<CamelCaseClass>[$$SyntheticLambda<N>][@<hex-hashcode>])
   # is email-SHAPED — its "@<pkg>.Class" reads as local@domain.TLD where the
@@ -482,6 +513,7 @@ helix_cred_detector1_real_hit_stream() {
       | grep -Eiv "$HELIX_CRED_PLACEHOLDER_CARRIER" 2>/dev/null \
       | grep -Eiv "$HELIX_CRED_IDENTIFIER_REFERENCE_CARRIER" 2>/dev/null \
       | grep -Eiv "$HELIX_CRED_ENV_LOOKUP_CARRIER" 2>/dev/null \
+      | grep -Eiv "$HELIX_CRED_ACCESSOR_CALL_CARRIER" 2>/dev/null \
       | grep -Ev  "$HELIX_CRED_SYMBOL_REFERENCE_CARRIER" 2>/dev/null \
       | grep -Eiv "$HELIX_CRED_FALLBACK_PLACEHOLDER_CARRIER" 2>/dev/null || true
   )"
