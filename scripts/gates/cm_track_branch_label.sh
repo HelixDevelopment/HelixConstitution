@@ -87,12 +87,27 @@ done
 fail=0
 say() { [ -n "$quiet" ] || echo "$@"; }
 
-# Extract the <alias> field from a "(T<N>/<branch> - <alias>) ..." label.
+# Extract the <alias> field from a track-branch label. The label is emitted by
+# scripts/multitrack/track_branch_label.sh as
+#   "(T<N>/<branch> - <alias>[ - <model>[ - <effort>]]) ..."
+# so <alias> is the FIRST ' - '-separated field after the "(T<N>/<branch>" head,
+# NOT the last one: "take everything after the LAST ' - '" silently grabs
+# <effort> once the optional <model>/<effort> fields are present (§11.4.182,
+# §11.4.6 — the extraction must not regress under the new fields).
+#
+# Kept byte-identical in behaviour to the hook's own _label_alias in
+# scripts/hooks/guard-track-branch-label.sh. If one changes, change both:
+# the gate validates the hook, so a divergence here reports a false verdict.
 _label_alias() {
-    local _p="${1%%)*}"
-    case "$_p" in
-        *' - '*) printf '%s' "${_p##* - }" ;;
-        *)       printf '%s' '' ;;
+    local _pfx="${1%%)*}"
+    local _rest
+    case "$_pfx" in
+        *' - '*) _rest="${_pfx#*' - '}" ;;
+        *)       printf '%s' ''; return ;;
+    esac
+    case "$_rest" in
+        *' - '*) printf '%s' "${_rest%%' - '*}" ;;   # alias precedes <model>/<effort>
+        *)       printf '%s' "$_rest" ;;              # 3-field legacy: alias is the remainder
     esac
 }
 
@@ -138,8 +153,19 @@ else
     if [ "$_live" != "$_known" ]; then
         echo "❌ ALIAS-VALIDATION: labeler did not yield the known synthetic alias (got '$_live' from '$_correct')"; fail=1
     else
-        _head="${_correct% - *}"                # "(T<N>/<branch>"
-        _wrong="${_head} - ${_known}_MUT)"       # concrete alias that disagrees with live
+        # Mutate the ALIAS field in place, preserving any <model>/<effort> that
+        # follow and anything after the ')'. Appending after the LAST ' - '
+        # would corrupt the <effort> slot instead, and the hook — which
+        # validates only the alias — would correctly ALLOW it, making this
+        # gate accuse a hook that is behaving exactly as documented.
+        _pfx="${_correct%%)*}"; _tail="${_correct#*)}"
+        _t1="${_pfx%%' - '*}"                    # "(T<N>/<branch>"
+        _restf="${_pfx#*' - '}"                  # "<alias>[ - <model>[ - <effort>]]"
+        case "$_restf" in
+            *' - '*) _after=" - ${_restf#*' - '}" ;;
+            *)       _after="" ;;
+        esac
+        _wrong="${_t1} - ${_known}_MUT${_after})${_tail}"
 
         _pw='{"tool_name":"Task","tool_input":{"description":"'"$_wrong"' gate probe"}}'
         printf '%s' "$_pw" | CLAUDE_CONFIG_DIR="$_cfg" bash "$hook" >/dev/null 2>&1; _rc_w=$?
