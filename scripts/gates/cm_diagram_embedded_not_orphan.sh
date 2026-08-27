@@ -129,11 +129,21 @@ visited_count=0
 bound_hit=""
 
 while [ -n "$queue_list" ]; do
-    cur="$(printf '%s\n' "$queue_list" | head -n1)"
-    queue_list="$(printf '%s\n' "$queue_list" | tail -n +2)"
+    # FIND-AV-01 hardening: NO PIPELINE on a GROWING payload. `head -n1` and
+    # `grep -q` both exit on their first line/match, SIGPIPE the `printf`
+    # writer (141), and under `set -o pipefail` that turns a SUCCESSFUL read
+    # into a failed pipeline — a §11.4.201(1) false-positive. $queue_list and
+    # $visited_list GROW with the doc graph, so this crosses the ~60 KB pipe
+    # buffer as the corpus grows. This gate sets only `set -u` today, so the
+    # defect is LATENT here, not live; the pure-bash forms below make it
+    # unreachable regardless of what shell options a future edit turns on.
+    cur="${queue_list%%$'\n'*}"
+    if [ "$queue_list" = "$cur" ]; then queue_list=""; else queue_list="${queue_list#*$'\n'}"; fi
     [ -n "$cur" ] || continue
 
-    if printf '%s\n' "$visited_list" | grep -qxF "$cur"; then
+    # Whole-line membership (exactly `grep -qxF`), fork-free. Quoted expansions
+    # in a `case` pattern are LITERAL, so path metacharacters cannot glob.
+    if case $'\n'"$visited_list"$'\n' in *$'\n'"$cur"$'\n'*) true ;; *) false ;; esac; then
         continue
     fi
     cur_abs="${root}/${cur}"

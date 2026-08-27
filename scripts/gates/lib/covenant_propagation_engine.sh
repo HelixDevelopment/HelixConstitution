@@ -305,19 +305,57 @@ covenant_propagation_main() {
     # exist on disk, so it MUST appear in the discovered set. If it does not,
     # the instrument is blind and we say so rather than reporting an absence.
     #
-    # NOTE on intermittent firing (observed 2026-08-20): this needle can refuse
-    # a run while ANOTHER process is rewriting a carrier. A writer using the
-    # standard write-temp-then-rename pattern leaves a window in which `find`
-    # does not see the path, so the discovered set really IS short for that
-    # instant. That refusal is a TRUE POSITIVE, not flakiness — the carrier set
-    # was genuinely incomplete and auditing it would have reported a false
-    # absence. Re-run once the tree is quiescent (§11.4.84); do NOT "fix" this
-    # by weakening the needle.
+    # CORRECTED 2026-08-25 (Stream AS diagnosis / Stream AV fix). An earlier
+    # note here asserted that this needle's intermittent firing was "a TRUE
+    # POSITIVE, not flakiness" caused by a concurrent write-temp-then-rename on
+    # a carrier, and instructed the reader to "re-run once the tree is
+    # quiescent". That explanation was WRONG for the observed failures, and the
+    # note was itself the §11.4.248 decay vector: it licensed dismissing a real
+    # red as "probably flaky, re-run", which is exactly how this defect survived
+    # three separate sightings (anchors 240, 266, then 262+263).
+    #
+    # MEASURED REFUTATION (§11.4.6 — facts, not a re-run):
+    #   * ZERO governance carriers were written on the sweep day the needle
+    #     fired, so no reader can have observed a partial write;
+    #   * the failure reproduces against a completely STATIC carrier list;
+    #   * `PIPESTATUS` captured at the moment of firing is
+    #     `[printf=141 grep=0]` — grep FOUND the string every single time.
+    #
+    # PROVEN MECHANISM: the check used to be
+    #     printf '%s\n' "$carriers" | grep -qF "${root}/${_needle}"
+    # `grep -q` exits on its FIRST match and closes the read end of the pipe.
+    # The root governance files sort to the head of the list, so `printf` is
+    # still writing the remaining payload when that happens, its next write()
+    # takes SIGPIPE (141), and `pipefail` (in force from the wrapper) promotes
+    # 141 to the PIPELINE status even though grep succeeded. A PRESENT carrier
+    # was therefore counted MISSING and the engine returned 2 (BLIND) — a
+    # §11.4.201(1) FALSE-POSITIVE refusal (FAIL-bluff) manufactured entirely by
+    # the instrument. Rate scales with payload: ~0.08 %/check at the current
+    # ~10 KB fleet list, and 100 % deterministic at >=200 KB.
+    #
+    # The fix below removes the PIPELINE, not the check: a pure-bash `case`
+    # (no fork, no pipe, so no SIGPIPE is possible) that additionally
+    # STRENGTHENS the comparison from substring to WHOLE-LINE. Do NOT "fix"
+    # a future firing of this needle by weakening it, and do NOT reintroduce
+    # a `... | grep -q ...` pipeline here — `pipefail` is load-bearing
+    # elsewhere in this engine and must not be relaxed to compensate.
+    # Guard: device/rockchip/rk3588/tests/regression_guard/
+    #        guard_find_av01_needle_sigpipe_pipefail_red.sh (>=200 KB fixture).
     local _needle _needle_found=0 _needle_total=0 _needle_missing=""
+    # Literal newline sentinel: lets the whole-line match below be written
+    # without $'...' (keeps this file parseable by a POSIX sh, §11.4.67).
+    local _cpe_nl='
+'
     for _needle in CLAUDE.md AGENTS.md QWEN.md GEMINI.md; do
         [ -f "${root}/${_needle}" ] || continue
         _needle_total=$((_needle_total + 1))
-        if printf '%s\n' "$carriers" | grep -qF "${root}/${_needle}"; then
+        # NO PIPELINE (see the CORRECTED note above): pure-bash whole-line
+        # membership test. Quoted expansions inside a `case` pattern are
+        # LITERAL, so glob metacharacters in a path cannot be interpreted.
+        if case "${_cpe_nl}${carriers}${_cpe_nl}" in
+               *"${_cpe_nl}${root}/${_needle}${_cpe_nl}"*) true ;;
+               *) false ;;
+           esac; then
             _needle_found=$((_needle_found + 1))
         else
             _needle_missing="${_needle_missing} ${_needle}"

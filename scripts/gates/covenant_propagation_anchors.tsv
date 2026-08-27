@@ -76,3 +76,71 @@ CM-COVENANT-114-230-PROPAGATION	11.4.230
 CM-COVENANT-114-231-PROPAGATION	11.4.231
 CM-COVENANT-114-233-PROPAGATION	11.4.233
 CM-COVENANT-114-235-PROPAGATION	11.4.235
+#
+# --- Batch 2 (SpecKit T405) --------------------------------------------------
+# Anchors CONFIRMED individually BEFORE their rows landed, by the same T029
+# procedure: each was run through this very engine against a scratch one-row
+# data pack over the full 150-carrier fleet and returned rc=0 with
+# 0 MISSING/DUPLICATED and 0 DIVERGENT (4 single-block-PRESENT in the four
+# constitution/ carriers, 146 POINTER-INHERITANCE-SKIP). Control needle: the
+# already-registered anchor 267 run through the identical path returned
+# 8 PRESENT / 142 SKIP, proving the instrument was not blind (§11.4.201(7)(b)).
+CM-COVENANT-114-268-PROPAGATION	11.4.268
+CM-COVENANT-114-269-PROPAGATION	11.4.269
+CM-COVENANT-114-270-PROPAGATION	11.4.270
+CM-COVENANT-114-271-PROPAGATION	11.4.271
+#
+# --- Batch 3 (SpecKit T405, ratchet-advancing) --------------------------------
+# 21 anchors that were UNIMPLEMENTED in the §11.4.227(A) ledger and are now
+# genuinely implemented. Each was CONFIRMED BEFORE its row landed by the T029
+# procedure: run through this engine against a scratch one-row data pack over
+# the full 150-carrier fleet, each returning rc=0 with 0 MISSING/DUPLICATED and
+# 0 DIVERGENT.
+#
+# HONEST GAP (§11.4.6 / §11.4.227): seven further candidates were confirmed and
+# DELIBERATELY NOT registered because each is a REAL §11.4.157 lockstep
+# DIVERGENCE in the live corpus, not an engine false positive —
+#   208 (4 divergent) · 209 (4) · 215 (4) · 225 (4) · 227 (1) · 193 (2) · 194 (8).
+# Registering them would turn the wired pre-build suite RED; they are governance
+# CONTENT defects requiring their own remediation, exactly like the Batch-1
+# 162/167/176/187/201/232 gap above. They remain UNIMPLEMENTED in the ledger.
+CM-COVENANT-114-190-PROPAGATION	11.4.190
+CM-COVENANT-114-192-PROPAGATION	11.4.192
+CM-COVENANT-114-195-PROPAGATION	11.4.195
+CM-COVENANT-114-197-PROPAGATION	11.4.197
+CM-COVENANT-114-198-PROPAGATION	11.4.198
+CM-COVENANT-114-210-PROPAGATION	11.4.210
+CM-COVENANT-114-211-PROPAGATION	11.4.211
+CM-COVENANT-114-212-PROPAGATION	11.4.212
+CM-COVENANT-114-214-PROPAGATION	11.4.214
+CM-COVENANT-114-216-PROPAGATION	11.4.216
+CM-COVENANT-114-217-PROPAGATION	11.4.217
+CM-COVENANT-114-218-PROPAGATION	11.4.218
+CM-COVENANT-114-219-PROPAGATION	11.4.219
+CM-COVENANT-114-220-PROPAGATION	11.4.220
+CM-COVENANT-114-221-PROPAGATION	11.4.221
+CM-COVENANT-114-222-PROPAGATION	11.4.222
+CM-COVENANT-114-223-PROPAGATION	11.4.223
+CM-COVENANT-114-224-PROPAGATION	11.4.224
+CM-COVENANT-114-226-PROPAGATION	11.4.226
+CM-COVENANT-114-228-PROPAGATION	11.4.228
+CM-COVENANT-114-229-PROPAGATION	11.4.229
+#
+# OWED-211 / OWED-214 remediation, 2026-08-26: these anchors were previously
+# UNREGISTERED because each carried a real §11.4.227(B) / §11.4.157 defect that a
+# registered gate would have exposed as RED. The governance CONTENT was repaired
+# (duplication reconciled by union; mirror divergence made byte-identical to the
+# canonical-adjacent constitution-mirror text) and each was MEASURED clean via the
+# shared engine on a scratch one-row pack BEFORE the row below was added.
+# §11.4.167 and §11.4.194 are deliberately NOT here — see the remediation report.
+CM-COVENANT-114-162-PROPAGATION	11.4.162
+CM-COVENANT-114-176-PROPAGATION	11.4.176
+CM-COVENANT-114-187-PROPAGATION	11.4.187
+CM-COVENANT-114-193-PROPAGATION	11.4.193
+CM-COVENANT-114-201-PROPAGATION	11.4.201
+CM-COVENANT-114-208-PROPAGATION	11.4.208
+CM-COVENANT-114-209-PROPAGATION	11.4.209
+CM-COVENANT-114-215-PROPAGATION	11.4.215
+CM-COVENANT-114-225-PROPAGATION	11.4.225
+CM-COVENANT-114-227-PROPAGATION	11.4.227
+CM-COVENANT-114-232-PROPAGATION	11.4.232

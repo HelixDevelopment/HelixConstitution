@@ -153,7 +153,15 @@ while IFS=$'\t' read -r component_id faq_relpath corpus_relpath; do
     unresolved=""
     while IFS= read -r cid; do
         [ -n "$cid" ] || continue
-        if ! printf '%s\n' "$corpus_ids" | grep -qxF "$cid"; then
+        # FIND-AV-01 hardening: NO PIPELINE on a GROWING payload. `grep -q`
+        # exits on first match and SIGPIPEs the `printf` writer (141); under
+        # `set -o pipefail` that converts a SUCCESSFUL match into a failed
+        # pipeline, so a RESOLVED id would be reported unresolved
+        # (§11.4.201(1) false positive). $corpus_ids grows with the FAQ corpus
+        # and crosses the ~60 KB pipe buffer as it does. This gate sets only
+        # `set -u` today, so the defect is LATENT here, not live; the
+        # pure-bash whole-line form is immune regardless of future shell opts.
+        if ! case $'\n'"$corpus_ids"$'\n' in *$'\n'"$cid"$'\n'*) true ;; *) false ;; esac; then
             unresolved="${unresolved:+$unresolved,}${cid}"
         fi
     done <<< "$cited_ids"

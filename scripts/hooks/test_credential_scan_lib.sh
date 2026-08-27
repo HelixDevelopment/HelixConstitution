@@ -454,6 +454,193 @@ else
     bad "(stream-bad-B2) binary stream with plaintext secret — MISSED (binary -o false negative)"
 fi
 
+# =============================================================================
+# (19) SELF-DEFINITION EXEMPTION — carrier-strip #19, BOTH directions.
+# §11.4.201(7)(a) carrier-vs-thing applied to the exemption itself: the two
+# canonical files MUST stay exempt (a §11.4.201(1) false-positive refusal blocks
+# this library's own maintenance — FORENSIC 2026-08-20), while a file merely
+# RENAMED to one of those basenames and merely MENTIONING the tokens in prose
+# MUST be scanned normally (FORENSIC 2026-08-25: the pre-fix
+# `grep -q A || grep -q B` exempted exactly that carrier, and a naive `&&`
+# de-exempts this very suite — 0 occurrences of the pattern-assignment token).
+# Every fixture secret below is ASSEMBLED AT RUNTIME so this file never carries
+# a new literal credential-shaped token.
+# =============================================================================
+_x19_secret="$(printf 'api%s=%s%s' '_key' 'AKIA' 'Q7X2M4B8N1V5C3Z9')"
+_x19_fn="$(printf 'helix%s' '_cred_scan_file')"
+_x19_pat="$(printf 'HELIX%s=' '_CRED_VALUE_PATTERN')"
+mkdir -p "$WORK/x19a" "$WORK/x19b" "$WORK/x19c" "$WORK/x19d"
+
+# golden-GOOD: the two canonical files themselves stay exempt.
+assert_clean "(19-good-1) canonical credential_scan_lib.sh stays exempt" "$LIB"
+assert_clean "(19-good-2) canonical test_credential_scan_lib.sh stays exempt" \
+             "$HERE/test_credential_scan_lib.sh"
+
+# golden-BAD 1: renamed to the library basename, tokens only in a COMMENT.
+{ echo '#!/bin/sh'
+  printf '# doc: %s is assigned by the library and %s() is its entry point\n' "$_x19_pat" "$_x19_fn"
+  printf '%s\n' "$_x19_secret"; } > "$WORK/x19a/credential_scan_lib.sh"
+assert_caught "(19-bad-1) renamed to lib basename, tokens in comments only" \
+              "$WORK/x19a/credential_scan_lib.sh"
+
+# golden-BAD 2: renamed to the suite basename, every required token in a COMMENT.
+{ echo '#!/bin/sh'
+  printf '# doc: the suite defines assert_clean() / assert_caught() and calls %s\n' "$_x19_fn"
+  printf '%s\n' "$_x19_secret"; } > "$WORK/x19b/test_credential_scan_lib.sh"
+assert_caught "(19-bad-2) renamed to suite basename, tokens in comments only" \
+              "$WORK/x19b/test_credential_scan_lib.sh"
+
+# golden-BAD 3: PARTIAL forgery — assigns the pattern but defines no scanner.
+{ echo '#!/bin/sh'; printf "%s'x'\n" "$_x19_pat"; printf '%s\n' "$_x19_secret"; } \
+  > "$WORK/x19c/credential_scan_lib.sh"
+assert_caught "(19-bad-3) lib basename, pattern assigned but no scanner defined" \
+              "$WORK/x19c/credential_scan_lib.sh"
+
+# golden-BAD 4: PARTIAL forgery — one oracle defined, the other missing.
+{ echo '#!/bin/sh'; echo 'assert_clean() { :; }'
+  printf '  %s "$1"\n' "$_x19_fn"; printf '%s\n' "$_x19_secret"; } \
+  > "$WORK/x19d/test_credential_scan_lib.sh"
+assert_caught "(19-bad-4) suite basename, assert_caught definition missing" \
+              "$WORK/x19d/test_credential_scan_lib.sh"
+
+# --- carrier-strips #20/#21/#22/#23 (2026-08-26) ----------------------------
+# Three FALSE-POSITIVE carrier shapes, each with a golden-GOOD (carrier is
+# clean) AND a golden-BAD (a REAL secret in the SAME shape is still caught).
+
+# (20) SHAPE A — secret keyword assigned from an ENV-LOOKUP CALL.
+cat > "$WORK/good_20_env_lookup.kts" <<'EOF'
+signingConfigs {
+    create("release") {
+        storePassword = System.getenv("ATMO_STORE_PASSWORD") ?: ""
+        keyAlias      = System.getenv("ATMO_KEY_ALIAS") ?: "atmosphere-release"
+        keyPassword   = System.getenv("ATMO_KEY_PASSWORD") ?: ""
+    }
+}
+val goSide   = os.Getenv("API_TOKEN")
+val nodeSide = process.env.CLIENT_SECRET
+EOF
+assert_clean "(20) keyword = System.getenv( / os.Getenv( (env-lookup call value)" \
+             "$WORK/good_20_env_lookup.kts"
+
+cat > "$WORK/bad_20_env_lookup_literal.kts" <<'EOF'
+signingConfigs {
+    create("release") {
+        keyPassword = "Hunter2Hunter2Xy"
+    }
+}
+EOF
+assert_caught "(20-bad) LITERAL keyPassword in the same signing block (env-strip must not leak it)" \
+              "$WORK/bad_20_env_lookup_literal.kts"
+
+# (21) SHAPE B — secret keyword whose value is a PascalCase TYPE NAME.
+cat > "$WORK/good_21_symbol_ref.md" <<'EOF'
+The sibling seam is
+`OptionCPairingTransport.pair(host, pairingPort, secret: OptionCPairingSecret, ourPublicKey)`
+and the box mirror carries `token: RemoteSessionToken)`.
+EOF
+assert_clean "(21) keyword: PascalCaseTypeName (symbol reference, not a secret)" \
+             "$WORK/good_21_symbol_ref.md"
+
+cat > "$WORK/bad_21_symbol_digit.md" <<'EOF'
+secret: Hunter2Secret
+EOF
+assert_caught "(21-bad-1) CamelCase value carrying a DIGIT (letters-only rule must hold)" \
+              "$WORK/bad_21_symbol_digit.md"
+
+cat > "$WORK/bad_21_one_hump.md" <<'EOF'
+secret = SuperSecret
+EOF
+assert_caught "(21-bad-2) one-hump letters-only value (two-hump floor must hold)" \
+              "$WORK/bad_21_one_hump.md"
+
+cat > "$WORK/bad_21_short_hump.md" <<'EOF'
+secret: MySecret
+EOF
+assert_caught "(21-bad-3) short one-hump letters-only value (two-hump floor must hold)" \
+              "$WORK/bad_21_short_hump.md"
+
+# (22) SHAPE C-i — git SSH remote split by an exporter mailto autolink.
+cat > "$WORK/good_22_markup_git_remote.html" <<'EOF'
+<p>then add as submodule the forked repo:
+<a href="mailto:git@github.com">git@github.com</a>:MyOrg1234/Some-Repo.git.</p>
+EOF
+assert_clean "(22) markup-SPLIT git remote (autolinked <a>…</a> between host and :)" \
+             "$WORK/good_22_markup_git_remote.html"
+
+# (23) SHAPE C-ii — mailto autolink duplicating the address into a markup-wrapped token.
+cat > "$WORK/good_23_mailto_autolink.html" <<'EOF'
+<p>Maintainer contact:
+<a href="mailto:ops85team@example.com">ops85team@example.com</a> for access requests.</p>
+EOF
+assert_clean "(23) mailto autolink duplicate DIGIT-BEARING address (markup-wrapped email self-ref)" \
+             "$WORK/good_23_mailto_autolink.html"
+
+cat > "$WORK/bad_23_mailto_plus_password.html" <<'EOF'
+<p>login <a href="mailto:ops85team@example.com">ops85team@example.com</a> / Hunter2Hunter2! now</p>
+EOF
+assert_caught "(23-bad) REAL password adjacent to a mailto-autolinked email (markup strip must not leak it)" \
+              "$WORK/bad_23_mailto_plus_password.html"
+
+# (24) The elvis/or FALLBACK literal — the catch that carrier-strip #20 must not
+# cost. MEASURED 2026-08-26: with #20 present but no fallback alternative, a real
+# secret in `= System.getenv("X") ?: "<secret>"` went HIT -> CLEAN, a catch
+# REGRESSION. These pin both directions.
+cat > "$WORK/bad_24_elvis_real.kts" <<'EOF'
+storePassword = System.getenv("ATMO_PW") ?: "Hunter2Hunter2Xy"
+EOF
+assert_caught "(24-bad-1) REAL secret in an elvis fallback beside an env lookup" \
+              "$WORK/bad_24_elvis_real.kts"
+
+cat > "$WORK/bad_24_or_real.go" <<'EOF'
+apiKey := os.Getenv("K")
+api_key = os.Getenv("K") || "Hunter2Hunter2Xy"
+EOF
+assert_caught "(24-bad-2) REAL secret in an or-fallback beside an env lookup" \
+              "$WORK/bad_24_or_real.go"
+
+cat > "$WORK/good_26_sed_at_delim.sh" <<'EOF'
+sed -e 's@MessageDigest.isEqual(a, b)@true@' "$src" > "$mut2"
+EOF
+assert_clean "(26) sed s@PATTERN@REPL@ delimiters (pseudo-email shape) — clean (no false positive)" \
+              "$WORK/good_26_sed_at_delim.sh"
+
+cat > "$WORK/bad_26_real_email_beside_sed.sh" <<'EOF'
+sed -e 's@Foo.bar@true@' x
+admin@company.com : hunter2RealPassword
+EOF
+assert_caught "(26-bad) REAL email+password on a line beside a sed s@..@..@ (blank must not leak it)" \
+              "$WORK/bad_26_real_email_beside_sed.sh"
+
+cat > "$WORK/good_25_accessor_call.kt" <<'EOF'
+val password: String = "",
+val token: String = "",
+password = obj.optString("password", ""),
+token    = obj.optString("token", ""),
+EOF
+assert_clean "(25) accessor/method CALL in value position (obj.optString) — clean (no false positive)" \
+              "$WORK/good_25_accessor_call.kt"
+
+cat > "$WORK/bad_25_quoted_lookalike.kt" <<'EOF'
+password = "objDotOptStringLooksLikeACall"
+EOF
+assert_caught "(25-bad-1) quoted literal that merely LOOKS like a call (strip must be \$-anchored past the quote)" \
+              "$WORK/bad_25_quoted_lookalike.kt"
+
+cat > "$WORK/bad_25_real_literal.kt" <<'EOF'
+password = obj.optString("password", "")
+api_key  = "AKIAIOSFODNN7EXAMPLE"
+EOF
+assert_caught "(25-bad-2) REAL secret on a line beside an accessor-call carrier (strip must not blanket the file)" \
+              "$WORK/bad_25_real_literal.kt"
+
+cat > "$WORK/good_24_elvis_placeholder.kts" <<'EOF'
+storePassword = System.getenv("ATMO_PW") ?: ""
+keyPassword   = System.getenv("ATMO_KP") ?: "CHANGE_ME"
+keyAlias      = System.getenv("ATMO_ALIAS") ?: "atmosphere-release"
+EOF
+assert_clean "(24) empty / CHANGE_ME elvis fallback + non-keyword keyAlias fallback" \
+             "$WORK/good_24_elvis_placeholder.kts"
+
 echo ""
 echo "== RESULT: ${pass} passed, ${fail} failed =="
 [ "$fail" -eq 0 ]

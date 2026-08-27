@@ -141,8 +141,8 @@ if [ -z "$CMD" ]; then
   # it shows a feature/* branch-create shape we could not parse; a non-create
   # unparseable Bash call is still allowed (bounded availability). A genuinely
   # absent / empty command field passes through.
-  if printf '%s' "$PAYLOAD" | grep -qE '"command"[[:space:]]*:[[:space:]]*"[^"]'; then
-    if printf '%s' "$PAYLOAD" | grep -qE 'git[^"]*(checkout[[:space:]]+-[bB]|checkout[[:space:]]+--branch|switch[[:space:]]+-[cC]|switch[[:space:]]+--create|branch|worktree[[:space:]]+add|fetch|push)[^"]*feature/'; then
+  if grep -qE '"command"[[:space:]]*:[[:space:]]*"[^"]' <<< "$PAYLOAD"; then
+    if grep -qE 'git[^"]*(checkout[[:space:]]+-[bB]|checkout[[:space:]]+--branch|switch[[:space:]]+-[cC]|switch[[:space:]]+--create|branch|worktree[[:space:]]+add|fetch|push)[^"]*feature/' <<< "$PAYLOAD"; then
       echo "guardrails: BLOCKED — §11.4.181: a Bash command containing a possible feature/* branch create could not be parsed for verification (fail-closed, §11.4.6). Re-issue via 'workable-items group branch <group_id>' or append '# guardrails:allow <reason>'." >&2
       exit 2
     fi

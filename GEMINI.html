@@ -451,7 +451,7 @@ Universal GEMINI.md</h1>
 <tbody>
 <tr>
 <td>Revision</td>
-<td>37</td>
+<td>38</td>
 </tr>
 <tr>
 <td>Created</td>
@@ -459,7 +459,7 @@ Universal GEMINI.md</h1>
 </tr>
 <tr>
 <td>Last modified</td>
-<td>2026-07-26T18:27:34Z</td>
+<td>2026-08-26T11:55:02Z</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -467,16 +467,46 @@ Universal GEMINI.md</h1>
 </tr>
 <tr>
 <td>Status summary</td>
-<td>Amendment of 2026-08-15 — MONOLITHIC ROUND: 22 NEW universal anchors
-(§11.4.239-254 AI-curriculum modules 27-35 harvest + §11.4.257-262
-enterprise-quality 9-point mandate) + 5 targeted extensions (§11.4.212
-EXT clauses (E)/(F) README intro+illustration + linkage-completeness
-ratchet; §11.4 covenant preamble EXT machine-created evidence at every
-gate binding; §11.4.108 EXT clause (7) machine-created evidence at every
-layer; §11.4.224 EXT (B) 7-canonical-type coverage floor + 100% aim;
-§11.4.27 EXT (B) 7-canonical-type breadth enumeration). §11.4.239
-critical-invariant DoD money/safety/availability/integrity failure-path
-scenarios as gates; §11.4.240 producer≠verifier scope separation via
+<td>Amendment of 2026-08-26 — SPECKIT 002-anti-slop-enforcement
+T402/T403/T404: 4 NEW universal anchors §11.4.268 (tamper-evident
+evidence chain + periodic anchor record: deletion, reordering and
+tail-truncation of an evidence chain are DETECTED, not merely
+discouraged) / §11.4.269 (critic/consensus advisory-only ban AT THE
+EVIDENCE-ACCEPTANCE SEAM: an ungoverned confidence or consensus score
+never substitutes for a machine-written verdict) / §11.4.270
+(dependency-existence-verdict register: every proposed dependency
+carries a closed-set existence verdict, so a hallucinated package cannot
+be adopted silently) / §11.4.271 (waiver mechanism: the strict
+FORMALIZATION of allow-with-tracked-debt, unifying §11.4.234(D)&#39;s
+recorded deferral with the §11.4.135 ratchet), plus 3 EXTENSIONS landed
+INSIDE existing bodies per §11.4.227 extend-don&#39;t-restate — §11.4.115
+clause (H) (evidence-record full field set +
+stream-digest-before-truncation + recorder reconciliation), a titled
+EXTENSION block in §11.4.238 (discovery-channel record schema +
+escape-ratchet no-data-point rule), and §11.4.240 clause (F)
+(independence-tier vocabulary + Tier-C capability-separation triggers,
+degrading honestly on a single-uid host). The 4 NEW anchors are mirrored
+byte-identically into CLAUDE.md / AGENTS.md / QWEN.md / GEMINI.md (T403,
+all PASS, per-anchor content hashes agree); anchor-block integrity
+verified by TWO independent instruments that must agree (T404, both
+rc=0). HONEST BOUNDARY (§11.4.6): the 3 EXTENSIONS were deliberately NOT
+propagated to the mirrors in this change — syncing §11.4.115 would
+additionally overwrite pre-existing divergent mirror wording and insert
+the block currently MISSING from GEMINI.md (a pre-existing §11.4.157
+lockstep violation, tracked, outside this change&#39;s authorization); that
+mirror gap for §11.4.115/238/240 is RECORDED as owed, not left implicit.
+Gate-code for the recommended CM-* mechanism gates is a separate work
+item and is NOT claimed shipped (§11.4.6/§11.4.227). Amendment of
+2026-08-15 — MONOLITHIC ROUND: 22 NEW universal anchors (§11.4.239-254
+AI-curriculum modules 27-35 harvest + §11.4.257-262 enterprise-quality
+9-point mandate) + 5 targeted extensions (§11.4.212 EXT clauses (E)/(F)
+README intro+illustration + linkage-completeness ratchet; §11.4 covenant
+preamble EXT machine-created evidence at every gate binding; §11.4.108
+EXT clause (7) machine-created evidence at every layer; §11.4.224 EXT
+(B) 7-canonical-type coverage floor + 100% aim; §11.4.27 EXT (B)
+7-canonical-type breadth enumeration). §11.4.239 critical-invariant DoD
+money/safety/availability/integrity failure-path scenarios as gates;
+§11.4.240 producer≠verifier scope separation via
 least-privilege-not-instruction; §11.4.241
 illegal-state-unrepresentability preference ladder
 (types→API-shape→lint→property-test→runtime-assert); §11.4.242
@@ -773,6 +803,88 @@ Non-compliance is a release blocker. No escape hatch — no
 
 <h2 id="token-efficiency-mandate-114141">Token-efficiency mandate
 (§11.4.141)</h2>
+<h3 id="114115--red-baseline-on-the-broken-artifact--polarity-switch-mandate-118-dev-remediation-2026-06-03">§11.4.115
+— RED-baseline-on-the-broken-artifact + polarity-switch mandate
+(1.1.8-dev remediation, 2026-06-03)</h3>
+<p>Strict refinement of §11.4.43&#39;s RED step. Every RED test MUST be
+authored to REPRODUCE the defect on the CURRENT, pre-fix artifact (the
+actual broken build/deployment), capturing positive evidence per §11.4.5
+/ §11.4.69 / §11.4.107 that the defect is genuinely present — never a
+synthetic failure the fix is then written to agree with. The SAME test
+source MUST carry a single polarity switch (env flag / parameter,
+canonical <code>RED_MODE</code>, default <code>1</code> =
+reproduce-and-assert-defect-present) that flipped to <code>0</code>
+post-fix converts the test into the GREEN regression-guard asserting the
+defect is ABSENT. One source, two roles: the bug-catcher IS the
+regression-guard; no separate happy-path test is authored as the primary
+guard (that demonstrates only that the test agrees with the fix — the
+§11.4.43 PASS-bluff). RED-on-broken-artifact then
+GREEN-on-fixed-artifact (on a clean target per §11.4.108) MUST both be
+captured. Honest boundary (§11.4.6): if the RED run does NOT fail on the
+broken artifact, that is a finding (close per §11.4.7 with negative
+evidence, or fix the test) — a RED test that passes on the known-broken
+artifact is a blind test. Classification: universal (§11.4.17). Composes
+§11.4.1 / §11.4.2 / §11.4.5 / §11.4.69 / §11.4.107 / §11.4.4 / §11.4.7 /
+§11.4.43 / §11.4.50 / §11.4.108 / §11.4.114. Propagation gate
+<code>CM-COVENANT-114-115-PROPAGATION</code> (literal
+<code>11.4.115</code>) + recommended gate
+<code>CM-RED-POLARITY-SWITCH-PRESENT</code> + paired §1.1 mutation
+(gate-code = separate work item).</p>
+<p><strong>(H) Evidence-record full field set +
+stream-digest-before-truncation + recorder reconciliation (extension,
+spec-derived, speckit 002-anti-slop-enforcement, 2026-08-26).</strong>
+Clause (F) mandates a machine-written verdict carrying the item id,
+guard identity, polarity, exit code, target fingerprint, iteration count
+and evidence-file list, but fixes no COMMAND-EXECUTION field schema
+precise enough to RECONSTRUCT what ran, where and for how long; says
+nothing about a captured stream truncated or redacted for storage; and
+never asks whether a CITED command genuinely has a matching recorder
+entry. This clause closes those three gaps. <strong>(1) Full
+command-execution field set:</strong> every evidence-record entry
+representing a command execution MUST carry, at minimum, a START
+TIMESTAMP (the moment of invocation, not merely &quot;a timestamp&quot;), the
+WORKING DIRECTORY at invocation, the ARGUMENT LIST as a genuine list
+(NEVER a shell-joined single string — a joined string cannot distinguish
+an argument containing a space from two separate arguments, the exact
+ambiguity §11.4.201(7)(c) names as a path-is-part-of-the-instrument
+footgun), the EXIT STATUS, and the DURATION (wall-clock elapsed); an
+entry missing — or carrying an unparseable value for — any of these five
+is REFUSED at the write seam, never silently accepted as partial.
+<strong>(2) Stream digest computed BEFORE truncation:</strong> when a
+captured stdout/stderr stream is large enough that the store truncates
+or redacts it, the entry MUST record a content digest computed over the
+FULL stream BEFORE any truncation, the full stream&#39;s BYTE COUNT, and a
+REFERENCE to where the full stream is retained OUTSIDE version control
+(§11.4.11 — raw logs stay untracked by default), so a later dispute can
+retrieve the full stream and verify it against the recorded digest;
+truncation and redaction are themselves RECORDED FACTS on the entry (a
+flag plus the truncation point), never silent. <strong>(3) Recorder
+reconciliation:</strong> any evidence-bearing claim citing a specific
+command&#39;s output (a PASS citing a command, a closure citing a captured
+log) MUST have a MATCHING recorder entry for the EXACT command cited; a
+citation with no matching entry is REFUSED at the SAME status-write seam
+§11.4.146(D3) already enforces for terminal statuses, checked
+AUTOMATICALLY at that seam and never as a manual audit step.
+<strong>Honest boundary (§11.4.6):</strong> this clause specifies the
+field SCHEMA and the truncation/reconciliation disciplines; it does NOT
+alter clause (F)&#39;s cross-validation rules (fingerprint match, iteration
+count, evidence-class match), which remain in force unmodified.
+Recommended mechanism gates
+<code>CM-EVIDENCE-RECORD-FIELD-SET-COMPLETE</code> +
+<code>CM-EVIDENCE-STREAM-DIGEST-PRE-TRUNCATION</code> +
+<code>CM-EVIDENCE-RECORDER-RECONCILED</code> + paired §1.1 mutations
+(store a shell-joined string in place of the argument list → the
+field-set gate MUST FAIL; digest the stream AFTER truncation → the
+digest gate MUST FAIL; cite a command with no matching recorder entry →
+the reconciliation gate MUST FAIL; golden-FALSE per §11.4.201(1): a
+fully-fielded, pre-truncation-digested, reconciled entry fires none of
+the three). Gate-code = separate work item, NOT claimed shipped
+(§11.4.6/§11.4.227).</p>
+<p><strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.115.
+Non-compliance is a release blocker. No escape hatch — no
+<code>--green-only-test</code>, <code>--skip-red-reproduction</code>,
+<code>--separate-happy-path-suffices</code>,
+<code>--synthetic-red-OK</code> flag.</p>
 <p><strong>§11.4.141 — Token-efficiency mandate (research-derived +
 operator mandate, 2026-06-09).</strong> Every project worked on by AI
 coding agents MUST cut token spend (input AND output) toward
@@ -1958,17 +2070,27 @@ Propagation gate <code>CM-COVENANT-114-161-PROPAGATION</code> +
 recommended gate <code>CM-ROOTLESS-CONTAINER-RUNTIME</code> + paired
 §1.1 mutation.</p>
 <p><strong>§11.4.162 — OpenDesign UI design system mandate (User
-mandate, 2026-06-21).</strong> Compact summary: every project with
-user-facing interfaces MUST use OpenDesign (<a href="https://github.com/nexu-io/open-design">https://github.com/nexu-io/open-design</a>)
-as mandatory UI design system — NOT ad-hoc CSS; install as dependency,
-use token system for all color (light+dark from brand assets),
-typography, spacing, component tokens; extend upstream (§11.4.74) for
-unsupported patterns; every UI component ships light+dark + token-diff
-regression tests via visual regression; no element overlap/font
-collision/label overlay. Honest boundary: does NOT replace §11.4.27
-functional testing nor §11.4.48/.49 UI testing. Classification:
-universal (§11.4.17). Propagation gate
-<code>CM-COVENANT-114-162-PROPAGATION</code> + recommended gate
+mandate, 2026-06-21).</strong> Compact summary: every project producing
+user-facing interfaces (web, desktop, mobile, TUI) MUST use OpenDesign
+(<a href="https://github.com/nexu-io/open-design">https://github.com/nexu-io/open-design</a>)
+as the mandatory UI design-and-refinement system — NOT ad-hoc CSS or
+one-off design tools; install as a project dependency and use its design
+tokens/themes system for: (a) all color palette definitions supporting
+BOTH light and dark themes from project brand assets (§11.4.35), (b)
+typography scale and spacing, (c) component-level design tokens; if a
+desired UI pattern is not supported, extend OpenDesign upstream per
+§11.4.74 (extend-don&#39;t-reimplement); every UI component MUST ship light
++ dark theme variants; elements MUST NOT overlap, fonts MUST NOT
+collide, labels MUST NOT overlay labels — any layout regression is a
+§11.4.162 violation; all UI changes MUST be covered by the project&#39;s
+standard test types including visual regression tests (before/after
+screenshots with per-pixel or perceptual-diff PASS/FAIL). Honest
+boundary (§11.4.6): OpenDesign governs design tokens and themes — it
+does NOT replace functional testing (§11.4.27), WCAG accessibility
+assertions (§11.4.107), nor the §11.4.48/§11.4.49 UI-driven and
+dual-approach testing methodology. Classification: universal (§11.4.17).
+Composes §11.4.74/.25/.27/.4(b)/.107/.48/.49/.35/.69/§1.1. Propagation
+gate <code>CM-COVENANT-114-162-PROPAGATION</code> + recommended gate
 <code>CM-OPENDESIGN-UI-SYSTEM</code> + paired §1.1 mutation.</p>
 <p><strong>§11.4.163 — Universal Media Validation (User
 mandate).</strong> Every recorded artifact MUST pass MEDIA VALIDATION
@@ -4359,8 +4481,8 @@ HEAD-vs-worktree count). <strong>The fix, proven in-session: the CONTROL
 NEEDLE</strong> — an artifact check returned 0 hits; instead of
 reporting absence it ran a string KNOWN present through the SAME path,
 got 1 hit, and only THEN reported the zero as real.</p>
-<p><strong>§11.4.201 (6)(7)(8) — scope widened to EVERY load-bearing
-measurement + carrier-vs-thing + control needle +
+<p><strong>EXTENSION — §11.4.201 (6)(7)(8): scope widened to EVERY
+load-bearing measurement + carrier-vs-thing + control needle +
 metric-validation.</strong> (6) clauses (1)-(5) bind guards (decision
 seams that refuse/allow) with a refusal-shaped taxonomy; (6)-(8) bind
 <strong>every measurement whose result is load-bearing</strong>
@@ -5381,6 +5503,36 @@ Non-compliance is a release blocker. No escape hatch — no
 <code>--presence-gte-1-suffices</code>,
 <code>--duplicate-anchor-OK</code>, <code>--mirror-drift-OK</code>,
 <code>--reuse-anchor-number</code> flag.</p>
+<p><strong>EXTENSION landed 2026-07-23 (round 2 — the reopen/first-touch
+root-cause harvest; full text in <code>Constitution.md</code>).</strong>
+<strong>§11.4.194(6)</strong> — the quality-harvest review classes:
+every code-review (§11.4.142 universal / §11.4.125 gate / §11.4.209
+Fable-xhigh substrate, iterated to GO per §11.4.134) MUST additionally
+CHECK, per reviewed change: (a) <strong>closure-evidence class vs defect
+layer</strong> (§11.4.226) — a terminal/ready-class status moving on
+evidence below the defect layer&#39;s floor, a user-visible property
+&quot;verified&quot; by file-existence + greps, an echo-assertion, or a state-only
+repair closing a defect as fixed is a FINDING; (b) <strong>needled
+measurements</strong> — every load-bearing measurement in the change/its
+tests satisfies §11.4.201(6)–(12), and NO count was converted into a
+finding without reading the underlying lines — a COUNT IS A LEAD, THE
+LINES ARE THE FINDING (forensic FACT: twice in one measured cycle a
+count was read as state — a &quot;mixed half-written doc&quot; that was actually
+coherent, and an inflated FAIL total that counted its own summary line);
+(c) <strong>governance-and-gate integrity</strong> (§11.4.227) — a
+change NAMING a gate lands its implementation or registered deferral in
+the same change; a governance edit preserves anchor-block integrity; (d)
+<strong>reviewer-authored adversarial mutations</strong> — the author&#39;s
+self-authored mutation set is NECESSARY but NOT SUFFICIENT (forensic
+FACT, from the dated forensic corpus cited in the 2026-07-22 root-cause
+analysis: an author&#39;s six self-authored mutations were ALL caught while
+an independent reviewer&#39;s FIRST THREE different mutations ALL sailed
+through, each restoring a user-visible defect); the reviewer MUST
+attempt ≥1 mutation the author did not write (or record honest
+infeasibility per §11.4.3) — a guard whose reviewer-authored mutation
+survives is unvalidated instrumentation per §11.4.115(F) and a FINDING.
+The literal <code>11.4.194</code> is unchanged — its propagation gate
+stays GREEN.</p>
 <p><strong>§11.4.228 — Cross-agent extension lifecycle mandate:
 per-platform compatibility, source tracking, documentation with
 compatibility matrix, and auto-wiring on constitution pull
@@ -6079,23 +6231,23 @@ session-transcript with no subagent-vs-conductor marker — recorded as an
 open limitation to be tracked, never silently claimed solved. (6)
 <strong>DIVERGENT-LABELER RECONCILIATION (§11.4.227)</strong> — the LIVE
 labeler wired via <code>.claude/settings.json</code> is
-<code>constitution/scripts/multitrack/track_branch_label.sh</code> (both
-it and the top-level <code>scripts/multitrack/</code> duplicate carry
-the model-field extension (functionally equivalent on the alias+model
-fields, not byte-identical — the constitution copy additionally carries
-the 2026-07-26 effort field the top-level copy does not yet mirror));
-the two copies are reconciled to a single source of truth (top-level a
-thin wrapper exec-ing the constitution copy, §11.4.177
-inherited-by-reference) as a reconciliation to be tracked, never a
-silent divergence. (7) <strong>EFFORT FIELD (added 2026-07-26 per the
-operator IMPORTANT mandate — verbatim: &quot;Besides dynamic determining
-proper models to use, we MUST decide the effort as well and switch
-between the effort settings same as we do now for chosen model! Labeling
-MUST BE extended for this details as well. Example: (T1/main - claude4 -
-opus - high).&quot;).</strong> The 5-field label appends
-<code>&lt;effort&gt;</code> after <code>&lt;model&gt;</code>, recording
-which reasoning-EFFORT setting is CURRENTLY in force for that
-work-stream, drawn from the closed set
+<code>constitution/scripts/multitrack/track_branch_label.sh</code>; the
+top-level <code>scripts/multitrack/</code> path is a thin pass-through
+WRAPPER that <code>exec</code>s that canonical copy (§11.4.177
+inherited-by-reference), so it mirrors nothing, cannot drift, and emits
+byte-identical output by construction. The reconciliation LANDED in
+commit <code>a48e919f52d</code> and is gate-enforced at
+<code>pre_build_verification.sh:41911-41915</code> (the gate detects the
+<code>exec</code> wrapper and follows it to the canonical
+implementation), never a silent divergence. (7) <strong>EFFORT FIELD
+(added 2026-07-26 per the operator IMPORTANT mandate — verbatim:
+&quot;Besides dynamic determining proper models to use, we MUST decide the
+effort as well and switch between the effort settings same as we do now
+for chosen model! Labeling MUST BE extended for this details as well.
+Example: (T1/main - claude4 - opus - high).&quot;).</strong> The 5-field
+label appends <code>&lt;effort&gt;</code> after
+<code>&lt;model&gt;</code>, recording which reasoning-EFFORT setting is
+CURRENTLY in force for that work-stream, drawn from the closed set
 <code>{low | medium | high | xhigh | max}</code> (the SAME effort ladder
 §11.4.231 clause (F) selects). (a) DERIVATION (§11.4.6, never guessed) —
 <code>&lt;effort&gt;</code> is read from whatever LIVE effort signal the
@@ -6627,15 +6779,54 @@ end-to-end (§11.4.98 / §11.4.143 / §11.4.136 / §11.4.158 / §11.4.159 /
 discovery-channel split (automated vs out-of-band) and drive out-of-band
 toward zero; honest boundary (§11.4.6): this does NOT claim a regime can
 be provably complete (§11.4.118) and does NOT license closing an escape
-by narrowing the definition of &quot;defect&quot;. Composes §11.4.27 / §11.4.138
-(trigger set widened) / §11.4.185 (manual QA becomes confirmation, never
-discovery) / §11.4.118 / §11.4.135 / §11.4.115 / §11.4.98 / §11.4.136 /
-§11.4.143 / §11.4.158 / §11.4.159 / §11.4.160 / §11.4.102 / §11.4.6 /
-§1.1. Classification: universal (§11.4.17) — the consuming project
-supplies its QA system, surface inventory, and discovery-channel ledger
-per §11.4.35. Propagation gate
-<code>CM-COVENANT-114-238-PROPAGATION</code> (literal
-<code>11.4.238</code>) + recommended gates
+by narrowing the definition of &quot;defect&quot;. <strong>EXTENSION —
+Discovery-channel record schema + escape-ratchet no-data-point rule
+(spec-derived, speckit 002-anti-slop-enforcement, 2026-08-26).</strong>
+§11.4.238(C) states the CONCEPT (a coverage-escape audit citing the
+specific missing check) but fixes no record schema, and (E)&#39;s &quot;toward
+zero over successive cycles&quot; names neither an input condition nor an
+observable pass/fail outcome — the ratchet is the decidable form.
+<strong>(1) Discovery-channel record schema:</strong> every recorded
+defect MUST carry a discovery channel from the CLOSED SET
+<code>{automated_seam, manual_qa, operator, end_user, agent_inspection}</code>
+(or the consuming project&#39;s declared equivalent per §11.4.35) AND a
+<code>should_have_been_caught_by</code> value naming a specific seam or
+gate, OR the literal <code>none</code> with a WRITTEN justification; a
+record missing either field is REFUSED. The record MUST be WRITTEN BY
+THE VERIFIER SEAM, never by the producer of the defect&#39;s fix (the
+§11.4.240 producer≠verifier separation applied to the record OF the
+escape, not only the record of the fix). <strong>(2) Monotone-decreasing
+escape count:</strong> a cycle whose escape count EXCEEDS the recorded
+baseline is REFUSED at the release seam; a cycle whose count is lower
+moves the baseline DOWN. <strong>(3) A manual-QA-not-run cycle
+contributes NO DATA POINT and MUST NOT lower the baseline</strong> — the
+§11.4.201(6) false-null applied to this ratchet: an unmeasured cycle and
+a genuinely-clean cycle both read zero, and only the
+<code>manual_qa_ran</code> flag distinguishes them. <strong>(4)
+<code>should_have_been_caught_by: none</code> records are counted and
+reported SEPARATELY</strong>, so narrowing the definition of an escape
+is visible rather than silent. Honest boundary (§11.4.6): at the correct
+end-state — every escape caught by a seam — the count reaches 0, so the
+ratchet is a valid NECESSARY condition; it is NOT sufficient, since zero
+also results from nobody looking, which the no-data-point rule and the
+separate <code>none</code> tally exist to expose. Composes
+§11.4.201(6)-(8) / §11.4.135(5) / §11.4.261. Recommended mechanism gates
+<code>CM-DISCOVERY-CHANNEL-RECORD-COMPLETE</code> +
+<code>CM-ESCAPE-RATCHET-NO-DATA-POINT-HONEST</code> + paired §1.1
+mutations (a record with no channel, or a <code>none</code> with no
+justification, or a producer-authored record → the schema gate MUST
+FAIL; a <code>manual_qa_ran</code> false cycle lowering the baseline →
+the ratchet gate MUST FAIL; golden-FALSE per §11.4.201(1): a genuine
+manual-QA cycle with a real zero-escape result MUST be allowed to lower
+the baseline); gate-code = separate work item, NOT claimed shipped
+(§11.4.6/§11.4.227). Composes §11.4.27 / §11.4.138 (trigger set widened)
+/ §11.4.185 (manual QA becomes confirmation, never discovery) /
+§11.4.118 / §11.4.135 / §11.4.115 / §11.4.98 / §11.4.136 / §11.4.143 /
+§11.4.158 / §11.4.159 / §11.4.160 / §11.4.102 / §11.4.6 / §1.1.
+Classification: universal (§11.4.17) — the consuming project supplies
+its QA system, surface inventory, and discovery-channel ledger per
+§11.4.35. Propagation gate <code>CM-COVENANT-114-238-PROPAGATION</code>
+(literal <code>11.4.238</code>) + recommended gates
 <code>CM-QA-IS-THE-DISCOVERER</code> /
 <code>CM-MANUAL-QA-FINDS-NOTHING-NEW</code> + paired §1.1 mutation
 (gate-code = separate work item, NOT claimed shipped
@@ -6738,8 +6929,63 @@ verifier layer — §11.4.115(F) machine-written verdicts,
 §11.4.135 release verdict coverage, §11.4.165 independent verifier
 agent, §11.4.245 oracle independence; (E) honest boundary — separation
 forbids the CLASS of self-certification, does NOT prove verifier
-correctness (§11.4.107(10) still binds). Classification: universal
-(§11.4.17). Composes
+correctness (§11.4.107(10) still binds). <strong>(F) Independence-tier
+vocabulary + Tier-C capability-separation triggers, degrading honestly
+on a single-uid host (extension, spec-derived, speckit
+002-anti-slop-enforcement, 2026-08-26).</strong> Clauses (A)-(E) state
+the SEPARATION PRINCIPLE in the abstract; this clause supplies the
+CLOSED VOCABULARY for recording HOW MUCH separation was ACHIEVED, plus
+the two triggers that raise the required strength — because claiming
+&quot;capability separation&quot; where only &quot;instance separation&quot; is achievable
+is itself the theatre this anchor exists to prevent. <strong>(1) Closed
+tier set:</strong> every accepted verdict&#39;s recorded basis of
+independence MUST name its tier from the CLOSED SET
+<code>{instance, model, capability}</code> — <code>instance</code> (a
+separate agent/process instance sharing no in-flight state with the
+producer), <code>model</code> (a DIFFERENT model),
+<code>capability</code> (a genuine host-level access-control boundary
+separating the producer&#39;s write scope from the verifier&#39;s). <strong>(2)
+Model diversity is PERMITTED, NEVER REQUIRED — the false-positive
+guard:</strong> a verdict from an independent INSTANCE running the SAME
+model as the producer MUST be ACCEPTED on that basis alone; a check that
+refuses same-model independent verdicts is the exact class of
+false-positive refusal §11.4.201 forbids. This does NOT weaken the
+constitution&#39;s OTHER, narrower model-substrate pins — §11.4.256
+(translation review runs on a DIFFERENT model/provider than the
+translator) and §11.4.209 (every mandatory independent code-review runs
+on Fable at <code>xhigh</code>, Opus <code>xhigh</code> on genuine
+Fable-unavailability) both remain in force unmodified for their own
+domains. <strong>(3) Tier-C trigger 1 — producer holds write access to
+the evidence/verdict store:</strong> the verdict MUST be written through
+the MOST RESTRICTIVE separation genuinely available on the host, and the
+ACHIEVED separation (not the aspired-to one) MUST be reported.
+<strong>(4) Tier-C trigger 2 — the three named high-blast-radius
+seams:</strong> at <code>release-tag</code>, <code>qa-deploy</code> or
+<code>manual-qa-handoff</code> (or the consumer&#39;s declared equivalents
+per §11.4.35) a producer-authored verdict is REFUSED regardless of the
+write-access analysis. <strong>(5) No demand for capability outside the
+two triggers:</strong> at a seam matching NEITHER trigger a separate
+agent INSTANCE MUST SUFFICE and capability separation MUST NOT be
+demanded — over-applying Tier-C strength to every seam is itself the
+same false-positive-refusal violation. <strong>Honest boundary
+(§11.4.6):</strong> on a SINGLE-UID host capability separation CANNOT be
+established by any mechanism an agent can set up — ownership defeats
+access-control lists, the append-only attribute requires privilege the
+agent lacks, and any key the producer can use it can also read — so such
+a host reports <code>instance</code> HONESTLY and never
+<code>capability</code>, until the operator takes the one host-boundary
+action agents are correctly forbidden from creating (§11.4.66/§12); the
+field records WHAT WAS ACHIEVED, never what was ASPIRED to, and honest
+degradation IS the compliant path. Recommended mechanism gate
+<code>CM-INDEPENDENCE-TIER-HONESTLY-RECORDED</code> + paired §1.1
+mutation (record <code>capability</code> where no verified host boundary
+exists → MUST FAIL; refuse a same-model independent verdict at an
+ordinary seam → MUST FAIL; accept a producer-authored verdict at
+<code>release-tag</code>/<code>qa-deploy</code>/<code>manual-qa-handoff</code>
+→ MUST FAIL; golden-FALSE per §11.4.201(1): an honest
+<code>instance</code>-tier verdict at an ordinary seam MUST NOT fire
+it); gate-code = separate work item, NOT claimed shipped
+(§11.4.6/§11.4.227). Classification: universal (§11.4.17). Composes
 §11.4.6/.20/.70/.92/.107(10)/.115(F)/.125/.134/.135/.142/.146(D3)/.165/.194/.201/.205/.209/.245/.248/.249
 (mutual composes with §11.4.249 four-role + flight-recorder architecture
 per §11.4.209 reviewer MINOR-1 — §11.4.240 the separation principle,
@@ -8105,5 +8351,610 @@ shipped (§11.4.6/§11.4.227). The literals <code>11.4.233</code> /
 <code>11.4.242</code> / <code>11.4.260</code> / <code>11.4.169</code> /
 <code>11.4.148</code> are unchanged — their propagation gates stay
 GREEN.</p>
+<h3 id="114268--tamper-evident-evidence-chain--periodic-anchor-record-deletion-reordering-and-tail-truncation-of-an-accepted-evidence-record-are-detected-not-merely-content-mutation-spec-derived-speckit-002-anti-slop-enforcement-2026-08-26">§11.4.268
+— Tamper-evident evidence chain + periodic anchor record: deletion,
+reordering, and tail-truncation of an accepted evidence record are
+DETECTED, not merely content-mutation (spec-derived, speckit
+002-anti-slop-enforcement, 2026-08-26)</h3>
+<p><strong>Compact summary:</strong> every accepted evidence record (the
+§11.4.115(F) machine-written verdict store, the §11.4.116 event stream,
+or an equivalent evidence-bearing ledger a consuming project maintains)
+MUST be tamper-evident against THREE distinct attacks, not only the
+content-mutation attack §11.4.115(F)/§11.4.226 already cover: (1)
+deleting an entry, (2) reordering two entries, and (3) truncating the
+tail — and the mechanism that detects each MUST be named, because a
+forward-hash-chain alone detects (1) and (2) only when the chain is left
+internally inconsistent, and does NOT detect an attacker who deletes an
+entry and then RECOMPUTES the chain forward from that point
+(spec.md:132, FR-029&#39;s own measured boundary: <em>&quot;an actor who deletes
+an entry and then recomputes the whole chain is NOT detected by the
+chain alone (0.43 s for 100k entries); that case is detected only
+against an anchor&quot;</em>) — closing that gap requires a SEPARATE periodic
+anchor record the producer can append to but never rewrite
+(spec.md:137–139, FR-037–039). <strong>The mandate (ALL hold):</strong>
+<strong>(A) EVERY STATE-CHANGE ENTRY WITHIN THE DECLARED COVERED-CALL
+SET, NO CITED-READ VOLUME CREEP.</strong> Scope (§11.4.35): this clause
+binds the enforcement system&#39;s own tool-call ledger under
+§002-anti-slop-enforcement (spec.md:129, FR-026 is written against THAT
+ledger, not every write/exec/deploy on the host) — the consuming project
+declares its own concrete COVERED-CALL SET (which state-changing
+operations this evidence chain tracks) as DATA per §11.4.35; §11.4.268
+does NOT itself mandate a fleet-wide &quot;every write/exec/deploy anywhere
+produces a chain entry&quot; obligation, only that within the declared set,
+coverage is complete and cited-vs-uncited is honoured. A state-changing
+call WITHIN the declared covered-call set (write, exec, deploy —
+spec.md:129, FR-026) MUST produce a matching chain entry naming it. An
+UNCITED read of the store — a read whose result backs no claim — MUST
+NOT be required to produce an entry (spec.md:130, FR-027: <em>&quot;this
+guards against both volume creep and a gate that refuses correct
+behaviour&quot;</em>); a read result CITED in support of a claim MUST have a
+chain entry (spec.md:131, FR-028). The distinction is CITED-vs-UNCITED,
+never present-vs-absent-in-storage. <strong>(B) CHAIN VERIFICATION
+DETECTS DELETION + REORDER WITHOUT RECONSTRUCTION.</strong> Deleting one
+entry, or reordering two entries, WITHOUT reconstructing the chain that
+follows, MUST be reported by the integrity check (spec.md:132, FR-029) —
+mutation-detection of a single entry&#39;s content alone does NOT satisfy
+this; the check walks the FULL forward chain, recomputing every link,
+not spot-checking. This clause&#39;s own honest limit is stated in (C): a
+reconstructed (recomputed) chain defeats (B) alone. <strong>(C) THE
+ANCHOR IS THE ONLY MECHANISM THAT CATCHES A RECOMPUTED-FORWARD DELETION
+OR A TAIL TRUNCATION.</strong> A periodic ANCHOR entry — chain head
+digest AND entry count, recorded to a location the producer can APPEND
+to but NOT REWRITE (spec.md:137, FR-037: <em>&quot;the count is what makes
+wholesale store deletion a detected absence rather than silence&quot;</em>) —
+MUST be written on a declared interval. The anchor&#39;s STRENGTH is
+recorded honestly as <code>mechanism</code> (cryptographically or
+append-only enforced — a git commit history, a write-once object store,
+or the consuming project&#39;s declared equivalent per §11.4.35) or
+<code>policy</code> (procedurally enforced only); <code>mechanism</code>
+MUST NOT be claimed without evidence that rewriting is mechanically
+prevented, and absent that evidence the recorded strength is
+<code>policy</code> (spec.md:138, FR-038). Verification against the
+anchor detects a tail truncation that chain-alone verification PASSES
+cleanly on (spec.md:139, FR-039: <em>&quot;the two results together are the
+evidence that the anchor, not the chain, carries this property&quot;</em>) —
+so &quot;the chain verified clean&quot; is NEVER sufficient on its own; a verdict
+of tamper-free MUST name BOTH the chain-walk result AND the anchor
+cross-check result. <strong>(D) VERIFICATION THAT CANNOT COMPLETE
+REFUSES — IT NEVER REPORTS THE CHAIN INTACT.</strong> A chain truncated
+mid-verification, or an anchor location unreachable at verification
+time, yields REFUSAL (an UNVERIFIED status, per §11.4.201&#39;s
+conservative-safe-default-on-an-unresolvable-signal), never a &quot;clean
+pass by default&quot; (spec.md:133, FR-030). &quot;Could not verify&quot; and &quot;verified
+clean&quot; are never the same reported state. <strong>Honest boundary
+(§11.4.6).</strong> §11.4.268 detects deletion, reordering, and
+tail-truncation of ALREADY-RECORDED entries. It does NOT prove the first
+entry ever written was itself truthful — the entry&#39;s CONTENT is only as
+trustworthy as the harness that wrote it (§11.4.115(F) machine-written,
+§11.4.240 producer≠verifier for who may write it), and it does NOT make
+the underlying evidence CORRECT, only tamper-EVIDENT. Where a project
+already operates a content-addressed, atomically-committed store for a
+related purpose (the §11.4.207 continuum resume engine), §11.4.268
+REUSES that mechanism&#39;s chaining primitive rather than inventing a
+second one — a consuming project MUST NOT stand up a parallel, divergent
+chain implementation when one already satisfies this anchor&#39;s properties
+(§11.4.227 extend-don&#39;t-duplicate applied to mechanism reuse, not only
+to rule text). <strong>Classification: universal (§11.4.17)</strong> — a
+platform-neutral tamper-evidence discipline reusable by any project
+maintaining an evidence/verdict ledger; the consuming project supplies
+its concrete chain implementation, anchor location, anchor-interval, AND
+covered-call set (clause A — which state-changing operations this
+project&#39;s evidence chain tracks) as DATA per §11.4.35. Composes §11.4.5
+/ §11.4.6 / §11.4.69 / §11.4.115(F) (the verdict entries THIS anchor
+chains) / §11.4.116 (the event stream this anchor may chain) / §11.4.201
+(verification-cannot-complete → refuse, the conservative-safe default) /
+§11.4.205 (durable/atomic/ append-only construction discipline) /
+§11.4.207 (reuse its content-addressed store where one already exists) /
+§11.4.226 (evidence-class-at-closure — a chain entry&#39;s own class must
+match the defect layer it backs) / §11.4.262 (machine-created evidence
+at every gate — the chain entries this anchor makes tamper-evident ARE
+the machine-created evidence artefacts §11.4.262 requires; §11.4.268 is
+the integrity property that keeps those artefacts trustworthy AFTER the
+moment of PASS, not merely present at it) / §9.2 (a genuine tamper
+finding is itself a destructive-op-class event requiring the §9.2
+backup-and-investigate protocol) / §1.1. Propagation gate
+<code>CM-COVENANT-114-268-PROPAGATION</code> (literal
+<code>11.4.268</code> present as a block-start, exactly-once per
+governance file, lockstep content-hash equality across the mirror set
+per §11.4.227(B)) + recommended mechanism gates
+<code>CM-EVIDENCE-CHAIN-DELETE-REORDER-DETECTED</code> (chain-walk
+verification detects a deleted or reordered entry left internally
+inconsistent) +
+<code>CM-EVIDENCE-CHAIN-ANCHOR-CATCHES-RECOMPUTE-AND-TRUNCATION</code>
+(an anchor record exists on the declared interval, carries head-digest +
+entry-count + an honest <code>mechanism</code>/ <code>policy</code>
+strength, and anchor-cross-check verification detects a
+recomputed-forward deletion and a tail truncation that chain-alone
+verification misses) +
+<code>CM-EVIDENCE-CHAIN-INCOMPLETE-VERIFICATION-REFUSES</code> (a chain
+or anchor that cannot be reached/completed at verification time yields
+REFUSAL, never a default clean pass) + paired §1.1 mutations (delete a
+middle entry and recompute the chain forward from that point using only
+internal chain data → chain-alone verification MUST still PASS [proving
+the gap the anchor exists to close] while anchor cross-check MUST FAIL;
+truncate the tail and verify chain-alone → MUST PASS while anchor
+cross-check MUST FAIL; make the anchor location unreachable →
+verification MUST report UNVERIFIED, never PASS; golden-FALSE per
+§11.4.201(1): an untampered chain with a fresh, reachable,
+correctly-computed anchor MUST NOT fire any of the three gates).
+Gate-code = separate work item, NOT claimed shipped (§11.4.6 /
+§11.4.227). <strong>Canonical authority:</strong> constitution submodule
+<a href="Constitution.md"><code>Constitution.md</code></a> §11.4.268
+(pending landing). Non-compliance is a release blocker regardless of
+context. No escape hatch — no
+<code>--content-mutation-detection-suffices</code>,
+<code>--skip-anchor-record</code>,
+<code>--claim-mechanism-strength-unverified</code>,
+<code>--chain-truncation-passes-by-default</code>,
+<code>--reconstructed-chain-is-clean</code> flag.</p>
+<hr />
+<h3 id="114269--criticconsensus-advisory-only-ban-at-the-evidence-acceptance-seam-an-ungoverned-confidenceconsensus-signal-may-inform-but-must-never-substitute-for-a-receipt-or-adjudicate-producer-verifier-disagreement-role-recorded-advisory-never-entered-into-an-evidence-chain--the-constitutions-mandatory-independent-review-verdict-family-114125134142165209237256-is-unweakened-spec-derived-speckit-002-anti-slop-enforcement-2026-08-26">§11.4.269
+— Critic/consensus advisory-only ban AT THE EVIDENCE-ACCEPTANCE SEAM: an
+ungoverned confidence/consensus signal MAY inform but MUST NEVER
+substitute for a receipt or adjudicate producer-verifier disagreement;
+role recorded <code>advisory</code>, never entered into an evidence
+chain — the CONSTITUTION&#39;S MANDATORY INDEPENDENT-REVIEW-VERDICT FAMILY
+(§11.4.125/.134/.142/.165/.209/.237/.256) IS UNWEAKENED (spec-derived,
+speckit 002-anti-slop-enforcement, 2026-08-26)</h3>
+<p><strong>Compact summary:</strong> at the evidence-acceptance /
+claim-adjudication seam — where a producer&#39;s claim of DONE/PASS is
+accepted or refused, and where a producer-verifier DISAGREEMENT is
+adjudicated — an ungoverned second opinion (a confidence score, an
+LLM-judge output, or a consensus aggregation across multiple such
+opinions, none of them produced under this constitution&#39;s own
+independent-review discipline) is a real, adoptable capability, but it
+MUST be admitted in an ADVISORY-ONLY role at THAT seam, never as the
+mechanism that decides accept/refuse there. This project&#39;s own operator
+decision on the point (spec.md:232, A-009) states the rule directly:
+<em>&quot;Current rules adjudicate producer-verifier disagreement on the
+recorded receipt, never on confidence or argument quality, and
+explicitly bar an LLM judge from being the gate.&quot;</em> An ungoverned
+critic signal that CAN flip an accept/refuse outcome at that seam has
+re-created a self-certification collapse under a new name — it is a
+second oracle/gate sharing correlated blind spots with the producer
+(same model family, same training data, same failure modes as an LLM
+producing the work it is asked to judge), exactly the class
+§11.4.240/§11.4.249 already forbid a producer from occupying.
+<strong>This anchor is NARROWER than &quot;no second model may ever review a
+producer&#39;s work&quot;</strong> — it does NOT reach, weaken, override, or
+substitute for the constitution&#39;s SEPARATE, already-mandatory
+independent-review-verdict family (§11.4.125 code-review-before-build,
+§11.4.134 iterate-to-GO with rock-solid evidence, §11.4.142 universal
+every-change review, §11.4.165 independent verification agent, §11.4.209
+Fable-<code>xhigh</code> review substrate, §11.4.237 translation
+context-and-spirit review, §11.4.256 independent per-language
+translation review). Those seven anchors mandate a
+STRUCTURALLY-SEPARATED verifier&#39;s verdict (§11.4.240 producer≠verifier,
+§11.4.249 oracle/gate roles) as a GENUINE receipt-generating gate on the
+work itself — a NO-GO from any of them BLOCKS the build (§11.4.125) and
+RE-ARMS the iterate-to-GO loop (§11.4.134) — and every one of the seven
+remains fully in force, unmodified, unrelaxed. Clause (F) below states
+this unweakened-list explicitly and mechanically. <strong>The mandate
+(ALL hold):</strong> <strong>(A) TWO CLOSED TERM DEFINITIONS, EXCLUDING
+THE MANDATORY REVIEW FAMILY.</strong> <code>critic</code> = a second (or
+Nth) model instance, confidence score, or LLM-judge that offers an
+OPINION on a producer&#39;s claim, diff, or artifact WITHOUT itself
+constituting a structurally-separated, receipt-generating review
+conducted under §11.4.125 / §11.4.134 / §11.4.142 / §11.4.165 /
+§11.4.209 / §11.4.237 / §11.4.256 — i.e. an ungoverned, ad-hoc, or
+supplementary second opinion, not the mandatory independent-reviewer
+verdict those anchors already require and gate on.
+<code>consensus</code> = a mechanism aggregating multiple such
+UNGOVERNED opinions (voting, averaging, an LLM-judge score) into one
+combined signal. Both are ADOPTABLE capability categories a project may
+wire in — §11.4.269 does not forbid their existence, only their misuse
+as a gate AT THE EVIDENCE-ACCEPTANCE / CLAIM-ADJUDICATION SEAM. A
+verdict produced by the constitution&#39;s own mandatory review family is
+NOT a &quot;critic&quot; for the purposes of this anchor — it is the
+receipt-generating verifier role §11.4.240/§11.4.249 already govern, and
+it continues to gate exactly as those seven anchors require. <strong>(B)
+A CLAIM WHOSE ONLY SUPPORT IS AN UNGOVERNED CRITIC/CONSENSUS SIGNAL IS
+REFUSED.</strong> Per spec.md:163 (FR-023): <em>&quot;Given a claim whose
+only support is a critic consensus or confidence score, the seam MUST
+refuse it&quot;</em> — naming the missing receipt. A recorded receipt — a
+machine-written §11.4.115(F) verdict, a captured evidence-chain entry
+per §11.4.268, OR a mandatory independent review&#39;s own recorded GO/NO-GO
+under §11.4.125/§11.4.134/§11.4.142/
+§11.4.165/§11.4.209/§11.4.237/§11.4.256 — remains the ONLY basis on
+which producer-verifier disagreement is adjudicated; confidence or
+argument quality UNBACKED by such a receipt, however produced, is never
+a substitute. <strong>(C) DETERMINISTIC WITH AND WITHOUT THE UNGOVERNED
+CRITIC.</strong> Per spec.md:164 (FR-024): the SAME claim, evaluated
+once with an UNGOVERNED critic step present and once with it absent,
+MUST produce the IDENTICAL accept/refuse outcome. A pipeline in which
+disabling that ungoverned critic changes the verdict is, by definition,
+using it as a gate — the deterministic-outcome test is the mechanical
+proof that (B) is genuinely honoured, not merely stated. (This clause
+does NOT apply to a mandatory review under the seven-anchor family in
+clause (A) — skipping a REQUIRED §11.4.125/§11.4.134/§11.4.142 review is
+itself a violation of those anchors, not a deterministic-outcome test to
+pass; the test in this clause is scoped to the OPTIONAL, ungoverned
+critic only.) <strong>(D) UNGOVERNED CRITIC OUTPUT IS RECORDED
+<code>advisory</code> IN A SEPARATE STORE, NEVER ENTERED INTO AN
+EVIDENCE CHAIN.</strong> Per spec.md:165 (FR-025): ungoverned critic
+output MUST be recorded with a role of <code>advisory</code> and MUST
+NOT appear in any §11.4.268/§11.4.115(F) evidence chain — it is recorded
+in a separate advisory store, never intermixed with the accept/refuse
+evidence chain itself. A mandatory review&#39;s OWN recorded GO/NO-GO under
+the seven-anchor family continues to be entered into the
+evidence/verdict record as its own anchors require (§11.4.125&#39;s
+review-completed marker, §11.4.134&#39;s clean-GO record) — it is not
+retroactively downgraded to <code>advisory</code> by this clause.
+<strong>(E) WHY THE UNGOVERNED-CRITIC COLLAPSE MATTERS.</strong>
+Composes §11.4.240(A)/(C) and §11.4.249 — an ungoverned critic wired
+into the evidence-acceptance gate collapses ORACLE and GATE into a
+single mechanism that is NOT independent of the producer&#39;s own failure
+surface (correlated model errors, shared blind spots), which is
+precisely the class of collapse §11.4.240 names as maximum-severity.
+Advisory-only admission avoids re-creating that collapse under the label
+&quot;review&quot; while retaining the genuine usefulness of an ungoverned critic
+— surfacing likely issues earlier, feeding §11.4.102 systematic
+debugging, prioritising a human reviewer&#39;s attention — none of which
+requires it to hold gating authority. The mandatory seven-anchor review
+family avoids the SAME collapse by a DIFFERENT mechanism entirely —
+structural separation of the reviewer per §11.4.240, not
+advisory-demotion of its verdict — which is exactly why that family&#39;s
+verdicts remain full receipts and this anchor never touches them.
+<strong>(F) THIS BAN IS SCOPED TO THE EVIDENCE-ACCEPTANCE /
+CLAIM-ADJUDICATION SEAM — IT DOES NOT WEAKEN, OVERRIDE, OR SUBSTITUTE
+FOR THE MANDATORY INDEPENDENT-REVIEW-VERDICT FAMILY.</strong> §11.4.125
+(code-review-agent gate before pre-build + main build), §11.4.134
+(iterate-to-GO with rock-solid evidence), §11.4.142 (universal
+code-review — every change reviewed, always), §11.4.165 (independent
+verification agent), §11.4.209 (code-review MUST run on the Fable model
+at <code>xhigh</code> effort), §11.4.237 (context-and-spirit translation
+review), and §11.4.256 (independent per-language translation review)
+each mandate a STRUCTURALLY-SEPARATED verifier (§11.4.240
+producer≠verifier) whose VERDICT genuinely gates, and NONE of these
+seven anchors is relaxed, narrowed, made advisory, or made optional by
+§11.4.269. What §11.4.269 forbids is narrower and different: (i)
+treating an UNGOVERNED second opinion / confidence score — one NOT
+produced under any of those seven anchors&#39; own
+independence-plus-evidence discipline — as a substitute receipt (clause
+B); and (ii) letting such an ungoverned signal, rather than a recorded
+receipt (including a receipt produced by the seven-anchor family),
+adjudicate a producer-verifier DISAGREEMENT (the A-009 scope,
+spec.md:232). A project MUST NOT cite §11.4.269 to justify skipping,
+weakening, downgrading-to-advisory, or making optional any of the seven
+listed mandatory reviews — doing so is itself a §11.4.269(F) violation,
+exactly the mis-scoping this clause exists to foreclose. <strong>Honest
+boundary (§11.4.6).</strong> §11.4.269 does not forbid using an
+ungoverned critic/consensus signal to prioritise human review, to
+surface candidate defects for §11.4.102 investigation, or as ONE input
+among many an independent human/verifier weighs when authoring (not
+executing) a gate. It forbids only its use as an automated GATING
+mechanism substituting for a real, receipt-backed oracle/gate/verifier
+chain. It does not claim critics are useless — only that their output is
+advisory context, never a verdict, UNLESS that output is itself produced
+under the mandatory independent-review-verdict family named in clause
+(F), in which case it is a receipt and this anchor does not touch it.
+<strong>Classification: universal (§11.4.17)</strong> — a
+platform-neutral discipline reusable by any project that adopts, or is
+asked to adopt, a second-model/critic/consensus review capability
+OUTSIDE its own mandatory independent-review-verdict family; the
+consuming project supplies its concrete critic implementation and
+advisory-record location as DATA per §11.4.35, and its own set of
+already-mandatory review-verdict anchors (analogous to this project&#39;s
+§11.4.125/ .134/.142/.165/.209/.237/.256) as the fixed,
+unweakened-by-this-anchor list. Composes §11.4.6 / §11.4.69 /
+§11.4.115(F) / §11.4.125 / §11.4.134 / §11.4.142 / §11.4.165 / §11.4.209
+/ §11.4.237 / §11.4.256 (the seven mandatory review-verdict anchors
+clause (F) leaves unweakened) / §11.4.240 (the separation principle this
+anchor is a specific instantiation of) / §11.4.249 (the four-role
+architecture that names why an ungoverned critic-as-gate is a collapse)
+/ §11.4.268 (the evidence chain the ungoverned critic&#39;s output MUST NOT
+enter) / §11.4.102 (the legitimate advisory use — feeding investigation)
+/ §1.1. Propagation gate <code>CM-COVENANT-114-269-PROPAGATION</code>
+(literal <code>11.4.269</code> present as a block-start, exactly-once
+per governance file, lockstep content-hash equality across the mirror
+set per §11.4.227(B)) + recommended mechanism gate
+<code>CM-CRITIC-CONSENSUS-ADVISORY-ONLY</code> (a claim supported only
+by an ungoverned critic/consensus/confidence signal, with no receipt, is
+refused; the accept/refuse outcome for a claim is identical whether an
+ungoverned critic step ran or was skipped; every stored
+ungoverned-critic output carries role <code>advisory</code> and appears
+in no evidence chain; a mandatory review under §11.4.125/.134/.142/.165/
+.209/.237/.256 is NEVER downgraded to <code>advisory</code> or excluded
+from gating by this gate) + paired §1.1 mutation (wire an ungoverned
+critic&#39;s approve/reject value directly into the pass/fail decision → the
+gate MUST FAIL; store an ungoverned critic output with no role field, or
+role <code>verdict</code>, or entered into the evidence chain → the gate
+MUST FAIL; downgrade a §11.4.125/.134/.142/.165/.209/.237/.256 review&#39;s
+own GO/NO-GO record to <code>advisory</code>, or exclude it from gating,
+citing §11.4.269 as the reason → the gate MUST FAIL; golden-FALSE per
+§11.4.201(1): (i) an ungoverned critic present, its output stored with
+role <code>advisory</code>, absent from the evidence chain, and the
+deterministic outcome unchanged whether it ran or not → the gate MUST
+NOT fire; (ii) a §11.4.125 code-review&#39;s own NO-GO record blocking the
+build exactly as §11.4.125 requires → the gate MUST NOT fire). Gate-code
+= separate work item, NOT claimed shipped (§11.4.6 / §11.4.227).
+<strong>Canonical authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.269
+(pending landing). Non-compliance is a release blocker regardless of
+context. No escape hatch — no <code>--critic-may-gate</code>,
+<code>--consensus-score-is-a-receipt</code>,
+<code>--llm-judge-is-the-gate</code>,
+<code>--critic-output-in-evidence-chain-OK</code>,
+<code>--outcome-may-differ-with-critic</code>,
+<code>--269-overrides-mandatory-review</code>,
+<code>--downgrade-mandatory-review-to-advisory</code> flag.</p>
+<hr />
+<h3 id="114270--dependency-existence-verdict-register-every-proposed-dependency-carries-a-closed-set-existence-verdict-verified-ambiguous-unverified-with-citable-evidence-adoption-is-gated-behind-resolution-and-behind-the-wiring-sweep-result-spec-derived-speckit-002-anti-slop-enforcement-2026-08-26">§11.4.270
+— Dependency-existence-verdict register: every proposed dependency
+carries a closed-set existence verdict {VERIFIED, AMBIGUOUS, UNVERIFIED}
+with citable evidence; adoption is gated behind resolution and behind
+the wiring-sweep result (spec-derived, speckit
+002-anti-slop-enforcement, 2026-08-26)</h3>
+<p><strong>Compact summary:</strong> a project that adopts an external
+(or internal, cross-module) dependency to close a coverage gap MUST
+first record, for that dependency, a closed-set EXISTENCE verdict —
+VERIFIED, AMBIGUOUS, or UNVERIFIED — backed by a citable artifact or an
+explicit statement that none was found (spec.md:114, FR-013). Existence
+verification is NECESSARY but NOT SUFFICIENT for adoption (spec.md:226,
+A-012: <em>&quot;Existing is not the same as working ... Several verified
+entries are at initial release versions, one declares a repository that
+returns 404, and one&#39;s &#39;tamper-evident&#39; claim is on inspection only
+&#39;append-only&#39; — which detects nothing if the appender is the party being
+checked&quot;</em>) — a VERIFIED existence verdict is the FLOOR a dependency
+clears before it may even be considered adopted, never a claim that it
+is fit for the purpose it is being adopted for. <strong>The mandate (ALL
+hold):</strong> <strong>(A) THE REGISTER, ONE ROW PER CLAIMED
+DEPENDENCY.</strong> Every dependency a project proposes to adopt gets
+exactly one register row, keyed by a stable identifier (name + version +
+source per §11.4.111 resolve-by-stable-name). The row carries the
+verdict + its evidence field (spec.md:114, FR-013: <em>&quot;MUST carry a
+verdict of VERIFIED, AMBIGUOUS or UNVERIFIED with a citable artifact or
+an explicit statement that none was found&quot;</em>). <strong>(B) VERDICT
+SEMANTICS, EVIDENCE-BASED, NEVER PROMOTED BY OMISSION.</strong>
+UNVERIFIED is the honest default state — a claim about a dependency&#39;s
+existence with no independent confirmation attempted MUST NOT be
+silently treated as VERIFIED. AMBIGUOUS is assigned when evidence
+conflicts or a name collision exists — spec.md:116 (FR-015): <em>&quot;a
+dependency name that collides with an unrelated project&quot; gets AMBIGUOUS,
+never VERIFIED</em> — the specific conflicting evidence is recorded, not
+merely a vague &quot;unsure&quot;. VERIFIED requires an independently-reproducible
+check: a real resolve + checksum/hash match, a real successful call or
+import, or an equivalent control-needle-proven presence per
+§11.4.201(7)(b). <strong>(C) ADOPTION REFUSED WHILE THE VERDICT IS
+NON-VERIFIED.</strong> Per spec.md:115 (FR-014): <em>&quot;Given a dependency
+whose verdict is UNVERIFIED or AMBIGUOUS, adoption MUST be
+refused.&quot;</em> Adoption is admitted ONLY after the row resolves to
+VERIFIED (or the AMBIGUOUS conflict is investigated and the row is
+re-verdicted). <strong>(D) ADOPTION IS GATED BEHIND MAPPING TO A
+RECORDED UNCOVERED GAP + BEHIND THE WIRING-SWEEP RESULT.</strong> Per
+spec.md:170 (FR-020): adoption is refused unless the dependency maps to
+one of the project&#39;s own recorded uncovered capability gaps (adopting a
+dependency for a capability the project already covers is itself
+refused, naming the covering rule — the §11.4.227 duplicate-coverage
+discipline applied to dependency adoption). Per spec.md:171 (FR-021):
+<em>&quot;the adoption step MUST NOT be accepted before the wiring step
+reports its sweep result&quot;</em> — a project does not decide &quot;yes, adopt&quot;
+before it has run the sweep that would reveal whether the dependency&#39;s
+claimed capability is genuinely reachable and wired
+(§11.4.124/§11.4.196(F) investigate-before-adopt, the mirror-image of
+investigate-before-remove applied to the opposite direction).
+<strong>(E) ZERO ADOPTED WITHOUT VERIFIED — MONOTONIC.</strong> Per
+spec.md:217 (SC-005): the count of external dependencies adopted without
+a VERIFIED existence verdict is ZERO, checked at the SAME seam that
+already refuses unwired-gate names per §11.4.227(A) (the named-gate
+ledger), generalised here to dependency-adoption claims. <strong>Honest
+boundary (§11.4.6).</strong> §11.4.270&#39;s register proves
+EXISTENCE/RESOLVABILITY was checked and recorded — it does NOT prove the
+dependency BEHAVES correctly for the purpose it is adopted for (that
+stays ordinary integration/contract testing per §11.4.244), and it does
+NOT prove the dependency is SECURE or well-maintained (that is
+§11.4.246&#39;s supply-chain territory). A-012&#39;s own finding — &quot;existing is
+not the same as working&quot; — is why this anchor is deliberately narrow: it
+closes the EXISTENCE-CLAIM bluff, not the fitness-for-purpose question,
+which stays governed by the constitution&#39;s ordinary testing/review
+family. <strong>Classification: universal (§11.4.17)</strong> — a
+platform-neutral existence-verification discipline reusable by any
+project that adopts external or cross-module dependencies to close a
+capability gap; the consuming project supplies its register location,
+its recorded uncovered-gap set, and its wiring-sweep mechanism as DATA
+per §11.4.35. Composes §11.4.6 / §11.4.69 / §11.4.111 (stable-name
+keying) / §11.4.124 (investigate-before-adopt, the direction-mirror of
+investigate-before-remove) / §11.4.196(F) (configured ≠ wired, the same
+principle applied to a dependency&#39;s claimed capability) /
+§11.4.201(7)(b) (control-needle-proven presence checks) / §11.4.227(A)
+(named-gate ledger — this anchor generalises its zero-unwired-debt
+discipline to dependency claims) / §11.4.244 (fitness-for-purpose stays
+contract-testing territory, distinct from existence) / §11.4.246
+(security/supply-chain, also distinct from existence) / §11.4.74
+(submodule-catalogue-first discovery + extend-don&#39;t-reimplement — the
+register&#39;s VERIFIED-tier check IS the mandated catalogue-first discovery
+step, applied to any dependency, not only own-org submodules) / §11.4.31
+(submodule-dependency-manifest — an owned-org dependency&#39;s
+<code>helix-deps.yaml</code> is itself citable evidence toward a
+VERIFIED verdict) / §11.4.150 (mandatory deep multi-angle web research
+before declaring a capability covered — the research pass that PRODUCES
+a register row&#39;s citable evidence, or its explicit none-found statement)
+/ §1.1. Propagation gate <code>CM-COVENANT-114-270-PROPAGATION</code>
+(literal <code>11.4.270</code> present as a block-start, exactly-once
+per governance file, lockstep content-hash equality across the mirror
+set per §11.4.227(B)) + recommended mechanism gate
+<code>CM-DEPENDENCY-EXISTENCE-VERDICT-REGISTER</code> (every claimed
+dependency has a register row carrying a closed-set verdict + evidence
+field; a name collision resolves AMBIGUOUS never VERIFIED; a shipped
+change relying on an UNVERIFIED or AMBIGUOUS row is refused; adoption
+refused when the dependency maps to an already-covered capability or
+precedes its wiring-sweep result) + paired §1.1 mutation (adopt a
+dependency with no register row → the gate MUST FAIL; leave a row
+UNVERIFIED and adopt anyway → the gate MUST FAIL; feed a name-collision
+fixture and assert the verdict resolves VERIFIED instead of AMBIGUOUS →
+the gate MUST FAIL; golden-FALSE per §11.4.201(1): a dependency VERIFIED
+with real, reproducible, control-needle-proven evidence, mapped to a
+genuinely-uncovered gap, adopted after its wiring sweep reported a
+result → the gate MUST NOT fire). Gate-code = separate work item, NOT
+claimed shipped (§11.4.6 / §11.4.227). <strong>Canonical
+authority:</strong> constitution submodule <a href="Constitution.md"><code>Constitution.md</code></a> §11.4.270
+(pending landing). Non-compliance is a release blocker regardless of
+context. No escape hatch — no <code>--unverified-adoption-OK</code>,
+<code>--ambiguous-treated-as-verified</code>,
+<code>--skip-wiring-sweep-before-adopt</code>,
+<code>--adopt-already-covered-capability</code>,
+<code>--existence-proves-fitness</code> flag.</p>
+<hr />
+<h3 id="114271--waiver-mechanism-the-strict-formalization-of-allow-with-tracked-debt-unifying-114234ds-recorded-deferral-1142364s-explicit-operator-override-and-114248as-deadline-bound-quarantine-into-one-roster--expiry--tracked-item-schema-distinct-from-refusal-11421-and-closure-11490-vocabulary-spec-derived-speckit-002-anti-slop-enforcement-2026-08-26">§11.4.271
+— Waiver mechanism: the strict FORMALIZATION of allow-with-tracked-debt
+(unifying §11.4.234(D)&#39;s recorded-deferral, §11.4.236(4)&#39;s
+explicit-operator-override, and §11.4.248(A)&#39;s deadline-bound quarantine
+into ONE roster + expiry + tracked-item schema), distinct from refusal
+(§11.4.21) and closure (§11.4.90) vocabulary (spec-derived, speckit
+002-anti-slop-enforcement, 2026-08-26)</h3>
+<p><strong>Compact summary:</strong> every project needs, on rare
+occasion, a mechanism to ALLOW a change to proceed despite a
+normally-blocking missing-evidence condition — never a silent, never a
+permanent bypass, but a tracked, expiring, human-authorised exception.
+<strong>This is NOT an absent capability being introduced here</strong>
+— re-verified in this remediation pass: §11.4.234(D) already permits an
+explicit, documented deferral flag (&quot;The escape hatch is a recorded
+deferral, not a bypass: the skipped gate remains owed and is caught at
+the next full run or tag gate&quot; — Constitution.md:10999); §11.4.236(4)
+already requires &quot;an explicit, logged, operator-set flag&quot; for any
+override of its deploy-readiness seam (&quot;EXPLICIT, RECORDED OVERRIDE
+ONLY&quot; — Constitution.md:11023); and §11.4.248(A) already ships a
+deadline-bound quarantine for one specific gate class (flaky tests,
+moved to <code>tests/quarantine/</code> with a tracked §11.4.197
+stabilisation deadline). Those three are genuine allow-with-known-debt
+PRECEDENTS this anchor does not discover but FORMALIZES. What §11.4.271
+genuinely adds — needled: <code>waiv*</code> returns ZERO hits anywhere
+in <code>constitution/Constitution.md</code> outside this draft,
+confirming the SCHEMA below is new even though the CATEGORY of mechanism
+is not — is the STRICT, DATA-BEARING, cross-gate schema those three
+precedents describe only informally and per-mechanism: a ROSTERED
+NON-PRODUCER authoriser (§11.4.234(D) and §11.4.248(A) name no
+authoriser; §11.4.236(4) names the operator as a role but no
+roster-resolvable identity schema — §11.4.271 adds the roster resolution
++ producer exclusion), a MANDATORY UNELAPSED EXPIRY (§11.4.234&#39;s skip
+flag and §11.4.236&#39;s override flag carry no expiry field at all — an
+indefinite skip/override is currently legal under their text), and a
+MANDATORY TRACKED ITEM (neither §11.4.234(D) nor §11.4.236(4) requires
+one; §11.4.248(A) requires it for its one gate class — §11.4.271 makes
+it mandatory cross-gate). §11.4.271 turns three ad-hoc, per-anchor
+escape hatches into ONE cross-cutting mechanism any future gate can
+invoke by reference instead of re-inventing its own — this project&#39;s own
+<code>scripts/lib/critical_blocker_gate.sh</code> (built for the
+§11.4.236 seam) already implements
+<code>waive</code>/<code>override</code> operations by name, direct
+evidence this schema generalises code the project has already written,
+not a speculative addition. <strong>The mandate (ALL hold):</strong>
+<strong>(A) THE WAIVER IS THE ONE FORMALIZED SCHEMA FOR AN
+ALLOW-WITH-KNOWN-DEBT PATH.</strong> A waiver EXISTS at a seam that
+would otherwise refuse (a missing receipt, an unresolved dependency
+verdict, an unmet acceptance-criteria scenario, or any other
+normally-blocking condition this constitution&#39;s family of gates
+enforces) — the SAME class of seam §11.4.234(D)&#39;s deferral flag,
+§11.4.236(4)&#39;s override flag, and §11.4.248(A)&#39;s quarantine already
+gate. It is invoked explicitly, never inferred, and it never disables
+the gate permanently — it grants a bounded, tracked exception to ONE
+candidate. A gate ALREADY implementing an allow-with-known-debt path
+under §11.4.234/§11.4.236/§11.4.248 is NOT required to reimplement one
+from scratch — it satisfies §11.4.271 by conforming its existing
+flag/quarantine mechanism to this clause&#39;s roster + expiry +
+tracked-item schema (clauses B–D below), the strict superset those three
+anchors&#39; informal mechanisms currently lack. <strong>(B) AUTHORISATION
+MUST RESOLVE TO A ROSTERED IDENTITY, NEVER THE PRODUCER.</strong> Per
+spec.md:157 (FR-040): <em>&quot;Given a waiver whose authorisation value does
+not resolve to an identity in the declared authoriser roster, the seam
+MUST refuse it&quot;</em> — a free-text authorisation (&quot;looks fine&quot;) is
+refused exactly as an absent one is; a waiver naming a genuinely
+rostered identity is accepted (the false-positive guard — a check that
+refuses EVERY waiver has replaced a bypass with a deadlock, not fixed
+anything). The authoriser roster is consumer-supplied DATA per §11.4.35,
+and the producer of the change under waiver MUST NOT appear as its own
+waiver&#39;s authoriser (composes §11.4.240 producer≠verifier — a producer
+cannot waive their own gate). <strong>(C) EXPIRY IS REQUIRED AND MUST
+NOT HAVE ELAPSED.</strong> Per spec.md:158 (FR-041): a waiver with NO
+expiry, or whose expiry HAS elapsed, is refused; a waiver whose expiry
+is in the future is accepted. An absent expiry is NOT read as &quot;valid
+forever&quot; — the spec&#39;s own framing is exact: <em>&quot;An expiry absent by
+omission is not &#39;valid for every candidate forever&#39; — that is the same
+downgrade-by-omission the satisfaction path already refuses&quot;</em>
+elsewhere in this family (§11.4.146(D3)/§11.4.115(F)
+fingerprint-absent-is-refused, the general pattern this clause
+instantiates for waivers). An elapsed waiver&#39;s gate reverts to blocking
+automatically — no grace period, no silent auto-renewal. <strong>(D) A
+TRACKED ITEM NAMES THE DEBT; A WAIVER NAMING NONE IS REFUSED.</strong>
+Per spec.md:159 (FR-042): <em>&quot;Given a waiver, it MUST name a tracked
+item for the blocker that remains open, and a waiver naming none MUST be
+refused&quot;</em> — because <em>&quot;a waiver is the only ALLOW that leaves the
+defect unfixed, so it is the one path on which the owed work must stay
+traceable.&quot;</em> The tracked item is an ordinary §11.4.54-stable-id
+workable item bound to the SAME lifecycle discipline
+(§11.4.15/§11.4.16/§11.4.33/§11.4.197) as any other tracked work — a
+waiver whose tracked item never resolves is itself surfaced by the
+standing zero-shortcomings audit (§11.4.261) as an unresolved-waiver
+finding, never silently forgotten. <strong>(E) COMPOSITION, NOT
+SUBSTITUTION — INCLUDING WITH THE THREE PRECEDENT MECHANISMS.</strong> A
+waiver whose expiry lapses UNRESOLVED re-enters the §11.4.21
+Operator-blocked class for its underlying condition (the block returns;
+nothing about the original blocking condition changed, only the
+temporary permission to pass did). A waiver&#39;s tracked item CAN close via
+§11.4.90 Obsolete if the underlying requirement genuinely changed.
+Neither §11.4.21 nor §11.4.90 substitutes for the waiver mechanism
+itself — a project attempting to express &quot;allow despite missing
+evidence, tracked, expiring&quot; via either of those two vocabularies is
+misusing them, per this anchor&#39;s own honest-boundary clause.
+Symmetrically, §11.4.234(D)&#39;s deferral flag, §11.4.236(4)&#39;s override
+flag, and §11.4.248(A)&#39;s quarantine are NOT replaced by §11.4.271 — each
+remains the correct, narrower mechanism for its own seam class;
+§11.4.271 is the schema they conform TO when a project wants their
+allow-with-debt behaviour to carry a rostered authoriser, an expiry, and
+a tracked item, not a rival mechanism competing with them.
+<strong>Honest boundary (§11.4.6).</strong> §11.4.271 formalizes, it
+does not discover, the ALLOW-with-tracked-debt CATEGORY — §11.4.234(D),
+§11.4.236(4), and §11.4.248(A) already establish that category exists in
+this constitution; why §11.4.271 does not make waivers routine or easy
+is the SCHEMA&#39;s own shape (rostered-non-producer authorisation,
+mandatory unelapsed expiry, mandatory tracked item) — deliberately
+strict, because a waiver is the ONE path this constitution&#39;s anti-bluff
+family permits to leave a defect genuinely unfixed while still shipping.
+It does not weaken any gate a waiver bypasses for OTHER candidates, and
+it does not authorise an indefinite or permanently-renewed waiver — an
+expiry that keeps getting pushed forward without the underlying debt
+closing is itself a §11.4.261 finding (a
+monotone-decreasing-findings-ledger violation, not a compliant waiver
+renewal pattern). <strong>Classification: universal (§11.4.17)</strong>
+— a platform-neutral, deliberately-strict allow-with-tracked-debt
+discipline reusable by any project whose gate family needs an
+occasional, bounded, evidence-honest exception; the consuming project
+supplies its authoriser roster, expiry mechanism, and tracked-item store
+as DATA per §11.4.35. Composes §11.4.6 / §11.4.15 / §11.4.16 / §11.4.21
+(refusal vocabulary — distinct, cited not restated) / §11.4.33 (closure
+vocabulary) / §11.4.35 / §11.4.54 (stable-id tracked item) / §11.4.90
+(closure vocabulary — distinct, cited not restated) / §11.4.146(D3) (the
+absent-field-is-refused pattern this anchor applies to expiry +
+authoriser + tracked-item) / §11.4.197 (the tracked item&#39;s completion
+obligation) / §11.4.234(D) (recorded-deferral precedent this anchor
+formalizes) / §11.4.236(4) (explicit-recorded-override precedent this
+anchor formalizes) / §11.4.248(A) (deadline-bound quarantine precedent
+this anchor formalizes for one gate class) / §11.4.240
+(producer≠verifier — the authoriser exclusion) / §11.4.261 (an
+unresolved waiver is a standing-audit finding) / §1.1. Propagation gate
+<code>CM-COVENANT-114-271-PROPAGATION</code> (literal
+<code>11.4.271</code> present as a block-start, exactly-once per
+governance file, lockstep content-hash equality across the mirror set
+per §11.4.227(B)) + recommended mechanism gate
+<code>CM-WAIVER-ROSTERED-EXPIRY-TRACKED</code> (every active waiver
+resolves to a genuinely rostered, non-producer authoriser identity; a
+future, unelapsed expiry; and a named §11.4.54-stable-id tracked item; a
+waiver missing ANY ONE of the three is invalid and its waived gate
+reverts to blocking) + paired §1.1 mutation (submit a waiver with
+free-text or absent authorisation → the gate MUST FAIL; submit one with
+no expiry, or an elapsed expiry → the gate MUST FAIL; submit one naming
+no tracked item → the gate MUST FAIL; submit one where the authoriser
+identity equals the change&#39;s producer → the gate MUST FAIL; golden-FALSE
+per §11.4.201(1): a waiver naming a genuinely-rostered non-producer
+identity, a future expiry, and a real tracked item → the gate MUST NOT
+fire). Gate-code = separate work item, NOT claimed shipped (§11.4.6 /
+§11.4.227). <strong>Canonical authority:</strong> constitution submodule
+<a href="Constitution.md"><code>Constitution.md</code></a> §11.4.271
+(pending landing). Non-compliance is a release blocker regardless of
+context. No escape hatch — no <code>--free-text-authorisation-OK</code>,
+<code>--waiver-without-expiry</code>,
+<code>--elapsed-waiver-still-valid</code>,
+<code>--waiver-without-tracked-item</code>,
+<code>--producer-may-self-waive</code>,
+<code>--permanent-waiver-renewal</code> flag.</p>
 </body>
 </html>

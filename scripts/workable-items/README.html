@@ -376,8 +376,8 @@ kbd { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
 <body>
 <h1 id="workable-items--11493-sqlite-ssot-go-binary">workable-items —
 §11.4.93 SQLite-SSoT Go binary</h1>
-<p><strong>Revision:</strong> 3 <strong>Last modified:</strong>
-2026-05-31T00:00:00Z <strong>Description:</strong> Authoritative
+<p><strong>Revision:</strong> 4 <strong>Last modified:</strong>
+2026-08-25T00:00:00Z <strong>Description:</strong> Authoritative
 source-of-truth registry for every workable item in every consuming
 project. Bidirectional regen between SQLite DB and Markdown trackers per
 Constitution §11.4.93.</p>
@@ -433,8 +433,21 @@ every subcommand.</p>
                                     # parse Issues.md+Fixed.md → upsert DB
 workable-items sync db-to-md --db &lt;p&gt; [--out-issues &lt;p&gt;] [--out-fixed &lt;p&gt;]
                                     # regen MD docs from DB (byte-identical round-trip)
-workable-items diff --db &lt;p&gt; [--issues &lt;p&gt;] [--fixed &lt;p&gt;]
-                                    # show DB vs MD divergence (CI gate)
+workable-items diff --db &lt;p&gt; [--issues &lt;p&gt;] [--fixed &lt;p&gt;] [--partial-scope] | --db-only
+                                    # show DB vs MD divergence (CI gate).
+                                    # REFUSES rather than emit a verdict it cannot
+                                    # support: with NO Markdown path (BOB-155), and
+                                    # when the supplied path(s) do not account for
+                                    # every DB item&#39;s current_location (BOB-186) —
+                                    # e.g. --issues alone while the DB holds Fixed
+                                    # rows, which previously reported &quot;in sync&quot;
+                                    # having compared none of them.
+                                    # --db-only     : DB-internal checks only, reads
+                                    #                 no Markdown (verdict says so).
+                                    # --partial-scope: compare only the tracker(s)
+                                    #                 supplied; the verdict names the
+                                    #                 locations it did NOT cover and
+                                    #                 never claims a full sync.
 workable-items validate --db &lt;p&gt;    # invariant + schema sanity (pre-build gate)
 workable-items add &lt;type&gt; &lt;severity&gt; --db &lt;p&gt; --title &lt;T&gt; --description &lt;D&gt; [--id &lt;id&gt;] [--prefix &lt;P&gt;]
                                     # create a new Queued item in Issues; --id

@@ -50,7 +50,14 @@ rows="$(awk -F'\t' '/^#/{next} NF>=2 && $1!="" {print $1"\t"$2}' "$PACK")"
 # 30 gates -> 279 s of pure duplication). The engine re-validates every listed
 # path and FAILS CLOSED on a stale entry, so this can never silently narrow the
 # audited set.
-if [ -z "${COVENANT_PROPAGATION_CARRIERS:-}" ]; then
+# MODE GUARD (§11.4.201(1) false-positive fix, 2026-08-26): this reuse is an
+# optimization for `gates` ONLY. In `mutations` mode every wrapper builds its own
+# mktemp fixture and runs the gate with --root <fixture>; exporting the REAL fleet
+# carrier list makes the engine audit the real tree instead of the fixture, so 3 of
+# the 8 §1.1 fixtures misclassify and EVERY mutation test reports 5/8 + rc=1.
+# Measured 2026-08-26: standalone mutation test = 8/8 rc=0; with the export in
+# force = 5/8 rc=1 (causality proven by the presence/absence of this one variable).
+if [ "$MODE" = "gates" ] && [ -z "${COVENANT_PROPAGATION_CARRIERS:-}" ]; then
     _suite_root=""; _prev=""
     for _a in "$@"; do
         [ "$_prev" = "--root" ] && _suite_root="$_a"
